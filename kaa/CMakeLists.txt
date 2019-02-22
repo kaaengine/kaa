@@ -1,6 +1,30 @@
 cmake_minimum_required(VERSION 3.13)
 
-add_library(kaa_cymod SHARED "kaa_cymod.cpp")
+set(CYTHON_MODULE_FILE kaa_cymod.pyx)
+set(CYTHON_MODULE_FILE_OUTPUT kaa_cymod.cpp)
+
+set(CYTHON_FILES
+    ${CYTHON_MODULE_FILE}
+    engine.pxi
+    nodes.pxi
+    scenes.pxi
+
+    kaacore/__init__.pxd
+    kaacore/engine.pxd
+    kaacore/nodes.pxd
+    kaacore/scenes.pxd
+)
+
+add_custom_command(
+    COMMAND ${CYTHON} --cplus -3 ${CYTHON_MODULE_FILE}
+            -o ${CMAKE_CURRENT_BINARY_DIR}/${CYTHON_MODULE_FILE_OUTPUT}
+    DEPENDS ${CYTHON_FILES}
+    OUTPUT ${CYTHON_MODULE_FILE_OUTPUT}
+    COMMENT "Cythonizing ${CYTHON_MODULE_FILE}"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_library(kaa_cymod SHARED ${CYTHON_MODULE_FILE_OUTPUT})
 set_target_properties(
     kaa_cymod
     PROPERTIES
