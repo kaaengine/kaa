@@ -3,21 +3,21 @@ from libcpp.vector cimport vector
 from libc.stdint cimport int16_t
 
 from .vectors cimport CVec2
-from .physics cimport SpaceNode, BodyNode, HitboxNode
+from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .shapes cimport CShape
 
 
 cdef extern from "kaacore/nodes.h" nogil:
-    cdef enum CNodeType "NodeType":
-        basic "NodeType::basic",
-        space "NodeType::space",
-        body "NodeType::body",
-        hitbox "NodeType::hitbox",
+    cdef enum CNodeType "kaacore::NodeType":
+        basic "kaacore::NodeType::basic",
+        space "kaacore::NodeType::space",
+        body "kaacore::NodeType::body",
+        hitbox "kaacore::NodeType::hitbox",
 
-    cdef cppclass CForeignNodeWrapper "ForeignNodeWrapper":
+    cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         pass
 
-    cdef cppclass CNode "Node":
+    cdef cppclass CNode "kaacore::Node":
         CNodeType type
         CVec2 position
         double rotation
@@ -34,9 +34,9 @@ cdef extern from "kaacore/nodes.h" nogil:
         unique_ptr[CForeignNodeWrapper] node_wrapper
 
         # UNION!
-        SpaceNode space
-        BodyNode body
-        HitboxNode hitbox
+        CSpaceNode space
+        CBodyNode body
+        CHitboxNode hitbox
 
         # TODO rest of the fields
 

@@ -1,4 +1,4 @@
-cdef extern from "glm/glm.hpp" namespace "glm" nogil:
+cdef extern from "glm/glm.hpp" nogil:
     cdef cppclass CVec2 "glm::dvec2":
         double x
         double y

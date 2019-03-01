@@ -4,7 +4,7 @@ from .nodes cimport CNode
 
 
 cdef extern from "kaacore/scene.h" nogil:
-    cdef cppclass CScene "Scene":
+    cdef cppclass CScene "kaacore::Scene":
         CNode root_node
         uint32_t time
 

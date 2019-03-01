@@ -1,14 +1,14 @@
 cdef extern from "kaacore/nodes.h" nogil:
-    cdef enum CBodyType "BodyType":
-        dynamic "BodyType::dynamic",
-        kinematic "BodyType::kinematic",
-        static "BodyType::static_",
+    cdef enum CBodyType "kaacore::BodyType":
+        dynamic "kaacore::BodyType::dynamic",
+        kinematic "kaacore::BodyType::kinematic",
+        static "kaacore::BodyType::static_",
 
-    cdef cppclass SpaceNode:
+    cdef cppclass CSpaceNode "kaacore::SpaceNode":
         pass
 
-    cdef cppclass BodyNode:
+    cdef cppclass CBodyNode "kaacore::BodyNode":
         pass
 
-    cdef cppclass HitboxNode:
+    cdef cppclass CHitboxNode "kaacore::HitboxNode":
         pass

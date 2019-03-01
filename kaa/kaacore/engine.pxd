@@ -6,7 +6,7 @@ from .input cimport CInputManager
 
 
 cdef extern from "kaacore/engine.h" nogil:
-    cdef cppclass CEngine "Engine":
+    cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CInputManager] input_manager
         CScene running_scene
         uint64_t time
@@ -14,4 +14,4 @@ cdef extern from "kaacore/engine.h" nogil:
         void attach_scene(CScene* c_scene)
         void scene_run()
 
-    CEngine* get_c_engine "get_engine"()
+    CEngine* get_c_engine "kaacore::get_engine"()
