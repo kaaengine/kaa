@@ -3,7 +3,7 @@ from libcpp.vector cimport vector
 from .vectors cimport CVec2
 
 
-cdef extern from "kaacore/shape.h" nogil:
+cdef extern from "kaacore/shapes.h" nogil:
     cdef enum CShapeType "kaacore::ShapeType":
         none "kaacore::ShapeType::none",
         segment "kaacore::ShapeType::segment",
