@@ -24,10 +24,13 @@ cdef cppclass CPyScene(CScene):
 cdef class Scene:
     cdef:
         CPyScene* c_scene
+        Node py_root_node_wrapper
 
     def __cinit__(self):
         print("Initializing Scene")
         self.c_scene = new CPyScene(<PyObject*>self)
+        self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
+        self.input_manager = InputManager()
 
     def __dealloc__(self):
         del self.c_scene
@@ -38,6 +41,14 @@ cdef class Scene:
     @property
     def time(self):
         return self.c_scene.time
+
+    @property
+    def input(self):
+        return self.input_manager
+
+    @property
+    def root(self):
+        return self.py_root_node_wrapper
 
     def quit(self):
         quit_game()

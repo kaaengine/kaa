@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.13)
 project(kaa)
 
 find_package(PythonLibs REQUIRED)
-find_program(CYTHON cython)
+if (NOT CYTHON)
+    find_program(CYTHON cython)
+endif()
 
 if (NOT CYTHON)
     message(FATAL_ERROR "cython executable not found")

@@ -8,15 +8,22 @@ set(CYTHON_FILES
     engine.pxi
     nodes.pxi
     scenes.pxi
+    vectors.pxi
+    shapes.pxi
+    input.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
     kaacore/nodes.pxd
     kaacore/scenes.pxd
+    kaacore/physics.pxd
+    kaacore/vectors.pxd
+    kaacore/shapes.pxd
+    kaacore/input.pxd
 )
 
 add_custom_command(
-    COMMAND ${CYTHON} --cplus -3 ${CYTHON_MODULE_FILE}
+    COMMAND ${CYTHON} --cplus -3 --line-directives ${CYTHON_MODULE_FILE}
             -o ${CMAKE_CURRENT_BINARY_DIR}/${CYTHON_MODULE_FILE_OUTPUT}
     DEPENDS ${CYTHON_FILES}
     OUTPUT ${CYTHON_MODULE_FILE_OUTPUT}

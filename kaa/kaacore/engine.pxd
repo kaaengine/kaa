@@ -1,10 +1,13 @@
 from libc.stdint cimport uint64_t
+from libcpp.memory cimport unique_ptr
 
-from ..kaacore.scenes cimport CScene
+from .scenes cimport CScene
+from .input cimport CInputManager
 
 
 cdef extern from "kaacore/engine.h" nogil:
     cdef cppclass CEngine "Engine":
+        unique_ptr[CInputManager] input_manager
         CScene running_scene
         uint64_t time
 

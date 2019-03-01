@@ -2,8 +2,9 @@ from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from libcpp.memory cimport unique_ptr
 
+from .kaacore.shapes cimport CShape
 from .kaacore.nodes cimport (
-    CNodeType, CNode, CForeignNodeWrapper
+    CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
 
 
@@ -35,6 +36,7 @@ cdef class NodeBase:
     cdef void _attach_c_node(self, CNode* c_node):
         assert self.c_node == NULL
         assert c_node != NULL
+        self.c_node = c_node
 
     cdef void _setup_wrapper(self):
         assert self.c_node != NULL
@@ -43,8 +45,8 @@ cdef class NodeBase:
                 new CPyNodeWrapper(<PyObject*>self)
             )
 
-    cdef void _init_new_node(self):
-        cdef CNode* c_node = new CNode()
+    cdef void _init_new_node(self, CNodeType type):
+        cdef CNode* c_node = new CNode(type)
         self._attach_c_node(c_node)
         self._setup_wrapper()
 
@@ -53,10 +55,44 @@ cdef class NodeBase:
         assert node.c_node != NULL
         self.c_node.add_child(node.c_node)
 
+    @property
+    def position(self):
+        raise NotImplementedError
+
+    @position.setter
+    def position(self, Vector vec):
+        self.c_node.set_position(vec.c_vector)
+
+    @property
+    def shape(self):
+        raise NotImplementedError
+
+    @shape.setter
+    def shape(self, ShapeBase new_shape):
+        if new_shape is not None:
+            self.c_node.set_shape(new_shape.c_shape_ptr[0])
+        else:
+            self.c_node.set_shape(CShape())
+
 
 cdef class Node(NodeBase):
     def __init__(self):
-        self._init_new_node()
+        self._init_new_node(CNodeType.basic)
+
+
+cdef class SpaceNode(NodeBase):
+    def __init__(self):
+        self._init_new_node(CNodeType.space)
+
+
+cdef class BodyNode(NodeBase):
+    def __init__(self):
+        self._init_new_node(CNodeType.body)
+
+
+cdef class HitboxNode(NodeBase):
+    def __init__(self):
+        self._init_new_node(CNodeType.hitbox)
 
 
 cdef NodeBase get_node_wrapper(CNode* c_node):
@@ -67,7 +103,16 @@ cdef NodeBase get_node_wrapper(CNode* c_node):
         py_node = <object>(
             <CPyNodeWrapper*>c_node.node_wrapper.get()
         ).py_wrapper
+    elif c_node.type == CNodeType.space:
+        py_node = SpaceNode.__new__(SpaceNode)
+        py_node._attach_c_node(c_node)
+    elif c_node.type == CNodeType.body:
+        py_node = BodyNode.__new__(BodyNode)
+        py_node._attach_c_node(c_node)
+    elif c_node.type == CNodeType.hitbox:
+        py_node = HitboxNode.__new__(HitboxNode)
+        py_node._attach_c_node(c_node)
     else:
-        py_node = Node.__new(Node)
+        py_node = Node.__new__(Node)
         py_node._attach_c_node(c_node)
     return py_node
