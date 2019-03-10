@@ -1,0 +1,4 @@
+[submodule "kaacore"]
+	path = kaacore
+	url = https://github.com/kaaengine/kaacore
+	branch = development
