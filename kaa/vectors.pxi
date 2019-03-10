@@ -25,6 +25,12 @@ cdef class Vector:
 
         self.c_vector = CVec2(x, y)
 
+    @staticmethod
+    cdef from_c_vector(CVec2 c_vector):
+        cdef Vector vector = Vector.__new__(Vector)
+        vector.c_vector = c_vector
+        return vector
+
     @property
     def x(self):
         return self.c_vector.x

@@ -23,8 +23,7 @@ class DemoScene(Scene):
             elif event.is_pressing(Keycode.q):
                 self.quit()
 
-        # if self.time > 1000:
-        #     self.quit()
+        print("Mouse position: {}".format(self.input.get_mouse_position()))
 
 
 start_game(DemoScene)

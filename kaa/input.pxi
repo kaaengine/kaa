@@ -306,6 +306,17 @@ cdef class Event:
         else:
             raise ValueError()
 
+    def is_releasing(self, code):
+        if isinstance(code, Keycode):
+            return self.c_event.is_releasing(<CKeycode>(<uint32_t>(code.value)))
+        elif isinstance(code, Mousecode):
+            return self.c_event.is_releasing(<CMousecode>(<uint32_t>(code.value)))
+        else:
+            raise ValueError()
+
+    def get_mouse_position(self):
+        return Vector.from_c_vector(self.c_event.get_mouse_position())
+
 
 cdef class InputManager:
     cdef CInputManager* c_input_manager
@@ -322,3 +333,22 @@ cdef class InputManager:
             py_event = Event()
             py_event._set_event(ev)
             yield py_event
+
+    def is_pressing(self, code):
+        if isinstance(code, Keycode):
+            return self.c_input_manager.is_pressed(<CKeycode>(<uint32_t>(code.value)))
+        elif isinstance(code, Mousecode):
+            return self.c_input_manager.is_pressed(<CMousecode>(<uint32_t>(code.value)))
+        else:
+            raise ValueError()
+
+    def is_releasing(self, code):
+        if isinstance(code, Keycode):
+            return self.c_input_manager.is_released(<CKeycode>(<uint32_t>(code.value)))
+        elif isinstance(code, Mousecode):
+            return self.c_input_manager.is_released(<CMousecode>(<uint32_t>(code.value)))
+        else:
+            raise ValueError()
+
+    def get_mouse_position(self):
+        return Vector.from_c_vector(self.c_input_manager.get_mouse_position())

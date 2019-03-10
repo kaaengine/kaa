@@ -284,3 +284,9 @@ cdef extern from "kaacore/input.h" nogil:
 
     cdef cppclass CInputManager "kaacore::InputManager":
         vector[CEvent] events_queue
+
+        bint is_pressed(CKeycode kc) const;
+        bint is_pressed(CMousecode kc) const;
+        bint is_released(CKeycode kc) const;
+        bint is_released(CMousecode kc) const;
+        CVec2 get_mouse_position() const;
