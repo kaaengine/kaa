@@ -7,6 +7,7 @@ set(CYTHON_FILES
     ${CYTHON_MODULE_FILE}
     engine.pxi
     nodes.pxi
+    physics.pxi
     scenes.pxi
     vectors.pxi
     shapes.pxi
@@ -20,6 +21,9 @@ set(CYTHON_FILES
     kaacore/vectors.pxd
     kaacore/shapes.pxd
     kaacore/input.pxd
+    kaacore/glue.pxd
+
+    kaacore_glue/pythonic_callback.h
 )
 
 add_custom_command(
@@ -45,6 +49,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_target_properties(kaa_cymod PROPERTIES SUFFIX ".pyd")
 endif()
 
-target_include_directories(kaa_cymod PUBLIC ${PYTHON_INCLUDE_DIR})
+target_include_directories(
+    kaa_cymod
+    PUBLIC ${PYTHON_INCLUDE_DIR}
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+)
 target_link_libraries(kaa_cymod ${PYTHON_LIBRARY})
 target_link_libraries(kaa_cymod kaacore)
