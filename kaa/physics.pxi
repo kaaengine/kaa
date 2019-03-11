@@ -6,7 +6,7 @@ from libc.stdint cimport uint8_t
 from .kaacore.nodes cimport CNodeType
 from .kaacore.physics cimport (
     CollisionTriggerId, CCollisionPhase, CArbiter, CCollisionPair,
-    CCollisionHandlerFunc, bind_cython_collision_handler
+    CCollisionHandlerFunc, bind_cython_collision_handler, CBodyNodeType
 )
 from .kaacore.glue cimport CPythonicCallbackWrapper
 
@@ -23,6 +23,12 @@ class CollisionPhase(IntEnum):
     pre_solve = <uint8_t>CCollisionPhase.pre_solve
     post_solve = <uint8_t>CCollisionPhase.post_solve
     separate = <uint8_t>CCollisionPhase.separate
+
+
+class BodyNodeType(IntEnum):
+    dynamic = <uint8_t>CBodyNodeType.dynamic
+    kinematic = <uint8_t>CBodyNodeType.kinematic
+    static = <uint8_t>CBodyNodeType.static
 
 
 cdef class SpaceNode(NodeBase):
@@ -99,6 +105,94 @@ cdef class SpaceNode(NodeBase):
 cdef class BodyNode(NodeBase):
     def __init__(self):
         self._init_new_node(CNodeType.body)
+
+    def setup(self, **options):
+        if 'body_type' in options:
+            self.body_type = options.pop('body_type')
+        if 'force' in options:
+            self.force = options.pop('force')
+        if 'velocity' in options:
+            self.velocity = options.pop('velocity')
+        if 'torque' in options:
+            self.torque = options.pop('torque')
+        if 'torque_degrees' in options:
+            self.torque_degrees = options.pop('torque_degrees')
+        if 'angular_velocity' in options:
+            self.angular_velocity = options.pop('angular_velocity')
+        if 'angular_velocity_degrees' in options:
+            self.angular_velocity_degrees = options.pop('angular_velocity_degrees')
+        if 'mass' in options:
+            self.mass = options.pop('mass')
+        if 'moment' in options:
+            self.moment = options.pop('moment')
+
+        return super().update(**options)
+
+    @property
+    def body_type(self):
+        return BodyNodeType(<uint8_t>self._get_c_node().body.get_body_type())
+
+    @body_type.setter
+    def body_type(self, body_t):
+        self._get_c_node().body.set_body_type(<CBodyNodeType>(<uint8_t>body_t.value))
+
+    @property
+    def force(self):
+        return Vector.from_c_vector(self._get_c_node().body.get_force())
+
+    @force.setter
+    def force(self, Vector vec):
+        self._get_c_node().body.set_force(vec.c_vector)
+
+    @property
+    def velocity(self):
+        return Vector.from_c_vector(self._get_c_node().body.get_velocity())
+
+    @velocity.setter
+    def velocity(self, Vector vec):
+        self._get_c_node().body.set_velocity(vec.c_vector)
+
+    @property
+    def torque(self):
+        return self._get_c_node().body.get_torque()
+
+    @torque.setter
+    def torque(self, double rad_sec):
+        self._get_c_node().body.set_torque(rad_sec)
+
+    @property
+    def angular_velocity(self):
+        return self._get_c_node().body.get_angular_velocity()
+
+    @angular_velocity.setter
+    def angular_velocity(self, double rad_sec):
+        self._get_c_node().body.set_angular_velocity(rad_sec)
+
+    @property
+    def mass(self):
+        return self._get_c_node().body.get_mass()
+
+    @mass.setter
+    def mass(self, double value):
+        self._get_c_node().body.set_mass(value)
+
+    @property
+    def moment(self):
+        return self._get_c_node().body.get_moment()
+
+    @moment.setter
+    def moment(self, double value):
+        self._get_c_node().body.set_moment(value)
+
+    @property
+    def sleeping(self):
+        return self._get_c_node().body.is_sleeping()
+
+    def sleep(self):
+        self._get_c_node().body.sleep()
+
+    def activate(self):
+        self._get_c_node().body.activate()
 
 
 cdef class HitboxNode(NodeBase):
