@@ -1,21 +1,28 @@
 from enum import IntEnum
 
+import cython
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 from libc.stdint cimport uint8_t
 
-from .kaacore.nodes cimport CNodeType
+from .kaacore.nodes cimport CNode, CNodeType
 from .kaacore.physics cimport (
     CollisionTriggerId, CCollisionPhase, CArbiter, CCollisionPair,
-    CCollisionHandlerFunc, bind_cython_collision_handler, CBodyNodeType
+    CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
+    bind_cython_collision_handler, CBodyNodeType
 )
 from .kaacore.glue cimport CPythonicCallbackWrapper
 
 
 cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
-                                     CCollisionPhase phase, CArbiter c_arbiter,
+                                     CArbiter c_arbiter,
                                      CCollisionPair c_pair_a,
                                      CCollisionPair c_pair_b):
-    return 1
+    cdef object callback = <object>c_wrapper.py_callback
+    cdef Arbiter arbiter = _prepare_arbiter(c_arbiter)
+    cdef CollisionPair pair_a = _prepare_collision_pair(c_pair_a)
+    cdef CollisionPair pair_b = _prepare_collision_pair(c_pair_b)
+    cdef object ret = callback(arbiter, pair_a, pair_b)
+    return ret if ret is not None else 1
 
 
 class CollisionPhase(IntEnum):
@@ -31,9 +38,58 @@ class BodyNodeType(IntEnum):
     static = <uint8_t>CBodyNodeType.static
 
 
-cdef class SpaceNode(NodeBase):
+@cython.freelist(2)
+cdef class CollisionPair:
+    cdef CNode* c_body
+    cdef CNode* c_hitbox
+
     def __init__(self):
+        raise ValueError("Do not initialize manually!")
+
+    @property
+    def body(self):
+        if self.c_body != NULL:
+            return get_node_wrapper(self.c_body)
+
+    @property
+    def hitbox(self):
+        if self.c_hitbox != NULL:
+            return get_node_wrapper(self.c_hitbox)
+
+
+@cython.freelist(1)
+cdef class Arbiter:
+    cdef CArbiter* c_arbiter
+
+    def __init__(self):
+        raise ValueError("Do not initialize manually!")
+
+    @property
+    def phase(self):
+        return CollisionPhase(<uint8_t>self.c_arbiter.phase)
+
+    @property
+    def space(self):
+        return get_node_wrapper(self.c_arbiter.space)
+
+
+cdef CollisionPair _prepare_collision_pair(CCollisionPair& c_pair):
+    cdef CollisionPair pair = CollisionPair.__new__(CollisionPair)
+    pair.c_body = c_pair.body_node
+    pair.c_hitbox = c_pair.hitbox_node
+    return pair
+
+
+cdef Arbiter _prepare_arbiter(CArbiter& c_arbiter):
+    cdef Arbiter arbiter = Arbiter.__new__(Arbiter)
+    arbiter.c_arbiter = &c_arbiter
+    return arbiter
+
+
+cdef class SpaceNode(NodeBase):
+    def __init__(self, **options):
         self._init_new_node(CNodeType.space)
+        super().__init__(**options)
 
     def setup(self, **options):
         if 'gravity' in options:
@@ -77,19 +133,7 @@ cdef class SpaceNode(NodeBase):
                               CollisionTriggerId trigger_b, object handler,
                               uint8_t phases_mask=<uint8_t>CCollisionPhase.any_phase,
                               bint only_non_deleted_nodes=True):
-        ## backward-compatibility handling
-        import inspect
-        if len(inspect.signature(handler).parameters) != 5:
-            def _backward_compatible_wrapper(phase, space, arbiter, pair_a, pair_b):
-               #c_log_warning(
-               #    "[DEPRECATION WARNING] "
-               #    "new-style collision callbacks receive 5 parameters: "
-               #    "phase, space, arbiter, pair_a, pair_b"
-               #)
-                return handler(phase, space, arbiter)
-            final_handler = _backward_compatible_wrapper
-        else:
-            final_handler = handler
+        final_handler = handler
 
         cdef CCollisionHandlerFunc bound_handler = bind_cython_collision_handler(
             collision_handler_displatch,
@@ -103,8 +147,9 @@ cdef class SpaceNode(NodeBase):
 
 
 cdef class BodyNode(NodeBase):
-    def __init__(self):
+    def __init__(self, **options):
         self._init_new_node(CNodeType.body)
+        super().__init__(**options)
 
     def setup(self, **options):
         if 'body_type' in options:
@@ -126,7 +171,7 @@ cdef class BodyNode(NodeBase):
         if 'moment' in options:
             self.moment = options.pop('moment')
 
-        return super().update(**options)
+        return super().setup(**options)
 
     @property
     def body_type(self):
@@ -196,5 +241,53 @@ cdef class BodyNode(NodeBase):
 
 
 cdef class HitboxNode(NodeBase):
-    def __init__(self):
+    def __init__(self, **options):
         self._init_new_node(CNodeType.hitbox)
+        super().__init__(**options)
+
+    def setup(self, **options):
+        if 'shape' in options:  # XXX this must be updated first
+            self.shape = options.pop('shape')
+
+        if 'group' in options:
+            self.group = options.pop('group')
+        if 'mask' in options:
+            self.mask = options.pop('mask')
+        if 'collision_mask' in options:
+            self.collision_mask = options.pop('collision_mask')
+        if 'trigger_id' in options:
+            self.trigger_id = options.pop('trigger_id')
+
+        return super().setup(**options)
+
+    @property
+    def group(self):
+        return self._get_c_node().hitbox.get_group()
+
+    @group.setter
+    def group(self, CollisionGroup cgrp):
+        self._get_c_node().hitbox.set_group(cgrp)
+
+    @property
+    def mask(self):
+        return self._get_c_node().hitbox.get_mask()
+
+    @mask.setter
+    def mask(self, CollisionBitmask mask):
+        self._get_c_node().hitbox.set_mask(mask)
+
+    @property
+    def collision_mask(self):
+        return self._get_c_node().hitbox.get_collision_mask()
+
+    @collision_mask.setter
+    def collision_mask(self, CollisionBitmask mask):
+        self._get_c_node().hitbox.set_collision_mask(mask)
+
+    @property
+    def trigger_id(self):
+        return self._get_c_node().hitbox.get_trigger_id()
+
+    @trigger_id.setter
+    def trigger_id(self, CollisionTriggerId id):
+        self._get_c_node().hitbox.set_trigger_id(id)

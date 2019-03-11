@@ -334,7 +334,7 @@ cdef class InputManager:
             py_event._set_event(ev)
             yield py_event
 
-    def is_pressing(self, code):
+    def is_pressed(self, code):
         if isinstance(code, Keycode):
             return self.c_input_manager.is_pressed(<CKeycode>(<uint32_t>(code.value)))
         elif isinstance(code, Mousecode):
@@ -342,7 +342,7 @@ cdef class InputManager:
         else:
             raise ValueError()
 
-    def is_releasing(self, code):
+    def is_released(self, code):
         if isinstance(code, Keycode):
             return self.c_input_manager.is_released(<CKeycode>(<uint32_t>(code.value)))
         elif isinstance(code, Mousecode):

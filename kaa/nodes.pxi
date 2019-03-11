@@ -29,6 +29,9 @@ cdef class NodeBase:
     def __cinit__(self):
         self.c_node = NULL
 
+    def __init__(self, **options):
+        self.setup(**options)
+
     cdef inline CNode* _get_c_node(self):
         assert self.c_node != NULL, \
             'Operation on uninitialized or deleted Node. Aborting.'
@@ -55,6 +58,7 @@ cdef class NodeBase:
         assert self.c_node != NULL
         assert node.c_node != NULL
         self.c_node.add_child(node.c_node)
+        return node
 
     def delete(self):
         assert self.c_node != NULL
@@ -116,7 +120,7 @@ cdef class NodeBase:
 
     def update(self, **options):
         # backwards compatibility name
-        return super().setup(**options)
+        return self.setup(**options)
 
     @property
     def type(self):
@@ -196,8 +200,9 @@ cdef class NodeBase:
 
 
 cdef class Node(NodeBase):
-    def __init__(self):
+    def __init__(self, **options):
         self._init_new_node(CNodeType.basic)
+        super().__init__(**options)
 
 
 cdef NodeBase get_node_wrapper(CNode* c_node):

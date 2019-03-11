@@ -3,6 +3,7 @@ from libcpp.functional cimport function
 
 from .glue cimport CPythonicCallbackWrapper
 from .vectors cimport CVec2
+from .nodes cimport CNode
 
 
 cdef extern from "kaacore/nodes.h" nogil:
@@ -18,12 +19,14 @@ cdef extern from "kaacore/nodes.h" nogil:
         any_phase "kaacore::CollisionPhase::any_phase",
 
     cdef cppclass CArbiter "kaacore::Arbiter":
-        pass
+        CCollisionPhase phase
+        CNode* space
 
     cdef cppclass CCollisionPair "kaacore::CollisionPair":
-        pass
+        CNode* body_node
+        CNode* hitbox_node
 
-    ctypedef function[int(CCollisionPhase, CArbiter, CCollisionPair, CCollisionPair)] \
+    ctypedef function[int(CArbiter, CCollisionPair, CCollisionPair)] \
         CCollisionHandlerFunc "kaacore::CollisionHandlerFunc"
 
     cdef enum CBodyNodeType "kaacore::BodyNodeType":
@@ -72,12 +75,22 @@ cdef extern from "kaacore/nodes.h" nogil:
         void activate()
 
     cdef cppclass CHitboxNode "kaacore::HitboxNode":
-        pass
+        void set_trigger_id(const CollisionTriggerId trigger_id)
+        CollisionTriggerId get_trigger_id() const
+
+        void set_group(const CollisionGroup group)
+        CollisionGroup get_group() const
+
+        void set_mask(const CollisionBitmask mask)
+        CollisionBitmask get_mask() const
+
+        void set_collision_mask(const CollisionBitmask mask)
+        CollisionBitmask get_collision_mask() const
 
 
 cdef extern from "kaacore_glue/pythonic_callback.h":
     ctypedef int (*CythonCollisionHandler)(CPythonicCallbackWrapper,
-                                           CCollisionPhase, CArbiter,
+                                           CArbiter,
                                            CCollisionPair, CCollisionPair)
     CCollisionHandlerFunc bind_cython_collision_handler(
         const CythonCollisionHandler cy_handler,

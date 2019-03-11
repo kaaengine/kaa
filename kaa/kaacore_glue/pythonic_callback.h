@@ -38,8 +38,7 @@ struct PythonicCallbackWrapper {
 };
 
 
-typedef int (*CythonCollisionHandler)(PythonicCallbackWrapper,
-                                      CollisionPhase, Arbiter,
+typedef int (*CythonCollisionHandler)(PythonicCallbackWrapper, Arbiter,
                                       CollisionPair, CollisionPair);
 
 
@@ -49,5 +48,5 @@ CollisionHandlerFunc bind_cython_collision_handler(
 {
     using namespace std::placeholders;
 
-    return std::bind(cy_handler, callback, _1, _2, _3, _4);
+    return std::bind(cy_handler, callback, _1, _2, _3);
 }
