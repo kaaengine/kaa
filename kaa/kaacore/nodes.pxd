@@ -5,6 +5,7 @@ from libc.stdint cimport int16_t
 from .vectors cimport CVec2
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .shapes cimport CShape
+from .sprites cimport CSprite
 
 
 cdef extern from "kaacore/nodes.h" nogil:
@@ -24,7 +25,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CVec2 scale
         int16_t z_index
         CShape shape
-        # CSprite sprite  TODO
+        CSprite sprite
         # glm::dvec4 color = {1., 1., 1., 1.};  TODO
         bint visible
 
@@ -44,3 +45,4 @@ cdef extern from "kaacore/nodes.h" nogil:
         void add_child(CNode* c_node)
         void set_position(const CVec2& position)
         void set_shape(const CShape& shape)
+        void set_sprite(const CSprite& sprite)

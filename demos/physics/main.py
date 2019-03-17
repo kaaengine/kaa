@@ -10,7 +10,7 @@ from kaa import Scene, start_game
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
-# PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
+PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
 
 
 class HitboxMask(enum.IntFlag):
@@ -27,7 +27,7 @@ class CollisionTrigger(enum.IntEnum):
 
 class MyScene(Scene):
     def __init__(self):
-        # self.python_img = self.game.assets.load_image(PYTHON_IMAGE_PATH)
+        self.python_img = self.assets.load_image(PYTHON_IMAGE_PATH)
         # self.box_img = self.game.assets.load_image(BOX_IMAGE_PATH)
         self.collisions_enabled = True
 
@@ -65,10 +65,11 @@ class MyScene(Scene):
         self.obj1 = self.space.add_child(BodyNode(
             body_type=BodyNodeType.dynamic,
             mass=1e10,
-            # sprite=self.python_img,
             position=Vector(0, -2),
             velocity=Vector(-3.0, 0.5), # * 10,
             # angular_velocity=-160.,
+            # shape=Circle(Vector(0., 0.,), 0.2),
+            sprite=self.python_img,
         ))
         self.obj1_hitbox = self.obj1.add_child(HitboxNode(
             shape=Circle(Vector(0., 0.,), 0.2),
@@ -80,10 +81,11 @@ class MyScene(Scene):
         self.obj2 = self.space.add_child(BodyNode(
             body_type=BodyNodeType.dynamic,
             mass=1e10,
-            # sprite=self.python_img,
             position=Vector(0, 2),
             velocity=Vector(4.0, -0.1), # * 10,
             # angular_velocity=20.,
+            # shape=Circle(Vector(0., 0.,), 0.2),
+            sprite=self.python_img,
         ))
         self.obj2_hitbox = self.obj2.add_child(HitboxNode(
             shape=Circle(Vector(0., 0.,), 0.2),

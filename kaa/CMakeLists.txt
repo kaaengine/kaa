@@ -11,6 +11,8 @@ set(CYTHON_FILES
     scenes.pxi
     vectors.pxi
     shapes.pxi
+    sprites.pxi
+    assets.pxi
     input.pxi
 
     kaacore/__init__.pxd
@@ -20,6 +22,7 @@ set(CYTHON_FILES
     kaacore/physics.pxd
     kaacore/vectors.pxd
     kaacore/shapes.pxd
+    kaacore/sprites.pxd
     kaacore/input.pxd
     kaacore/glue.pxd
 

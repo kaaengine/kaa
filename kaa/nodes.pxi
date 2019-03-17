@@ -3,6 +3,7 @@ from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 from libcpp.memory cimport unique_ptr
 
 from .kaacore.shapes cimport CShape
+from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
     CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
@@ -181,11 +182,15 @@ cdef class NodeBase:
 
     @property
     def sprite(self):
-        raise NotImplementedError
+        if self._get_c_node().sprite.has_texture():
+            return get_sprite_wrapper(&self._get_c_node().sprite)
 
     @sprite.setter
-    def sprite(self, sprite):
-        raise NotImplementedError
+    def sprite(self, Sprite sprite):
+        if sprite:
+            self._get_c_node().set_sprite(sprite.c_sprite_ptr[0])
+        else:
+            self._get_c_node().set_sprite(CSprite())
 
     @property
     def shape(self):
