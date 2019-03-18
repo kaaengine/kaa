@@ -10,6 +10,7 @@ set(CYTHON_FILES
     physics.pxi
     scenes.pxi
     vectors.pxi
+    colors.pxi
     shapes.pxi
     sprites.pxi
     assets.pxi

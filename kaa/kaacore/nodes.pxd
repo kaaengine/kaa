@@ -2,7 +2,7 @@ from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
 from libc.stdint cimport int16_t
 
-from .vectors cimport CVec2
+from .vectors cimport CVec2, CColor
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
@@ -26,7 +26,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         int16_t z_index
         CShape shape
         CSprite sprite
-        # glm::dvec4 color = {1., 1., 1., 1.};  TODO
+        CColor color
         bint visible
 
         CNode* parent

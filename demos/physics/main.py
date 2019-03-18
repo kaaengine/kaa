@@ -6,7 +6,7 @@ from kaa import BodyNodeType
 from kaa import Keycode
 from kaa import Vector, Segment, Circle, Polygon
 from kaa import Scene, start_game
-# from kaa import Color
+from kaa import Color
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
@@ -69,13 +69,16 @@ class MyScene(Scene):
             velocity=Vector(-3.0, 0.5), # * 10,
             # angular_velocity=-160.,
             # shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(Vector(0., 0.,), 0.2),
             sprite=self.python_img,
+            color=Color(1., 0., 0., 1.),
         ))
         self.obj1_hitbox = self.obj1.add_child(HitboxNode(
             shape=Circle(Vector(0., 0.,), 0.2),
             mask=HitboxMask.snake,
             collision_mask=HitboxMask.all,
             trigger_id=CollisionTrigger.obj,
+            visible=False,
         ))
 
         self.obj2 = self.space.add_child(BodyNode(
@@ -85,6 +88,7 @@ class MyScene(Scene):
             velocity=Vector(4.0, -0.1), # * 10,
             # angular_velocity=20.,
             # shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(Vector(0., 0.,), 0.2),
             sprite=self.python_img,
         ))
         self.obj2_hitbox = self.obj2.add_child(HitboxNode(
@@ -92,6 +96,7 @@ class MyScene(Scene):
             mask=HitboxMask.snake,
             collision_mask=HitboxMask.all,
             trigger_id=CollisionTrigger.obj,
+            visible=False,
         ))
         # self.obj3 = self.space.add_child(BodyNode(
         #     position=Vector(-90, -70),

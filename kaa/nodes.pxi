@@ -101,6 +101,8 @@ cdef class NodeBase:
             self.transformation_offset = options.pop('transformation_offset')
         if 'visible' in options:
             self.visible = options.pop('visible')
+        if 'color' in options:
+            self.color = options.pop('color')
         if 'track_position' in options:
             self.track_position = options.pop('track_position')
         if 'sprite' in options:
@@ -171,6 +173,14 @@ cdef class NodeBase:
     @scale.setter
     def scale(self, Vector vec):
         self._get_c_node().scale = vec.c_vector
+
+    @property
+    def color(self):
+        return Color.from_c_color(self._get_c_node().color)
+
+    @color.setter
+    def color(self, Color col):
+        self._get_c_node().color = col.c_color
 
     @property
     def visible(self):

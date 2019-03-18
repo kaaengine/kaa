@@ -1,6 +1,7 @@
 # distutils: language=c++
 
 include "vectors.pxi"
+include "colors.pxi"
 include "input.pxi"
 include "shapes.pxi"
 include "sprites.pxi"
