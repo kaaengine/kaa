@@ -22,7 +22,7 @@ cdef extern from "kaacore/shapes.h" nogil:
         CShape Segment(const CVec2 a, const CVec2 b)
 
         @staticmethod
-        CShape Circle(const CVec2 center, const double radius)
+        CShape Circle(const double radius, const CVec2 center)
 
         @staticmethod
         CShape Box(const CVec2 size)

@@ -68,13 +68,12 @@ class MyScene(Scene):
             position=Vector(0, -2),
             velocity=Vector(-3.0, 0.5), # * 10,
             # angular_velocity=-160.,
-            # shape=Circle(Vector(0., 0.,), 0.2),
-            shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(0.2),
             sprite=self.python_img,
             color=Color(1., 0., 0., 1.),
         ))
         self.obj1_hitbox = self.obj1.add_child(HitboxNode(
-            shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(0.2),
             mask=HitboxMask.snake,
             collision_mask=HitboxMask.all,
             trigger_id=CollisionTrigger.obj,
@@ -87,12 +86,11 @@ class MyScene(Scene):
             position=Vector(0, 2),
             velocity=Vector(4.0, -0.1), # * 10,
             # angular_velocity=20.,
-            # shape=Circle(Vector(0., 0.,), 0.2),
-            shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(0.2),
             sprite=self.python_img,
         ))
         self.obj2_hitbox = self.obj2.add_child(HitboxNode(
-            shape=Circle(Vector(0., 0.,), 0.2),
+            shape=Circle(0.2),
             mask=HitboxMask.snake,
             collision_mask=HitboxMask.all,
             trigger_id=CollisionTrigger.obj,

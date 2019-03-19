@@ -27,9 +27,9 @@ cdef class Segment(ShapeBase):
 
 
 cdef class Circle(ShapeBase):
-    def __init__(self, Vector center, double radius):
+    def __init__(self, double radius, Vector center=Vector(0., 0.)):
         self._set_stack_c_shape()
-        self.c_shape_ptr[0] = CShape.Circle(center.c_vector, radius)
+        self.c_shape_ptr[0] = CShape.Circle(radius, center.c_vector)
 
 
 cdef class Polygon(ShapeBase):
@@ -39,8 +39,16 @@ cdef class Polygon(ShapeBase):
         c_points.resize(len(points))
         for v in points:
             c_points.push_back((<Vector>v).c_vector)
+        # TODO
         raise NotImplementedError
         # self.c_shape_ptr[0] = CShape.Polygon(c_points)
+
+    @staticmethod
+    def from_box(Vector a):
+        cdef Polygon polygon_box = Polygon.__new__(Polygon)
+        polygon_box._set_stack_c_shape()
+        polygon_box.c_shape_ptr[0] = CShape.Box(a.c_vector)
+        return polygon_box
 
 
 cdef ShapeBase get_shape_wrapper(CShape* c_shape):
