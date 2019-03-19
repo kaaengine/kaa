@@ -10,6 +10,7 @@ from .kaacore.physics cimport (
     CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
     bind_cython_collision_handler, CBodyNodeType
 )
+from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
 
 
@@ -206,12 +207,28 @@ cdef class BodyNode(NodeBase):
         self._get_c_node().body.set_torque(rad_sec)
 
     @property
+    def torque_degrees(self):
+        return degrees(self._get_c_node().body.get_torque())
+
+    @torque_degrees.setter
+    def torque_degrees(self, double deg_sec):
+        self._get_c_node().body.set_torque(radians(deg_sec))
+
+    @property
     def angular_velocity(self):
         return self._get_c_node().body.get_angular_velocity()
 
     @angular_velocity.setter
     def angular_velocity(self, double rad_sec):
         self._get_c_node().body.set_angular_velocity(rad_sec)
+
+    @property
+    def angular_velocity_degrees(self):
+        return degrees(self._get_c_node().body.get_angular_velocity())
+
+    @angular_velocity_degrees.setter
+    def angular_velocity_degrees(self, double deg_sec):
+        self._get_c_node().body.set_angular_velocity(radians(deg_sec))
 
     @property
     def mass(self):
