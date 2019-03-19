@@ -6,6 +6,9 @@ cdef extern from "glm/glm.hpp" nogil:
         CVec2()
         CVec2(double x, double y)
         bint operator==(CVec2, CVec2)
+        CVec2 operator*(CVec2, double)
+        CVec2 operator+(CVec2, CVec2)
+        CVec2 operator-(CVec2, CVec2)
 
 
     cdef cppclass CColor "glm::dvec4":

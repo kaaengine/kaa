@@ -55,3 +55,21 @@ cdef class Vector:
             return not self.c_vector == other.c_vector
         else:
             raise NotImplementedError("Unsupported comparison")
+
+    def mul(self, double operand):
+        return Vector.from_c_vector(self.c_vector * operand)
+
+    def __mul__(self, double operand):
+        return self.mul(operand)
+
+    def add(self, Vector vec):
+        return Vector.from_c_vector(self.c_vector + vec.c_vector)
+
+    def __add__(self, Vector vec):
+        return self.add(vec)
+
+    def sub(self, Vector vec):
+        return Vector.from_c_vector(self.c_vector - vec.c_vector)
+
+    def __sub__(self, Vector vec):
+        return self.sub(vec)
