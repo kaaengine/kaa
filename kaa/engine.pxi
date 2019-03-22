@@ -1,5 +1,6 @@
-from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.scenes cimport CScene
+from .kaacore.engine cimport CEngine, get_c_engine
+
 
 cdef Engine engine = None
 
@@ -17,6 +18,8 @@ cdef class Engine:
 
     def __cinit__(self, *args, **kwargs):
         global engine
+        assert engine is None, \
+            f"{self.__class__} must not have multiple instances."
         engine = self
 
     @property

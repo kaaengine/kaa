@@ -20,9 +20,9 @@ class DemoScene(Scene):
     def update(self, dt):
         for event in self.input.events():
             if event.is_quit():
-                self.quit()
+                self.engine.quit()
             elif event.is_pressing(Keycode.q):
-                self.quit()
+                self.engine.quit()
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
