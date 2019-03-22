@@ -1,12 +1,13 @@
 import os
 import enum
 
-from kaa import Node, SpaceNode, BodyNode, HitboxNode
+from kaa import SpaceNode, BodyNode, HitboxNode
 from kaa import BodyNodeType
 from kaa import Keycode
-from kaa import Vector, Segment, Circle, Polygon
-from kaa import Scene, start_game
+from kaa import Vector, Segment, Circle
+from kaa import Scene
 from kaa import Color
+from kaa import Engine
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
@@ -135,9 +136,9 @@ class MyScene(Scene):
     def update(self, dt):
         for event in self.input.events():
             if event.is_quit():
-                self.quit()
+                self.engine.quit()
             if event.is_pressing(Keycode.q):
-                self.quit()
+                self.engine.quit()
             if event.is_pressing(Keycode.c):
                 self.collisions_enabled = not self.collisions_enabled
                 if not self.collisions_enabled:
@@ -161,4 +162,6 @@ class MyScene(Scene):
             self.space = None
 
 
-start_game(MyScene)
+if __name__ == '__main__':
+    engine = Engine()
+    engine.run(MyScene())

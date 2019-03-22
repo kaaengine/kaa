@@ -1,7 +1,4 @@
-from kaa import (
-    Scene, start_game, quit_game, Node, Segment, Circle, Polygon, Vector,
-    Keycode, Mousecode
-)
+from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
 
 
 class DemoScene(Scene):
@@ -30,4 +27,6 @@ class DemoScene(Scene):
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
 
-start_game(DemoScene)
+if __name__ == '__main__':
+    engine = Engine()
+    engine.run(DemoScene())

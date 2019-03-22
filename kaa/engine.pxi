@@ -1,15 +1,31 @@
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.scenes cimport CScene
 
-
-def start_game(scene_builder, *args, **kwargs):
-    cdef CEngine c_engine
-    cdef Scene scene = scene_builder(*args, **kwargs)
-    c_engine.attach_scene(<CScene*>scene.c_scene)
-    c_engine.scene_run()
+cdef Engine engine = None
 
 
-def quit_game():
-    cdef CEngine* c_engine = get_c_engine()
-    assert c_engine != NULL
-    c_engine.attach_scene(NULL)
+def get_engine():
+    global engine
+    assert engine is not None
+    return engine
+
+
+cdef class Engine:
+    cdef:
+        Scene scene
+        CEngine c_engine
+
+    def __cinit__(self, *args, **kwargs):
+        global engine
+        engine = self
+
+    @property
+    def scene(self):
+        return self.scene
+
+    def run(self, Scene scene not None):
+        self.scene = scene
+        self.c_engine.run(<CScene*>scene.c_scene)
+
+    def quit(self):
+        self.c_engine.quit()

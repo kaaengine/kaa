@@ -11,7 +11,7 @@ cdef extern from "kaacore/engine.h" nogil:
         CScene running_scene
         uint64_t time
 
-        void attach_scene(CScene* c_scene)
-        void scene_run()
+        void run(CScene* c_scene)
+        void quit()
 
     CEngine* get_c_engine "kaacore::get_engine"()

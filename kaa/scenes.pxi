@@ -1,5 +1,5 @@
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 from libc.stdint cimport uint32_t
+from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from .kaacore.scenes cimport CScene
 
@@ -42,6 +42,10 @@ cdef class Scene:
         raise NotImplementedError
 
     @property
+    def engine(self):
+        return get_engine()
+
+    @property
     def time(self):
         return self.c_scene.time
 
@@ -52,6 +56,3 @@ cdef class Scene:
     @property
     def root(self):
         return self.py_root_node_wrapper
-
-    def quit(self):
-        quit_game()
