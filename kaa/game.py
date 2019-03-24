@@ -1,3 +1,3 @@
-from .kaa_cymod import (
-    Scene, start_game
+from ._kaa import (
+    Scene
 )

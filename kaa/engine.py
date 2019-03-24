@@ -1,3 +1,3 @@
 from ._kaa import (
-    Sprite
+    Engine
 )

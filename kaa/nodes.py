@@ -1,3 +1,3 @@
-from .kaa_cymod import (
+from ._kaa import (
     Node, SpaceNode, BodyNode, HitboxNode
 )
