@@ -67,7 +67,7 @@ class MyScene(Scene):
             body_type=BodyNodeType.dynamic,
             mass=1e10,
             position=Vector(0, -2),
-            velocity=Vector(-3.0, 0.5), # * 10,
+            velocity=Vector(-3.0, 0.5),  # * 10,
             # angular_velocity=-160.,
             shape=Circle(0.2),
             sprite=self.python_img,
@@ -85,7 +85,7 @@ class MyScene(Scene):
             body_type=BodyNodeType.dynamic,
             mass=1e10,
             position=Vector(0, 2),
-            velocity=Vector(4.0, -0.1), # * 10,
+            velocity=Vector(4.0, -0.1),  # * 10,
             # angular_velocity=20.,
             shape=Circle(0.2),
             sprite=self.python_img,
@@ -164,4 +164,5 @@ class MyScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
+    engine.create_window('kaa', 800, 600)
     engine.run(MyScene())
