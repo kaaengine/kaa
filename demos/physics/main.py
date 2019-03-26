@@ -137,8 +137,6 @@ class MyScene(Scene):
         for event in self.input.events():
             if event.is_quit():
                 self.engine.quit()
-            if event.is_pressing(Keycode.q):
-                self.engine.quit()
             if event.is_pressing(Keycode.c):
                 self.collisions_enabled = not self.collisions_enabled
                 if not self.collisions_enabled:
@@ -156,7 +154,7 @@ class MyScene(Scene):
 
         if self.input.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
-            self.quit()
+            self.engine.quit()
         elif self.input.is_pressed(Keycode.x) and self.space:
             self.space.delete()
             self.space = None
