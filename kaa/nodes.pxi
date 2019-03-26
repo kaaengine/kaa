@@ -7,6 +7,7 @@ from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
     CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
+from .kaacore.math cimport radians, degrees
 
 
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
@@ -158,13 +159,13 @@ cdef class NodeBase:
     def rotation(self, double value):
         self._get_c_node().rotation = value
 
-    #@property
-    #def rotation_degrees(self):
-    #    return glm_deg(self._get_c_node().rotation.z)
+    @property
+    def rotation_degrees(self):
+        return degrees(self._get_c_node().rotation)
 
-    #@rotation_degrees.setter
-    #def rotation_degrees(self, double value):
-    #    self._get_c_node().rotation.z = glm_rad(value)
+    @rotation_degrees.setter
+    def rotation_degrees(self, double value):
+        self._get_c_node().rotation = radians(value)
 
     @property
     def scale(self):

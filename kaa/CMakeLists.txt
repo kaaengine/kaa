@@ -22,6 +22,7 @@ set(CYTHON_FILES
     kaacore/scenes.pxd
     kaacore/physics.pxd
     kaacore/vectors.pxd
+    kaacore/math.pxd
     kaacore/shapes.pxd
     kaacore/sprites.pxd
     kaacore/input.pxd
