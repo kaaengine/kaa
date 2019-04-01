@@ -2,7 +2,7 @@ from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
 from libc.stdint cimport int16_t
 
-from .vectors cimport CVec2, CColor
+from .vectors cimport CVector, CColor
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
@@ -20,9 +20,9 @@ cdef extern from "kaacore/nodes.h" nogil:
 
     cdef cppclass CNode "kaacore::Node":
         CNodeType type
-        CVec2 position
+        CVector position
         double rotation
-        CVec2 scale
+        CVector scale
         int16_t z_index
         CShape shape
         CSprite sprite
@@ -43,6 +43,6 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CNode(CNodeType type)
         void add_child(CNode* c_node)
-        void set_position(const CVec2& position)
+        void set_position(const CVector& position)
         void set_shape(const CShape& shape)
         void set_sprite(const CSprite& sprite)

@@ -15,6 +15,7 @@ set(CYTHON_FILES
     sprites.pxi
     assets.pxi
     input.pxi
+    window.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -27,6 +28,7 @@ set(CYTHON_FILES
     kaacore/sprites.pxd
     kaacore/input.pxd
     kaacore/glue.pxd
+    kaacore/window.pxd
 
     kaacore_glue/pythonic_callback.h
 )

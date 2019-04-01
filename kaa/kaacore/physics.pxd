@@ -2,7 +2,7 @@ from libc.stdint cimport uint8_t
 from libcpp.functional cimport function
 
 from .glue cimport CPythonicCallbackWrapper
-from .vectors cimport CVec2
+from .vectors cimport CVector
 from .nodes cimport CNode
 
 
@@ -35,8 +35,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         static "kaacore::BodyNodeType::static_",
 
     cdef cppclass CSpaceNode "kaacore::SpaceNode":
-        void set_gravity(const CVec2 gravity)
-        CVec2 get_gravity() const
+        void set_gravity(const CVector gravity)
+        CVector get_gravity() const
         void set_damping(const double damping)
         double get_damping() const
         void set_sleeping_threshold(const double threshold)
@@ -58,11 +58,11 @@ cdef extern from "kaacore/nodes.h" nogil:
         void set_moment(const double i)
         double get_moment() const
 
-        void set_velocity(const CVec2 velocity)
-        CVec2 get_velocity() const
+        void set_velocity(const CVector velocity)
+        CVector get_velocity() const
 
-        void set_force(const CVec2 force)
-        CVec2 get_force() const
+        void set_force(const CVector force)
+        CVector get_force() const
 
         void set_torque(const double torque)
         double get_torque() const

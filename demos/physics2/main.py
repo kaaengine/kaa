@@ -1,11 +1,10 @@
 import os
-import enum
 import random
 
 from kaa.nodes import SpaceNode, BodyNode, HitboxNode
 from kaa.physics import BodyNodeType, CollisionPhase
 from kaa.input import Keycode
-from kaa.geometry import Vector, Segment, Circle, Polygon
+from kaa.geometry import Vector, Segment, Circle
 from kaa.game import Scene
 from kaa.color import Color
 from kaa.engine import Engine
@@ -149,4 +148,5 @@ print("Press C to toggle collision spawning")
 
 if __name__ == '__main__':
     engine = Engine()
+    engine.create_window('kaa', 800, 600)
     engine.run(MyScene())

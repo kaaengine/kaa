@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-from .kaacore.vectors cimport CVec2
+from .kaacore.vectors cimport CVector
 from .kaacore.shapes cimport CShape, CShapeType
 
 
@@ -35,7 +35,7 @@ cdef class Circle(ShapeBase):
 cdef class Polygon(ShapeBase):
     def __init__(self, list points):
         assert all(isinstance(v, Vector) for v in points)
-        cdef vector[CVec2] c_points
+        cdef vector[CVector] c_points
         c_points.resize(len(points))
         for v in points:
             c_points.push_back((<Vector>v).c_vector)

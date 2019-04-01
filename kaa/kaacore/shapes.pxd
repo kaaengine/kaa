@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-from .vectors cimport CVec2
+from .vectors cimport CVector
 
 
 cdef extern from "kaacore/shapes.h" nogil:
@@ -13,19 +13,19 @@ cdef extern from "kaacore/shapes.h" nogil:
 
     cdef cppclass CShape "kaacore::Shape":
         CShapeType type
-        vector[CVec2] points
+        vector[CVector] points
         double radius
 
         CShape()
 
         @staticmethod
-        CShape Segment(const CVec2 a, const CVec2 b)
+        CShape Segment(const CVector a, const CVector b)
 
         @staticmethod
-        CShape Circle(const double radius, const CVec2 center)
+        CShape Circle(const double radius, const CVector center)
 
         @staticmethod
-        CShape Box(const CVec2 size)
+        CShape Box(const CVector size)
 
         @staticmethod
-        CShape Polygon(const vector[CVec2]& points)
+        CShape Polygon(const vector[CVector]& points)

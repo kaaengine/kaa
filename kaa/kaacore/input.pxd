@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-from .vectors cimport CVec2
+from .vectors cimport CVector
 
 
 cdef extern from "kaacore/input.h" nogil:
@@ -280,7 +280,7 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_pressing(CMousecode mc) const;
         bint is_releasing(CKeycode kc) const;
         bint is_releasing(CMousecode kc) const;
-        CVec2 get_mouse_position() const;
+        CVector get_mouse_position() const;
 
     cdef cppclass CInputManager "kaacore::InputManager":
         vector[CEvent] events_queue
@@ -289,4 +289,4 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_pressed(CMousecode kc) const;
         bint is_released(CKeycode kc) const;
         bint is_released(CMousecode kc) const;
-        CVec2 get_mouse_position() const;
+        CVector get_mouse_position() const;
