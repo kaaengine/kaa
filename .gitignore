@@ -1,4 +1,4 @@
 build/
-kaa/kaa_cymod.so
-kaa/kaa_cymod.cpp
+kaa/_kaa.so
+kaa/_kaa.cpp
 *.pyc

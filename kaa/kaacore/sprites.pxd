@@ -1,13 +1,13 @@
 from libc.stdint cimport uint16_t, uint32_t, uint64_t
 
-from .vectors cimport CVec2
+from .vectors cimport CVector
 
 
 cdef extern from "kaacore/sprites.h" nogil:
     cdef cppclass CSprite "kaacore::Sprite":
-        CVec2 origin
-        CVec2 dimensions
-        CVec2 frame_dimensions
+        CVector origin
+        CVector dimensions
+        CVector frame_dimensions
 
         uint16_t frame_offset
         uint16_t frame_count
@@ -23,6 +23,6 @@ cdef extern from "kaacore/sprites.h" nogil:
         CSprite load(const char* path, uint64_t flags)
 
 
-        CSprite crop(CVec2 new_origin, CVec2 new_dimensions)
+        CSprite crop(CVector new_origin, CVector new_dimensions)
         bint has_texture()
-        CVec2 get_size()
+        CVector get_size()

@@ -1,7 +1,7 @@
 import cython
 from numbers import Number
 
-from .kaacore.vectors cimport CVec2
+from .kaacore.vectors cimport CVector
 
 
 DEF VECTOR_FREELIST_SIZE = 32
@@ -10,7 +10,7 @@ DEF VECTOR_FREELIST_SIZE = 32
 @cython.final
 @cython.freelist(VECTOR_FREELIST_SIZE)
 cdef class Vector:
-    cdef CVec2 c_vector
+    cdef CVector c_vector
 
     def __cinit__(self, x=None, y=None):
         if x is None and y is None:
@@ -23,10 +23,10 @@ cdef class Vector:
         assert isinstance(x, Number) and isinstance(y, Number), \
             'Unsupported type.'
 
-        self.c_vector = CVec2(x, y)
+        self.c_vector = CVector(x, y)
 
     @staticmethod
-    cdef from_c_vector(CVec2 c_vector):
+    cdef from_c_vector(CVector c_vector):
         cdef Vector vector = Vector.__new__(Vector)
         vector.c_vector = c_vector
         return vector
@@ -43,7 +43,7 @@ cdef class Vector:
         return not self.is_zero()
 
     def is_zero(self):
-        return self.c_vector == CVec2(0., 0.)
+        return self.c_vector == CVector(0., 0.)
 
     def __repr__(self):
         return "V[{x}, {y}]".format(x=self.x, y=self.y)
