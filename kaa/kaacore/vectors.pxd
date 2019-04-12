@@ -1,4 +1,19 @@
+from libc.stdint cimport int32_t
+
+
 cdef extern from "glm/glm.hpp" nogil:
+    cdef cppclass CIVector "glm::ivec2":
+        int32_t x
+        int32_t y
+
+        CIVector()
+        CIVector(int32_t x, int32_t y)
+        bint operator==(CIVector, CIVector)
+        CVector operator*(CIVector, int32_t)
+        CVector operator+(CIVector, CIVector)
+        CVector operator-(CIVector, CIVector)
+
+
     cdef cppclass CVector "glm::dvec2":
         double x
         double y

@@ -1,15 +1,19 @@
 from libcpp cimport bool
-from libcpp.pair cimport pair
-from libc.stdint cimport int32_t
+from libcpp.string cimport string
 
-from .vectors cimport CVector
+from .vectors cimport CIVector
 
 
 cdef extern from "kaacore/window.h" nogil:
     cdef cppclass CWindow "kaacore::Window":
+        void show()
+        void hide()
+        void center()
+        string title()
+        void title(const string& title)
         bool fullscreen()
-        void fullscreen(const bool fullscreen)
-        pair[int32_t, int32_t] size()
-        void size(pair[int32_t, int32_t] window_size)
-        CVector position()
-        void position(CVector vec)
+        void fullscreen(bool fullscreen)
+        CIVector size()
+        void size(const CIVector& size)
+        CIVector position()
+        void position(const CIVector& position)
