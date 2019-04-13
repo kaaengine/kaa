@@ -1,11 +1,14 @@
-from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
+from kaa.game import Scene
+from kaa.nodes import Node
+from kaa.input import Keycode
+from kaa.engine import Engine
+from kaa.geometry import Vector, Segment, Circle, Polygon
 
 
 class DemoScene(Scene):
     def __init__(self):
         self.seg_node = Node()
-        self.seg_node.shape = Segment(Vector(-2., -2.),
-                                      Vector(2., 2.,))
+        self.seg_node.shape = Segment(Vector(-2., -2.), Vector(2., 2.))
 
         self.circle_node = Node()
         self.circle_node.shape = Circle(2., Vector(2., 2.))
@@ -29,5 +32,5 @@ class DemoScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
-    engine.create_window('kaa', 800, 600)
+    engine.window.show()
     engine.run(DemoScene())

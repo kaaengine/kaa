@@ -1,5 +1,3 @@
-# from libcpp.vector cimport vector
-
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport CEngine, get_c_engine
 
@@ -8,7 +6,12 @@ cdef Engine engine = None
 
 def get_engine():
     global engine
-    assert engine is not None
+
+    if engine is not None:
+        return engine
+
+    cdef CEngine* c_engine = get_c_engine()
+    # assert engine is not None
     return engine
 
 
@@ -26,6 +29,11 @@ cdef class Engine:
                 f"{self.__class__} must not have multiple instances."
             )
         engine = self
+        self.window = self._create_window()
+
+    cdef Window _create_window():
+        cdef Window window = Window.__new__(Window)
+        window.c_window = self.c_engine.window
 
     def get_display_info(self):
         pass
