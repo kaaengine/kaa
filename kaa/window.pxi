@@ -1,22 +1,23 @@
 cimport cython
 
 from libcpp cimport bool
-from libcpp.pair cimport pair
 from libc.stdint cimport int32_t
 
 from .kaacore.window cimport CWindow
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport CVector, CIVector
 
 
 @cython.final
 cdef class Window:
     cdef CWindow* c_window
 
-    @staticmethod
-    cdef create(CWindow* c_window):
-        cdef Window instance = Window.__new__(Window)
-        instance.c_window = c_window
-        return instance
+    @property
+    def title(self):
+        return self.c_window.title().decode()
+
+    @title.setter
+    def title(self, str title not None):
+        self.c_window.title(title.encode())
 
     @property
     def fullscreen(self):
@@ -28,26 +29,38 @@ cdef class Window:
 
     @property
     def size(self):
-        cdef pair[int32_t, int32_t] size = self.c_window.size()
-        return size.first, size.second
+        cdef CIVector size = self.c_window.size()
+        return Vector(size.x, size.y)
 
     @size.setter
-    def size(self, tuple size not None):
-        cdef pair[int32_t, int32_t] c_size = size
+    def size(self, Vector size not None):
+        cdef CIVector c_size = CIVector(size.x, size.y)
         self.c_window.size(c_size)
 
     @property
     def position(self):
-        cdef CVector c_vector = self.c_window.position()
+        cdef CIVector c_vector = self.c_window.position()
         return Vector(c_vector.x, c_vector.y)
 
     @position.setter
-    def position(self, Vector vector):
-        cdef CVector c_vector
-
-        if vector is None:
-            c_vector = CVector(WINDOWPOS_CENTERED, WINDOWPOS_CENTERED)
-        else:
-            c_vector = CVector(vector.x, vector.y)
-
+    def position(self, Vector vector not None):
+        cdef CIVector c_vector = CIVector(vector.x, vector.y)
         self.c_window.position(c_vector)
+
+    def show(self):
+        self.c_window.show()
+
+    def hide(self):
+        self.c_window.hide()
+
+    def maximize(self):
+        self.c_window.maximize()
+
+    def minimize(self):
+        self.c_window.minimize()
+
+    def restore(self):
+        self.c_window.restore()
+
+    def center(self):
+        self.c_window.center()

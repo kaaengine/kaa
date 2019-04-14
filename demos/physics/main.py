@@ -1,16 +1,15 @@
 import os
 import enum
 
-from kaa import SpaceNode, BodyNode, HitboxNode
-from kaa import BodyNodeType
-from kaa import Keycode
-from kaa import Vector, Segment, Circle
-from kaa import Scene
-from kaa import Color
-from kaa import Engine
+from kaa.nodes import SpaceNode, BodyNode, HitboxNode
+from kaa.physics import BodyNodeType
+from kaa.input import Keycode
+from kaa.geometry import Vector, Segment, Circle
+from kaa.game import Scene
+from kaa.color import Color
+from kaa.engine import Engine
 
 
-# BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
 PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
 
 
@@ -97,34 +96,6 @@ class MyScene(Scene):
             trigger_id=CollisionTrigger.obj,
             visible=False,
         ))
-        # self.obj3 = self.space.add_child(BodyNode(
-        #     position=Vector(-90, -70),
-        #     velocity=Vector(15.0, 5.0) * 10,
-        #     angular_velocity_degrees=35.,
-        # ))
-        # self.obj3_hitbox = self.obj3.add_child(HitboxNode(
-        #     mask=HitboxMask.box1,
-        #     collision_mask=HitboxMask.all,
-        #     shape=Polygon([Vector(-10, -10), Vector(10, -10),
-        #                    Vector(10, 10), Vector(-10, 10),
-        #                    Vector(-10, -10)],
-        #                   color=Color(255, 255, 0, 255),
-        #                   color_filled=True),
-        # ))
-        # self.obj4 = self.space.add_child(BodyNode(
-        #     position=Vector(-60, 70),
-        #     velocity=Vector(10.0, 15.0) * 10,
-        #     angular_velocity_degrees=-5.,
-        # ))
-        # self.obj4_hitbox = self.obj4.add_child(HitboxNode(
-        #     mask=HitboxMask.box2,
-        #     collision_mask=HitboxMask.all,
-        #     shape=Polygon([Vector(-10, -10), Vector(10, -10),
-        #                    Vector(10, 10), Vector(-10, 10),
-        #                    Vector(-10, -10)],
-        #                   color=Color(255, 0, 255, 255),
-        #                   color_filled=True),
-        # ))
 
         self.space.set_collision_handler(CollisionTrigger.obj,
                                          CollisionTrigger.obj,
@@ -142,14 +113,10 @@ class MyScene(Scene):
                 if not self.collisions_enabled:
                     self.obj1_hitbox.collision_mask = HitboxMask.side
                     self.obj2_hitbox.collision_mask = HitboxMask.side
-                    # self.obj3_hitbox.collision_mask = HitboxMask.side
-                    # self.obj4_hitbox.collision_mask = HitboxMask.side
                     print("Objects will NOT collide")
                 else:
                     self.obj1_hitbox.collision_mask = HitboxMask.all
                     self.obj2_hitbox.collision_mask = HitboxMask.all
-                    # self.obj3_hitbox.collision_mask = HitboxMask.all
-                    # self.obj4_hitbox.collision_mask = HitboxMask.all
                     print("Objects will collide")
 
         if self.input.is_pressed(Keycode.q):
@@ -162,5 +129,5 @@ class MyScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
-    engine.create_window('kaa', 800, 600)
+    engine.window.show()
     engine.run(MyScene())

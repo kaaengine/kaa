@@ -25,14 +25,14 @@ cdef class Scene:
     cdef:
         CPyScene* c_scene
         Node py_root_node_wrapper
-        readonly InputManager input_manager
+        readonly InputManager input
         readonly AssetsLoader assets
 
     def __cinit__(self):
         print("Initializing Scene")
         self.c_scene = new CPyScene(<PyObject*>self)
         self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
-        self.input_manager = InputManager()
+        self.input = InputManager()
         self.assets = AssetsLoader()
 
     def __dealloc__(self):
@@ -48,10 +48,6 @@ cdef class Scene:
     @property
     def time(self):
         return self.c_scene.time
-
-    @property
-    def input(self):
-        return self.input_manager
 
     @property
     def root(self):
