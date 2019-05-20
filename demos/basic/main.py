@@ -29,5 +29,9 @@ class DemoScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
-    engine.create_window('kaa', 800, 600)
+    engine.window.show()
     engine.run(DemoScene())
+
+    print(" * Deleting engine")
+    del engine
+    print(" * Ending script")
