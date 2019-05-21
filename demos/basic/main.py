@@ -1,5 +1,7 @@
 from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
 
+from kaa.audio import Music, Sound
+
 
 class DemoScene(Scene):
     def __init__(self):
@@ -17,12 +19,19 @@ class DemoScene(Scene):
         self.root.add_child(self.circle_node)
         self.root.add_child(self.box_node)
 
+        self.music = Music("../kaa_legacy/demos/assets/test_music.wav")
+        self.music.play()
+
+        self.sound = Sound("../kaa_legacy/demos/assets/test_sound.wav")
+
     def update(self, dt):
         for event in self.input.events():
             if event.is_quit():
                 self.engine.quit()
             elif event.is_pressing(Keycode.q):
                 self.engine.quit()
+            elif event.is_pressing(Keycode.s):
+                self.sound.play(0.5)
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
