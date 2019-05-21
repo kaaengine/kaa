@@ -238,6 +238,9 @@ cdef NodeBase get_node_wrapper(CNode* c_node):
     elif c_node.type == CNodeType.hitbox:
         py_node = HitboxNode.__new__(HitboxNode)
         py_node._attach_c_node(c_node)
+    elif c_node.type == CNodeType.text:
+        py_node = TextNode.__new__(TextNode)
+        py_node._attach_c_node(c_node)
     else:
         py_node = Node.__new__(Node)
         py_node._attach_c_node(c_node)

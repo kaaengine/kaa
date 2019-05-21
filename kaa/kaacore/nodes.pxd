@@ -4,6 +4,7 @@ from libc.stdint cimport int16_t
 
 from .vectors cimport CVector, CColor
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
+from .fonts cimport CTextNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
 
@@ -14,6 +15,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         space "kaacore::NodeType::space",
         body "kaacore::NodeType::body",
         hitbox "kaacore::NodeType::hitbox",
+        text "kaacore::NodeType::text",
 
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         pass
@@ -38,6 +40,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CSpaceNode space
         CBodyNode body
         CHitboxNode hitbox
+        CTextNode text
 
         # TODO rest of the fields
 

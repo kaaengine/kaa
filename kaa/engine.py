@@ -1,3 +1,3 @@
 from ._kaa import (
-    Engine, get_engine
+    Engine, Scene, get_engine
 )

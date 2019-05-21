@@ -17,6 +17,7 @@ set(CYTHON_FILES
     window.pxi
     display.pxi
     audio.pxi
+    fonts.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -32,6 +33,7 @@ set(CYTHON_FILES
     kaacore/window.pxd
     kaacore/display.pxd
     kaacore/audio.pxd
+    kaacore/fonts.pxd
 
     kaacore_glue/pythonic_callback.h
 )
