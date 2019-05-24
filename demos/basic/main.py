@@ -1,4 +1,4 @@
-from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
+from kaa import start_engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
 
 
 class DemoScene(Scene):
@@ -28,10 +28,8 @@ class DemoScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
-    engine.window.show()
-    engine.run(DemoScene())
+    with start_engine() as engine:
+        engine.window.show()
+        engine.run(DemoScene())
 
-    print(" * Deleting engine")
-    del engine
     print(" * Ending script")
