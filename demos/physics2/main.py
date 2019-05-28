@@ -7,7 +7,7 @@ from kaa.input import Keycode
 from kaa.geometry import Vector, Segment, Circle
 from kaa.game import Scene
 from kaa.color import Color
-from kaa.engine import Engine
+from kaa.engine import EngineRunner
 
 
 BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
@@ -147,6 +147,6 @@ print("Press C to toggle collision spawning")
 
 
 if __name__ == '__main__':
-    engine = Engine()
-    engine.window.show()
-    engine.run(MyScene())
+    with EngineRunner() as engine:
+        engine.window.show()
+        engine.run(MyScene())

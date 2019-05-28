@@ -27,7 +27,7 @@ cdef class _Engine:
 
     @property
     def window(self):
-        return _Window.__new__(_Window)
+        return self._window
 
 
 cdef _Engine _engine_wrapper = _Engine()
@@ -39,9 +39,41 @@ def get_engine():
         return _engine_wrapper
 
 
-@contextmanager
-def start_engine():
-    cdef unique_ptr[CEngine] c_engine
+@cython.final
+cdef class _EngineRunnerSingleton:
+    cdef unique_ptr[CEngine] c_engine_instance
 
-    c_engine = create_c_engine()
-    yield _engine_wrapper
+    def __cinit__(self):
+        self.c_engine_instance.reset(NULL)
+
+    def start(self):
+        if self.c_engine_instance != NULL:
+            raise ValueError("Engine was alredy started")
+
+        self.c_engine_instance = create_c_engine()
+        return _engine_wrapper
+
+    def stop(self):
+        if self.c_engine_instance == NULL:
+            raise ValueError("Engine is stopped")
+
+        self.c_engine_instance.reset(NULL)
+
+    def __call__(self, *args, **kwargs):
+        # @contextmanager fails to work in cdef class
+        # returned generator has no __enter__ and __exit__
+        return _EngineRunner_contextmanager(self)
+
+
+@contextmanager
+def _EngineRunner_contextmanager(runner, *args, **kwargs):
+    print("Starting")
+    engine = runner.start(*args, **kwargs)
+    print("Started")
+    try:
+        yield engine
+    finally:
+        runner.stop()
+
+
+EngineRunner = _EngineRunnerSingleton()
