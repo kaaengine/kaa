@@ -13,6 +13,11 @@ cdef extern from "glm/glm.hpp" nogil:
         CVector operator+(CVector, CVector)
         CVector operator-(CVector, CVector)
 
+    CVector CVector_normalize "glm::normalize" (CVector& v)
+    double CVector_dot "glm::dot" (CVector& v1, CVector& v2)
+    double CVector_distance "glm::distance" (CVector& v1, CVector& v2)
+    double CVector_length "glm::length" (CVector& v)
+
     cdef cppclass CUVec2 "glm::uvec2":
         uint32_t x
         uint32_t y
@@ -30,3 +35,11 @@ cdef extern from "glm/glm.hpp" nogil:
         CColor()
         CColor(double r, double g, double b, double a)
         bint operator==(CColor, CColor)
+
+
+cdef extern from "glm/gtx/rotate_vector.hpp" nogil:
+    CVector CVector_rotate_angle "glm::rotate" (CVector& v, double angle)
+
+
+cdef extern from "glm/gtx/vector_angle.hpp" nogil:
+    double CVector_angle "glm::angle" (CVector& v1, CVector& c2)

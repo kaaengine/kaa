@@ -137,7 +137,7 @@ cdef class NodeBase:
 
     @property
     def position(self):
-        raise Vector.from_c_vector(self._get_c_node().position)
+        return Vector.from_c_vector(self._get_c_node().position)
 
     @position.setter
     def position(self, Vector vec):
