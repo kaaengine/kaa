@@ -1,7 +1,11 @@
 import cython
 from numbers import Number
 
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport (
+    CVector, CVector_dot, CVector_distance, CVector_length, CVector_normalize,
+    CVector_rotate_angle, CVector_angle
+)
+from .kaacore.math cimport radians, degrees
 
 
 DEF VECTOR_FREELIST_SIZE = 32
@@ -73,3 +77,42 @@ cdef class Vector:
 
     def __sub__(self, Vector vec):
         return self.sub(vec)
+
+    def __neg__(self):
+        return Vector(-self.x, -self.y)
+
+    def rotate_angle(self, double angle_rad):
+        return Vector.from_c_vector(CVector_rotate_angle(self.c_vector, angle_rad))
+
+    def rotate_angle_degrees(self, double angle_deg):
+        return self.rotate_angle(radians(angle_deg))
+
+    @classmethod
+    def from_angle(cls, double angle_rad):
+        return Vector.from_c_vector(CVector_rotate_angle(CVector(1., 0.), angle_rad))
+
+    @classmethod
+    def from_angle_degrees(cls, double angle_deg):
+        return cls.from_angle(radians(angle_deg))
+
+    def to_angle(self):
+        return CVector_angle(
+            CVector_normalize(self.c_vector), CVector(1., 0.)
+        )
+
+    def to_angle_degrees(self):
+        return degrees(self.to_angle())
+
+    def dot(self, Vector other_vec):
+        return CVector_dot(self.c_vector, other_vec.c_vector)
+
+    def distance(self, Vector other_vec):
+        return CVector_distance(self.c_vector, other_vec.c_vector)
+
+    def normalize(self):
+        return Vector.from_c_vector(
+            CVector_normalize(self.c_vector)
+        )
+
+    def length(self):
+        return CVector_length(self.c_vector)

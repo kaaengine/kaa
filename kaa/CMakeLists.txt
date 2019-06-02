@@ -68,3 +68,5 @@ target_include_directories(
 )
 target_link_libraries(_kaa ${PYTHON_LIBRARY})
 target_link_libraries(_kaa kaacore)
+
+target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
