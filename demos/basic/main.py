@@ -1,10 +1,12 @@
+import sys
+
 from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
 
 from kaa.audio import Music, Sound
 
 
 class DemoScene(Scene):
-    def __init__(self):
+    def __init__(self, sound_path, music_path):
         self.seg_node = Node()
         self.seg_node.shape = Segment(Vector(-2., -2.),
                                       Vector(2., 2.,))
@@ -19,10 +21,16 @@ class DemoScene(Scene):
         self.root.add_child(self.circle_node)
         self.root.add_child(self.box_node)
 
-        self.music = Music("../kaa_legacy/demos/assets/test_music.wav")
-        self.music.play()
+        if sound_path:
+            self.sound = Sound(sound_path)
+        else:
+            self.sound = None
 
-        self.sound = Sound("../kaa_legacy/demos/assets/test_sound.wav")
+        if music_path:
+            self.music = Music(music_path)
+            self.music.play()
+        else:
+            self.music = None
 
     def update(self, dt):
         for event in self.input.events():
@@ -31,7 +39,10 @@ class DemoScene(Scene):
             elif event.is_pressing(Keycode.q):
                 self.engine.quit()
             elif event.is_pressing(Keycode.s):
-                self.sound.play(0.5)
+                if self.sound:
+                    self.sound.play(0.5)
+                else:
+                    print("No sound loaded!")
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
@@ -39,6 +50,11 @@ class DemoScene(Scene):
 if __name__ == '__main__':
     with Engine() as engine:
         engine.window.show()
-        engine.run(DemoScene())
+        scene = DemoScene(
+            sound_path=len(sys.argv) >= 2 and sys.argv[1],
+            music_path=len(sys.argv) >= 3 and sys.argv[2],
+        )
+
+        engine.run(scene)
 
     print(" * Ending script")
