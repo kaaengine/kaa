@@ -1,53 +1,73 @@
 cimport cython
 
 from libcpp cimport bool
-from libcpp.pair cimport pair
+from libcpp.string cimport string
 from libc.stdint cimport int32_t
 
+from .kaacore.engine cimport get_c_engine
 from .kaacore.window cimport CWindow
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport CVector, CUVec2
 
 
 @cython.final
-cdef class Window:
-    cdef CWindow* c_window
+cdef class _Window:
+    cdef CWindow* _get_c_window(self):
+        cdef CEngine* c_engine = get_c_engine()
+        assert c_engine != NULL
+        cdef CWindow* c_window = c_engine.window.get()
+        assert c_window != NULL
+        return c_window
 
-    @staticmethod
-    cdef create(CWindow* c_window):
-        cdef Window instance = Window.__new__(Window)
-        instance.c_window = c_window
-        return instance
+    def show(self):
+        self._get_c_window().show()
+
+    def hide(self):
+        self._get_c_window().hide()
+
+    @property
+    def title(self):
+        return (<bytes>self._get_c_window().title()).decode()
+
+    @title.setter
+    def title(self, str new_title):
+        self._get_c_window().title(<string>new_title.encode())
 
     @property
     def fullscreen(self):
-        return self.c_window.fullscreen()
+        return self._get_c_window().fullscreen()
 
     @fullscreen.setter
-    def fullscreen(self, bool value):
-        self.c_window.fullscreen(value)
+    def fullscreen(self, bool fullscreen_state):
+        self._get_c_window().fullscreen(fullscreen_state)
 
     @property
     def size(self):
-        cdef pair[int32_t, int32_t] size = self.c_window.size()
-        return size.first, size.second
+        cdef CUVec2 vec = self._get_c_window().size()
+        return Vector(vec.x, vec.y)
 
     @size.setter
-    def size(self, tuple size not None):
-        cdef pair[int32_t, int32_t] c_size = size
-        self.c_window.size(c_size)
+    def size(self, Vector new_size):
+        cdef CUVec2 vec = CUVec2(new_size.x, new_size.y)
+        self._get_c_window().size(vec)
+
+    def maximize(self):
+        self._get_c_window().maximize()
+
+    def minimize(self):
+        self._get_c_window().minimize()
+
+    def restore(self):
+        self._get_c_window().restore()
 
     @property
     def position(self):
-        cdef CVector c_vector = self.c_window.position()
-        return Vector(c_vector.x, c_vector.y)
+        cdef CUVec2 vec = self._get_c_window().position()
+        return Vector(vec.x, vec.y)
 
     @position.setter
-    def position(self, Vector vector):
-        cdef CVector c_vector
+    def position(self, Vector new_position):
+        cdef CUVec2 vec = CUVec2(new_position.x, new_position.y)
+        self._get_c_window().position(vec)
 
-        if vector is None:
-            c_vector = CVector(WINDOWPOS_CENTERED, WINDOWPOS_CENTERED)
-        else:
-            c_vector = CVector(vector.x, vector.y)
-
-        self.c_window.position(c_vector)
+    def center(self):
+        self._get_c_window().center()

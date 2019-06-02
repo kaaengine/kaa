@@ -28,6 +28,8 @@ class DemoScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
-    engine.create_window('kaa', 800, 600)
-    engine.run(DemoScene())
+    with Engine() as engine:
+        engine.window.show()
+        engine.run(DemoScene())
+
+    print(" * Ending script")

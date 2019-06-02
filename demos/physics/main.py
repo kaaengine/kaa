@@ -151,6 +151,12 @@ class MyScene(Scene):
                     # self.obj3_hitbox.collision_mask = HitboxMask.all
                     # self.obj4_hitbox.collision_mask = HitboxMask.all
                     print("Objects will collide")
+            if event.is_pressing(Keycode.f):
+                self.engine.window.fullscreen = not self.engine.window.fullscreen
+            if event.is_pressing(Keycode.l):
+                self.engine.window.size = self.engine.window.size + Vector(20, 20)
+            if event.is_pressing(Keycode.v):
+                self.engine.window.center()
 
         if self.input.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
@@ -162,5 +168,7 @@ class MyScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
-    engine.create_window('kaa', 800, 600)
+    engine.window.show()
+    engine.window.title = engine.window.title + "Test 123"
     engine.run(MyScene())
+    engine.stop()

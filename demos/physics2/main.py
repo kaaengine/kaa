@@ -147,6 +147,6 @@ print("Press C to toggle collision spawning")
 
 
 if __name__ == '__main__':
-    engine = Engine()
-    engine.create_window('kaa', 800, 600)
-    engine.run(MyScene())
+    with Engine() as engine:
+        engine.window.show()
+        engine.run(MyScene())

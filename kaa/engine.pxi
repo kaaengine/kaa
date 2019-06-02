@@ -1,52 +1,65 @@
-from .kaacore.scenes cimport CScene
-from .kaacore.types cimport CRectangle
-from .kaacore.engine cimport CEngine, get_c_engine
+from contextlib import contextmanager
 
-cdef Engine engine = None
+from libcpp.memory cimport unique_ptr
+
+from .kaacore.scenes cimport CScene
+from .kaacore.engine cimport CEngine, get_c_engine, create_c_engine
+
+
+cdef unique_ptr[CEngine] _c_engine_instance
+_c_engine_instance.reset(NULL)
+
+
+@cython.final
+cdef class _Engine:
+    cdef _Window _window
+
+    def __init__(self):
+        self._window = _Window()
+
+    cdef inline CEngine* _get_c_engine(self):
+        cdef CEngine* c_engine = get_c_engine()
+        if c_engine == NULL:
+            raise ValueError("Engine is not running")
+        return c_engine
+
+    def run(self, Scene scene not None):
+        self._get_c_engine().run(<CScene*>scene.c_scene)
+
+    def quit(self):
+        self._get_c_engine().quit()
+
+    @property
+    def window(self):
+        return self._window
+
+    def stop(self):
+        if get_c_engine() == NULL:
+            raise ValueError("Engine is stopped")
+        assert _c_engine_instance != NULL
+
+        _c_engine_instance.reset(NULL)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.stop()
+
+
+cdef _Engine _engine_wrapper = _Engine()
+
+
+def Engine():
+    global _c_engine_instance
+    if get_c_engine() != NULL:
+        raise ValueError("Engine was already started")
+    assert _c_engine_instance == NULL
+
+    _c_engine_instance = create_c_engine()
+    return _engine_wrapper
 
 
 def get_engine():
-    global engine
-    assert engine is not None
-    return engine
-
-
-cdef class Engine:
-    cdef:
-        readonly Scene scene
-        readonly Window window
-
-        CEngine c_engine
-
-    def __cinit__(self, *args, **kwargs):
-        global engine
-        if engine is not None:
-            raise RuntimeError(
-                f"{self.__class__} must not have multiple instances."
-            )
-        engine = self
-
-    def get_display_rect(self):
-        cdef CRectangle rect = self.c_engine.get_display_rect()
-        return rect.x, rect.y, rect.w, rect.h
-
-    def create_window(self, title, width=None, height=None,
-        x=WINDOWPOS_CENTERED, y=WINDOWPOS_CENTERED
-    ):
-        if not width:
-            *_, width, _ = self.get_display_rect()
-
-        if not height:
-            *_, height = self.get_display_rect()
-
-        cdef CWindow* c_window = self.c_engine.create_window(
-            title.encode(), width, height, x, y
-        )
-        self.window = Window.create(c_window)
-
-    def run(self, Scene scene not None):
-        self.scene = scene
-        self.c_engine.run(<CScene*>scene.c_scene)
-
-    def quit(self):
-        self.c_engine.quit()
+    if get_c_engine() != NULL:
+        return _engine_wrapper
