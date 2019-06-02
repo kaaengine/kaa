@@ -8,6 +8,7 @@ from kaa import Vector, Segment, Circle, Polygon
 from kaa import Scene
 from kaa import Color
 from kaa import Engine
+from kaa import Sprite
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
@@ -28,7 +29,7 @@ class CollisionTrigger(enum.IntEnum):
 
 class MyScene(Scene):
     def __init__(self):
-        self.python_img = self.assets.load_image(PYTHON_IMAGE_PATH)
+        self.python_img = Sprite(PYTHON_IMAGE_PATH)
         # self.box_img = self.game.assets.load_image(BOX_IMAGE_PATH)
         self.collisions_enabled = True
 

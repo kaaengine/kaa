@@ -16,17 +16,26 @@ cdef class Sprite:
         assert self.c_sprite_ptr == NULL
         self.c_sprite_ptr = c_new_sprite
 
-    def __init__(self, Sprite other_sprite, Vector origin=Vector(0., 0.),
+    def __init__(self, str path, Vector origin=Vector(0., 0.),
                  Vector dimensions=Vector(0., 0.), **options):
         self._set_stack_c_sprite()
-        self.c_sprite_ptr[0] = other_sprite.c_sprite_ptr.crop(
-            origin.c_vector, dimensions.c_vector
-        )
+        cdef CSprite c_sprite_full = CSprite.load(path.encode(), 0)
+        if origin.is_zero() and dimensions.is_zero():
+            self.c_sprite_ptr[0] = c_sprite_full
+        else:
+            self.c_sprite_ptr[0] = c_sprite_full.crop(
+                origin.c_vector, dimensions.c_vector
+            )
         self.setup(**options)
 
     def crop(self, Vector origin, Vector dimensions):
         assert self.c_sprite_ptr != NULL
-        return self.__class__(self, origin, dimensions)
+        cdef Sprite new_sprite = Sprite.__new__(Sprite)
+        new_sprite._set_stack_c_sprite()
+        new_sprite.c_sprite_ptr[0] = self.c_sprite_ptr.crop(
+                origin.c_vector, dimensions.c_vector
+        )
+        return new_sprite
 
     def setup(self, **options):
         if 'frame_dimensions' in options:
