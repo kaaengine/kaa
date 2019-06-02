@@ -168,7 +168,5 @@ class MyScene(Scene):
 
 if __name__ == '__main__':
     engine = Engine()
-    engine.window.show()
     engine.window.title = engine.window.title + "Test 123"
     engine.run(MyScene())
-    engine.stop()

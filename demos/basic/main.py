@@ -49,7 +49,6 @@ class DemoScene(Scene):
 
 if __name__ == '__main__':
     with Engine() as engine:
-        engine.window.show()
         scene = DemoScene(
             sound_path=len(sys.argv) >= 2 and sys.argv[1],
             music_path=len(sys.argv) >= 3 and sys.argv[2],

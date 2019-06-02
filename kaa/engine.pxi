@@ -50,13 +50,16 @@ cdef class _Engine:
 cdef _Engine _engine_wrapper = _Engine()
 
 
-def Engine():
+def Engine(show_window=True):
     global _c_engine_instance
     if get_c_engine() != NULL:
         raise ValueError("Engine was already started")
     assert _c_engine_instance == NULL
 
     _c_engine_instance = create_c_engine()
+    if show_window is True:
+        _engine_wrapper.window.show()
+
     return _engine_wrapper
 
 
