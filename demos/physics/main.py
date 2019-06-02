@@ -7,7 +7,7 @@ from kaa import Keycode
 from kaa import Vector, Segment, Circle
 from kaa import Scene
 from kaa import Color
-from kaa import EngineRunner
+from kaa import Engine
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
@@ -167,8 +167,8 @@ class MyScene(Scene):
 
 
 if __name__ == '__main__':
-    with EngineRunner() as engine:
-        engine.window.show()
-        engine.window.title = engine.window.title + "Test 123"
-        # engine.create_window('kaa', 800, 600)
-        engine.run(MyScene())
+    engine = Engine()
+    engine.window.show()
+    engine.window.title = engine.window.title + "Test 123"
+    engine.run(MyScene())
+    engine.stop()
