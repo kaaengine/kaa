@@ -88,7 +88,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CollisionBitmask get_collision_mask() const
 
 
-cdef extern from "kaacore_glue/pythonic_callback.h":
+cdef extern from "extra/include/pythonic_callback.h":
     ctypedef int (*CythonCollisionHandler)(CPythonicCallbackWrapper,
                                            CArbiter,
                                            CCollisionPair, CCollisionPair)

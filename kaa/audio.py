@@ -1,3 +1,1 @@
-from ._kaa import (
-    Sound, Music
-)
+from ._kaa import Sound, Music

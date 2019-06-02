@@ -1,3 +1,1 @@
-from ._kaa import (
-    Keycode, Mousecode
-)
+from ._kaa import Keycode, Mousecode

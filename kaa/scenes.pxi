@@ -16,9 +16,17 @@ cdef cppclass CPyScene(CScene):
         Py_XDECREF(this.py_scene)
         this.py_scene = NULL
 
+    void on_enter() nogil:
+        with gil:
+            (<object>this.py_scene).on_enter()
+
     void update(uint32_t dt) nogil:
         with gil:
             (<object>this.py_scene).update(dt)
+
+    void on_exit() nogil:
+        with gil:
+            (<object>this.py_scene).on_exit()
 
 
 cdef class Scene:
@@ -36,8 +44,14 @@ cdef class Scene:
     def __dealloc__(self):
         del self.c_scene
 
+    def on_enter(self):
+        pass
+
     def update(self):
         raise NotImplementedError
+
+    def on_exit(self):
+        pass
 
     @property
     def engine(self):

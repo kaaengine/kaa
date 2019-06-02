@@ -1,8 +1,10 @@
 import sys
 
-from kaa import Engine, Scene, Node, Segment, Circle, Polygon, Vector, Keycode
-
+from kaa.nodes import Node
+from kaa.input import Keycode
 from kaa.audio import Music, Sound
+from kaa.engine import Engine, Scene
+from kaa.geometry import Segment, Circle, Polygon, Vector
 
 
 class DemoScene(Scene):

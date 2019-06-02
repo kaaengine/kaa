@@ -26,6 +26,9 @@ cdef class _Engine:
     def run(self, Scene scene not None):
         self._get_c_engine().run(<CScene*>scene.c_scene)
 
+    def change_scene(self, Scene scene not None):
+        self._get_c_engine().change_scene(scene.c_scene)
+
     def quit(self):
         self._get_c_engine().quit()
 
