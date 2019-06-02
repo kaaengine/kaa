@@ -36,12 +36,11 @@ cdef class Polygon(ShapeBase):
     def __init__(self, list points):
         assert all(isinstance(v, Vector) for v in points)
         cdef vector[CVector] c_points
-        c_points.resize(len(points))
+        c_points.reserve(len(points))
         for v in points:
             c_points.push_back((<Vector>v).c_vector)
-        # TODO
-        raise NotImplementedError
-        # self.c_shape_ptr[0] = CShape.Polygon(c_points)
+        self._set_stack_c_shape()
+        self.c_shape_ptr[0] = CShape.Polygon(c_points)
 
     @staticmethod
     def from_box(Vector a):

@@ -4,7 +4,7 @@ import enum
 from kaa import SpaceNode, BodyNode, HitboxNode
 from kaa import BodyNodeType
 from kaa import Keycode
-from kaa import Vector, Segment, Circle
+from kaa import Vector, Segment, Circle, Polygon
 from kaa import Scene
 from kaa import Color
 from kaa import Engine
@@ -64,7 +64,6 @@ class MyScene(Scene):
         ))
 
         self.obj1 = self.space.add_child(BodyNode(
-            body_type=BodyNodeType.dynamic,
             mass=1e10,
             position=Vector(0, -2),
             velocity=Vector(-3.0, 0.5),  # * 10,
@@ -82,7 +81,6 @@ class MyScene(Scene):
         ))
 
         self.obj2 = self.space.add_child(BodyNode(
-            body_type=BodyNodeType.dynamic,
             mass=1e10,
             position=Vector(0, 2),
             velocity=Vector(4.0, -0.1),  # * 10,
@@ -97,34 +95,33 @@ class MyScene(Scene):
             trigger_id=CollisionTrigger.obj,
             visible=False,
         ))
-        # self.obj3 = self.space.add_child(BodyNode(
-        #     position=Vector(-90, -70),
-        #     velocity=Vector(15.0, 5.0) * 10,
-        #     angular_velocity_degrees=35.,
-        # ))
-        # self.obj3_hitbox = self.obj3.add_child(HitboxNode(
-        #     mask=HitboxMask.box1,
-        #     collision_mask=HitboxMask.all,
-        #     shape=Polygon([Vector(-10, -10), Vector(10, -10),
-        #                    Vector(10, 10), Vector(-10, 10),
-        #                    Vector(-10, -10)],
-        #                   color=Color(255, 255, 0, 255),
-        #                   color_filled=True),
-        # ))
-        # self.obj4 = self.space.add_child(BodyNode(
-        #     position=Vector(-60, 70),
-        #     velocity=Vector(10.0, 15.0) * 10,
-        #     angular_velocity_degrees=-5.,
-        # ))
-        # self.obj4_hitbox = self.obj4.add_child(HitboxNode(
-        #     mask=HitboxMask.box2,
-        #     collision_mask=HitboxMask.all,
-        #     shape=Polygon([Vector(-10, -10), Vector(10, -10),
-        #                    Vector(10, 10), Vector(-10, 10),
-        #                    Vector(-10, -10)],
-        #                   color=Color(255, 0, 255, 255),
-        #                   color_filled=True),
-        # ))
+        self.obj3 = self.space.add_child(BodyNode(
+            mass=1e15,
+            moment=1e20,
+            position=Vector(-1.5, 0.1),
+            velocity=Vector(-1.0, -2.0),
+            angular_velocity_degrees=35.,
+            shape=Polygon([Vector(-1, -1), Vector(1, -1),
+                           Vector(1, 1), Vector(-1, 1)]),
+        ))
+        self.obj3_hitbox = self.obj3.add_child(HitboxNode(
+            mask=HitboxMask.box1,
+            collision_mask=HitboxMask.all,
+            shape=self.obj3.shape,
+            visible=False,
+        ))
+        self.obj4 = self.space.add_child(BodyNode(
+            position=Vector(0, -2),
+            velocity=Vector(1.0, 5.0),
+            angular_velocity_degrees=-5.,
+            shape=Polygon.from_box(Vector(0.5, 1.)),
+        ))
+        self.obj4_hitbox = self.obj4.add_child(HitboxNode(
+            mask=HitboxMask.box2,
+            collision_mask=HitboxMask.all,
+            shape=self.obj4.shape,
+            visible=False,
+        ))
 
         self.space.set_collision_handler(CollisionTrigger.obj,
                                          CollisionTrigger.obj,
