@@ -18,6 +18,7 @@ cdef extern from "kaacore/engine.h" nogil:
 
         vector[CDisplay] get_displays()
         void run(CScene* c_scene)
+        void change_scene(CScene* c_scene)
         void quit()
 
     CEngine* c_engine "kaacore::engine"

@@ -1,14 +1,13 @@
 import os
 import random
 
-from kaa.nodes import SpaceNode, BodyNode, HitboxNode
-from kaa.physics import BodyNodeType, CollisionPhase
+from kaa.colors import Color
 from kaa.input import Keycode
-from kaa.geometry import Vector, Segment, Circle
-from kaa.game import Scene
 from kaa.sprites import Sprite
-from kaa.color import Color
-from kaa.engine import Engine
+from kaa.engine import Engine, Scene
+from kaa.geometry import Vector, Segment, Circle
+from kaa.physics import BodyNodeType, CollisionPhase
+from kaa.nodes import SpaceNode, BodyNode, HitboxNode
 
 
 BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')

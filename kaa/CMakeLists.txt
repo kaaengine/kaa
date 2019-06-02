@@ -35,7 +35,7 @@ set(CYTHON_FILES
     kaacore/audio.pxd
     kaacore/fonts.pxd
 
-    kaacore_glue/pythonic_callback.h
+    extra/include/pythonic_callback.h
 )
 
 add_custom_command(

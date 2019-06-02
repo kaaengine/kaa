@@ -1,14 +1,12 @@
 import os
 import enum
 
-from kaa import SpaceNode, BodyNode, HitboxNode
-from kaa import BodyNodeType
-from kaa import Keycode
-from kaa import Vector, Segment, Circle, Polygon
-from kaa import Scene
-from kaa import Color
-from kaa import Engine
-from kaa import Sprite
+from kaa.colors import Color
+from kaa.images import Sprite
+from kaa.input import Keycode
+from kaa.engine import Engine, Scene
+from kaa.geometry import Vector, Segment, Circle, Polygon
+from kaa.physics import SpaceNode, BodyNode, HitboxNode, BodyNodeType
 
 
 # BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
