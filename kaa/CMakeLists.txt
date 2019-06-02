@@ -13,7 +13,6 @@ set(CYTHON_FILES
     colors.pxi
     shapes.pxi
     sprites.pxi
-    assets.pxi
     input.pxi
     window.pxi
     display.pxi

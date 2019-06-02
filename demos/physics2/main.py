@@ -6,6 +6,7 @@ from kaa.physics import BodyNodeType, CollisionPhase
 from kaa.input import Keycode
 from kaa.geometry import Vector, Segment, Circle
 from kaa.game import Scene
+from kaa.sprites import Sprite
 from kaa.color import Color
 from kaa.engine import Engine
 
@@ -32,8 +33,8 @@ class FlyingBall(BodyNode):
 
 class MyScene(Scene):
     def __init__(self):
-        self.python_img = self.assets.load_image(PYTHON_IMAGE_PATH)
-        self.box_img = self.assets.load_image(BOX_IMAGE_PATH)
+        self.python_img = Sprite(PYTHON_IMAGE_PATH)
+        self.box_img = Sprite(BOX_IMAGE_PATH)
 
         self.objects = []
         self.random_collisions = False
