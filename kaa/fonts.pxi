@@ -46,6 +46,14 @@ cdef class TextNode(NodeBase):
         self._get_c_node().text.content(<string>content_text.encode())
 
     @property
+    def text(self):
+        return (<bytes>self._get_c_node().text.content()).decode()
+
+    @text.setter
+    def text(self, str text):
+        self._get_c_node().text.content(<string>text.encode())
+
+    @property
     def font_size(self):
         return self._get_c_node().text.font_size()
 

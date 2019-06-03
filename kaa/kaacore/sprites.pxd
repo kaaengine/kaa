@@ -1,4 +1,5 @@
 from libc.stdint cimport uint16_t, uint32_t, uint64_t
+from libcpp cimport bool
 
 from .vectors cimport CVector
 
@@ -15,7 +16,8 @@ cdef extern from "kaacore/sprites.h" nogil:
 
         uint16_t animation_frame_duration
         uint32_t animation_time_acc
-        bint auto_animate
+        bool animation_loop
+        bool auto_animate
 
         CSprite()
 

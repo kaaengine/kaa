@@ -1,3 +1,5 @@
+from libcpp cimport bool
+
 from .kaacore.sprites cimport CSprite
 
 
@@ -57,6 +59,10 @@ cdef class Sprite:
             ))
 
     @property
+    def origin(self):
+        return Vector.from_c_vector(self.c_sprite_ptr.origin)
+
+    @property
     def dimensions(self):
         return Vector.from_c_vector(self.c_sprite_ptr.dimensions)
 
@@ -99,6 +105,14 @@ cdef class Sprite:
     @animation_frame_duration.setter
     def animation_frame_duration(self, int value):
         self.c_sprite_ptr.animation_frame_duration = value
+
+    @property
+    def animation_loop(self):
+        return self.c_sprite_ptr.animation_loop
+
+    @animation_loop.setter
+    def animation_loop(self, bool value):
+        self.c_sprite_ptr.animation_loop = value
 
     @property
     def size(self):
