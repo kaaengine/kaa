@@ -28,6 +28,8 @@ cdef class TextNode(NodeBase):
             self.font = options.pop('font')
         if 'content' in options:
             self.content = options.pop('content')
+        if 'text' in options:
+            self.text = options.pop('text')
         if 'font_size' in options:
             self.font_size = options.pop('font_size')
         if 'line_width' in options:
@@ -36,6 +38,8 @@ cdef class TextNode(NodeBase):
             self.interline_spacing = options.pop('interline_spacing')
         if 'first_line_indent' in options:
             self.first_line_indent = options.pop('first_line_indent')
+
+        return super().setup(**options)
 
     @property
     def content(self):
