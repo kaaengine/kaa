@@ -1,4 +1,4 @@
-from kaa.geometry import Vector
+from kaa.geometry import Vector, classify_polygon
 
 
 def fmt_print(txt, *args):
@@ -30,3 +30,19 @@ if __name__ == '__main__':
               a_deg, Vector.from_angle_degrees(a_deg))
     fmt_print("vector {} to angle (degrees)\n --> {}",
               v2, v2.to_angle_degrees())
+
+    points = [
+        Vector(0., 0.), Vector(1., 0.), Vector(0., 1.)
+    ]
+    rev_points = list(reversed(points))
+    points_invalid = [
+        Vector(0., 0.), Vector(1., 1.), Vector(1., -1.),
+        Vector(-1., -1.), Vector(-1., 1.)
+    ]
+
+    fmt_print("classification of polygon {}\n --> {!r}",
+              points, classify_polygon(points))
+    fmt_print("classification of polygon {}\n --> {!r}",
+              rev_points, classify_polygon(rev_points))
+    fmt_print("classification of polygon {}\n --> {!r}",
+              points_invalid, classify_polygon(points_invalid))
