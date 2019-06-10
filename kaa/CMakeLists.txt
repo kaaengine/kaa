@@ -38,6 +38,7 @@ set(CYTHON_FILES
     kaacore/geometry.pxd
 
     extra/include/pythonic_callback.h
+    extra/include/python_exceptions_wrapper.h
 )
 
 add_custom_command(

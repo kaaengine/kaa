@@ -2,6 +2,7 @@ from libc.stdint cimport uint32_t
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from .kaacore.scenes cimport CScene
+from .kaacore.exceptions cimport c_wrap_python_exception
 
 
 cdef cppclass CPyScene(CScene):
@@ -18,15 +19,24 @@ cdef cppclass CPyScene(CScene):
 
     void on_enter() nogil:
         with gil:
-            (<object>this.py_scene).on_enter()
+            try:
+                (<object>this.py_scene).on_enter()
+            except Exception as py_exc:
+                c_wrap_python_exception(<PyObject*>py_exc)
 
     void update(uint32_t dt) nogil:
         with gil:
-            (<object>this.py_scene).update(dt)
+            try:
+                (<object>this.py_scene).update(dt)
+            except Exception as py_exc:
+                c_wrap_python_exception(<PyObject*>py_exc)
 
     void on_exit() nogil:
         with gil:
-            (<object>this.py_scene).on_exit()
+            try:
+                (<object>this.py_scene).on_exit()
+            except Exception as py_exc:
+                c_wrap_python_exception(<PyObject*>py_exc)
 
 
 cdef class Scene:
