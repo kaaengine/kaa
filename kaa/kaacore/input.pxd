@@ -1,6 +1,7 @@
 from libcpp.vector cimport vector
 
 from .vectors cimport CVector
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/input.h" nogil:
@@ -273,20 +274,33 @@ cdef extern from "kaacore/input.h" nogil:
         right "kaacore::Mousecode::right",
 
     cdef cppclass CEvent "kaacore::Event":
-        bint is_quit() const
-        bint is_keyboard_event() const;
-        bint is_mouse_event() const;
-        bint is_pressing(CKeycode kc) const;
-        bint is_pressing(CMousecode mc) const;
-        bint is_releasing(CKeycode kc) const;
-        bint is_releasing(CMousecode kc) const;
-        CVector get_mouse_position() const;
+        bint is_quit() \
+            except +raise_py_error
+        bint is_keyboard_event() \
+            except +raise_py_error
+        bint is_mouse_event() \
+            except +raise_py_error
+        bint is_pressing(CKeycode kc) \
+            except +raise_py_error
+        bint is_pressing(CMousecode mc) \
+            except +raise_py_error
+        bint is_releasing(CKeycode kc) \
+            except +raise_py_error
+        bint is_releasing(CMousecode kc) \
+            except +raise_py_error
+        CVector get_mouse_position() \
+            except +raise_py_error
 
     cdef cppclass CInputManager "kaacore::InputManager":
         vector[CEvent] events_queue
 
-        bint is_pressed(CKeycode kc) const;
-        bint is_pressed(CMousecode kc) const;
-        bint is_released(CKeycode kc) const;
-        bint is_released(CMousecode kc) const;
-        CVector get_mouse_position() const;
+        bint is_pressed(CKeycode kc) \
+            except +raise_py_error
+        bint is_pressed(CMousecode kc) \
+            except +raise_py_error
+        bint is_released(CKeycode kc) \
+            except +raise_py_error
+        bint is_released(CMousecode kc) \
+            except +raise_py_error
+        CVector get_mouse_position() \
+            except +raise_py_error

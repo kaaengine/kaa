@@ -48,6 +48,8 @@ void raise_py_error()
     } catch (const PythonException& exc) {
         PyErr_SetObject(reinterpret_cast<PyObject*>(Py_TYPE(exc.py_exception)),
                         exc.py_exception);
+    } catch (const kaacore::exception& exc) {
+        PyErr_SetString(PyExc_RuntimeError, exc.what());
     } catch (const std::exception& exc) {
         PyErr_SetString(PyExc_RuntimeError, exc.what());
     } catch (...) {

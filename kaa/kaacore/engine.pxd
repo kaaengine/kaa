@@ -18,9 +18,12 @@ cdef extern from "kaacore/engine.h" nogil:
         uint64_t time
 
         vector[CDisplay] get_displays()
-        void run(CScene* c_scene) except +raise_py_error
-        void change_scene(CScene* c_scene)
-        void quit()
+        void run(CScene* c_scene) \
+            except +raise_py_error
+        void change_scene(CScene* c_scene) \
+            except +raise_py_error
+        void quit() \
+            except +raise_py_error
 
     CEngine* c_engine "kaacore::engine"
 

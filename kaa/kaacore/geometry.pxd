@@ -1,6 +1,7 @@
 from libcpp.vector cimport vector
 
 from .vectors cimport CVector
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/geometry.h" nogil:
@@ -21,4 +22,5 @@ cdef extern from "kaacore/geometry.h" nogil:
         bottom_right "kaacore::Alignment::bottom_right"
         center "kaacore::Alignment::center"
 
-    CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CVector]& points)
+    CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CVector]& points) \
+        except +raise_py_error

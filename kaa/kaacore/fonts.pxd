@@ -1,26 +1,41 @@
 from libcpp.string cimport string
 
+from .exceptions cimport raise_py_error
+
 
 cdef extern from "kaacore/fonts.h" nogil:
     cdef cppclass CFont "kaacore::Font":
         @staticmethod
-        CFont load(const string& font_filepath)
+        CFont load(const string& font_filepath) \
+            except +raise_py_error
 
     cdef cppclass CTextNode "kaacore::TextNode":
-        string content()
-        void content(const string& content)
+        string content() \
+            except +raise_py_error
+        void content(const string& content) \
+            except +raise_py_error
 
-        double font_size()
-        void font_size(const double font_size)
+        double font_size() \
+            except +raise_py_error
+        void font_size(const double font_size) \
+            except +raise_py_error
 
-        double line_width()
-        void line_width(const double line_width)
+        double line_width() \
+            except +raise_py_error
+        void line_width(const double line_width) \
+            except +raise_py_error
 
-        double interline_spacing()
-        void interline_spacing(const double interline_spacing)
+        double interline_spacing() \
+            except +raise_py_error
+        void interline_spacing(const double interline_spacing) \
+            except +raise_py_error
 
-        double first_line_indent()
-        void first_line_indent(const double first_line_indent)
+        double first_line_indent() \
+            except +raise_py_error
+        void first_line_indent(const double first_line_indent) \
+            except +raise_py_error
 
-        CFont font()
-        void font(const CFont& font)
+        CFont font() \
+            except +raise_py_error
+        void font(const CFont& font) \
+            except +raise_py_error

@@ -8,6 +8,7 @@ from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/nodes.h" nogil:
@@ -46,9 +47,15 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         # TODO rest of the fields
 
-        CNode(CNodeType type)
-        void add_child(CNode* c_node)
-        void set_position(const CVector& position)
-        void set_rotation(const double rotation)
-        void set_shape(const CShape& shape)
-        void set_sprite(const CSprite& sprite)
+        CNode(CNodeType type) \
+            except +raise_py_error
+        void add_child(CNode* c_node) \
+            except +raise_py_error
+        void set_position(const CVector& position) \
+            except +raise_py_error
+        void set_rotation(const double rotation) \
+            except +raise_py_error
+        void set_shape(const CShape& shape) \
+            except +raise_py_error
+        void set_sprite(const CSprite& sprite) \
+            except +raise_py_error
