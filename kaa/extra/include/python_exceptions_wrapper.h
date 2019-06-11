@@ -5,6 +5,9 @@
 #include "kaacore/exceptions.h"
 
 
+PyObject* _py_kaacore_exception;
+
+
 struct PythonException : std::exception {
     PyObject* py_exception;
 
@@ -41,6 +44,12 @@ void wrap_python_exception(PyObject* py_exception)
 }
 
 
+void setup_kaacore_error_class(PyObject* py_kaacore_exception)
+{
+    ::_py_kaacore_exception = py_kaacore_exception;
+}
+
+
 void raise_py_error()
 {
     try {
@@ -49,7 +58,7 @@ void raise_py_error()
         PyErr_SetObject(reinterpret_cast<PyObject*>(Py_TYPE(exc.py_exception)),
                         exc.py_exception);
     } catch (const kaacore::exception& exc) {
-        PyErr_SetString(PyExc_RuntimeError, exc.what());
+        PyErr_SetString(_py_kaacore_exception, exc.what());
     } catch (const std::exception& exc) {
         PyErr_SetString(PyExc_RuntimeError, exc.what());
     } catch (...) {
