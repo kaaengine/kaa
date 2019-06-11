@@ -157,7 +157,7 @@ cdef class NodeBase:
 
     @rotation.setter
     def rotation(self, double value):
-        self._get_c_node().rotation = value
+        self._get_c_node().set_rotation(value)
 
     @property
     def rotation_degrees(self):
@@ -165,7 +165,7 @@ cdef class NodeBase:
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
-        self._get_c_node().rotation = radians(value)
+        self._get_c_node().set_rotation(radians(value))
 
     @property
     def scale(self):

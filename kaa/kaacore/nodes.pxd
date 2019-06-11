@@ -47,5 +47,6 @@ cdef extern from "kaacore/nodes.h" nogil:
         CNode(CNodeType type)
         void add_child(CNode* c_node)
         void set_position(const CVector& position)
+        void set_rotation(const double rotation)
         void set_shape(const CShape& shape)
         void set_sprite(const CSprite& sprite)
