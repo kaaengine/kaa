@@ -34,10 +34,11 @@ class MainScene(Scene):
             elif event.is_pressing(Keycode.q):
                 self.engine.quit()
             elif event.is_pressing(Keycode.c):
-                self.engine.change_scene(SCENES['second'])
+                self.engine.scene = SCENES['second']
 
     def on_exit(self):
         print(f'{self.__class__.__name__} on_exit')
+
 
 class SecondScene(Scene):
 
@@ -60,7 +61,7 @@ class SecondScene(Scene):
             elif event.is_pressing(Keycode.q):
                 self.engine.quit()
             elif event.is_pressing(Keycode.c):
-                self.engine.change_scene(SCENES['main'])
+                self.engine.scene = SCENES['main']
 
     def on_exit(self):
         print(f'{self.__class__.__name__} on_exit')
