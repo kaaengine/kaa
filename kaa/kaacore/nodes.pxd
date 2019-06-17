@@ -20,6 +20,10 @@ cdef extern from "kaacore/nodes.h" nogil:
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         pass
 
+    cdef cppclass CChildrenIterator "kaacore::ChildrenIterator":
+        vector[CNode*].const_iterator begin() const
+        vector[CNode*].const_iterator end() const
+
     cdef cppclass CNode "kaacore::Node":
         CNodeType type
         CVector position
@@ -46,6 +50,7 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CNode(CNodeType type)
         void add_child(CNode* c_node)
+        CChildrenIterator iter_children()
         void set_position(const CVector& position)
         void set_rotation(const double rotation)
         void set_shape(const CShape& shape)

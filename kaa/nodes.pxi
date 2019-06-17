@@ -1,11 +1,12 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
+from cython.operator cimport postincrement, dereference
 
 from libcpp.memory cimport unique_ptr
 
 from .kaacore.shapes cimport CShape
 from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
-    CNodeType, CNode, CNodeType, CForeignNodeWrapper
+    CNodeType, CNode, CNodeType, CForeignNodeWrapper, CChildrenIterator
 )
 from .kaacore.math cimport radians, degrees
 
@@ -61,6 +62,16 @@ cdef class NodeBase:
         assert node.c_node != NULL
         self.c_node.add_child(node.c_node)
         return node
+
+    def iter_children(self):
+        cdef:
+            CChildrenIterator child_iterator = self.c_node.iter_children()
+            vector[CNode*].const_iterator it = child_iterator.begin()
+
+        while it != child_iterator.end():
+            yield get_node_wrapper(dereference(it))
+            postincrement(it)
+
 
     def delete(self):
         assert self.c_node != NULL
