@@ -1,12 +1,11 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
-from cython.operator cimport postincrement, dereference
 
 from libcpp.memory cimport unique_ptr
 
 from .kaacore.shapes cimport CShape
 from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
-    CNodeType, CNode, CNodeType, CForeignNodeWrapper, CChildrenIterator
+    CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
 from .kaacore.math cimport radians, degrees
 
@@ -15,12 +14,10 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
 
     __init__(PyObject* py_wrapper):
-        # print("Creating CPyNodeWrapper %x" % int(py_wrapper))
         Py_XINCREF(py_wrapper)
         this.py_wrapper = py_wrapper
 
     __dealloc__():
-        # print("Destroying CPyNodeWrapper %x" % int(py_wrapper))
         Py_XDECREF(this.py_wrapper)
         this.py_wrapper = NULL
 
@@ -62,16 +59,6 @@ cdef class NodeBase:
         assert node.c_node != NULL
         self.c_node.add_child(node.c_node)
         return node
-
-    def iter_children(self):
-        cdef:
-            CChildrenIterator child_iterator = self.c_node.iter_children()
-            vector[CNode*].const_iterator it = child_iterator.begin()
-
-        while it != child_iterator.end():
-            yield get_node_wrapper(dereference(it))
-            postincrement(it)
-
 
     def delete(self):
         assert self.c_node != NULL
@@ -136,6 +123,15 @@ cdef class NodeBase:
     def update(self, **options):
         # backwards compatibility name
         return self.setup(**options)
+
+    @property
+    def children(self):
+        cdef:
+            CNode* c_node
+            vector[CNode*] children_copy = self.c_node.children
+
+        for c_node in children_copy:
+            yield get_node_wrapper(c_node)
 
     @property
     def type(self):
