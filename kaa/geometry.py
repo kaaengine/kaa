@@ -1,3 +1,3 @@
 from ._kaa import (
-    Vector, Segment, Circle, Polygon, PolygonType, classify_polygon
+    Vector, Segment, Circle, Polygon, PolygonType, classify_polygon, Alignment
 )
