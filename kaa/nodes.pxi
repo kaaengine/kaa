@@ -14,12 +14,10 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
 
     __init__(PyObject* py_wrapper):
-        # print("Creating CPyNodeWrapper %x" % int(py_wrapper))
         Py_XINCREF(py_wrapper)
         this.py_wrapper = py_wrapper
 
     __dealloc__():
-        # print("Destroying CPyNodeWrapper %x" % int(py_wrapper))
         Py_XDECREF(this.py_wrapper)
         this.py_wrapper = NULL
 
@@ -125,6 +123,15 @@ cdef class NodeBase:
     def update(self, **options):
         # backwards compatibility name
         return self.setup(**options)
+
+    @property
+    def children(self):
+        cdef:
+            CNode* c_node
+            vector[CNode*] children_copy = self.c_node.children
+
+        for c_node in children_copy:
+            yield get_node_wrapper(c_node)
 
     @property
     def type(self):
