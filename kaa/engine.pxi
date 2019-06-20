@@ -23,11 +23,16 @@ cdef class _Engine:
             raise ValueError("Engine is not running")
         return c_engine
 
-    def run(self, Scene scene not None):
-        self._get_c_engine().run(<CScene*>scene.c_scene)
+    @property
+    def current_scene(self):
+        cdef CPyScene* c_scene = <CPyScene*>self._get_c_engine().scene
+        return <object>c_scene.py_scene
 
     def change_scene(self, Scene scene not None):
         self._get_c_engine().change_scene(scene.c_scene)
+
+    def run(self, Scene scene not None):
+        self._get_c_engine().run(<CScene*>scene.c_scene)
 
     def quit(self):
         self._get_c_engine().quit()

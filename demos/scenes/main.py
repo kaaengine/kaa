@@ -39,6 +39,7 @@ class MainScene(Scene):
     def on_exit(self):
         print(f'{self.__class__.__name__} on_exit')
 
+
 class SecondScene(Scene):
 
     def __init__(self):
