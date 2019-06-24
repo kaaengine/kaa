@@ -8,6 +8,7 @@ from .kaacore.nodes cimport (
     CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
 from .kaacore.math cimport radians, degrees
+from .kaacore.geometry cimport CAlignment
 
 
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
@@ -108,6 +109,8 @@ cdef class NodeBase:
             self.sprite = options.pop('sprite')
         if 'shape' in options:
             self.shape = options.pop('shape')
+        if 'origin_alignment' in options:
+            self.origin_alignment = options.pop('origin_alignment')
         if 'width' in options:
             self.width = options.pop('width')
         if 'height' in options:
@@ -220,6 +223,14 @@ cdef class NodeBase:
             self._get_c_node().set_shape(new_shape.c_shape_ptr[0])
         else:
             self._get_c_node().set_shape(CShape())
+
+    @property
+    def origin_alignment(self):
+        return Alignment(<uint32_t>self._get_c_node().origin_alignment)
+
+    @origin_alignment.setter
+    def origin_alignment(self, alignment):
+        self._get_c_node().origin_alignment = <CAlignment>(<uint32_t>alignment.value)
 
 
 cdef class Node(NodeBase):

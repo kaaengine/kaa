@@ -1,8 +1,7 @@
 from kaa.engine import Engine, Scene
-from kaa.nodes import Node
-from kaa.geometry import Vector
 from kaa.input import Keycode
 from kaa.fonts import TextNode, Font
+from kaa.geometry import Alignment
 
 
 class FontDemoScene(Scene):
@@ -20,6 +19,24 @@ class FontDemoScene(Scene):
                 self.engine.quit()
             elif event.is_pressing(Keycode.l):
                 self.text_node.content += "!"
+            elif event.is_pressing(Keycode.kp_7):
+                self.text_node.origin_alignment = Alignment.top_left
+            elif event.is_pressing(Keycode.kp_8):
+                self.text_node.origin_alignment = Alignment.top
+            elif event.is_pressing(Keycode.kp_9):
+                self.text_node.origin_alignment = Alignment.top_right
+            elif event.is_pressing(Keycode.kp_4):
+                self.text_node.origin_alignment = Alignment.left
+            elif event.is_pressing(Keycode.kp_5):
+                self.text_node.origin_alignment = Alignment.center
+            elif event.is_pressing(Keycode.kp_6):
+                self.text_node.origin_alignment = Alignment.right
+            elif event.is_pressing(Keycode.kp_1):
+                self.text_node.origin_alignment = Alignment.bottom_left
+            elif event.is_pressing(Keycode.kp_2):
+                self.text_node.origin_alignment = Alignment.bottom
+            elif event.is_pressing(Keycode.kp_3):
+                self.text_node.origin_alignment = Alignment.bottom_right
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 

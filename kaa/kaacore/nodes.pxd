@@ -3,6 +3,7 @@ from libcpp.vector cimport vector
 from libc.stdint cimport int16_t
 
 from .vectors cimport CVector, CColor
+from .geometry cimport CAlignment
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
@@ -27,6 +28,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CVector scale
         int16_t z_index
         CShape shape
+        CAlignment origin_alignment
         CSprite sprite
         CColor color
         bint visible
