@@ -1,7 +1,7 @@
 from kaa.engine import Engine, Scene
 from kaa.input import Keycode
 from kaa.fonts import TextNode, Font
-from kaa.geometry import Alignment
+from kaa.geometry import Alignment, Vector
 
 
 class FontDemoScene(Scene):
@@ -42,7 +42,7 @@ class FontDemoScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
+    engine = Engine(virtual_resolution=Vector(10, 10))
     engine.window.show()
     engine.run(FontDemoScene())
 

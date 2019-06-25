@@ -1,9 +1,10 @@
 import sys
+import itertools
 
 from kaa.nodes import Node
 from kaa.input import Keycode
 from kaa.audio import Music, Sound
-from kaa.engine import Engine, Scene
+from kaa.engine import Engine, Scene, VirtualResolutionMode
 from kaa.geometry import Segment, Circle, Polygon, Vector
 
 
@@ -34,6 +35,15 @@ class DemoScene(Scene):
         else:
             self.music = None
 
+        self.virtual_resolutions_cycle = itertools.cycle(
+            [Vector(10, 10), Vector(20, 20), Vector(5, 15), Vector(15, 5)]
+        )
+        self.virtual_resolution_modes_cycle = itertools.cycle(
+            [VirtualResolutionMode.aggresive_stretch,
+             VirtualResolutionMode.no_stretch,
+             VirtualResolutionMode.adaptive_stretch]
+        )
+
     def update(self, dt):
         for event in self.input.events():
             if event.is_quit():
@@ -45,12 +55,24 @@ class DemoScene(Scene):
                     self.sound.play(0.5)
                 else:
                     print("No sound loaded!")
-
-        print("Mouse position: {}".format(self.input.get_mouse_position()))
+            elif event.is_pressing(Keycode.n):
+                self.engine.virtual_resolution = \
+                    next(self.virtual_resolutions_cycle)
+                print("Current virtual resolution: {} {!r}"
+                      .format(self.engine.virtual_resolution,
+                              self.engine.virtual_resolution_mode))
+            elif event.is_pressing(Keycode.m):
+                self.engine.virtual_resolution_mode = \
+                    next(self.virtual_resolution_modes_cycle)
+                print("Current virtual resolution: {} {!r}"
+                      .format(self.engine.virtual_resolution,
+                              self.engine.virtual_resolution_mode))
+            elif event.is_pressing(Keycode.p):
+                print("Mouse position: {}".format(self.input.get_mouse_position()))
 
 
 if __name__ == '__main__':
-    with Engine() as engine:
+    with Engine(virtual_resolution=Vector(5, 5)) as engine:
         scene = DemoScene(
             sound_path=len(sys.argv) >= 2 and sys.argv[1],
             music_path=len(sys.argv) >= 3 and sys.argv[2],

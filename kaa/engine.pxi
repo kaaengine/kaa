@@ -1,13 +1,21 @@
+from enum import IntEnum
 from contextlib import contextmanager
 
 from libcpp.memory cimport unique_ptr
 
+from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
-from .kaacore.engine cimport CEngine, get_c_engine, create_c_engine
+from .kaacore.engine cimport CEngine, get_c_engine, CVirtualResolutionMode
 
 
 cdef unique_ptr[CEngine] _c_engine_instance
 _c_engine_instance.reset(NULL)
+
+
+class VirtualResolutionMode(IntEnum):
+    adaptive_stretch = <uint32_t>CVirtualResolutionMode.adaptive_stretch
+    aggresive_stretch = <uint32_t>CVirtualResolutionMode.aggresive_stretch
+    no_stretch = <uint32_t>CVirtualResolutionMode.no_stretch
 
 
 @cython.final
@@ -38,6 +46,36 @@ cdef class _Engine:
         self._get_c_engine().quit()
 
     @property
+    def virtual_resolution(self):
+        cdef CUVec2 c_virtual_resolution = self._get_c_engine().virtual_resolution()
+        return Vector(c_virtual_resolution.x,
+                      c_virtual_resolution.y)
+
+    @virtual_resolution.setter
+    def virtual_resolution(self, Vector new_resolution):
+        self._get_c_engine().virtual_resolution(
+            CUVec2(new_resolution.x, new_resolution.y)
+        )
+
+    @property
+    def virtual_resolution_mode(self):
+        return VirtualResolutionMode(
+            <uint32_t>self._get_c_engine().virtual_resolution_mode()
+        )
+
+    @property
+    def virtual_resolution_mode(self):
+        return VirtualResolutionMode(
+            <uint32_t>self._get_c_engine().virtual_resolution_mode()
+        )
+
+    @virtual_resolution_mode.setter
+    def virtual_resolution_mode(self, new_mode):
+        self._get_c_engine().virtual_resolution_mode(
+            <CVirtualResolutionMode>(<uint32_t>(int(new_mode)))
+        )
+
+    @property
     def window(self):
         return self._window
 
@@ -58,13 +96,29 @@ cdef class _Engine:
 cdef _Engine _engine_wrapper = _Engine()
 
 
-def Engine(show_window=True):
+def Engine(Vector virtual_resolution,
+           virtual_resolution_mode=None, show_window=True):
     global _c_engine_instance
     if get_c_engine() != NULL:
         raise ValueError("Engine was already started")
     assert _c_engine_instance == NULL
 
-    _c_engine_instance = create_c_engine()
+    cdef CUVec2 c_virtual_resolution = CUVec2(
+        virtual_resolution.x, virtual_resolution.y
+    )
+    cdef CEngine* c_engine_ptr = NULL
+    if virtual_resolution_mode is not None:
+        c_engine_ptr = new CEngine(
+            c_virtual_resolution,
+            <CVirtualResolutionMode>(<uint32_t>int(virtual_resolution_mode))
+        )
+    else:
+        c_engine_ptr = new CEngine(
+            c_virtual_resolution,
+        )
+    assert c_engine_ptr != NULL
+    _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
+
     if show_window is True:
         _engine_wrapper.window.show()
 

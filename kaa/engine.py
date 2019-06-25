@@ -1,1 +1,1 @@
-from ._kaa import Engine, Scene, get_engine
+from ._kaa import Engine, Scene, get_engine, VirtualResolutionMode

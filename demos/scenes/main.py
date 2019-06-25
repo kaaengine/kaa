@@ -68,7 +68,7 @@ class SecondScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
+    engine = Engine(virtual_resolution=Vector(10, 10))
     main_scene = MainScene()
     SCENES = {'main': main_scene, 'second': SecondScene()}
     engine.run(main_scene)

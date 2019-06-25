@@ -147,5 +147,5 @@ print("Press C to toggle collision spawning")
 
 
 if __name__ == '__main__':
-    with Engine() as engine:
+    with Engine(virtual_resolution=Vector(10, 10)) as engine:
         engine.run(MyScene())
