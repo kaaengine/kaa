@@ -3,7 +3,7 @@ from numbers import Number
 
 from .kaacore.vectors cimport (
     CVector, CVector_dot, CVector_distance, CVector_length, CVector_normalize,
-    CVector_rotate_angle, CVector_angle
+    CVector_rotate_angle, CVector_oriented_angle
 )
 from .kaacore.math cimport radians, degrees
 
@@ -66,6 +66,9 @@ cdef class Vector:
     def __mul__(self, double operand):
         return self.mul(operand)
 
+    def __truediv__(self, double operand):
+        return self.mul(1. / operand)
+
     def add(self, Vector vec):
         return Vector.from_c_vector(self.c_vector + vec.c_vector)
 
@@ -96,7 +99,7 @@ cdef class Vector:
         return cls.from_angle(radians(angle_deg))
 
     def to_angle(self):
-        return CVector_angle(
+        return CVector_oriented_angle(
             CVector_normalize(self.c_vector), CVector(1., 0.)
         )
 
