@@ -38,6 +38,22 @@ class FontDemoScene(Scene):
                 self.text_node.origin_alignment = Alignment.bottom
             elif event.is_pressing(Keycode.kp_3):
                 self.text_node.origin_alignment = Alignment.bottom_right
+            elif event.is_pressing(Keycode.w):
+                self.camera.position += Vector(0., -0.3)
+            elif event.is_pressing(Keycode.s):
+                self.camera.position += Vector(0., 0.3)
+            elif event.is_pressing(Keycode.a):
+                self.camera.position += Vector(-0.3, 0.)
+            elif event.is_pressing(Keycode.d):
+                self.camera.position += Vector(0.3, 0.)
+            elif event.is_pressing(Keycode.i):
+                self.camera.scale += Vector(0.05, 0.05)
+            elif event.is_pressing(Keycode.o):
+                self.camera.scale += Vector(-0.05, -0.05)
+            elif event.is_pressing(Keycode.r):
+                self.camera.rotation_degrees += 5.
+            elif event.is_pressing(Keycode.f):
+                self.camera.position = self.text_node.position
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
