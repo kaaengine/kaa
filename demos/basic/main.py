@@ -10,6 +10,7 @@ from kaa.geometry import Segment, Circle, Polygon, Vector
 
 class DemoScene(Scene):
     def __init__(self, sound_path, music_path):
+        self.camera.position = Vector(0., 0.)
         self.seg_node = Node()
         self.seg_node.shape = Segment(Vector(-2., -2.),
                                       Vector(2., 2.,))

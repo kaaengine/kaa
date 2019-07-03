@@ -32,6 +32,7 @@ class FlyingBall(BodyNode):
 
 class MyScene(Scene):
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         self.python_img = Sprite(PYTHON_IMAGE_PATH)
         self.box_img = Sprite(BOX_IMAGE_PATH)
 

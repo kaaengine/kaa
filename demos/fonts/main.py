@@ -6,6 +6,7 @@ from kaa.geometry import Alignment, Vector
 
 class FontDemoScene(Scene):
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         self.my_font = Font("kaacore/demos/assets/fonts/Roboto/Roboto-Regular.ttf")
 
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
