@@ -33,8 +33,7 @@ cdef class _Engine:
 
     @property
     def current_scene(self):
-        cdef CPyScene* c_scene = <CPyScene*>self._get_c_engine().scene
-        return <object>c_scene.py_scene
+        return (<CPyScene*>self._get_c_engine().scene).get_py_scene()
 
     def change_scene(self, Scene scene not None):
         self._get_c_engine().change_scene(scene.c_scene)

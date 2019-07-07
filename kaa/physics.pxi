@@ -1,3 +1,5 @@
+import inspect
+import weakref
 from enum import IntEnum
 
 import cython
@@ -19,7 +21,15 @@ cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
                                      CArbiter c_arbiter,
                                      CCollisionPair c_pair_a,
                                      CCollisionPair c_pair_b):
-    cdef object callback = <object>c_wrapper.py_callback
+    cdef object callback
+    if c_wrapper.is_weakref:
+        callback = (<object>c_wrapper.py_callback)()
+        if callback is None:
+            raise RuntimeError(
+                "Collision handler tried to call destroyed callback object"
+            )
+    else:
+        callback = <object>c_wrapper.py_callback
     cdef Arbiter arbiter = _prepare_arbiter(c_arbiter)
     cdef CollisionPair pair_a = _prepare_collision_pair(c_pair_a)
     cdef CollisionPair pair_b = _prepare_collision_pair(c_pair_b)
@@ -151,11 +161,19 @@ cdef class SpaceNode(NodeBase):
                               CollisionTriggerId trigger_b, object handler,
                               uint8_t phases_mask=<uint8_t>CCollisionPhase.any_phase,
                               bint only_non_deleted_nodes=True):
-        final_handler = handler
+        cdef object final_handler
+        cdef bint final_handler_is_weakref
+        if inspect.ismethod(handler):
+            final_handler = weakref.WeakMethod(handler)
+            final_handler_is_weakref = True
+        else:
+            final_handler = handler
+            final_handler_is_weakref = False
 
         cdef CCollisionHandlerFunc bound_handler = bind_cython_collision_handler(
             collision_handler_displatch,
-            CPythonicCallbackWrapper(<PyObject*>final_handler),
+            CPythonicCallbackWrapper(<PyObject*>final_handler,
+                                     final_handler_is_weakref),
         )
         self._get_c_node().space.set_collision_handler(
             trigger_a, trigger_b,

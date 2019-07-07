@@ -11,8 +11,10 @@ using namespace kaacore;
 
 struct PythonicCallbackWrapper {
     PyObject* py_callback;
+    bool is_weakref;
 
-    PythonicCallbackWrapper(PyObject* py_callback) : py_callback(py_callback)
+    PythonicCallbackWrapper(PyObject* py_callback, bool is_weakref=false)
+        : py_callback(py_callback), is_weakref(is_weakref)
     {
         log("Creating PythonicCallbackWrapper: %p", py_callback);
         Py_INCREF(this->py_callback);
@@ -21,6 +23,7 @@ struct PythonicCallbackWrapper {
     PythonicCallbackWrapper(const PythonicCallbackWrapper& wrapper)
     {
         this->py_callback = wrapper.py_callback;
+        this->is_weakref = wrapper.is_weakref;
         Py_INCREF(this->py_callback);
     }
 
@@ -34,6 +37,7 @@ struct PythonicCallbackWrapper {
     {
         this->~PythonicCallbackWrapper();
         this->py_callback = wrapper.py_callback;
+        this->is_weakref = wrapper.is_weakref;
         Py_INCREF(this->py_callback);
     }
 };
