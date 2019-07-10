@@ -1,6 +1,7 @@
 # distutils: language=c++
 
 include "defines.pxi"
+include "exceptions.pxi"
 include "vectors.pxi"
 include "colors.pxi"
 include "geometry.pxi"

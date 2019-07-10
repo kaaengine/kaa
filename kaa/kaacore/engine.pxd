@@ -7,6 +7,7 @@ from .display cimport CDisplay
 from .scenes cimport CScene
 from .window cimport CWindow
 from .input cimport CInputManager
+from .exceptions cimport raise_py_error
 from .vectors cimport CUVec2
 
 
@@ -27,9 +28,12 @@ cdef extern from "kaacore/engine.h" nogil:
                 CVirtualResolutionMode virtual_resolution_mode)
 
         vector[CDisplay] get_displays()
-        void run(CScene* c_scene)
-        void change_scene(CScene* c_scene)
-        void quit()
+        void run(CScene* c_scene) \
+            except +raise_py_error
+        void change_scene(CScene* c_scene) \
+            except +raise_py_error
+        void quit() \
+            except +raise_py_error
 
         CUVec2 virtual_resolution()
         void virtual_resolution(CUVec2 resolution)

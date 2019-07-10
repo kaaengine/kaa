@@ -12,6 +12,7 @@ from .kaacore.physics cimport (
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
+from .kaacore.exceptions cimport c_wrap_python_exception
 
 
 cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
@@ -22,8 +23,13 @@ cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
     cdef Arbiter arbiter = _prepare_arbiter(c_arbiter)
     cdef CollisionPair pair_a = _prepare_collision_pair(c_pair_a)
     cdef CollisionPair pair_b = _prepare_collision_pair(c_pair_b)
-    cdef object ret = callback(arbiter, pair_a, pair_b)
-    return ret if ret is not None else 1
+    cdef object ret
+    try:
+        ret = callback(arbiter, pair_a, pair_b)
+    except Exception as py_exc:
+        c_wrap_python_exception(<PyObject*>py_exc)
+    else:
+        return ret if ret is not None else 1
 
 
 class CollisionPhase(IntEnum):

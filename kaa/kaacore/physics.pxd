@@ -4,6 +4,7 @@ from libcpp.functional cimport function
 from .glue cimport CPythonicCallbackWrapper
 from .vectors cimport CVector
 from .nodes cimport CNode
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/nodes.h" nogil:
@@ -35,57 +36,89 @@ cdef extern from "kaacore/nodes.h" nogil:
         static "kaacore::BodyNodeType::static_",
 
     cdef cppclass CSpaceNode "kaacore::SpaceNode":
-        void set_gravity(const CVector gravity)
-        CVector get_gravity() const
-        void set_damping(const double damping)
-        double get_damping() const
-        void set_sleeping_threshold(const double threshold)
-        double get_sleeping_threshold() const
-        bint is_locked() const
+        void set_gravity(const CVector gravity) \
+            except +raise_py_error
+        CVector get_gravity() \
+            except +raise_py_error
+        void set_damping(const double damping) \
+            except +raise_py_error
+        double get_damping() \
+            except +raise_py_error
+        void set_sleeping_threshold(const double threshold) \
+            except +raise_py_error
+        double get_sleeping_threshold() \
+            except +raise_py_error
+        bint is_locked() \
+            except +raise_py_error
         void set_collision_handler(
             CollisionTriggerId trigger_a, CollisionTriggerId trigger_b,
             CCollisionHandlerFunc handler,
             uint8_t phases_mask, bint only_non_deleted_nodes
-        )
+        ) except +raise_py_error
 
     cdef cppclass CBodyNode "kaacore::BodyNode":
-        void set_body_type(const CBodyNodeType type)
-        CBodyNodeType get_body_type() const
+        void set_body_type(const CBodyNodeType type) \
+            except +raise_py_error
+        CBodyNodeType get_body_type() \
+            except +raise_py_error
 
-        void set_mass(const double m)
-        double get_mass() const
+        void set_mass(const double m) \
+            except +raise_py_error
+        double get_mass() \
+            except +raise_py_error
 
-        void set_moment(const double i)
-        double get_moment() const
+        void set_moment(const double i) \
+            except +raise_py_error
+        double get_moment() \
+            except +raise_py_error
 
-        void set_velocity(const CVector velocity)
-        CVector get_velocity() const
+        void set_velocity(const CVector velocity) \
+            except +raise_py_error
+        CVector get_velocity() \
+            except +raise_py_error
 
-        void set_force(const CVector force)
-        CVector get_force() const
+        void set_force(const CVector force) \
+            except +raise_py_error
+        CVector get_force() \
+            except +raise_py_error
 
-        void set_torque(const double torque)
-        double get_torque() const
+        void set_torque(const double torque) \
+            except +raise_py_error
+        double get_torque() \
+            except +raise_py_error
 
-        void set_angular_velocity(const double angular_velocity)
-        double get_angular_velocity() const
+        void set_angular_velocity(const double angular_velocity) \
+            except +raise_py_error
+        double get_angular_velocity() \
+            except +raise_py_error
 
-        bint is_sleeping() const
-        void sleep()
-        void activate()
+        bint is_sleeping() \
+            except +raise_py_error
+        void sleep() \
+            except +raise_py_error
+        void activate() \
+            except +raise_py_error
 
     cdef cppclass CHitboxNode "kaacore::HitboxNode":
-        void set_trigger_id(const CollisionTriggerId trigger_id)
-        CollisionTriggerId get_trigger_id() const
+        void set_trigger_id(const CollisionTriggerId trigger_id) \
+            except +raise_py_error
+        CollisionTriggerId get_trigger_id() \
+            except +raise_py_error
 
-        void set_group(const CollisionGroup group)
-        CollisionGroup get_group() const
+        void set_group(const CollisionGroup group) \
+            except +raise_py_error
+        CollisionGroup get_group() \
+            except +raise_py_error
 
-        void set_mask(const CollisionBitmask mask)
-        CollisionBitmask get_mask() const
+        void set_mask(const CollisionBitmask mask) \
+            except +raise_py_error
+        CollisionBitmask get_mask() \
+            except +raise_py_error
 
-        void set_collision_mask(const CollisionBitmask mask)
-        CollisionBitmask get_collision_mask() const
+        void set_collision_mask(const CollisionBitmask mask) \
+            except +raise_py_error
+        CollisionBitmask get_collision_mask() \
+            except +raise_py_error
 
 
 cdef extern from "extra/include/pythonic_callback.h":

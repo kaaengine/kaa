@@ -19,6 +19,7 @@ set(CYTHON_FILES
     audio.pxi
     fonts.pxi
     geometry.pxi
+    exceptions.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -36,8 +37,10 @@ set(CYTHON_FILES
     kaacore/audio.pxd
     kaacore/fonts.pxd
     kaacore/geometry.pxd
+    kaacore/exceptions.pxd
 
     extra/include/pythonic_callback.h
+    extra/include/python_exceptions_wrapper.h
 )
 
 add_custom_command(

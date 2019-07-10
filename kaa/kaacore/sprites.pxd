@@ -2,6 +2,7 @@ from libc.stdint cimport uint16_t, uint32_t, uint64_t
 from libcpp cimport bool
 
 from .vectors cimport CVector
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/sprites.h" nogil:
@@ -22,9 +23,13 @@ cdef extern from "kaacore/sprites.h" nogil:
         CSprite()
 
         @staticmethod
-        CSprite load(const char* path, uint64_t flags)
+        CSprite load(const char* path, uint64_t flags) \
+            except +raise_py_error
 
 
-        CSprite crop(CVector new_origin, CVector new_dimensions)
-        bint has_texture()
-        CVector get_size()
+        CSprite crop(CVector new_origin, CVector new_dimensions) \
+            except +raise_py_error
+        bint has_texture() \
+            except +raise_py_error
+        CVector get_size() \
+            except +raise_py_error

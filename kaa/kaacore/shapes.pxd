@@ -1,6 +1,7 @@
 from libcpp.vector cimport vector
 
 from .vectors cimport CVector
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/shapes.h" nogil:
@@ -19,13 +20,17 @@ cdef extern from "kaacore/shapes.h" nogil:
         CShape()
 
         @staticmethod
-        CShape Segment(const CVector a, const CVector b)
+        CShape Segment(const CVector a, const CVector b) \
+            except +raise_py_error
 
         @staticmethod
-        CShape Circle(const double radius, const CVector center)
+        CShape Circle(const double radius, const CVector center) \
+            except +raise_py_error
 
         @staticmethod
-        CShape Box(const CVector size)
+        CShape Box(const CVector size) \
+            except +raise_py_error
 
         @staticmethod
-        CShape Polygon(const vector[CVector]& points)
+        CShape Polygon(const vector[CVector]& points) \
+            except +raise_py_error
