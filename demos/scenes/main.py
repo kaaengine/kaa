@@ -16,6 +16,7 @@ PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
 class MainScene(Scene):
 
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         python_image = Sprite(PYTHON_IMAGE_PATH,)
         self.root.add_child(
             Node(
@@ -43,6 +44,7 @@ class MainScene(Scene):
 class SecondScene(Scene):
 
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         box_image = Sprite(BOX_IMAGE_PATH)
         self.root.add_child(
             Node(
@@ -68,7 +70,7 @@ class SecondScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
+    engine = Engine(virtual_resolution=Vector(10, 10))
     main_scene = MainScene()
     SCENES = {'main': main_scene, 'second': SecondScene()}
     engine.run(main_scene)

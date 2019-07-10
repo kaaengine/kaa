@@ -42,4 +42,4 @@ cdef extern from "glm/gtx/rotate_vector.hpp" nogil:
 
 
 cdef extern from "glm/gtx/vector_angle.hpp" nogil:
-    double CVector_angle "glm::angle" (CVector& v1, CVector& c2)
+    double CVector_oriented_angle "glm::orientedAngle" (CVector& v1, CVector& c2)

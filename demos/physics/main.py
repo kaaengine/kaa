@@ -27,6 +27,7 @@ class CollisionTrigger(enum.IntEnum):
 
 class MyScene(Scene):
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         self.python_img = Sprite(PYTHON_IMAGE_PATH)
         # self.box_img = self.game.assets.load_image(BOX_IMAGE_PATH)
         self.collisions_enabled = True
@@ -45,21 +46,25 @@ class MyScene(Scene):
             shape=Segment(Vector(-4, -4), Vector(-4, 4)),
             mask=HitboxMask.side,
             collision_mask=HitboxMask.all,
+            color=Color(0.5, 0.5, 0.5),
         ))
         self.box_seg2 = self.box.add_child(HitboxNode(
             shape=Segment(Vector(-4, 4), Vector(4, 4)),
             mask=HitboxMask.side,
             collision_mask=HitboxMask.all,
+            color=Color(0.5, 0.5, 0.5),
         ))
         self.box_seg3 = self.box.add_child(HitboxNode(
             shape=Segment(Vector(4, 4), Vector(4, -4)),
             mask=HitboxMask.side,
             collision_mask=HitboxMask.all,
+            color=Color(0.5, 0.5, 0.5),
         ))
         self.box_seg4 = self.box.add_child(HitboxNode(
             shape=Segment(Vector(4, -4), Vector(-4, -4)),
             mask=HitboxMask.side,
             collision_mask=HitboxMask.all,
+            color=Color(0.5, 0.5, 0.5),
         ))
 
         self.obj1 = self.space.add_child(BodyNode(
@@ -163,6 +168,6 @@ class MyScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine()
+    engine = Engine(virtual_resolution=Vector(10, 10))
     engine.window.title = engine.window.title + "Test 123"
     engine.run(MyScene())

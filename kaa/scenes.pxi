@@ -39,17 +39,63 @@ cdef cppclass CPyScene(CScene):
                 c_wrap_python_exception(<PyObject*>py_exc)
 
 
+cdef class _SceneCamera:
+    cdef CPyScene* c_scene
+
+    def __cinit__(self):
+        self.c_scene = NULL
+
+    cdef attach_c_scene(self, CPyScene* c_scene):
+        assert self.c_scene == NULL
+        self.c_scene = c_scene
+
+    @property
+    def position(self):
+        return Vector.from_c_vector(self.c_scene.camera.position)
+
+    @position.setter
+    def position(self, Vector vec):
+        self.c_scene.camera.position = vec.c_vector
+
+    @property
+    def rotation(self):
+        return self.c_scene.camera.rotation.rotation
+
+    @rotation.setter
+    def rotation(self, double value):
+        self.c_scene.camera.rotation = value
+
+    @property
+    def rotation_degrees(self):
+        return degrees(self.c_scene.camera.rotation)
+
+    @rotation_degrees.setter
+    def rotation_degrees(self, double value):
+        self.c_scene.camera.rotation = radians(value)
+
+    @property
+    def scale(self):
+        return Vector.from_c_vector(self.c_scene.camera.scale)
+
+    @scale.setter
+    def scale(self, Vector vec):
+        self.c_scene.camera.scale = vec.c_vector
+
+
 cdef class Scene:
     cdef:
         CPyScene* c_scene
         Node py_root_node_wrapper
         readonly InputManager input_manager
+        readonly _SceneCamera camera
 
     def __cinit__(self):
         print("Initializing Scene")
         self.c_scene = new CPyScene(<PyObject*>self)
         self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
         self.input_manager = InputManager()
+        self.camera = _SceneCamera()
+        self.camera.attach_c_scene(self.c_scene)
 
     def __dealloc__(self):
         del self.c_scene

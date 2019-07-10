@@ -1,11 +1,12 @@
 from kaa.engine import Engine, Scene
 from kaa.input import Keycode
 from kaa.fonts import TextNode, Font
-from kaa.geometry import Alignment
+from kaa.geometry import Alignment, Vector
 
 
 class FontDemoScene(Scene):
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         self.my_font = Font("kaacore/demos/assets/fonts/Roboto/Roboto-Regular.ttf")
 
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
@@ -37,12 +38,28 @@ class FontDemoScene(Scene):
                 self.text_node.origin_alignment = Alignment.bottom
             elif event.is_pressing(Keycode.kp_3):
                 self.text_node.origin_alignment = Alignment.bottom_right
+            elif event.is_pressing(Keycode.w):
+                self.camera.position += Vector(0., -0.3)
+            elif event.is_pressing(Keycode.s):
+                self.camera.position += Vector(0., 0.3)
+            elif event.is_pressing(Keycode.a):
+                self.camera.position += Vector(-0.3, 0.)
+            elif event.is_pressing(Keycode.d):
+                self.camera.position += Vector(0.3, 0.)
+            elif event.is_pressing(Keycode.i):
+                self.camera.scale += Vector(0.05, 0.05)
+            elif event.is_pressing(Keycode.o):
+                self.camera.scale += Vector(-0.05, -0.05)
+            elif event.is_pressing(Keycode.r):
+                self.camera.rotation_degrees += 5.
+            elif event.is_pressing(Keycode.f):
+                self.camera.position = self.text_node.position
 
         print("Mouse position: {}".format(self.input.get_mouse_position()))
 
 
 if __name__ == '__main__':
-    engine = Engine()
+    engine = Engine(virtual_resolution=Vector(10, 10))
     engine.window.show()
     engine.run(FontDemoScene())
 

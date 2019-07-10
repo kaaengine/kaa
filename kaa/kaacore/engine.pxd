@@ -8,14 +8,24 @@ from .scenes cimport CScene
 from .window cimport CWindow
 from .input cimport CInputManager
 from .exceptions cimport raise_py_error
+from .vectors cimport CUVec2
 
 
 cdef extern from "kaacore/engine.h" nogil:
+    cdef enum CVirtualResolutionMode "kaacore::VirtualResolutionMode":
+        adaptive_stretch "kaacore::VirtualResolutionMode::adaptive_stretch"
+        aggresive_stretch "kaacore::VirtualResolutionMode::aggresive_stretch"
+        no_stretch "kaacore::VirtualResolutionMode::no_stretch"
+
     cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CWindow] window
         unique_ptr[CInputManager] input_manager
         CScene* scene
         uint64_t time
+
+        CEngine(CUVec2 virtual_resolution)
+        CEngine(CUVec2 virtual_resolution,
+                CVirtualResolutionMode virtual_resolution_mode)
 
         vector[CDisplay] get_displays()
         void run(CScene* c_scene) \
@@ -25,12 +35,13 @@ cdef extern from "kaacore/engine.h" nogil:
         void quit() \
             except +raise_py_error
 
+        CUVec2 virtual_resolution()
+        void virtual_resolution(CUVec2 resolution)
+
+        CVirtualResolutionMode virtual_resolution_mode()
+        void virtual_resolution_mode(CVirtualResolutionMode vr_mode)
+
     CEngine* c_engine "kaacore::engine"
 
 cdef inline CEngine* get_c_engine():
     return c_engine
-
-cdef inline unique_ptr[CEngine] create_c_engine():
-    assert get_c_engine() == NULL
-    cdef CEngine* c_engine = new CEngine()
-    return unique_ptr[CEngine](c_engine)

@@ -32,6 +32,7 @@ class FlyingBall(BodyNode):
 
 class MyScene(Scene):
     def __init__(self):
+        self.camera.position = Vector(0., 0.)
         self.python_img = Sprite(PYTHON_IMAGE_PATH)
         self.box_img = Sprite(BOX_IMAGE_PATH)
 
@@ -39,15 +40,11 @@ class MyScene(Scene):
         self.random_collisions = False
         self.collision_spawning = False
 
-        self.space = self.root.add_child(SpaceNode(
-            scale=Vector(0.01, 0.01),
-            # position=Vector(400, 300),
-        ))
+        self.space = self.root.add_child(SpaceNode())
         self.box = self.space.add_child(BodyNode(
             sprite=self.box_img,
             body_type=BodyNodeType.kinematic,
-            # rotation=45.,
-            # angular_velocity_degrees=30.,
+            angular_velocity_degrees=30.,
         ))
         # create bounding collision box with segments
         self.box_seg1 = self.box.add_child(HitboxNode(
@@ -70,14 +67,16 @@ class MyScene(Scene):
             self.spawn_object()
             timer.restart()
 
-        # self.timer = self.add_callback_timer(_timer_callback, 1500)
-
         self.space.set_collision_handler(
             COLLISION_TRIGGER, COLLISION_TRIGGER,
             self.on_collision,
             phases_mask=(CollisionPhase.begin |
                          CollisionPhase.separate),
         )
+
+        self.observed_ball = [
+            n for n in self.space.children if isinstance(n, FlyingBall)
+        ][0]
 
     def on_collision(self, arbiter, obj_a, obj_b):
         print("COLLISION")
@@ -96,7 +95,7 @@ class MyScene(Scene):
             sprite=self.python_img,
             body_type=BodyNodeType.dynamic,
             position=Vector(random.randint(-100, 100), random.randint(-100, 100)),
-            velocity=Vector(random.gauss(0, 0.1), random.gauss(0, 0.1) * 100),
+            velocity=Vector(random.gauss(0, 0.1), random.gauss(0, 0.1) * 100) * 10.,
             angular_velocity_degrees=random.gauss(0., 50.),
         ))
         obj_hitbox = obj.add_child(HitboxNode(
@@ -134,9 +133,14 @@ class MyScene(Scene):
                 if self.collision_spawning:
                     print("Collision spawning enabled (for one collision)")
 
+            elif event.is_pressing(Keycode.s):
+                self.observed_ball.velocity *= 1.5
+
         if self.input.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
             self.engine.quit()
+
+        self.camera.position = self.observed_ball.position
 
 
 print("Press N to spawn more objects")
@@ -147,5 +151,5 @@ print("Press C to toggle collision spawning")
 
 
 if __name__ == '__main__':
-    with Engine() as engine:
+    with Engine(virtual_resolution=Vector(300, 300)) as engine:
         engine.run(MyScene())
