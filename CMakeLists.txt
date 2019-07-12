@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.13)
 
 project(kaa)
 
-find_package(PythonLibs REQUIRED)
+option(KAA_DYNAMIC_LINK "Link kaa module weakly" OFF)
+
+find_package(PythonLibs)
 if (NOT CYTHON)
     find_program(CYTHON cython)
 endif()

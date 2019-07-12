@@ -73,7 +73,19 @@ target_include_directories(
     PUBLIC ${PYTHON_INCLUDE_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(_kaa ${PYTHON_LIBRARY})
-target_link_libraries(_kaa kaacore)
 
+if (KAA_DYNAMIC_LINK)
+    # set_target_properties(_kaa PROPERTIES LINK_FLAGS "-Wl,--unresolved-symbol=ignore-all -Wl,-z,undefs")
+    target_link_options(_kaa PUBLIC "LINKER:--warn-unresolved-symbols")
+else()
+    target_link_libraries(_kaa ${PYTHON_LIBRARY})
+endif()
+target_link_libraries(_kaa kaacore)
 target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
+
+set_target_properties(_kaa PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(TARGETS _kaa LIBRARY DESTINATION lib/python_modules/kaa)
+install(DIRECTORY . DESTINATION lib/python_modules/kaa
+        FILES_MATCHING PATTERN "*.py")
+install(TARGETS SDL2 LIBRARY DESTINATION lib/python_modules/kaa)
