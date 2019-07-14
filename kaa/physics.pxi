@@ -50,18 +50,29 @@ cdef class CollisionPair:
     cdef CNode* c_body
     cdef CNode* c_hitbox
 
+    cdef NodeBase _body_node_wrapper
+    cdef NodeBase _hitbox_node_wrapper
+
+    def __cinit__(self):
+        self._body_node_wrapper = None
+        self._hitbox_node_wrapper = None
+
     def __init__(self):
         raise ValueError("Do not initialize manually!")
 
     @property
     def body(self):
         if self.c_body != NULL:
-            return get_node_wrapper(self.c_body)
+            if self._body_node_wrapper is None:
+                self._body_node_wrapper = get_node_wrapper(self.c_body)
+            return self._body_node_wrapper
 
     @property
     def hitbox(self):
         if self.c_hitbox != NULL:
-            return get_node_wrapper(self.c_hitbox)
+            if self._hitbox_node_wrapper is None:
+                self._hitbox_node_wrapper = get_node_wrapper(self.c_hitbox)
+            return self._hitbox_node_wrapper
 
 
 @cython.freelist(1)
