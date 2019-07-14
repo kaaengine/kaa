@@ -3,6 +3,7 @@
 #include <Python.h>
 
 #include "kaacore/physics.h"
+#include "kaacore/timers.h"
 #include "kaacore/log.h"
 
 using namespace kaacore;
@@ -49,4 +50,14 @@ CollisionHandlerFunc bind_cython_collision_handler(
     using namespace std::placeholders;
 
     return std::bind(cy_handler, callback, _1, _2, _3);
+}
+
+typedef void (*CythonTimerCallback)(PythonicCallbackWrapper);
+
+
+TimerCallback bind_cython_timer_callback(
+    const CythonTimerCallback cy_handler, const PythonicCallbackWrapper callback
+)
+{
+    return std::bind(cy_handler, callback);
 }
