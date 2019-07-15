@@ -29,21 +29,23 @@ class MainScene(Scene):
             SpaceNode(position=Vector(0, 0))
         )
         self.box_image = Sprite(PYTHON_IMAGE_PATH)
-        self.timer = Timer(250, self.spawn, single_shot=False)
+        self.timer = Timer(2000, self.spawn, single_shot=False)
         self.timer.start()
+        self.spawn()
 
     def spawn(self):
-        angle = ((math.sin(time.time()) / 2) + 0.5) * 360
-        self.space.add_child(
-            TtlNode(
-                mass=1e10,
-                sprite=self.box_image,
-                angular_velocity=1,
-                ttl=random.randrange(4000, 8000),
-                shape=Polygon.from_box(Vector(20, 20)),
-                velocity=Vector.from_angle_degrees(angle) * 50
+        angles = list(range(0, 360, 18))
+        for angle in angles:
+            self.space.add_child(
+                TtlNode(
+                    mass=1e10,
+                    sprite=self.box_image,
+                    angular_velocity=1,
+                    ttl=random.randrange(3000, 6000),
+                    shape=Polygon.from_box(Vector(20, 20)),
+                    velocity=Vector.from_angle_degrees(angle) * 50
+                )
             )
-        )
 
     def update(self, dt):
         for event in self.input.events():
