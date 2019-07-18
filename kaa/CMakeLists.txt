@@ -20,6 +20,7 @@ set(CYTHON_FILES
     fonts.pxi
     geometry.pxi
     exceptions.pxi
+    timers.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -38,6 +39,7 @@ set(CYTHON_FILES
     kaacore/fonts.pxd
     kaacore/geometry.pxd
     kaacore/exceptions.pxd
+    kaacore/timers.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
