@@ -100,7 +100,7 @@ cdef class Vector:
 
     def to_angle(self):
         return CVector_oriented_angle(
-            CVector_normalize(self.c_vector), CVector(1., 0.)
+            CVector(1., 0.), CVector_normalize(self.c_vector)
         )
 
     def to_angle_degrees(self):
