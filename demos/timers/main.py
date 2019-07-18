@@ -27,12 +27,12 @@ class MainScene(Scene):
             SpaceNode(position=Vector(0, 0))
         )
         self.box_image = Sprite(PYTHON_IMAGE_PATH)
-        self.timer = Timer(2000, self.spawn, single_shot=False)
+        self.timer = Timer(200, self.spawn, single_shot=False)
         self.timer.start()
         self.spawn()
 
     def spawn(self):
-        angles = list(range(0, 360, 18))
+        angles = list(range(0, 360, 10))
         for angle in angles:
             self.space.add_child(
                 TtlNode(
