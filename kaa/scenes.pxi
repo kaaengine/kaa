@@ -1,40 +1,44 @@
 from libc.stdint cimport uint32_t
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
+from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
+from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.scenes cimport CScene
-from .kaacore.exceptions cimport c_wrap_python_exception
 
 
 cdef cppclass CPyScene(CScene):
-    PyObject* py_scene
+    object py_scene_weakref
 
-    __init__(PyObject* py_scene):
+    __init__(object py_scene):
         print("Created CPyScene")
-        Py_XINCREF(py_scene)
-        this.py_scene = py_scene
+        this.py_scene_weakref = PyWeakref_NewRef(py_scene, None)
 
-    __dealloc__():
-        Py_XDECREF(this.py_scene)
-        this.py_scene = NULL
+    object get_py_scene():
+        cdef object py_scene = this.py_scene_weakref()
+        if py_scene is None:
+            raise RuntimeError(
+                "Tried to retrieve scene which was already destroyed"
+            )
+        return py_scene
 
     void on_enter() nogil:
         with gil:
             try:
-                (<object>this.py_scene).on_enter()
+                this.get_py_scene().on_enter()
             except Exception as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
+
 
     void update(uint32_t dt) nogil:
         with gil:
             try:
-                (<object>this.py_scene).update(dt)
+                this.get_py_scene().update(dt)
             except Exception as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
 
     void on_exit() nogil:
         with gil:
             try:
-                (<object>this.py_scene).on_exit()
+                this.get_py_scene().on_exit()
             except Exception as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
 
@@ -91,7 +95,7 @@ cdef class Scene:
 
     def __cinit__(self):
         print("Initializing Scene")
-        self.c_scene = new CPyScene(<PyObject*>self)
+        self.c_scene = new CPyScene(self)
         self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
         self.input_manager = InputManager()
         self.camera = _SceneCamera()
