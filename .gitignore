@@ -1,4 +1,5 @@
 build/
+cmake_build/
 kaa/_kaa.so
 kaa/_kaa.cpp
 *.pyc
