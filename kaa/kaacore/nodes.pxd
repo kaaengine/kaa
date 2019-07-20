@@ -8,6 +8,7 @@ from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
+from .scenes cimport CScene
 from .exceptions cimport raise_py_error
 
 
@@ -34,6 +35,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CColor color
         bint visible
 
+        CScene* scene
         CNode* parent
         vector[CNode*] children
 

@@ -141,6 +141,12 @@ cdef class NodeBase:
         return <int>self._get_c_node().type
 
     @property
+    def scene(self):
+        cdef CPyScene* cpy_scene = <CPyScene*>self._get_c_node().scene
+        if cpy_scene:
+            return cpy_scene.get_py_scene()
+
+    @property
     def parent(self):
         if self._get_c_node().parent != NULL:
             return get_node_wrapper(self._get_c_node().parent)

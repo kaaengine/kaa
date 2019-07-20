@@ -21,9 +21,11 @@ class DemoScene(Scene):
         self.box_node = Node()
         self.box_node.shape = Polygon.from_box(Vector(1.5, 1.5))
 
+        print("Node scene before adding to tree: {}".format(self.seg_node.scene))
         self.root.add_child(self.seg_node)
         self.root.add_child(self.circle_node)
         self.root.add_child(self.box_node)
+        print("Node scene after adding to tree: {}".format(self.seg_node.scene))
 
         if sound_path:
             self.sound = Sound(sound_path)
