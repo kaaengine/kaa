@@ -36,25 +36,16 @@ echo "Building for: ${PY_VERSION} (${PY_VERSION_ABI})"
 yum install -y alsa-lib-devel pulseaudio-libs-devel  # SDL audio dependencies
 
 cp -r /host/kaa -v .
-cp /host/setup.py .
 
 PATH="/opt/python/${PY_VERSION_ABI}/bin:$PATH"
 
-pip install cython cmake
+pip install -r /host/requirements-dev.txt
 
-cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=cmake_install \
-    -DCMAKE_FIND_ROOT_PATH=/opt/python/${PY_VERSION_ABI}/ \
-    -DPYTHON_INCLUDE_DIR=/opt/python/${PY_VERSION_ABI}/include/${PY_VERSION}/ \
-    -DKAA_DYNAMIC_LINK=ON \
-    -B./build \
-    /host
+KAA_SETUP_CMAKE_SOURCE='/host/' python /host/setup.py --force-cmake \
+    bdist_wheel -d /wheels/ \
+    -- -DKAA_BUNDLE_SDL:BOOL=OFF
 
-cmake --build ./build --config Release --target install -j 9
-python setup.py bdist_wheel -d /wheels/
-
-LD_LIBRARY_PATH=/cmake_install/lib
+LD_LIBRARY_PATH=$(echo /_skbuild/linux-*/cmake-build/kaacore/third_party/sdl2/)
 for WHEEL in /wheels/*.whl
 do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \
