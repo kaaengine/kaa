@@ -50,17 +50,16 @@ cdef class Polygon(ShapeBase):
         return polygon_box
 
 
-cdef ShapeBase get_shape_wrapper(CShape* c_shape):
+cdef ShapeBase get_shape_wrapper(const CShape& c_shape):
     cdef ShapeBase shape
     if c_shape.type == CShapeType.segment:
         shape = Segment.__new__(Segment)
-        shape._set_ext_c_shape(c_shape)
     elif c_shape.type == CShapeType.circle:
         shape = Circle.__new__(Circle)
-        shape._set_ext_c_shape(c_shape)
     elif c_shape.type == CShapeType.polygon:
         shape = Polygon.__new__(Polygon)
-        shape._set_ext_c_shape(c_shape)
     else:
         raise NotImplementedError("Unhandled shape type")
+    shape._set_stack_c_shape()
+    shape.c_shape_ptr[0] = c_shape
     return shape
