@@ -2,7 +2,7 @@ import os
 import random
 
 from kaa.colors import Color
-from kaa.input import Keycode
+from kaa.input import Keycode, Mousecode
 from kaa.sprites import Sprite
 from kaa.engine import Engine, Scene
 from kaa.geometry import Vector, Segment, Circle
@@ -90,15 +90,20 @@ class MyScene(Scene):
                 self.collision_spawning = False
                 self.spawn_object()
 
-    def spawn_object(self):
+    def spawn_object(self, position=None, velocity=None):
+        if position is None:
+            position = Vector(random.randint(-100, 100), random.randint(-100, 100))
+        if velocity is None:
+            velocity = Vector(random.gauss(0, 0.1), random.gauss(0, 0.1) * 100) * 10.
+
         obj = self.space.add_child(FlyingBall(
             sprite=self.python_img,
             body_type=BodyNodeType.dynamic,
-            position=Vector(random.randint(-100, 100), random.randint(-100, 100)),
-            velocity=Vector(random.gauss(0, 0.1), random.gauss(0, 0.1) * 100) * 10.,
+            position=position,
+            velocity=velocity,
             angular_velocity_degrees=random.gauss(0., 50.),
         ))
-        obj_hitbox = obj.add_child(HitboxNode(
+        obj.add_child(HitboxNode(
             shape=Circle(10.),
             trigger_id=COLLISION_TRIGGER,
         ))
@@ -135,6 +140,14 @@ class MyScene(Scene):
 
             elif event.is_pressing(Keycode.s):
                 self.observed_ball.velocity *= 1.5
+
+            elif event.is_pressing(Mousecode.left):
+                self.spawn_object(
+                    position=self.camera.unproject_position(
+                        event.get_mouse_position(),
+                    ),
+                    velocity=Vector(0., 0.),
+                )
 
         if self.input.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
