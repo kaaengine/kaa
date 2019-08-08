@@ -46,7 +46,7 @@ set(CYTHON_FILES
 )
 
 add_custom_command(
-    COMMAND ${CYTHON} --cplus -3 --line-directives ${CYTHON_MODULE_FILE}
+    COMMAND ${CYTHON_EXECUTABLE} --cplus -3 --line-directives ${CYTHON_MODULE_FILE}
             -o ${CMAKE_CURRENT_BINARY_DIR}/${CYTHON_MODULE_FILE_OUTPUT}
     DEPENDS ${CYTHON_FILES}
     OUTPUT ${CYTHON_MODULE_FILE_OUTPUT}
@@ -54,26 +54,30 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(_kaa SHARED ${CYTHON_MODULE_FILE_OUTPUT})
+add_library(_kaa MODULE ${CYTHON_MODULE_FILE_OUTPUT})
+python_extension_module(_kaa)
+
 set_target_properties(
     _kaa
     PROPERTIES
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
-    OUTPUT_NAME _kaa
-    PREFIX ""
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set_target_properties(_kaa PROPERTIES SUFFIX ".pyd")
-endif()
 
 target_include_directories(
     _kaa
     PUBLIC ${PYTHON_INCLUDE_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(_kaa ${PYTHON_LIBRARY})
-target_link_libraries(_kaa kaacore)
 
+target_link_libraries(_kaa kaacore)
 target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
+
+set_target_properties(_kaa PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(TARGETS _kaa LIBRARY DESTINATION kaa)
+
+if (KAA_BUNDLE_SDL)
+    install(TARGETS SDL2 LIBRARY DESTINATION kaa
+                         RUNTIME DESTINATION kaa)
+endif()
