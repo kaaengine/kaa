@@ -1,5 +1,10 @@
+/kaa/_kaa.*.so
+/kaa/_kaa.*.pyd
+/kaa/libSDL2*.so*
+/kaa/libSDL2*.dll
 build/
 cmake_build/
-kaa/_kaa.so
+_skbuild/
+wheelhouse/
 kaa/_kaa.cpp
 *.pyc
