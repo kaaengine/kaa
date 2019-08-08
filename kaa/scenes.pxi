@@ -85,6 +85,11 @@ cdef class _SceneCamera:
     def scale(self, Vector vec):
         self.c_scene.camera.scale = vec.c_vector
 
+    def unproject_position(self, Vector pos):
+        return Vector.from_c_vector(
+            self.c_scene.camera.unproject_position(pos.c_vector)
+        )
+
 
 cdef class Scene:
     cdef:
