@@ -1,25 +1,17 @@
-sudo: true
 dist: xenial
 
-language: cpp
-compiler: gcc
+language: python
+python:
+  - "3.7"
+
+addons:
+  apt:
+    packages:
+      - g++
+      - freeglut3-dev
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y freeglut3-dev
-  - sudo pip install cython
+  - pip3 install -r requirements-dev.txt
 
-install:
-  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
-  - travis_retry wget --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Linux-x86_64.tar.gz
-  - tar -xvf cmake-3.13.4-Linux-x86_64.tar.gz > /dev/null
-  - mv cmake-3.13.4-Linux-x86_64 cmake-install
-  - PATH="${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH"
-  - cd ${TRAVIS_BUILD_DIR}
-
-script:
-  - cmake --version
-  - cmake -Bbuild .
-  - cmake --build build
-
+install: python3 setup.py build develop
+script: python3 -c 'import kaa._kaa'
