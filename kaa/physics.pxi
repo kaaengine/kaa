@@ -131,31 +131,31 @@ cdef class SpaceNode(NodeBase):
 
     @property
     def gravity(self):
-        return Vector.from_c_vector(self._get_c_node().space.get_gravity())
+        return Vector.from_c_vector(self._get_c_node().space.gravity())
 
     @gravity.setter
     def gravity(self, Vector value):
-        self._get_c_node().space.set_gravity(value.c_vector)
+        self._get_c_node().space.gravity(value.c_vector)
 
     @property
     def damping(self):
-        return self._get_c_node().space.get_damping()
+        return self._get_c_node().space.damping()
 
     @damping.setter
     def damping(self, double value):
-        self._get_c_node().space.set_damping(value)
+        self._get_c_node().space.damping(value)
 
     @property
     def sleeping_threshold(self):
-        return self._get_c_node().space.get_sleeping_threshold()
+        return self._get_c_node().space.sleeping_threshold()
 
     @sleeping_threshold.setter
     def sleeping_threshold(self, double value):
-        self._get_c_node().space.set_sleeping_threshold(value)
+        self._get_c_node().space.sleeping_threshold(value)
 
     @property
-    def is_locked(self):
-        return self._get_c_node().space.is_locked()
+    def locked(self):
+        return self._get_c_node().space.locked()
 
     def set_collision_handler(self, CollisionTriggerId trigger_a,
                               CollisionTriggerId trigger_b, object handler,
@@ -211,85 +211,83 @@ cdef class BodyNode(NodeBase):
 
     @property
     def body_type(self):
-        return BodyNodeType(<uint8_t>self._get_c_node().body.get_body_type())
+        return BodyNodeType(<uint8_t>self._get_c_node().body.body_type())
 
     @body_type.setter
     def body_type(self, body_t):
-        self._get_c_node().body.set_body_type(<CBodyNodeType>(<uint8_t>body_t.value))
+        self._get_c_node().body.body_type(<CBodyNodeType>(<uint8_t>body_t.value))
 
     @property
     def force(self):
-        return Vector.from_c_vector(self._get_c_node().body.get_force())
+        return Vector.from_c_vector(self._get_c_node().body.force())
 
     @force.setter
     def force(self, Vector vec):
-        self._get_c_node().body.set_force(vec.c_vector)
+        self._get_c_node().body.force(vec.c_vector)
 
     @property
     def velocity(self):
-        return Vector.from_c_vector(self._get_c_node().body.get_velocity())
+        return Vector.from_c_vector(self._get_c_node().body.velocity())
 
     @velocity.setter
     def velocity(self, Vector vec):
-        self._get_c_node().body.set_velocity(vec.c_vector)
+        self._get_c_node().body.velocity(vec.c_vector)
 
     @property
     def torque(self):
-        return self._get_c_node().body.get_torque()
+        return self._get_c_node().body.torque()
 
     @torque.setter
     def torque(self, double rad_sec):
-        self._get_c_node().body.set_torque(rad_sec)
+        self._get_c_node().body.torque(rad_sec)
 
     @property
     def torque_degrees(self):
-        return degrees(self._get_c_node().body.get_torque())
+        return degrees(self._get_c_node().body.torque())
 
     @torque_degrees.setter
     def torque_degrees(self, double deg_sec):
-        self._get_c_node().body.set_torque(radians(deg_sec))
+        self._get_c_node().body.torque(radians(deg_sec))
 
     @property
     def angular_velocity(self):
-        return self._get_c_node().body.get_angular_velocity()
+        return self._get_c_node().body.angular_velocity()
 
     @angular_velocity.setter
     def angular_velocity(self, double rad_sec):
-        self._get_c_node().body.set_angular_velocity(rad_sec)
+        self._get_c_node().body.angular_velocity(rad_sec)
 
     @property
     def angular_velocity_degrees(self):
-        return degrees(self._get_c_node().body.get_angular_velocity())
+        return degrees(self._get_c_node().body.angular_velocity())
 
     @angular_velocity_degrees.setter
     def angular_velocity_degrees(self, double deg_sec):
-        self._get_c_node().body.set_angular_velocity(radians(deg_sec))
+        self._get_c_node().body.angular_velocity(radians(deg_sec))
 
     @property
     def mass(self):
-        return self._get_c_node().body.get_mass()
+        return self._get_c_node().body.mass()
 
     @mass.setter
     def mass(self, double value):
-        self._get_c_node().body.set_mass(value)
+        self._get_c_node().body.mass(value)
 
     @property
     def moment(self):
-        return self._get_c_node().body.get_moment()
+        return self._get_c_node().body.moment()
 
     @moment.setter
     def moment(self, double value):
-        self._get_c_node().body.set_moment(value)
+        self._get_c_node().body.moment(value)
 
     @property
     def sleeping(self):
-        return self._get_c_node().body.is_sleeping()
+        return self._get_c_node().body.sleeping()
 
-    def sleep(self):
-        self._get_c_node().body.sleep()
-
-    def activate(self):
-        self._get_c_node().body.activate()
+    @sleeping.setter
+    def sleeping(self, bool sleeping):
+        self._get_c_node().body.sleeping(sleeping)
 
 
 cdef class HitboxNode(NodeBase):
@@ -314,32 +312,32 @@ cdef class HitboxNode(NodeBase):
 
     @property
     def group(self):
-        return self._get_c_node().hitbox.get_group()
+        return self._get_c_node().hitbox.group()
 
     @group.setter
     def group(self, CollisionGroup cgrp):
-        self._get_c_node().hitbox.set_group(cgrp)
+        self._get_c_node().hitbox.group(cgrp)
 
     @property
     def mask(self):
-        return self._get_c_node().hitbox.get_mask()
+        return self._get_c_node().hitbox.mask()
 
     @mask.setter
     def mask(self, CollisionBitmask mask):
-        self._get_c_node().hitbox.set_mask(mask)
+        self._get_c_node().hitbox.mask(mask)
 
     @property
     def collision_mask(self):
-        return self._get_c_node().hitbox.get_collision_mask()
+        return self._get_c_node().hitbox.collision_mask()
 
     @collision_mask.setter
     def collision_mask(self, CollisionBitmask mask):
-        self._get_c_node().hitbox.set_collision_mask(mask)
+        self._get_c_node().hitbox.collision_mask(mask)
 
     @property
     def trigger_id(self):
-        return self._get_c_node().hitbox.get_trigger_id()
+        return self._get_c_node().hitbox.trigger_id()
 
     @trigger_id.setter
     def trigger_id(self, CollisionTriggerId id):
-        self._get_c_node().hitbox.set_trigger_id(id)
+        self._get_c_node().hitbox.trigger_id(id)

@@ -45,10 +45,11 @@ cdef class NodeBase:
 
     cdef void _setup_wrapper(self):
         assert self.c_node != NULL
-        self.c_node.node_wrapper = \
+        self.c_node.setup_wrapper(
             unique_ptr[CForeignNodeWrapper](
                 new CPyNodeWrapper(<PyObject*>self)
             )
+        )
 
     cdef void _init_new_node(self, CNodeType type):
         cdef CNode* c_node = new CNode(type)
@@ -66,25 +67,6 @@ cdef class NodeBase:
         del self.c_node
 
     def setup(self, **options):
-       #assert not (
-       #    'width' in options and 'height' in options and 'shape' in options
-       #), "width+height and shape are not allowed together"
-
-       #if (
-       #    'width' not in options and 'height' not in options and
-       #    'shape' not in options and 'sprite' in options and
-       #    options['sprite'] is not None
-       #):
-       #    sprite_size = Sprite(options['sprite']).size
-       #    options['width'] = sprite_size.x
-       #    options['height'] = sprite_size.y
-
-       #if ('width' in options and 'height' in options):
-       #    size = Vector(options['width'], options['height'])
-       #    options['shape'] = Polygon.from_box(
-       #        size * -0.5, size * 0.5
-       #    )
-
         if 'position' in options:
             self.position = options.pop('position')
         if 'z_index' in options:
@@ -131,112 +113,112 @@ cdef class NodeBase:
     def children(self):
         cdef:
             CNode* c_node
-            vector[CNode*] children_copy = self.c_node.children
+            vector[CNode*] children_copy = self.c_node.children()
 
         for c_node in children_copy:
             yield get_node_wrapper(c_node)
 
     @property
     def type(self):
-        return <int>self._get_c_node().type
+        return <int>self._get_c_node().type()
 
     @property
     def scene(self):
-        cdef CPyScene* cpy_scene = <CPyScene*>self._get_c_node().scene
+        cdef CPyScene* cpy_scene = <CPyScene*>self._get_c_node().scene()
         if cpy_scene:
             return cpy_scene.get_py_scene()
 
     @property
     def parent(self):
-        if self._get_c_node().parent != NULL:
-            return get_node_wrapper(self._get_c_node().parent)
+        if self._get_c_node().parent() != NULL:
+            return get_node_wrapper(self._get_c_node().parent())
 
     @property
     def position(self):
-        return Vector.from_c_vector(self._get_c_node().position)
+        return Vector.from_c_vector(self._get_c_node().position())
 
     @position.setter
     def position(self, Vector vec):
-        self._get_c_node().set_position(vec.c_vector)
+        self._get_c_node().position(vec.c_vector)
 
     @property
     def z_index(self):
-        self._get_c_node().z_index
+        self._get_c_node().z_index()
 
     @z_index.setter
     def z_index(self, int value):
-        self._get_c_node().z_index = value
+        self._get_c_node().z_index(value)
 
     @property
     def rotation(self):
-        return self._get_c_node().rotation
+        return self._get_c_node().rotation()
 
     @rotation.setter
     def rotation(self, double value):
-        self._get_c_node().set_rotation(value)
+        self._get_c_node().rotation(value)
 
     @property
     def rotation_degrees(self):
-        return degrees(self._get_c_node().rotation)
+        return degrees(self._get_c_node().rotation())
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
-        self._get_c_node().set_rotation(radians(value))
+        self._get_c_node().rotation(radians(value))
 
     @property
     def scale(self):
-        return Vector.from_c_vector(self._get_c_node().scale)
+        return Vector.from_c_vector(self._get_c_node().scale())
 
     @scale.setter
     def scale(self, Vector vec):
-        self._get_c_node().scale = vec.c_vector
+        self._get_c_node().scale(vec.c_vector)
 
     @property
     def color(self):
-        return Color.from_c_color(self._get_c_node().color)
+        return Color.from_c_color(self._get_c_node().color())
 
     @color.setter
     def color(self, Color col):
-        self._get_c_node().color = col.c_color
+        self._get_c_node().color(col.c_color)
 
     @property
     def visible(self):
-        return self._get_c_node().visible
+        return self._get_c_node().visible()
 
     @visible.setter
     def visible(self, bint value):
-        self._get_c_node().visible = value
+        self._get_c_node().visible(value)
 
     @property
     def sprite(self):
-        if self._get_c_node().sprite.has_texture():
-            return get_sprite_wrapper(&self._get_c_node().sprite)
+        if self._get_c_node().sprite_ref().has_texture():
+            return get_sprite_wrapper(&self._get_c_node().sprite_ref())
 
     @sprite.setter
     def sprite(self, Sprite sprite):
         if sprite:
-            self._get_c_node().set_sprite(sprite.c_sprite_ptr[0])
+            self._get_c_node().sprite(sprite.c_sprite_ptr[0])
         else:
-            self._get_c_node().set_sprite(CSprite())
+            self._get_c_node().sprite(CSprite())
 
     @property
     def shape(self):
-        return get_shape_wrapper(&self._get_c_node().shape)
+        return get_shape_wrapper(self._get_c_node().shape())
 
     @shape.setter
     def shape(self, ShapeBase new_shape):
         if new_shape is not None:
-            self._get_c_node().set_shape(new_shape.c_shape_ptr[0])
+            self._get_c_node().shape(new_shape.c_shape_ptr[0])
         else:
-            self._get_c_node().set_shape(CShape())
+            self._get_c_node().shape(CShape())
 
     @property
     def origin_alignment(self):
-        return Alignment(<uint32_t>self._get_c_node().origin_alignment)
+        return Alignment(<uint32_t>self._get_c_node().origin_alignment())
 
     @origin_alignment.setter
     def origin_alignment(self, alignment):
-        self._get_c_node().origin_alignment = <CAlignment>(<uint32_t>alignment.value)
+        self._get_c_node().origin_alignment(<CAlignment>(<uint32_t>alignment.value))
 
 
 cdef class Node(NodeBase):
@@ -248,21 +230,21 @@ cdef class Node(NodeBase):
 cdef NodeBase get_node_wrapper(CNode* c_node):
     assert c_node != NULL
     cdef NodeBase py_node
-    if c_node.node_wrapper.get() != NULL:
+    if c_node.wrapper_ptr() != NULL:
         # TODO typeid assert?
         py_node = <object>(
-            <CPyNodeWrapper*>c_node.node_wrapper.get()
+            <CPyNodeWrapper*>c_node.wrapper_ptr()
         ).py_wrapper
-    elif c_node.type == CNodeType.space:
+    elif c_node.type() == CNodeType.space:
         py_node = SpaceNode.__new__(SpaceNode)
         py_node._attach_c_node(c_node)
-    elif c_node.type == CNodeType.body:
+    elif c_node.type() == CNodeType.body:
         py_node = BodyNode.__new__(BodyNode)
         py_node._attach_c_node(c_node)
-    elif c_node.type == CNodeType.hitbox:
+    elif c_node.type() == CNodeType.hitbox:
         py_node = HitboxNode.__new__(HitboxNode)
         py_node._attach_c_node(c_node)
-    elif c_node.type == CNodeType.text:
+    elif c_node.type() == CNodeType.text:
         py_node = TextNode.__new__(TextNode)
         py_node._attach_c_node(c_node)
     else:
