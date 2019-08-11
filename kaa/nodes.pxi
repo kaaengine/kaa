@@ -1,5 +1,6 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
+from libc.stdint cimport uint32_t
 from libcpp.memory cimport unique_ptr
 
 from .kaacore.shapes cimport CShape
@@ -93,6 +94,8 @@ cdef class NodeBase:
             self.shape = options.pop('shape')
         if 'origin_alignment' in options:
             self.origin_alignment = options.pop('origin_alignment')
+        if 'lifetime' in options:
+            self.lifetime = options.pop('lifetime')
         if 'width' in options:
             self.width = options.pop('width')
         if 'height' in options:
@@ -219,6 +222,14 @@ cdef class NodeBase:
     @origin_alignment.setter
     def origin_alignment(self, alignment):
         self._get_c_node().origin_alignment(<CAlignment>(<uint32_t>alignment.value))
+
+    @property
+    def lifetime(self):
+        return self._get_c_node().lifetime()
+
+    @lifetime.setter
+    def lifetime(self, uint32_t new_lifetime):
+        self._get_c_node().lifetime(new_lifetime)
 
 
 cdef class Node(NodeBase):
