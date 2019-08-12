@@ -1,7 +1,7 @@
 from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
 from libcpp cimport bool
-from libc.stdint cimport int16_t
+from libc.stdint cimport int16_t, uint32_t
 
 from .vectors cimport CVector, CColor
 from .geometry cimport CAlignment
@@ -65,6 +65,9 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CAlignment origin_alignment() except +raise_py_error
         void origin_alignment(const CAlignment& alignment) except +raise_py_error
+
+        uint32_t lifetime() except +raise_py_error
+        void lifetime(const uint32_t& lifetime) except +raise_py_error
 
         CScene* scene() except +raise_py_error
         CNode* parent() except +raise_py_error

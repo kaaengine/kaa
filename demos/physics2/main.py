@@ -63,10 +63,6 @@ class MyScene(Scene):
         for i in range(5):
             self.spawn_object()
 
-        def _timer_callback(timer):
-            self.spawn_object()
-            timer.restart()
-
         self.space.set_collision_handler(
             COLLISION_TRIGGER, COLLISION_TRIGGER,
             self.on_collision,
@@ -140,6 +136,14 @@ class MyScene(Scene):
 
             elif event.is_pressing(Keycode.s):
                 self.observed_ball.velocity *= 1.5
+
+            elif event.is_pressing(Keycode.l):
+                all_balls = [
+                    n for n in self.space.children if isinstance(n, FlyingBall)
+                ]
+                if all_balls:
+                    target_ball = random.choice(all_balls)
+                    target_ball.lifetime = 1500
 
             elif event.is_pressing(Mousecode.left):
                 self.spawn_object(
