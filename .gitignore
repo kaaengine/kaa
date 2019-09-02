@@ -8,3 +8,5 @@ _skbuild/
 wheelhouse/
 kaa/_kaa.cpp
 *.pyc
+.vscode
+*.egg-info
