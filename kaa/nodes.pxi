@@ -96,6 +96,8 @@ cdef class NodeBase:
             self.origin_alignment = options.pop('origin_alignment')
         if 'lifetime' in options:
             self.lifetime = options.pop('lifetime')
+        if 'transition' in options:
+            self.transition = options.pop('transition')
         if 'width' in options:
             self.width = options.pop('width')
         if 'height' in options:
@@ -230,6 +232,23 @@ cdef class NodeBase:
     @lifetime.setter
     def lifetime(self, uint32_t new_lifetime):
         self._get_c_node().lifetime(new_lifetime)
+
+    @property
+    def transition(self):
+        # TODO return wrapper
+        if self._get_c_node().transition():
+            return True
+
+    @transition.setter
+    def transition(self, transition_or_list):
+        # TODO handle None
+        cdef NodeTransitionBase transition
+        if isinstance(transition_or_list, list):
+            transition = NodeTransitionsSequence(transition_or_list)
+        else:
+            transition = transition_or_list
+        assert transition.c_handle
+        self._get_c_node().transition(transition.c_handle)
 
 
 cdef class Node(NodeBase):

@@ -3,6 +3,8 @@
 #include <Python.h>
 
 #include "kaacore/physics.h"
+#include "kaacore/transitions.h"
+#include "kaacore/nodes.h"
 #include "kaacore/timers.h"
 #include "kaacore/log.h"
 
@@ -12,6 +14,12 @@ using namespace kaacore;
 struct PythonicCallbackWrapper {
     PyObject* py_callback;
     bool is_weakref;
+
+    PythonicCallbackWrapper()
+        : py_callback(nullptr), is_weakref(false)
+    {
+        log("Creating empty PythonicCallbackWrapper");
+    }
 
     PythonicCallbackWrapper(PyObject* py_callback, bool is_weakref=false)
         : py_callback(py_callback), is_weakref(is_weakref)
@@ -29,8 +37,9 @@ struct PythonicCallbackWrapper {
 
     ~PythonicCallbackWrapper()
     {
-        assert(this->py_callback != nullptr);
-        Py_DECREF(this->py_callback);
+        if (this->py_callback != nullptr) {
+            Py_DECREF(this->py_callback);
+        }
     }
 
     PythonicCallbackWrapper& operator=(const PythonicCallbackWrapper& wrapper)
@@ -64,4 +73,16 @@ TimerCallback bind_cython_timer_callback(
 )
 {
     return std::bind(cy_handler, callback);
+}
+
+
+typedef void (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper, Node*);
+
+NodeTransitionCallbackFunc bind_cython_transition_callback(
+    const CythonNodeTransitionCallback cy_handler, const PythonicCallbackWrapper& callback
+)
+{
+    using namespace std::placeholders;
+
+    return std::bind(cy_handler, callback, _1);
 }

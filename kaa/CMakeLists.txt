@@ -21,6 +21,8 @@ set(CYTHON_FILES
     geometry.pxi
     exceptions.pxi
     timers.pxi
+    transitions.pxi
+    custom_transitions.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -40,6 +42,8 @@ set(CYTHON_FILES
     kaacore/geometry.pxd
     kaacore/exceptions.pxd
     kaacore/timers.pxd
+    kaacore/transitions.pxd
+    kaacore/custom_transitions.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
