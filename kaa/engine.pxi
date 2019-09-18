@@ -21,9 +21,11 @@ class VirtualResolutionMode(IntEnum):
 @cython.final
 cdef class _Engine:
     cdef _Window _window
+    cdef _Renderer _renderer
 
     def __init__(self):
         self._window = _Window()
+        self._renderer = _Renderer()
 
     cdef inline CEngine* _get_c_engine(self):
         cdef CEngine* c_engine = get_c_engine()
@@ -77,6 +79,10 @@ cdef class _Engine:
     @property
     def window(self):
         return self._window
+
+    @property
+    def renderer(self):
+        return self._renderer
 
     def stop(self):
         if get_c_engine() == NULL:

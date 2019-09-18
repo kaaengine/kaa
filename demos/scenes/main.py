@@ -1,6 +1,7 @@
 import os
 
 from kaa.nodes import Node
+from kaa.colors import Color
 from kaa.input import Keycode
 from kaa.images import Sprite
 from kaa.engine import Engine, Scene
@@ -27,6 +28,7 @@ class MainScene(Scene):
 
     def on_enter(self):
         print(f'{self.__class__.__name__} on_enter')
+        self.engine.renderer.clear_color=Color(0.5, 0.75, 0.25, 1)
 
     def update(self, dt):
         for event in self.input.events():
@@ -55,6 +57,7 @@ class SecondScene(Scene):
 
     def on_enter(self):
         print(f'{self.__class__.__name__} on_enter')
+        self.engine.renderer.clear_color=Color(0.5, 0.25, 0.75, 1)
 
     def update(self, dt):
         for event in self.input.events():
@@ -70,7 +73,7 @@ class SecondScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine(virtual_resolution=Vector(10, 10))
-    main_scene = MainScene()
-    SCENES = {'main': main_scene, 'second': SecondScene()}
-    engine.run(main_scene)
+    with Engine(virtual_resolution=Vector(10, 10)) as engine:
+        main_scene = MainScene()
+        SCENES = {'main': main_scene, 'second': SecondScene()}
+        engine.run(main_scene)
