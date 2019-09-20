@@ -59,5 +59,5 @@ class MainScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine(virtual_resolution=Vector(800, 600))
-    engine.run(MainScene())
+    with Engine(virtual_resolution=Vector(800, 600)) as engine:
+        engine.run(MainScene())

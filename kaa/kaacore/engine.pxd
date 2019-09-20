@@ -6,6 +6,7 @@ from libc.stdint cimport int32_t, uint64_t
 from .display cimport CDisplay
 from .scenes cimport CScene
 from .window cimport CWindow
+from .renderer cimport CRenderer
 from .input cimport CInputManager
 from .exceptions cimport raise_py_error
 from .vectors cimport CUVec2
@@ -19,6 +20,7 @@ cdef extern from "kaacore/engine.h" nogil:
 
     cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CWindow] window
+        unique_ptr[CRenderer] renderer
         unique_ptr[CInputManager] input_manager
         CScene* scene
         uint64_t time

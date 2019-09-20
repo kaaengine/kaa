@@ -13,6 +13,10 @@ cdef class Color:
         assert 0. <= a <= 1.
         self.c_color = CColor(r, g, b, a)
 
+    def __str__(self):
+        cls = self.__class__.__name__
+        return f'{cls}[{self.r:.2f}, {self.g:.2f}, {self.b:.2f}, {self.a:.2f}]'
+
     @property
     def r(self):
         return self.c_color.r
