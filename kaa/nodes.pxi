@@ -235,9 +235,8 @@ cdef class NodeBase:
 
     @property
     def transition(self):
-        # TODO return wrapper
         if self._get_c_node().transition():
-            return True
+            return get_transition_wrapper(self._get_c_node().transition())
 
     @transition.setter
     def transition(self, transition_or_list):

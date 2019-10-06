@@ -1,3 +1,4 @@
+import cython
 from libcpp.memory cimport unique_ptr
 
 from .kaacore.nodes cimport CNode
@@ -18,6 +19,7 @@ cdef void node_transition_callback_dispatch(
     (<object>c_wrapper.py_callback)(get_node_wrapper(c_node))
 
 
+@cython.final
 cdef class NodeTransitionCallback(NodeTransitionBase):
     def __init__(self, callback_func):
         self._setup_handle(
@@ -46,8 +48,9 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
              const double duration, const CTransitionWarping& warping):
         this.prepare_func = prepare_func
         this.evaluate_func = evaluate_func
-        this.duration = duration
+        this.duration = duration * warping.duration_factor()
         this.internal_duration = duration
+        this.warping = warping
 
     unique_ptr[CTransitionStateBase] prepare_state(CNode* c_node) const:
         cdef object state_object = (<object>this.prepare_func.py_callback)(get_node_wrapper(c_node))
@@ -64,9 +67,10 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
                                                  get_node_wrapper(c_node), t)
 
 
+@cython.final
 cdef class NodeCustomTransition(NodeTransitionBase):
     def __init__(self, prepare_func, evaluate_func, double duration
-                 # TODO warping
+                 **warping_options,
      ):
         self._setup_handle(
             make_node_transition[CPyNodeCustomTransition](
@@ -74,6 +78,6 @@ cdef class NodeCustomTransition(NodeTransitionBase):
                 CPythonicCallbackWrapper(<PyObject*>prepare_func),
                 CPythonicCallbackWrapper(<PyObject*>evaluate_func),
                 duration,
-                CTransitionWarping()
+                self._prepare_warping(warping_options),
             )
         )

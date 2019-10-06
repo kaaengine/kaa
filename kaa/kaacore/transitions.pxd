@@ -16,6 +16,7 @@ cdef extern from "kaacore/transitions.h" nogil:
     cdef cppclass CTransitionWarping "kaacore::TransitionWarping":
         CTransitionWarping() except +raise_py_error
         CTransitionWarping(uint32_t loops, bool back_and_forth) except +raise_py_error
+        double duration_factor() const
 
 
     cdef CNodeTransitionHandle make_node_transition[T](...) except +raise_py_error

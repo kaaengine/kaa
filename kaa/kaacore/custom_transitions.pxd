@@ -11,6 +11,7 @@ cdef extern from "kaacore/transitions.h":
     cdef cppclass CNodeTransitionCustomizable "kaacore::NodeTransitionCustomizable":
         double duration
         double internal_duration
+        CTransitionWarping warping
 
         CNodeTransitionCustomizable() \
             except +raise_py_error

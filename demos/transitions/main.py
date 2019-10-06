@@ -26,7 +26,8 @@ class DemoTransitionsScene(Scene):
 
         self.transition = NodeTransitionsSequence([
             NodePositionTransition(Vector(-100., -100.), 3000.,
-                                   advance_method=AttributeTransitionMethod.add),
+                                   advance_method=AttributeTransitionMethod.add,
+                                   loops=3),
             NodePositionTransition(Vector(100., 0.), 3000.,
                                    advance_method=AttributeTransitionMethod.add),
             NodeTransitionDelay(1500.),
@@ -39,7 +40,7 @@ class DemoTransitionsScene(Scene):
                 NodeRotationTransition(1., 5000.),
                 NodeScaleTransition(Vector(2., 2.), 3000.),
                 NodeColorTransition(Color(0., 1., 0., 0.5), 4000.),
-            ]),
+            ], back_and_forth=True),
         ])
 
         self.custom_transition = NodeCustomTransition(
@@ -52,6 +53,7 @@ class DemoTransitionsScene(Scene):
                 state['positions'][min(int(t * 10), 9)],
             ),
             10000.,
+            loops=5,
         )
 
         self.space = self.root.add_child(
