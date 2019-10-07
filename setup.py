@@ -1,14 +1,17 @@
 import os
 import shutil
 import setuptools
+
+import versioneer
 from skbuild import setup
 
 
 KAA_SETUP_CMAKE_SOURCE = os.environ.get('KAA_SETUP_CMAKE_SOURCE', '')
 
 setup(
-    name="kaa",
-    version="0.0.1",
+    name="kaaengine",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     python_requires=">=3.4",
     description="An engine for making 2D games in python, for humans.",
     url="https://github.com/kaaengine/kaa",
