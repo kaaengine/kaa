@@ -1,36 +1,32 @@
 # kaa
 KAA - Pythonic game engine for humans
 
-## Building
 
-Requirements: cython, cmake (3.13+) - those could be installed with pip in virtualenv.
-Python version: 3.5+
+## Installation
 
-Clone repository:
+From PyPI:
 ```
-git clone --recursive https://github.com/kaaengine/kaa
-cd kaa
+pip install kaaengine
 ```
 
-Prepare cmake build environment (you usually need to do this only once):
+From repository (with `pip`):
 ```
-cmake -B./build .
-```
-
-Run build process (run this when there is an update):
-```
-cmake --build ./build -j9
+pip install 'git+https://github.com/kaaengine/kaa'
 ```
 
-Create a symlink to built kaa cython module (do this just once):
+From cloned repository:
 ```
-ln -s ../build/kaa/_kaa.so kaa/_kaa.so
+git clone --recursive https://github.com/kaaengine/kaa && cd kaa
+python setup.py install
 ```
 
-## Updating (submodules magic)
+Debug build:
+```
+git clone --recursive https://github.com/kaaengine/kaa && cd kaa
+python setup.py install --build-type Debug
+```
 
-Since KAA extensively uses git submodules, pulling changes from main repository is not enough. To update kaacore submodule
-to version matching with main repo do:
-```
-git submodule update --recursive kaacore
-```
+
+## Documentation
+
+COMING SOON!
