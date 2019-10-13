@@ -8,6 +8,7 @@ cdef extern from "extra/include/pythonic_callback.h":
         PyObject* py_callback
         bool is_weakref
 
+        CPythonicCallbackWrapper()
         CPythonicCallbackWrapper(PyObject* py_callback)
         CPythonicCallbackWrapper(PyObject* py_callback, bool is_weakref)
         CPythonicCallbackWrapper(const CPythonicCallbackWrapper& wrapper)
