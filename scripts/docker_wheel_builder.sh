@@ -36,6 +36,7 @@ echo "Building for: ${PY_VERSION} (${PY_VERSION_ABI})"
 PATH="/opt/python/${PY_VERSION_ABI}/bin:$PATH"
 
 yum install -y alsa-lib-devel pulseaudio-libs-devel  # SDL audio dependencies
+yum install -y libXrandr-devel libXcursor-devel  # SDL video dependencies
 pip install -r /host/requirements-dev.txt
 
 # simulate out-of-source build
