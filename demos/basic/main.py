@@ -47,6 +47,10 @@ class DemoScene(Scene):
              VirtualResolutionMode.adaptive_stretch]
         )
 
+        print("Displays info:")
+        for display in self.engine.get_displays():
+            print("* {!r}".format(display))
+
     def update(self, dt):
         for event in self.input.events():
             if event.is_quit():

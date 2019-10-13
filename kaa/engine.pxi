@@ -2,10 +2,12 @@ from enum import IntEnum
 from contextlib import contextmanager
 
 from libcpp.memory cimport unique_ptr
+from libcpp.vector cimport vector
 
 from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport CEngine, get_c_engine, CVirtualResolutionMode
+from .kaacore.display cimport CDisplay
 
 
 cdef unique_ptr[CEngine] _c_engine_instance
@@ -45,6 +47,15 @@ cdef class _Engine:
 
     def quit(self):
         self._get_c_engine().quit()
+
+    def get_displays(self):
+        cdef vector[CDisplay] c_displays = self._get_c_engine().get_displays()
+        cdef CDisplay c_disp
+        displays_list = []
+
+        for c_disp in c_displays:
+            displays_list.append(Display._wrap_c_display(c_disp))
+        return displays_list
 
     @property
     def virtual_resolution(self):

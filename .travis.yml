@@ -10,8 +10,5 @@ addons:
       - g++
       - freeglut3-dev
 
-before_install:
-  - pip3 install -r requirements-dev.txt
-
-install: python3 setup.py build develop
+install: python3 -m pip install -vvv -e .
 script: python3 -c 'import kaa._kaa'
