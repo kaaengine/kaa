@@ -11,3 +11,4 @@ kaa/_kaa.cpp
 .vscode
 *.egg-info
 .idea
+/docs/_build
