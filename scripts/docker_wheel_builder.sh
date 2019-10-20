@@ -50,7 +50,7 @@ KAA_SETUP_CMAKE_SOURCE='/host/' python setup.py --force-cmake \
     bdist_wheel -d /wheels/ \
     -- -DKAA_BUNDLE_SDL:BOOL=OFF
 
-LD_LIBRARY_PATH=$(echo /_skbuild/linux-*/cmake-build/kaacore/third_party/sdl2/)
+LD_LIBRARY_PATH=/usr/local/lib/:$(echo /_skbuild/linux-*/cmake-build/kaacore/third_party/sdl2/)
 for WHEEL in /wheels/*.whl
 do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \
