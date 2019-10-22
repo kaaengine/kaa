@@ -112,7 +112,7 @@ cdef class Scene:
     def on_enter(self):
         pass
 
-    def update(self):
+    def update(self, dt):
         raise NotImplementedError
 
     def on_exit(self):
