@@ -26,7 +26,7 @@ the following code inside main.py:
 
     class MyScene(Scene):
 
-        def update(self, dt):  # this method will be called 60 times per second (once per game frame)
+        def update(self, dt):  # this method is your game loop
             pass  # your game code will live here!
 
 
@@ -69,7 +69,7 @@ engine, and the engine will always use exactly this resolution. If you run the g
 virtual resolution, the engine will stretch the game's frame buffer (actual draw area). If you run it in a window
 smaller than declared virtual resolution, the engine will shrink it.
 
-Let's test this feature by declaring window size different than a virtual resolution. Let's also tell the renderer to
+Let's test this feature by declaring window size different than the virtual resolution. Let's also tell the renderer to
 paint the frame buffer with a different color so we can see the results.
 
 Add the following imports to your code:
