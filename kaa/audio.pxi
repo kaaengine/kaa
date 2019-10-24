@@ -1,4 +1,15 @@
-from .kaacore.audio cimport CSound, CMusic
+from enum import IntEnum
+
+cimport cython
+
+from .kaacore.engine cimport get_c_engine
+from .kaacore.audio cimport CAudioManager, CSound, CMusic, CMusicState
+
+
+class MusicState(IntEnum):
+    playing = <uint8_t>CMusicState.playing
+    paused = <uint8_t>CMusicState.paused
+    stopped = <uint8_t>CMusicState.stopped
 
 
 cdef class Sound:
@@ -9,6 +20,14 @@ cdef class Sound:
 
     def __init__(self, str sound_filepath, double volume=1.):
         self._attach_c_sound(CSound.load(sound_filepath.encode(), volume))
+
+    @property
+    def volume(self):
+        return self.c_sound.volume()
+
+    @volume.setter
+    def volume(self, double vol):
+        self.c_sound.volume(vol)
 
     def play(self, double volume=1.):
         self.c_sound.play(volume)
@@ -29,11 +48,73 @@ cdef class Music:
     def __init__(self, str music_filepath, double volume=1.):
         self._attach_c_music(CMusic.load(music_filepath.encode(), volume))
 
-    def play(self):
-        self.c_music.play()
+    @staticmethod
+    def get_current():
+        return get_music_wrapper(CMusic.get_current())
+
+    @staticmethod
+    def get_state():
+        return MusicState(<uint8_t>CMusic.get_state())
+
+    @property
+    def volume(self):
+        return self.c_music.volume()
+
+    @volume.setter
+    def volume(self, double vol):
+        self.c_music.volume(vol)
+
+    @property
+    def is_playing(self):
+        return self.c_music.is_playing()
+
+    def play(self, double volume=1.):
+        self.c_music.play(volume)
 
 
 cdef Music get_music_wrapper(const CMusic& c_music):
     cdef Music music = Music.__new__(Music)
     music._attach_c_music(c_music)
     return music
+
+
+@cython.final
+cdef class _AudioManager:
+    cdef CAudioManager* _get_c_audio_manager(self):
+        cdef CEngine* c_engine = get_c_engine()
+        assert c_engine != NULL
+        cdef CAudioManager* c_audio_manager = c_engine.audio_manager.get()
+        assert c_audio_manager != NULL
+        return c_audio_manager
+
+    @property
+    def master_volume(self):
+        return self._get_c_audio_manager().master_volume()
+
+    @master_volume.setter
+    def master_volume(self, double vol):
+        self._get_c_audio_manager().master_volume(vol)
+
+    @property
+    def master_sound_volume(self):
+        return self._get_c_audio_manager().master_sound_volume()
+
+    @master_sound_volume.setter
+    def master_sound_volume(self, double vol):
+        self._get_c_audio_manager().master_sound_volume(vol)
+
+    @property
+    def master_music_volume(self):
+        return self._get_c_audio_manager().master_music_volume()
+
+    @master_music_volume.setter
+    def master_music_volume(self, double vol):
+        self._get_c_audio_manager().master_music_volume(vol)
+
+    @property
+    def mixing_channels(self):
+        return self._get_c_audio_manager().mixing_channels()
+
+    @mixing_channels.setter
+    def mixing_channels(self, int ch):
+        self._get_c_audio_manager().mixing_channels(ch)

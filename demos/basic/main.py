@@ -87,6 +87,31 @@ class DemoScene(Scene):
                                 self.engine.virtual_resolution_mode))
                 elif keyboard.is_pressing(Keycode.p):
                     print("Mouse position: {}".format(self.input.mouse.get_position()))
+                elif keyboard.is_pressing(Keycode.num_9):
+                    print("Decreasing master volume")
+                    self.engine.audio.master_volume -= 0.1
+                    print("Master volume: {}".format(self.engine.audio.master_volume))
+                elif keyboard.is_pressing(Keycode.num_0):
+                    print("Increasing master volume")
+                    self.engine.audio.master_volume += 0.1
+                    print("Master volume: {}".format(self.engine.audio.master_volume))
+                elif keyboard.is_pressing(Keycode.num_7):
+                    print("Decreasing master music volume")
+                    self.engine.audio.master_music_volume -= 0.1
+                    print("Master music volume: {}".format(self.engine.audio.master_music_volume))
+                elif keyboard.is_pressing(Keycode.num_8):
+                    print("Increasing master music volume")
+                    self.engine.audio.master_music_volume += 0.1
+                    print("Master music volume: {}".format(self.engine.audio.master_music_volume))
+                elif keyboard.is_pressing(Keycode.num_5):
+                    print("Decreasing master sound volume")
+                    self.engine.audio.master_sound_volume -= 0.1
+                    print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
+                elif keyboard.is_pressing(Keycode.num_6):
+                    print("Increasing master sound volume")
+                    self.engine.audio.master_sound_volume += 0.1
+                    print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
+
 
 
 if __name__ == '__main__':
