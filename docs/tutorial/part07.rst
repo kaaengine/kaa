@@ -1,4 +1,4 @@
-Part 7: Working with multiple scenes
-====================================
+Part 7: Drawing text
+====================
 
 TODO

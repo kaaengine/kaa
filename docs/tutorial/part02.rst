@@ -14,13 +14,13 @@ You should have the following folder structure:
 .. code-block:: none
 
     my_game/
-        main.py
         assets/
             gfx/
                 arrow.png
                 ..... other image files ....
             sfx/
                 .... sound effect files .....
+        main.py
 
 Let's now load the first image (arrow.png). Add the following imports at the top of the main.py
 

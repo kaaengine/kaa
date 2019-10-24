@@ -1,4 +1,4 @@
-Part 6: Drawing text
-====================
+Part 6: Sound effects and music
+===============================
 
 TODO

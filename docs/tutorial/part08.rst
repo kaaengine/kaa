@@ -1,4 +1,4 @@
-Part 8: The camera
-==================
+Part 8: Working with multiple scenes
+====================================
 
 TODO
