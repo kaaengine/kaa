@@ -71,6 +71,19 @@ cdef class Music:
     def play(self, double volume=1.):
         self.c_music.play(volume)
 
+    @property
+    def is_paused(self):
+        return self.c_music.is_paused()
+
+    def pause(self):
+        return self.c_music.pause()
+
+    def resume(self):
+        return self.c_music.resume()
+
+    def stop(self):
+        return self.c_music.stop()
+
 
 cdef Music get_music_wrapper(const CMusic& c_music):
     cdef Music music = Music.__new__(Music)

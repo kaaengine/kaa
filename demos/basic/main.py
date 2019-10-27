@@ -42,7 +42,6 @@ class DemoScene(Scene):
 
         if music_path:
             self.music = Music(music_path)
-            self.music.play()
         else:
             self.music = None
 
@@ -111,7 +110,18 @@ class DemoScene(Scene):
                     print("Increasing master sound volume")
                     self.engine.audio.master_sound_volume += 0.1
                     print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
-
+                elif keyboard.is_pressing(Keycode.x):
+                    self.music.play()
+                    print("Playing music")
+                elif keyboard.is_pressing(Keycode.c):
+                    ret = self.music.pause()
+                    print("Pausing music, success: {}".format(ret))
+                elif keyboard.is_pressing(Keycode.v):
+                    ret = self.music.resume()
+                    print("Resuming music, success: {}".format(ret))
+                elif keyboard.is_pressing(Keycode.b):
+                    ret = self.music.stop()
+                    print("Stopping music, success: {}".format(ret))
 
 
 if __name__ == '__main__':

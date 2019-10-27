@@ -40,13 +40,18 @@ cdef extern from "kaacore/audio.h" nogil:
         CMusicState get_state() \
             except +raise_py_error
 
+        double volume() except +raise_py_error
+        void volume(const double) except +raise_py_error
+
         bool is_playing() \
             except +raise_py_error
         void play(double volume) \
             except +raise_py_error
 
-        double volume() except +raise_py_error
-        void volume(const double) except +raise_py_error
+        bool is_paused() except +raise_py_error
+        bool pause() except +raise_py_error
+        bool resume() except +raise_py_error
+        bool stop() except +raise_py_error
 
     cdef cppclass CAudioManager "kaacore::AudioManager":
         double master_volume() except +raise_py_error
