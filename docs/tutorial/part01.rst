@@ -148,7 +148,7 @@ End of Part 1 - full code
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Feel free to experiment with window and renderer properties. Then use the following main.py content below
- and proceed to :doc:`Part 2 of the tutorial </tutorial/part02>`
+and proceed to :doc:`Part 2 of the tutorial </tutorial/part02>`
 
 .. code-block:: python
 

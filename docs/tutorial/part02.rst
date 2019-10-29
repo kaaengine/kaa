@@ -425,7 +425,7 @@ End of Part 2 - full code
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We end this part of tutorial with a lot of code inside Scene's :code:`__init__`. It starts looking messy but don't
-worry, we'll start the Part 3 with a cleanup, and then we'll get to writing the actual game!
+worry, we'll start the :doc:`Part 3 </tutorial/part03>` with a cleanup, and then we'll get to writing the actual game!
 
 Anyway, here's the full listing of main.py after Part 2:
 
