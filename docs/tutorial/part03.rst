@@ -4,12 +4,12 @@ Part 3: Organizing the game code
 We've learned how to add objects to the nodes tree (draw them on the screen), how to transform them (move, rotate, scale),
 add child nodes to other nodes and how to use animations. Let's start writing the actual game!
 
-The game will be a top-down shooter with 3 possible weapons: machine gun, grenade launcher and force gun (will
+The game will be a top-down shooter with 3 weapons: machine gun, grenade launcher and force gun (will
 shoot non-lethal bullets which will push enemies away) and one type of enemy (a zombie). Enemies will have a basic AI with
 two behavior patterns: walk towards the player or just walk towards randomly selected point. We will implement
 some animations such as explosions of blood splatters. We'll use kaa's physics system to detect collisions between
 bullets and enemies as well as between characters in the game (player and enemies).  We'll use some sound effects and
-music. We will also learn how to control a camera. Finally, we'll learn how to add more scenes, such as main screen
+music to improve the experience. We will also learn how to control a camera. Finally, we'll learn how to add more scenes, such as main screen
 or pause screen and how to switch between them.
 
 It would not look good if we put all that stuff in main.py, so let's create a better structure for the game files and folders first.
@@ -202,9 +202,9 @@ anywhere in the code. Let's modify the :code:`main.py` in a following way:
 Write classes for your in-game objects and inherit from kaa.Node
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It would much better if we could add a :code:`<Player>` object to a scene, not just some generic :code:`<Node>`, right? Let's do this.
+It would look much better if we could add a :code:`<Player>` object to a scene, not just some generic :code:`<Node>`, right? Let's do this.
 
-Let's write a Player class that would extend kaa's Node. :code:`<Player>` instance will represent a character controlled
+Let's write a Player class that extends kaa Node. :code:`<Player>` instance will represent a character controlled
 by the player.
 
 .. code-block:: python
@@ -332,7 +332,7 @@ And then add the change_weapon method in the :code:`Player` class:
                 weapon = ForceGun(position=Vector(0, 0))
             else:
                 raise Exception('Unknown weapon type: {}'.format(new_weapon))
-            self.add_child(weapon)  # add the weapon node as player's child node
+            self.add_child(weapon)  # add the weapon node as player's child node (to make the weapon move and rotate together with the player)
             self.current_weapon = weapon  # remember the current weapon
 
 
@@ -367,7 +367,7 @@ Another important thing we want controllers to do is to add initial objects to t
             self.scene.add_child(self.player)
 
 .. note::
-    As your code base will grow and you'll add more objects and controllers you will sometimes have a dillema where to
+    As your code base will grow and you'll add more objects and controllers you will sometimes face a dillema where to
     put your code: in the object class, in the controller class or maybe even directly in the
     scene class? We can't give you precise answers here, just use common sense and general good programming practices
     for keeping your code clean.
@@ -401,11 +401,11 @@ of the code in :code:`player.py`:
     elif new_weapon == WeaponType.ForceGun:
         weapon = ForceGun(position=Vector(27.5, 0))
 
-We moved weapons to the right (relative to player), wider weapon sprites will be moved bit more.
+We moved weapons to the right (relative to player). Longer weapon sprites will be moved bit more.
 
 .. note::
     There's a better way of positioning those weapons, not depending on hardcoding pixel offset based on the
-    sprite's width. Can you find it? Hint: use origin_alignment property!
+    weapon's sprite width. Can you find it? Hint: use origin_alignment!
 
 That should work. Run the game and see the player holding the machine gun properly, everything looking better.
 
