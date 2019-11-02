@@ -67,6 +67,9 @@ is available on the scene object, it is :code:`input.is_pressed()`. Let's use it
 
 Run the game and see how our hero can now move using WSAD keys!
 
+.. note::
+    To check if a key is in "released" state use :code:`scene.input.is_released`
+
 But hey, wasn't something like this an example of a bad practice? We just hardcoded hero's speed to
 3 pixels (actually: 3 units of virtual resolution) per frame, ignoring the dt value! It means if the dt is 15 miliseconds
 the hero will move the same distance as when the frame takes 10 times longer (dt is 150 miliseconds). Also, shouldn't
@@ -147,6 +150,9 @@ Let's remove the :code:`if self.scene.input.is_pressed(Keycode.tab):` part from 
 Run the game. Works much better now. It's because :code:`is_pressing` event is published on a first key stroke
 and then in reasonable intervals (same as used when typing).
 
+.. note::
+    You can use :code:`event.is_releasing` to detect when a key was released.
+
 We now have ability to move our hero, cycle through weapons with tab, and select weapon with 1, 2 and 3.
 
 One more thing before we move on, it's annoying to press ALT+F4 to close the window, let's just bind it with pressing 'q'.
@@ -200,10 +206,23 @@ Finally we set player's rotation (in degrees) to the calculated value
 Run the game. We can now walk with WSAD, change weapons with tab, 1, 2, and 3 keys, and we can aim! It starts looking good!
 Let's now add a shooting mechanics!
 
-Getting mouse buttons
-~~~~~~~~~~~~~~~~~~~~~
+Getting mouse button click events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To be continued....
+Finding out if mouse button is pressed or released is similar to low-level keyboard input check.
 
+.. code-block:: python
 
+    from kaa.input import MouseKey
+
+    if scene.input.is_pressed(MouseKey.left): # to check if mouse key is pressed
+        .....
+    if scene.input.is_released(MouseKey.right): # to check if mouse key is released
+        .....
+
+.. note::
+    Currently kaa supports just 2 mouse buttons and no mousewheel. It will change very soon.
+
+We will use the left mouse button click in the :doc:`next part of the tutorial </tutorial/part05>`, where we'll
+implement shooting and collision handling.
 
