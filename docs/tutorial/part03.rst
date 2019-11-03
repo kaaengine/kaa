@@ -300,10 +300,10 @@ Let's create weapon types enum first:
 .. code-block:: python
     :caption: common/enums.py
 
-    from enum import Enum
+    import enum
 
 
-    class WeaponType(Enum):
+    class WeaponType(enum.Enum):
         MachineGun = 1
         GrenadeLauncher = 2
         ForceGun = 3
