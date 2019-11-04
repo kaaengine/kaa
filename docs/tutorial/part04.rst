@@ -140,11 +140,11 @@ Let's remove the :code:`if self.scene.input.is_pressed(Keycode.tab):` part from 
             for event in self.scene.input.events():
                 if event.is_pressing(Keycode.tab):
                     self.player.cycle_weapons()
-                if event.is_pressing(Keycode.num_1):
+                elif event.is_pressing(Keycode.num_1):
                     self.player.change_weapon(WeaponType.MachineGun)
-                if event.is_pressing(Keycode.num_2):
+                elif event.is_pressing(Keycode.num_2):
                     self.player.change_weapon(WeaponType.GrenadeLauncher)
-                if event.is_pressing(Keycode.num_3):
+                elif event.is_pressing(Keycode.num_3):
                     self.player.change_weapon(WeaponType.ForceGun)
 
 Run the game. Works much better now. It's because :code:`is_pressing` event is published on a first key stroke
