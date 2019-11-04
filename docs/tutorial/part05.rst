@@ -128,6 +128,11 @@ Let's add few variables to settings.py. We'll need it later, just trust me and a
     COLLISION_TRIGGER_GRENADE_LAUNCHER_BULLET = 4
     COLLISION_TRIGGER_FORCE_GUN_BULLET = 5
 
+    PLAYER_SPEED = 150
+    FORCE_GUN_BULLET_SPEED = 300
+    MACHINE_GUN_BULLET_SPEED = 500
+    GRENADE_LAUNCHER_BULLET_SPEED = 400
+
 Finally, let's change the :code:`Player` object to be a dynamic :code:`BodyNode` with a mass of 1. Let's also add
 a hitbox for the player!
 
@@ -169,14 +174,6 @@ Run the game and make sure everything works. The gameplay did not change at all,
 Remember the naive implementation of player movement (setting player's position on WSAD keys pressed)? From physic's
 engine standpoint such manual change of position would mean that the player is teleporting. It doesn't make sense.
 Instead, let's set player's :code:`velocity` on pressing WSAD keys and let the physics engine calculate the position!
-
-.. code-block:: python
-    :caption: settings.py
-
-    PLAYER_SPEED = 150
-    FORCE_GUN_BULLET_SPEED = 300
-    MACHINE_GUN_BULLET_SPEED = 500
-    GRENADE_LAUNCHER_BULLET_SPEED = 400
 
 .. code-block:: python
     :caption: controllers/player_controller.py
