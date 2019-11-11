@@ -130,7 +130,7 @@ Let's add few variables to settings.py. We'll need it later, just trust me and a
 
     PLAYER_SPEED = 150
     FORCE_GUN_BULLET_SPEED = 300
-    MACHINE_GUN_BULLET_SPEED = 500
+    MACHINE_GUN_BULLET_SPEED = 1200
     GRENADE_LAUNCHER_BULLET_SPEED = 400
 
 Finally, let's change the :code:`Player` object to be a dynamic :code:`BodyNode` with a mass of 1. Let's also add
@@ -441,8 +441,223 @@ to ForceGun by pressing 3 and then try shooting. Better? Much better!
 
 The game starts looking like a playable thing. We can move around, spawn enemies (space) and shoot our Force Gun at them.
 
+Let's now do shooting the machine gun!
+
 kinematic BodyNodes
 ~~~~~~~~~~~~~~~~~~~
+
+Let's start with the machine gun bullet object. It's similar to Force Gun bullet but will use different sprite and
+will have a rectangular hitbox that collides only with enemies.
+
+The most important difference though is that we'll make it a kinematic body type. As
+said before this body type is useful when we want to handle collisions entirely on our own and we will remove the
+object on collision.
+
+First let's add the machine gun bullet object and implement shooting logic:
+
+.. code-block:: python
+    :caption: objects/bullets/machine_gun_bullet.py
+
+    import random
+    import registry
+    import settings
+    from kaa.physics import BodyNode, BodyNodeType, HitboxNode
+    from kaa.geometry import Polygon, Vector
+    from common.enums import HitboxMask
+
+
+    class MachineGunBullet(BodyNode):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_bullet_img,
+                             z_index=30,
+                             body_type=BodyNodeType.kinematic, # MG bullets are kinematic bodies
+                             lifetime=3000, # will be removed from the scene automatically after 3 secs
+                             *args, **kwargs)
+            self.add_child(HitboxNode(shape=Polygon([Vector(-13, -4), Vector(13,-4), Vector(13,4), Vector(-13,4), Vector(-13,-4)]),
+                                      mask=HitboxMask.bullet, # tell physics engine about object type
+                                      collision_mask=HitboxMask.enemy, # tell physics engine which objects it can collide with
+                                      trigger_id=settings.COLLISION_TRIGGER_MG_BULLET # ID to be used in custom collision handling function
+                                      ))
+
+
+.. code-block:: python
+    :caption: objects/weapons/machine_gun.py
+
+    import registry
+    import settings
+    from objects.bullets.machine_gun_bullet import MachineGunBullet
+    from objects.weapons.base import WeaponBase
+    from kaa.geometry import Vector
+
+
+    class MachineGun(WeaponBase):
+
+        def __init__(self, position):
+            # node's properties
+            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_img, position=position)
+
+        def shoot_bullet(self):
+            bullet_position = self.get_initial_bullet_position()
+            bullet_velocity = Vector.from_angle_degrees(self.parent.rotation_degrees) * settings.MACHINE_GUN_BULLET_SPEED
+            self.scene.space.add_child(MachineGunBullet(position=bullet_position, velocity=bullet_velocity,
+                                                        rotation_degrees=self.parent.rotation_degrees))
+            # reset cooldown time
+            self.cooldown_time_remaining =  self.get_cooldown_time()
+
+        def get_cooldown_time(self):
+            return 100
+
+
+The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
+the machine gun bullet's don't bounce back when colliding with enemies. It's bacause they're kinematic bodies.
+
+Let's implement the collision handling between the MG bullet and the enemy. This is where :code:`trigger_id` values
+are being used. Put the following code in the :code:`controllers/collisions_controller.py`:
+
+.. code-block:: python
+    :caption: controllers/collisions_controller.py
+
+    import settings
+
+    class CollisionsController:
+
+        def __init__(self, scene):
+            self.scene = scene
+            self.space = self.scene.space
+            self.space.set_collision_handler(settings.COLLISION_TRIGGER_MG_BULLET, settings.COLLISION_TRIGGER_ENEMY,
+                                             self.on_collision_mg_bullet_enemy)
+
+        def on_collision_mg_bullet_enemy(self, arbiter, mg_bullet_pair, enemy_pair):
+            print("Detected a collision between MG bullet object {} hitbox {} and Enemy object {} hitbox {}".format(
+                mg_bullet_pair.body, mg_bullet_pair.hitbox, enemy_pair.body, enemy_pair.hitbox))
+
+
+The line where we call :code:`set_collision_handler` on the scene's :code:`SpaceNode` is where we tell the engine
+that we want our function to be called each time a collision between MG bullet and enemy occurs. We're using
+hitbox :code:`trigger_id` here.
+
+It is very important to realize that *a collision handler function can be called multiple times for given pair of
+colliding objects*. This can happen if object's hitboxes touch for the first time, then (for some reason) they either
+overlap or touch for some time and finally - they separate. Our collision handler function will be called every frame,
+as long as the hitboxes are touching or overlap. When they make apart, the collision handler function stops being called.
+
+Collision handler function always has the three parameters:
+
+* :code:`arbiter` - arbiter object that includes additional information about collision. It has the following properties:
+
+  * :code:`space` - a :code:`SpaceNode` where collision occurred.
+  * :code:`phase` - an enum value (:code:`kaa.physics.CollisionPhase`), indicating collision phase. Available values are:
+
+    * :code:`kaa.physics.CollisionPhase.begin` - indicates that collision betwen two objects has started (their hitboxes have just touched or overlapped)
+    * :code:`kaa.physics.CollisionPhase.pre_solve` - indicates that two hitboxes are still in contact (touching or overlapping). It is called before the engine calculates the physics (e.g. velocities of both colliding objects)
+    * :code:`kaa.physics.CollisionPhase.post_solve` - like pre_solve, but called after the engine calculates the physics for the objects.
+    * :code:`kaa.physics.CollisionPhase.separate` - indicates that hitboxes of our two objects have separated - the collision has ended
+
+* two "collision_pair" objects, corresponding with trigger_ids. Each collision pair object has two properties:
+
+  * :code:`body` - referencing :code:`BodyNode` which collided
+  * :code:`hitbox` - referencing :code:`HitboxNode` which collided (remember that body nodes can have multiple hitboxes - here we can know which of them has collided!)
+
+Next, let's  hook up the controller with the scene in :code:`scenes/gameplay.py`'s :code:`__init__`:
+
+.. code-block:: python
+    :caption: scenes/gameplay.py
+
+    class GameplayScene(Scene):
+
+        def __init__(self):
+            # ......... rest of the function .........
+            self.collisions_controller = CollisionsController(self)
+
+Run the game and shoot the machine gun at enemies to see that collision handler function is called (the print message appears in your std out)
+
+Now, let's implement enemies "staggering" when hit. Stagger will simply be a number of miliseconds when alternative frame
+is displayed.
+
+.. code-block:: python
+    :caption: objects/enemy.py
+
+    class Enemy(BodyNode):
+
+        def __init__(self, position, hp=100, *args, **kwargs):
+            # ......... reset of the function .......
+            self.stagger_time_left = 0
+
+        def stagger(self):
+            # use "stagger" frame
+            self.sprite.frame_current = 1
+            # track time for staying in the staggered state
+            self.stagger_time_left = 150
+
+        def recover_from_stagger(self):
+            self.sprite.frame_current = 0
+            self.stagger_time_left = 0
+
+
+And track stagger time and recovery in the enemies controller:
+
+.. code-block:: python
+    :caption: controllers/enemies_controller.py
+
+    class EnemiesController:
+        # ........ rest of the class ..........
+
+        def update(self, dt):
+            for enemy in self.enemies:
+                # handle enemy stagger time and stagger recovery
+                if enemy.stagger_time_left > 0:
+                    enemy.stagger_time_left -= dt
+                if enemy.stagger_time_left <= 0:
+                    enemy.recover_from_stagger()
+
+
+Finally let's add the collision handler function:
+
+.. code-block:: python
+    :caption: controllers/collisions_controller.py
+
+    import math
+    import settings
+    import registry
+    from kaa.physics import CollisionPhase
+    from kaa.nodes import Node
+    from kaa.geometry import Alignment
+
+    class CollisionsController:
+        # ....... rest of the class ........
+
+        def on_collision_mg_bullet_enemy(self, arbiter, mg_bullet_pair, enemy_pair):
+            print("Detected a collision between MG bullet object {} hitbox {} and Enemy object {} hitbox {}".format(
+                mg_bullet_pair.body, mg_bullet_pair.hitbox, enemy_pair.body, enemy_pair.hitbox))
+
+            if arbiter.phase == CollisionPhase.begin:
+                enemy = enemy_pair.body
+                enemy.hp -= 10
+                # add the blood splatter animation to the scene
+                self.scene.root.add_child(Node(z_index=900,
+                                               sprite=registry.global_controllers.assets_controller.blood_splatter_img,
+                                               position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
+                                               lifetime=3000))
+                if enemy.hp<=0:
+                    # add the enemy death animation to the scene
+                    self.scene.root.add_child(Node(z_index=1,
+                                                   sprite=registry.global_controllers.assets_controller.enemy_death_img,
+                                                   position=enemy.position, rotation=enemy.rotation,
+                                                   origin_alignment = Alignment.right,
+                                                   lifetime=10000))
+                    # remove enemy node from the scene
+                    self.scene.enemies_controller.remove_enemy(enemy)
+                else:
+                    enemy.stagger()
+
+                mg_bullet_pair.body.delete()  # remove the bullet from the scene
+
+The bullet-enemy collision handling logic is rather self-explanatory. What's interesting is that we remove objects
+from the scene at the end of the function. Remember that when a :code:`delete()` is called on an object
+we can no longer use its properties (even if we only want to read them).
+
+Run the game and enjoy shooting at enemies with machine gun, blood splatters and bodies falling down :)
 
 
 static BodyNodes
