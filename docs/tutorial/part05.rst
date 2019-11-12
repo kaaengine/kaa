@@ -77,8 +77,8 @@ A :code:`BodyNode` can be one of three types. This is determined by setting :cod
 * dynamic (:code:`kaa.physics.BodyNodeType.dynamic`) - fully dynamic node. Useful for a 'free' objects which you add to the environment and let the engine work out all the physics.
 
 
-Implement the first dynamic BodyNode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implement the first BodyNode with a hitbox
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's start using physics in our game. First let's define enum flags which we'll use to control what collides with what.
 
@@ -638,7 +638,7 @@ Finally let's add the collision handler function:
                 self.scene.root.add_child(Node(z_index=900,
                                                sprite=registry.global_controllers.assets_controller.blood_splatter_img,
                                                position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
-                                               lifetime=3000))
+                                               lifetime=140))
                 if enemy.hp<=0:
                     # add the enemy death animation to the scene
                     self.scene.root.add_child(Node(z_index=1,
@@ -662,4 +662,109 @@ Run the game and enjoy shooting at enemies with machine gun, blood splatters and
 
 static BodyNodes
 ~~~~~~~~~~~~~~~~
+
+We won't add any static BodyNodes to the game, but they're the simplest form of nodes: they can collide with other
+objects but they themselves don't move. Use static BodyNodes when you're sure that an object won't transform in any
+way (move, scale or rotate). Using static BodyNodes improves performance.
+
+
+overriding objects velocity calculated by the engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's implement an Artificial Intelligence for our enemies. Let's make each enemy be in one of the two modes:
+
+* Moving to a waypoint - we'll pick a random point on the screen and enemy will move towards it, when it reaches it we'll randomize another point
+* Moving towards player - enemy will simply move towards player's current position in a straight line
+
+Let's define an enum:
+
+.. code-block:: python
+    :caption: common/enums/py
+
+    class EnemyMovementMode(enum.Enum):
+        MoveToWaypoint = 1
+        MoveToPlayer = 2
+
+Next, let's modify the :code:`Enemy` class:
+
+.. code-block:: python
+    :caption: objects/enemy.py
+
+    import random
+    from common.enums import EnemyMovementMode
+
+    class Enemy(BodyNode):
+
+        def __init__(self, position, hp=100, *args, **kwargs):
+            # ....... rest of the function  .......
+
+            # 75% enemies will move towards player and 25% will move randomly
+            if random.randint(0, 100) < 75:
+                self.movement_mode = EnemyMovementMode.MoveToPlayer
+            else:
+                self.movement_mode = EnemyMovementMode.MoveToWaypoint
+            self.current_waypoint = None  # for those which move to a waypoint, we'll keep its corrdinates here
+            self.randomize_new_waypoint()  # and randomize new waypoint
+            # randomize a speed for each enemy, to add some variation
+            self.speed = random.randint(50, 150)
+
+        # ........ other methods ......
+
+        def randomize_new_waypoint(self):
+            self.current_waypoint = Vector(random.randint(50, settings.VIEWPORT_WIDTH-50),
+                                           random.randint(50, settings.VIEWPORT_HEIGHT-50))
+
+Finally, let's implement the movement logic in the :code:`EnemiesController` class
+
+.. code-block:: python
+    :caption: controllers/enemies_controller.py
+
+    from common.enums import EnemyMovementMode
+
+    class EnemiesController:
+        # ....... rest of the class ....
+
+        def update(self, dt):
+            player_pos = self.scene.player_controller.player.position
+
+            for enemy in self.enemies:
+                # handle enemy stagger time and stagger recovery
+                if enemy.stagger_time_left > 0:
+                    enemy.stagger_time_left -= dt
+                if enemy.stagger_time_left <= 0:
+                    enemy.recover_from_stagger()
+
+                # handle enemy movement
+                if enemy.movement_mode == EnemyMovementMode.MoveToWaypoint:
+                    # rotate towards the waypoint:
+                    enemy.rotation_degrees = (enemy.current_waypoint - enemy.position).to_angle_degrees()
+                    # set velocity: generate a normal vector pointing in the direction, then multiply by speed
+                    enemy.velocity = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.speed
+
+                    # if we're less than 10 units from the waypoint, we randomize a new one!
+                    if (enemy.current_waypoint - enemy.position).length() <= 10:
+                        enemy.randomize_new_waypoint()
+                elif enemy.movement_mode == EnemyMovementMode.MoveToPlayer:
+                    # rotate towards the player:
+                    enemy.rotation_degrees = (player_pos - enemy.position).to_angle_degrees()
+                    # set velocity: generate a normal vector pointing in the direction, then multiply by speed
+                    enemy.velocity = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.speed
+                else:
+                    raise Exception('Unknown enemy movement mode: {}'.format(enemy.movement_mode))
+
+Run the game and check it out. 75% of the enemies will walk towards the player while the other ones will wander
+randomly.
+
+You will notice one thing if you start shooting at them with the Force Gun. It no longer works, it does not
+push enemies back!
+
+What happened? By setting enemies velocity manually, we have overridden the velocity calculated by the physics engine
+which was coming from interactions with other moving objects (such as force gun bullets). In other words, enemies are
+no longer freely moving objects. There is no easy workaround for that. If we want the force gun bullets to push them
+back we need to implement it ourselves. We're nog going to do that now, but let's get some insight on how this CAN
+be done by implementing the grenade launcher.
+
+Implementing custom forces
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
