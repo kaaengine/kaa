@@ -6,10 +6,18 @@ from kaa.input import Keycode
 from kaa.audio import Music, Sound
 from kaa.engine import Engine, Scene, VirtualResolutionMode
 from kaa.geometry import Segment, Circle, Polygon, Vector
+from kaa.log import (
+    prepare_logger, set_core_logging_level,
+    CoreLogLevel, CoreLogCategory
+)
+
+
+logger = prepare_logger('kaa_demos.basic')
 
 
 class DemoScene(Scene):
     def __init__(self, sound_path, music_path):
+        logger.info("Initializing scene: demo/basic.")
         self.camera.position = Vector(0., 0.)
         self.seg_node = Node()
         self.seg_node.shape = Segment(Vector(-2., -2.),
@@ -83,6 +91,7 @@ class DemoScene(Scene):
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(5, 5)) as engine:
+        set_core_logging_level(CoreLogCategory.engine, CoreLogLevel.debug)
         scene = DemoScene(
             sound_path=len(sys.argv) >= 2 and sys.argv[1],
             music_path=len(sys.argv) >= 3 and sys.argv[2],

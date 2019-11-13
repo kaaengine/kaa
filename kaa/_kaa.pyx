@@ -2,6 +2,7 @@
 
 include "defines.pxi"
 include "exceptions.pxi"
+include "log.pxi"
 include "vectors.pxi"
 include "colors.pxi"
 include "geometry.pxi"
