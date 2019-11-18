@@ -52,8 +52,8 @@ Why a BodyNode cannot have other BodyNodes as children ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As you'll work on more complex games you'll notice that the most significant restriction is that BodyNode cannot
-have other BodyNodes as children. It means we cannot have a tree-like structure of colliding objects (the list of
-colliding objects in the scene must be a flat list!). It may seem like a serious
+have other BodyNodes as children. It means we cannot have a tree-like structure of colliding objects, the list of
+colliding objects in the scene must be a flat list!. It may seem like a serious
 constraint, but there are good reasons for it. The purpose of physics engine is to calculate object's position,
 rotation, velocity etc. based on environment properties (gravity, damping) and interactions (e.g. collisions) with
 other dynamic objects. A node whose transformations (position, rotation) would be calculated
@@ -316,10 +316,11 @@ Let's add a feature of spawning enemies by pressing SPACE. The enemy shall be sp
 Run the game and see how you can spawn them! Cool isn't it?
 
 You can take a moment to make some experiments, for instance:
+
 * try setting :code:`damping` on the :code:`SpaceNode` (in scenes/gameplay.py) to a very low value e.g. 0.01 and see how it works! Values greater than 1 will result in a funny effect pushed objects actually accelerating!
 * try giving enemies different masses (e.g. randomly) and observe how it affects them as they collide with each other.
 
-We know know everything to implement shooting the Force Gun - it will basically shoot a dynamic BodyNode objects
+We now know everything to implement shooting the Force Gun - it will basically shoot a dynamic BodyNode objects
 which will collide with enemies, player and with each other. We're going to give those nodes a lifetime of 10 seconds.
 
 Let's implement the bullet object first. It's going to be really simple: a BodyNode with a random mass, a circular
@@ -665,13 +666,14 @@ static BodyNodes
 
 We won't add any static BodyNodes to the game, but they're the simplest form of nodes: they can collide with other
 objects but they themselves don't move. Use static BodyNodes when you're sure that an object won't transform in any
-way (move, scale or rotate). Using static BodyNodes improves performance.
+way (move, scale or rotate). Using static BodyNodes instead of dynamic/kinematic BodyNodes with no velocity improves
+the performance.
 
 
-overriding objects velocity calculated by the engine
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+applying force to BodyNodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's implement an Artificial Intelligence for our enemies. Let's make each enemy be in one of the two modes:
+Let's implement a simple AI for our enemies. Let's make each enemy be in one of the two modes:
 
 * Moving to a waypoint - we'll pick a random point on the screen and enemy will move towards it, when it reaches it we'll randomize another point
 * Moving towards player - enemy will simply move towards player's current position in a straight line
@@ -706,7 +708,7 @@ Next, let's modify the :code:`Enemy` class:
             self.current_waypoint = None  # for those which move to a waypoint, we'll keep its corrdinates here
             self.randomize_new_waypoint()  # and randomize new waypoint
             # randomize a speed for each enemy, to add some variation
-            self.speed = random.randint(50, 150)
+            self.movement_force_value = random.randint(50, 150)
 
         # ........ other methods ......
 
@@ -738,8 +740,8 @@ Finally, let's implement the movement logic in the :code:`EnemiesController` cla
                 if enemy.movement_mode == EnemyMovementMode.MoveToWaypoint:
                     # rotate towards the waypoint:
                     enemy.rotation_degrees = (enemy.current_waypoint - enemy.position).to_angle_degrees()
-                    # set velocity: generate a normal vector pointing in the direction, then multiply by speed
-                    enemy.velocity = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.speed
+                    # apply force, first get the right angle then multiply by speed and then by 10 to minimize the inertia
+                    enemy.force = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.movement_force_value*10
 
                     # if we're less than 10 units from the waypoint, we randomize a new one!
                     if (enemy.current_waypoint - enemy.position).length() <= 10:
@@ -747,24 +749,24 @@ Finally, let's implement the movement logic in the :code:`EnemiesController` cla
                 elif enemy.movement_mode == EnemyMovementMode.MoveToPlayer:
                     # rotate towards the player:
                     enemy.rotation_degrees = (player_pos - enemy.position).to_angle_degrees()
-                    # set velocity: generate a normal vector pointing in the direction, then multiply by speed
-                    enemy.velocity = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.speed
+                    # apply force, first get the right angle then multiply by speed and then by 10 to minimize the inertia
+                    enemy.force = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.movement_force_value*10
                 else:
                     raise Exception('Unknown enemy movement mode: {}'.format(enemy.movement_mode))
 
+                # cap the enemy velocity at a maximum speed (which happens to be  our "movement force value")
+                if enemy.velocity.length() >= enemy.movement_force_value:
+                    enemy.velocity /= enemy.velocity.length() / enemy.movement_force_value
+
+
 Run the game and check it out. 75% of the enemies will walk towards the player while the other ones will wander
-randomly.
+randomly. Notice that we let the engine calculate enemies velocity, we just apply a force to push them in the
+direction where we want them to go. If we had set velocity manually (instead of setting force), the enemy moves
+would be almost identical but they would not react correctly to Force Gun bullets.
 
-You will notice one thing if you start shooting at them with the Force Gun. It no longer works, it does not
-push enemies back!
+There is an interesting "magic number" of 10 which we use as a multiplier when applying a force. You can make
+an experiment and see what happens if you change the "magic number" to 1. Enemies will have a very big inertia, as if they
+were sliding on an ice. This is why we want force to be a large value, then we cap the velocity at a maximum value.
 
-What happened? By setting enemies velocity manually, we have overridden the velocity calculated by the physics engine
-which was coming from interactions with other moving objects (such as force gun bullets). In other words, enemies are
-no longer freely moving objects. There is no easy workaround for that. If we want the force gun bullets to push them
-back we need to implement it ourselves. We're nog going to do that now, but let's get some insight on how this CAN
-be done by implementing the grenade launcher.
-
-Implementing custom forces
-~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
