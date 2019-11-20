@@ -251,10 +251,10 @@ Let's get to it. Modify the :code:`update` function in :code:`MyScene` class:
 
 Run the game and notice how the arrows rotate around their respective origin points. It's also worth noting that
 it's generally better to include dt in all formulas which transform game objects. Rotating, moving, or generally applying
-any other transformation by a fixed value *per frame* can lead to problems because it is not guaranteed
+any other transformation by a fixed value **per frame** can lead to problems because it is not guaranteed
 that frame time (dt) will always be identical. Some frames may take longer to process than others and the visible
 transformations would suddenly speed up or slow down, confusing the player. Thus it's usually better to apply
-transformations *per second*.
+transformations **per second**.
 
 Objects can have child objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

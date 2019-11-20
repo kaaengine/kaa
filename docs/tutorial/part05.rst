@@ -62,7 +62,7 @@ physical node and becomes just a picture drawn on the screen.
 
 Having said that, there are ways in which you can simulate a more complex or hierarchical structure of physical objects
 
-* Apply all BodyNode transformations you want manually and set it's position and/or rotation manually in relation to the parent object
+* Apply all BodyNode transformations manually. In other words do the calculations on your own and set the object's position and/or rotation manually.
 * Collision queries - this feature is to be implemented soon. It will allow you to ask a question like "here's a polygon (circle, segment), tell me which HitboxNodes/BodyNodes it collides with"
 * Joints - this feature is to be implemented next. You will be able to connect BodyNodes with 'joints' and they will behave
 
@@ -131,7 +131,7 @@ Let's add few variables to settings.py. We'll need it later, just trust me and a
     PLAYER_SPEED = 150
     FORCE_GUN_BULLET_SPEED = 300
     MACHINE_GUN_BULLET_SPEED = 1200
-    GRENADE_LAUNCHER_BULLET_SPEED = 400
+    GRENADE_LAUNCHER_BULLET_SPEED = 200
 
 Finally, let's change the :code:`Player` object to be a dynamic :code:`BodyNode` with a mass of 1. Let's also add
 a hitbox for the player!
@@ -409,7 +409,7 @@ Next, let's add methods for shooting in the :code:`WeaponBase` class and in the 
 The maths in the :code:`shoot_bullet` and :code:`get_initial_bullet_position` is fairly simple, but let's highlight
 a few things here. :code:`get_initial_bullet_position` basically returns a player's position offset by 50 pixels
 towards the direction where the player is rotated (where he points his gun). This way the bullet will spawn at the end of the weapon's barrel.
-Spawning it in the center of the player would not look good! We're using Vector's method `from_angle_degrees` to create a
+Spawning it in the center of the player would not look good! We're using Vector's method :code:`from_angle_degrees` to create a
 normal (length of 1) vector rotated in the direction of the player, multiply by 50 and add player position. :code:`shoot_bullet`
 is even easier, it just adds a bullet velocity, again, creating vector rotated at direction where player is pointing
 his gun and then multiplying by bullet speed. Finally we set the cooldown time to weapon's value.
@@ -440,7 +440,7 @@ Run the game! You can now shoot them with the force gun! How cool is it?
 Did you get :code:`NotImplementedError`? It's because other weapons are not implemented, just look at the code! Change
 to ForceGun by pressing 3 and then try shooting. Better? Much better!
 
-The game starts looking like a playable thing. We can move around, spawn enemies (space) and shoot our Force Gun at them.
+The game starts looking like a playable thing. We can move around, spawn enemies and shoot our Force Gun at them.
 
 Let's now do shooting the machine gun!
 
@@ -511,7 +511,8 @@ First let's add the machine gun bullet object and implement shooting logic:
 
 
 The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
-the machine gun bullet's don't bounce back when colliding with enemies. It's bacause they're kinematic bodies.
+the machine gun bullets don't bounce back when colliding with enemies. In fact they're not affected at all by
+collisions. It's because they're kinematic bodies.
 
 Let's implement the collision handling between the MG bullet and the enemy. This is where :code:`trigger_id` values
 are being used. Put the following code in the :code:`controllers/collisions_controller.py`:
@@ -538,9 +539,9 @@ The line where we call :code:`set_collision_handler` on the scene's :code:`Space
 that we want our function to be called each time a collision between MG bullet and enemy occurs. We're using
 hitbox :code:`trigger_id` here.
 
-It is very important to realize that *a collision handler function can be called multiple times for given pair of
-colliding objects*. This can happen if object's hitboxes touch for the first time, then (for some reason) they either
-overlap or touch for some time and finally - they separate. Our collision handler function will be called every frame,
+It is very important to realize that **a collision handler function can be called multiple times for given pair of
+colliding objects (even multiple times per frame)**. This can happen if object's hitboxes touch for the first time, then they either
+overlap or touch each other for some time and finally - they separate. Our collision handler function will be called every frame,
 as long as the hitboxes are touching or overlap. When they make apart, the collision handler function stops being called.
 
 Collision handler function always has the three parameters:
@@ -795,6 +796,154 @@ on the final weapon we'll have in the game: a grenade launcher. We want the gren
 
 Let's get to it.
 
+First, let's implement the grenade launcher bullet and grenade shooting logic. It is very similar to the
+machine gun logic, just using different sprite and a different hitbox shape for bullet, and a bigger cooldown time.
+
+.. code-block:: python
+    :caption: objects/bullets/grenade_launcher_bullet.py
+
+    import random
+    from kaa.physics import BodyNodeType, HitboxNode, BodyNode
+    from kaa.geometry import Circle
+    import registry
+    import settings
+    from common.enums import HitboxMask
 
 
+    class GrenadeLauncherBullet(BodyNode):
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_bullet_img,
+                             z_index=30,
+                             body_type=BodyNodeType.kinematic,  # as we want to handle collision effects on our own
+                             lifetime=5000,  # will be removed from the scene automatically after 5 secs
+                             rotation_degrees=random.uniform(0, 360),  # a random rotation between 0 and 360 degs
+                             *args, **kwargs)
+            self.add_child(HitboxNode(shape=Circle(radius=6),  # circular hitbox
+                  mask=HitboxMask.bullet,  # we are bullet
+                  collision_mask=HitboxMask.enemy,  # want to collide with objects whose mask is enemy
+                  trigger_id=settings.COLLISION_TRIGGER_GRENADE_LAUNCHER_BULLET  # used when registering collision handler function
+                  ))
+
+
+.. code-block:: python
+    :caption: objects/weapons/grenade_launcher.py
+
+    import registry
+    import settings
+    import random
+    from objects.bullets.grenade_launcher_bullet import GrenadeLauncherBullet
+    from objects.weapons.base import WeaponBase
+    from kaa.geometry import Vector
+
+
+    class GrenadeLauncher(WeaponBase):
+
+        def __init__(self, position):
+            # node's properties
+            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_img, position=position)
+
+        def shoot_bullet(self):
+            bullet_position = self.get_initial_bullet_position()
+            bullet_velocity = Vector.from_angle_degrees(self.parent.rotation_degrees) * settings.GRENADE_LAUNCHER_BULLET_SPEED
+            self.scene.space.add_child(GrenadeLauncherBullet(position=bullet_position, velocity=bullet_velocity))
+            # reset cooldown time
+            self.cooldown_time_remaining =  self.get_cooldown_time()
+
+        def get_cooldown_time(self):
+            return 1000
+
+
+Then, let's write a function that will apply explosion effects, such as dealing damage and pushing enemies back
+Here's where we reset enemy velocity thus generating an impulse which will push them back away from the explosion
+center.
+
+.. code-block:: python
+    :caption: controllers/enemies_controller.py
+
+    import random
+    import registry
+    import math
+    from common.enums import EnemyMovementMode
+    from objects.enemy import Enemy
+    from kaa.geometry import Vector, Alignment
+    from kaa.nodes import Node
+
+    class EnemiesController:
+
+    # ..... rest of the class ....
+
+        def apply_explosion_effects(self, explosion_center, damage_at_center=40, blast_radius=150,
+                                    pushback_force_at_center=500, pushback_radius=300):
+            enemies_to_remove = []
+            for enemy in self.enemies:
+                # get the distance to the explosion
+                distance_to_explosion = enemy.position.distance(explosion_center)
+
+                # if within pushback radius...
+                if distance_to_explosion<=pushback_radius:
+                    # calculate pushback value, the further from the center, the smaller it is
+                    pushback_force_val = pushback_force_at_center * (1 - (distance_to_explosion/pushback_radius))
+                    # apply the pushback force by resetting enemy velocity
+                    enemy.velocity = (enemy.position-explosion_center).normalize()*pushback_force_val
+
+                # if within blast radius...
+                if distance_to_explosion<=blast_radius:
+                    # calculate damage, the further from the center, the smaller it is
+                    damage = damage_at_center * (1 - (distance_to_explosion/blast_radius))
+                    # apply damage
+                    enemy.hp -= int(damage)
+                    # add the blood splatter animation over the enemy
+                    self.scene.root.add_child(Node(z_index=900,
+                                                   sprite=registry.global_controllers.assets_controller.blood_splatter_img,
+                                                   position=enemy.position, rotation=(enemy.position-explosion_center).to_angle() + math.pi,
+                                                   lifetime=140))
+
+                    if enemy.hp < 0:  # IZ DED!
+                        # show the death animation
+                        self.scene.root.add_child(Node(z_index=1,
+                                                       sprite=registry.global_controllers.assets_controller.enemy_death_img,
+                                                       position=enemy.position, rotation=enemy.rotation,
+                                                       origin_alignment=Alignment.right,
+                                                       lifetime=10000))
+                        # mark enemy for removal:
+                        enemies_to_remove.append(enemy)
+
+            # removed killed enemies
+            for dead_enemy in enemies_to_remove:
+                self.remove_enemy(dead_enemy)
+
+
+Finally let's write a collision handler that will show explosion animation and call the :code:`apply_explosion_effect`
+function we've just written.
+
+.. code-block:: python
+    :caption: controllers/collisions_controller.py
+
+    class CollisionsController:
+
+        def __init__(self, scene):
+
+            # ....... rest of the function .........
+
+            self.space.set_collision_handler(settings.COLLISION_TRIGGER_GRENADE_LAUNCHER_BULLET, settings.COLLISION_TRIGGER_ENEMY,
+                                             self.on_collision_grenade_enemy)
+
+        # ...... rest of the class .......
+
+        def on_collision_grenade_enemy(self, arbiter, grenade_pair, enemy_pair):
+
+            if arbiter.phase == CollisionPhase.begin:
+                # show explosion animation
+                self.scene.root.add_child(Node(sprite=registry.global_controllers.assets_controller.explosion_img,
+                                          position=grenade_pair.body.position, z_index=1000, lifetime=12*75))
+                # apply explosion effects to enemies (deal damage & push them back)
+                self.scene.enemies_controller.apply_explosion_effects(grenade_pair.body.position)
+
+                grenade_pair.body.delete()  # remove the grenade from the scene
+
+Run the game, spawn a lot of enemies by pressing SPACE and have fun with the grenade launcher :) Be sure to verify
+they're being pushed back by the explosion and taking damage!
+
+That concludes chapter 5. Let's :doc:`move on to chapter 6 </tutorial/part06>`, where we'll add some music and
+sound effects to our game.
