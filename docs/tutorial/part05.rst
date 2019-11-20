@@ -343,7 +343,7 @@ hitbox and a lifetime of 10 seconds.
             super().__init__(sprite=registry.global_controllers.assets_controller.force_gun_bullet_img,
                              z_index=30,
                              body_type=BodyNodeType.dynamic,
-                             mass=random.uniform(0.5, 2),  # a random mass,
+                             mass=random.uniform(0.5, 8),  # a random mass,
                              lifetime=10000, # will be removed from the scene automatically after 10 secs
                              *args, **kwargs)
             self.add_child(HitboxNode(shape=Circle(radius=10),
@@ -681,11 +681,21 @@ Let's implement a simple AI for our enemies. Let's make each enemy be in one of 
 Let's define an enum:
 
 .. code-block:: python
-    :caption: common/enums/py
+    :caption: common/enums.py
 
     class EnemyMovementMode(enum.Enum):
         MoveToWaypoint = 1
         MoveToPlayer = 2
+
+Then, let's add damping (a drag force working in entire space) to slow down enemies when they're moving freely
+due to collisions impulses (eg from Force gun bullet)
+
+.. code-block:: python
+    :caption: scenes/gameplay.py
+
+    # inside __init__:
+    self.space = SpaceNode(damping=0.3)
+
 
 Next, let's modify the :code:`Enemy` class:
 
@@ -707,8 +717,9 @@ Next, let's modify the :code:`Enemy` class:
                 self.movement_mode = EnemyMovementMode.MoveToWaypoint
             self.current_waypoint = None  # for those which move to a waypoint, we'll keep its corrdinates here
             self.randomize_new_waypoint()  # and randomize new waypoint
-            # randomize a speed for each enemy, to add some variation
-            self.movement_force_value = random.randint(50, 150)
+
+            self.acceleration_per_second = 300  # how fast will enemy accelerate
+            self.max_velocity = random.randint(75, 125)  # we'll make enemy stop accelerating if velocity is above this value
 
         # ........ other methods ......
 
@@ -738,35 +749,52 @@ Finally, let's implement the movement logic in the :code:`EnemiesController` cla
 
                 # handle enemy movement
                 if enemy.movement_mode == EnemyMovementMode.MoveToWaypoint:
-                    # rotate towards the waypoint:
+                    # rotate towards the current waypoint:
                     enemy.rotation_degrees = (enemy.current_waypoint - enemy.position).to_angle_degrees()
-                    # apply force, first get the right angle then multiply by speed and then by 10 to minimize the inertia
-                    enemy.force = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.movement_force_value*10
-
-                    # if we're less than 10 units from the waypoint, we randomize a new one!
+                    # # if we're less than 10 units from the waypoint, we randomize a new one!
                     if (enemy.current_waypoint - enemy.position).length() <= 10:
                         enemy.randomize_new_waypoint()
                 elif enemy.movement_mode == EnemyMovementMode.MoveToPlayer:
                     # rotate towards the player:
                     enemy.rotation_degrees = (player_pos - enemy.position).to_angle_degrees()
-                    # apply force, first get the right angle then multiply by speed and then by 10 to minimize the inertia
-                    enemy.force = Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*enemy.movement_force_value*10
                 else:
                     raise Exception('Unknown enemy movement mode: {}'.format(enemy.movement_mode))
 
-                # cap the enemy velocity at a maximum speed (which happens to be  our "movement force value")
-                if enemy.velocity.length() >= enemy.movement_force_value:
-                    enemy.velocity /= enemy.velocity.length() / enemy.movement_force_value
+                # if enemy velocity is lower than max velocity, then increment velocity. Otherwise do nothing - the enemy
+                # will be a freely moving object until the damping slows it down below max speed
+                if enemy.velocity.length() < enemy.max_velocity:
+                    # increment the velocity
+                    enemy.velocity += Vector.from_angle_degrees(enemy.rotation_degrees).normalize()*\
+                                      (enemy.acceleration_per_second*dt/1000)
+
 
 
 Run the game and check it out. 75% of the enemies will walk towards the player while the other ones will wander
-randomly. Notice that we let the engine calculate enemies velocity, we just apply a force to push them in the
-direction where we want them to go. If we had set velocity manually (instead of setting force), the enemy moves
-would be almost identical but they would not react correctly to Force Gun bullets.
+randomly. What we're doing here is we accelerate enemies by incrementing their velocity every frame. We stop doing
+that if they exceed max velocity. When they're above max velocity they will behave as freely moving objects and
+the drag force in the environment ("damping") will slow them down until they're below the max speed and start
+accelerating again.
 
-There is an interesting "magic number" of 10 which we use as a multiplier when applying a force. You can make
-an experiment and see what happens if you change the "magic number" to 1. Enemies will have a very big inertia, as if they
-were sliding on an ice. This is why we want force to be a large value, then we cap the velocity at a maximum value.
+An interesting effect of this model is an inertia. Enemies can't change movement direction immediately where they stand,
+they need to decelerate and accelerate again. To lower the inertia you may increase the acceleration speed. For
+freely moving enemies you may increase damping. Feel free to experiment with different values.
+
+
+applying impulses
+~~~~~~~~~~~~~~~~~
+
+Sometimes we don't want to apply velocity each frame. Instead we want to generate a single impulse that will affect
+object's velocity just once. A good example is the explosion that can push objects back. Let's illustrate this
+on the final weapon we'll have in the game: a grenade launcher. We want the grenade launcher to have the following features:
+
+* Slow rate of fire (cooldown time of 1 second)
+* Grenade exploding on collision with enemy, showing explosion animation
+* Explosion dealing damage to all enemies in some radius, the further from the explosion center, the less damage dealt
+* Explosion pushing all enemies in some radius, the further from the explosion center, the weaker the push back impulse
+* We want pushing force to be a single-frame "impulse" applied to velocity, not some force applied each frame.
+
+Let's get to it.
+
 
 
 
