@@ -409,5 +409,27 @@ We moved weapons to the right (relative to player). Longer weapon sprites will b
 
 That should work. Run the game and see the player holding the machine gun properly, everything looking better.
 
+Finally, let's add some nicer background (black background is not fun).
+
+.. code-block:: python
+    :caption: scenes/gameplay.py
+
+    import registry
+    import settings
+    from kaa.nodes import Node
+    from kaa.geometry import Vector
+    # ... other imports...
+
+    class GameplayScene(Scene):
+
+        def __init__(self):
+            super().__init__()
+            self.root.add_child(Node(sprite=registry.global_controllers.assets_controller.background_img,
+                                     position=Vector(settings.VIEWPORT_WIDTH/2, settings.VIEWPORT_HEIGHT/2),
+                                     z_index=0))
+            # .... rest of the function ....
+
+Run the game and enjoy the sights.
+
 Let's move on to the :doc:`Part 4 of the tutorial </tutorial/part04>` where we'll learn how to handle input from mouse and
 keyboard.

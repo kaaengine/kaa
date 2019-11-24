@@ -24,6 +24,7 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
   * :code:`mass` - a float, heavier objects will hit harder :)
   * :code:`velocity` - a Vector. Vector's rotation is objects' movement direction and vector's length is how fast the object is moving. Default is zero vector (no velocity).
   * :code:`angular_velocity` - a float. How fast the object is rotating around its center. Positive and negative values represent clockwise and anti-clockwise rotation speed respectively. Default is zero.
+  * :code:`force` - a Vector, representing a force working on the object. The force vector is reset to zero on each frame. Non-zero force applied each frame will cause the object to accelerate. Default is zero vector (no force).
   * :code:`moment` - short explanation TBD
   * and few others.
 
@@ -152,7 +153,7 @@ a hitbox for the player!
                              z_index=10, sprite=registry.global_controllers.assets_controller.player_img, position=position)
             # create a hitbox and add it as a child node to the Player
             self.add_child(HitboxNode(
-                shape=Polygon([Vector(-8, -19), Vector(8, -19), Vector(8, 19), Vector(-8, 19), Vector(-8, -19)]),
+                shape=Polygon([Vector(-10, -25), Vector(10, -25), Vector(10, 25), Vector(-10, 25), Vector(-10, -25)]),
                 mask=HitboxMask.player,
                 collision_mask=HitboxMask.enemy,
                 trigger_id=settings.COLLISION_TRIGGER_PLAYER
@@ -209,7 +210,7 @@ be drawn on top of its :code:`BodyNode`.
     hitbox_node.color = Color(1, 0, 1, 0.3)
     hitbox_node.z_index = 1000
 
-adding more BodyNodes
+Adding more BodyNodes
 ~~~~~~~~~~~~~~~~~~~~~
 
 We have the player with a gun in hand but where are the enemies? Let's add some. First, let's write an :code:`Enemy`
@@ -444,7 +445,7 @@ The game starts looking like a playable thing. We can move around, spawn enemies
 
 Let's now do shooting the machine gun!
 
-kinematic BodyNodes
+Kinematic BodyNodes
 ~~~~~~~~~~~~~~~~~~~
 
 Let's start with the machine gun bullet object. It's similar to Force Gun bullet but will use different sprite and
@@ -514,8 +515,12 @@ The above is very similar to the force gun. You may run the game and see how it 
 the machine gun bullets don't bounce back when colliding with enemies. In fact they're not affected at all by
 collisions. It's because they're kinematic bodies.
 
-Let's implement the collision handling between the MG bullet and the enemy. This is where :code:`trigger_id` values
-are being used. Put the following code in the :code:`controllers/collisions_controller.py`:
+Collisions handling
+~~~~~~~~~~~~~~~~~~~
+
+Let's implement a collision handler function to process collisions between machine gun bullet and enemy.
+This is where :code:`trigger_id` values are being used. Put the following code in the
+:code:`controllers/collisions_controller.py`:
 
 .. code-block:: python
     :caption: controllers/collisions_controller.py
@@ -583,17 +588,21 @@ is displayed.
     class Enemy(BodyNode):
 
         def __init__(self, position, hp=100, *args, **kwargs):
-            # ......... reset of the function .......
+            # ......... rest of the function .......
             self.stagger_time_left = 0
 
         def stagger(self):
-            # use "stagger" frame
-            self.sprite.frame_current = 1
+            # use "stagger" sprite
+            self.sprite = registry.global_controllers.assets_controller.enemy_stagger_img
+            # stagger stops enemy from moving:
+            self.velocity = Vector(0, 0)
             # track time for staying in the staggered state
             self.stagger_time_left = 150
 
         def recover_from_stagger(self):
-            self.sprite.frame_current = 0
+            # user regular sprite:
+            self.sprite = registry.global_controllers.assets_controller.enemy_img
+
             self.stagger_time_left = 0
 
 
@@ -610,8 +619,8 @@ And track stagger time and recovery in the enemies controller:
                 # handle enemy stagger time and stagger recovery
                 if enemy.stagger_time_left > 0:
                     enemy.stagger_time_left -= dt
-                if enemy.stagger_time_left <= 0:
-                    enemy.recover_from_stagger()
+                    if enemy.stagger_time_left <= 0:
+                        enemy.recover_from_stagger()
 
 
 Finally let's add the collision handler function:
@@ -662,7 +671,7 @@ we can no longer use its properties (even if we only want to read them).
 Run the game and enjoy shooting at enemies with machine gun, blood splatters and bodies falling down :)
 
 
-static BodyNodes
+Static BodyNodes
 ~~~~~~~~~~~~~~~~
 
 We won't add any static BodyNodes to the game, but they're the simplest form of nodes: they can collide with other
@@ -671,8 +680,8 @@ way (move, scale or rotate). Using static BodyNodes instead of dynamic/kinematic
 the performance.
 
 
-applying force to BodyNodes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Applying velocity to BodyNodes manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's implement a simple AI for our enemies. Let's make each enemy be in one of the two modes:
 
@@ -873,7 +882,7 @@ center.
 
     # ..... rest of the class ....
 
-        def apply_explosion_effects(self, explosion_center, damage_at_center=40, blast_radius=150,
+        def apply_explosion_effects(self, explosion_center, damage_at_center=100, blast_radius=200,
                                     pushback_force_at_center=500, pushback_radius=300):
             enemies_to_remove = []
             for enemy in self.enemies:
