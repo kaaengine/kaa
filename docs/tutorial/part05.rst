@@ -153,7 +153,7 @@ a hitbox for the player!
                              z_index=10, sprite=registry.global_controllers.assets_controller.player_img, position=position)
             # create a hitbox and add it as a child node to the Player
             self.add_child(HitboxNode(
-                shape=Polygon([Vector(-8, -19), Vector(8, -19), Vector(8, 19), Vector(-8, 19), Vector(-8, -19)]),
+                shape=Polygon([Vector(-10, -25), Vector(10, -25), Vector(10, 25), Vector(-10, 25), Vector(-10, -25)]),
                 mask=HitboxMask.player,
                 collision_mask=HitboxMask.enemy,
                 trigger_id=settings.COLLISION_TRIGGER_PLAYER
@@ -588,17 +588,21 @@ is displayed.
     class Enemy(BodyNode):
 
         def __init__(self, position, hp=100, *args, **kwargs):
-            # ......... reset of the function .......
+            # ......... rest of the function .......
             self.stagger_time_left = 0
 
         def stagger(self):
-            # use "stagger" frame
-            self.sprite.frame_current = 1
+            # use "stagger" sprite
+            self.sprite = registry.global_controllers.assets_controller.enemy_stagger_img
+            # stagger stops enemy from moving:
+            self.velocity = Vector(0, 0)
             # track time for staying in the staggered state
             self.stagger_time_left = 150
 
         def recover_from_stagger(self):
-            self.sprite.frame_current = 0
+            # user regular sprite:
+            self.sprite = registry.global_controllers.assets_controller.enemy_img
+
             self.stagger_time_left = 0
 
 
@@ -615,8 +619,8 @@ And track stagger time and recovery in the enemies controller:
                 # handle enemy stagger time and stagger recovery
                 if enemy.stagger_time_left > 0:
                     enemy.stagger_time_left -= dt
-                if enemy.stagger_time_left <= 0:
-                    enemy.recover_from_stagger()
+                    if enemy.stagger_time_left <= 0:
+                        enemy.recover_from_stagger()
 
 
 Finally let's add the collision handler function:
@@ -878,7 +882,7 @@ center.
 
     # ..... rest of the class ....
 
-        def apply_explosion_effects(self, explosion_center, damage_at_center=40, blast_radius=150,
+        def apply_explosion_effects(self, explosion_center, damage_at_center=100, blast_radius=200,
                                     pushback_force_at_center=500, pushback_radius=300):
             enemies_to_remove = []
             for enemy in self.enemies:

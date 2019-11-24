@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'kaaengine'
-copyright = '2019, Mariusz Okulanis, Marcin Labuz'
-author = 'Mariusz Okulanis, Marcin Labuz'
+copyright = '2019, Mariusz Okulanis, Marcin Labuz, Pawel Roman'
+author = 'Mariusz Okulanis, Marcin Labuz, Pawel Roman'
 
 
 # -- General configuration ---------------------------------------------------
