@@ -9,8 +9,8 @@ shoot non-lethal bullets which will push enemies away) and one type of enemy (a 
 two behavior patterns: walk towards the player or just walk towards randomly selected point. We will implement
 some animations such as explosions of blood splatters. We'll use kaa's physics system to detect collisions between
 bullets and enemies as well as between characters in the game (player and enemies).  We'll use some sound effects and
-music to improve the experience. We will also learn how to control a camera. Finally, we'll learn how to add more scenes, such as main screen
-or pause screen and how to switch between them.
+music to improve the experience. We will also learn how to draw text and how to control a camera.
+Finally, we'll learn how to add more scenes, such as main screen or pause screen and how to switch between them.
 
 It would not look good if we put all that stuff in main.py, so let's create a better structure for the game files and folders first.
 We'll also clean up the code we wrote before.
