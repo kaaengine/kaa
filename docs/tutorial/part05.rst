@@ -631,6 +631,7 @@ Finally let's add the collision handler function:
     import math
     import settings
     import registry
+    import random
     from kaa.physics import CollisionPhase
     from kaa.nodes import Node
     from kaa.geometry import Alignment
@@ -650,13 +651,18 @@ Finally let's add the collision handler function:
                                                sprite=registry.global_controllers.assets_controller.blood_splatter_img,
                                                position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
                                                lifetime=140))
+                # add a random bloodstain - make smaller ones more likely since it's a small arms hit :)
+                self.scene.root.add_child(Node(z_index=1, sprite=random.choices(
+                    registry.global_controllers.assets_controller.bloodstain_imgs, weights=[5, 3, 1, 0.5])[0],
+                                               position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
+                                               lifetime=random.randint(20000, 40000)))
                 if enemy.hp<=0:
-                    # add the enemy death animation to the scene
+                    # show death animation
                     self.scene.root.add_child(Node(z_index=1,
-                                                   sprite=registry.global_controllers.assets_controller.enemy_death_img,
+                                                   sprite=random.choice(registry.global_controllers.assets_controller.enemy_death_imgs),
                                                    position=enemy.position, rotation=enemy.rotation,
                                                    origin_alignment = Alignment.right,
-                                                   lifetime=10000))
+                                                   lifetime=random.randint(10000, 20000)))
                     # remove enemy node from the scene
                     self.scene.enemies_controller.remove_enemy(enemy)
                 else:
@@ -909,12 +915,12 @@ center.
                                                    lifetime=140))
 
                     if enemy.hp < 0:  # IZ DED!
-                        # show the death animation
+                        # show the death animation (pick random sprite from few animations we have loaded from one png file)
                         self.scene.root.add_child(Node(z_index=1,
-                                                       sprite=registry.global_controllers.assets_controller.enemy_death_img,
+                                                       sprite=random.choice(registry.global_controllers.assets_controller.enemy_death_imgs),
                                                        position=enemy.position, rotation=enemy.rotation,
                                                        origin_alignment=Alignment.right,
-                                                       lifetime=10000))
+                                                       lifetime=random.randint(10000,20000)))
                         # mark enemy for removal:
                         enemies_to_remove.append(enemy)
 
