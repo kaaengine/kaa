@@ -102,7 +102,19 @@ Transforming text
 ~~~~~~~~~~~~~~~~~
 
 Since text nodes are regular Nodes, you can use all of base :code:`Node` properties to transform them, e.g. reposition,
-rotate, scale, etc. Text Nodes can also be a child nodes of other nodes, and can have child nodes themselves.
+rotate, scale, etc.
+
+.. code-block:: python
+
+    my_text_node.rotation_degrees = 45
+    my_text_node.scale = Vector(0.5, 0.75)
+
+Text Nodes can also be a child nodes of other nodes, and can have child nodes themselves.
+
+.. code-block:: python
+
+    tn = TextNode(font = my_font, text="Hello world")
+    tn.add_child(Node(sprite=my_sprite))
 
 The future: text markup language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,3 +122,5 @@ The future: text markup language
 Kaa :code:`TextNode` does not currently support a complex markup. In other words, you cannot mix different styles
 (such as different colors, fonts or sizes) within a single TextNode. Those more complex scenarios are to be supported
 in the future versions of the engine by introducing a built-in text markup feature.
+
+Let's move on, :doc:`to the next part of the tutorial </tutorial/part08>`

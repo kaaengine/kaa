@@ -182,7 +182,7 @@ Aligning object's 'origin' (the anchor point)
 
 Let's ask a curious question. Our 'arrow' object has spatial dimentions: 100px width and 50px height. We tell the game
 to draw it at some specific position e.g. (300, 200). But what does this actually mean? Which pixel of the arrow will
-really be drawn in position (300, 200)? The top-left pixel? Or the central pixel? Or maybe some other pixel?
+really be drawn at position (300, 200)? The top-left pixel? Or the central pixel? Or maybe some other pixel?
 
 By default it's the central pixel. That anchor point of a node is called 'origin'. Let's visualize the idea by drawing
 a 'pixel marker' image in position of arrow2 and arrow3
@@ -330,7 +330,7 @@ Run the game and behold the animated explosion!
 
 .. note::
 
-    When loading animation frames kaa is reading them from the file left-to-right and top-to-bottom.
+    When loading animation frames from file kaa is reading them left-to-right and top-to-bottom.
 
 A question you may ask now is: what if I want to show some objects in my game with the same animated graphics but with
 different animation options (e.g. slower animation and without a loop). Should I create a new sprite
@@ -393,7 +393,7 @@ Setting a lifetime of an object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For every Node you create you can set a :code:`lifetime` property. It is a number of miliseconds after which the node
-will be removed from the scene. Just remember that the timer starts ticking from the moment of adding node to the
+will be automatically removed from the scene. Just remember that the timer starts ticking from the moment of adding node to the
 scene, not from the moment of constructing the Node.
 
 Let's set lifetime property on the explosion_cropped Node:

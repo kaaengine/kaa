@@ -119,10 +119,9 @@ And then pass it when initalizing the engine:
 
 You can tell the engine to use the following modes when adjusting your virtual resolution to the window:
 
-* VirtualResolutionMode.adaptive_stretch - default mode. The drawable area will adapt to window size, maintaining aspect ratio and leaving black padded areas outside
-* VirtualResolutionMode.aggresive_stretch - the drawable area will always fill the entire window, so for example if your virtual resolution is 4:3 ratio
-  and the window is 16:9 ratio, then all the drawn images will be stretched out in horizontal axis.
-* VirtualResolutionMode.no_stretch - no stretching applied, leaving black padded areas if window is larger than virtual resolution size
+* :code:`VirtualResolutionMode.adaptive_stretch` - the default mode. The drawable area will adapt to window size, maintaining aspect ratio and leaving black padded areas outside
+* :code:`VirtualResolutionMode.aggresive_stretch` - the drawable area will always fill the entire window - aspect ratio may not be maintained while stretching.
+* :code:`VirtualResolutionMode.no_stretch` - no stretching applied, leaving black padded areas if window is larger than virtual resolution size
 
 .. note::
 

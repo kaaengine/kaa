@@ -9,7 +9,7 @@ shoot non-lethal bullets which will push enemies away) and one type of enemy (a 
 two behavior patterns: walk towards the player or just walk towards randomly selected point. We will implement
 some animations such as explosions of blood splatters. We'll use kaa's physics system to detect collisions between
 bullets and enemies as well as between characters in the game (player and enemies).  We'll use some sound effects and
-music to improve the experience. We will also learn how to draw text and how to control a camera.
+music for a better experience. We will also learn how to draw text and how to control a camera.
 Finally, we'll learn how to add more scenes, such as main screen or pause screen and how to switch between them.
 
 It would not look good if we put all that stuff in main.py, so let's create a better structure for the game files and folders first.
@@ -67,9 +67,9 @@ To keep it clean we'll have one .py file for one object type.
 
 Scenes package will hold scenes. Yes, our game will eventually have many scenes, we will get there later in the tutorial.
 
-settings.py will be a config file for our game
+settings.py is a config file for our game
 
-registry.py will be a module to store class instances that need to be imported from just everywhere in the game code.
+registry.py is a module to store global variables - we'll be able to import them from just everywhere in the game code.
 
 .. note::
     The organization above is just a suggestion, not some rigid convention required by the kaa engine.
@@ -395,17 +395,11 @@ of the code in :code:`player.py`:
     :caption: objects/player.py
 
     if new_weapon == WeaponType.MachineGun:
-        weapon = MachineGun(position=Vector(20, 0))  # position relative to the Player
+        weapon = MachineGun()
     elif new_weapon == WeaponType.GrenadeLauncher:
-        weapon = GrenadeLauncher(position=Vector(23, 0))
+        weapon = GrenadeLauncher()
     elif new_weapon == WeaponType.ForceGun:
-        weapon = ForceGun(position=Vector(27.5, 0))
-
-We moved weapons to the right (relative to player). Longer weapon sprites will be moved bit more.
-
-.. note::
-    There's a better way of positioning those weapons, not depending on hardcoding pixel offset based on the
-    weapon's sprite width. Can you find it? Hint: use origin_alignment!
+        weapon = ForceGun()
 
 That should work. Run the game and see the player holding the machine gun properly, everything looking better.
 
