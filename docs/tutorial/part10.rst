@@ -1,4 +1,4 @@
-Part 10: Building game as a binary executable
-=============================================
+Part 10: Transitions
+====================
 
 TODO
