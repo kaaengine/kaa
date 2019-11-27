@@ -60,17 +60,14 @@ Let's write two more scenes:
             self.root.add_child(TextNode(font=registry.global_controllers.assets_controller.font_2, font_size=30,
                                          position=Vector(settings.VIEWPORT_WIDTH/2, 550), text="Press ESC to exit",
                                          z_index=1, origin_alignment=Alignment.center))
-
-
         def update(self, dt):
             for event in self.input.events():
                 if event.is_pressing(Keycode.escape):
                     self.engine.quit()
                 if event.is_quit():
                     self.engine.quit()
-
-            if self.input.is_pressed(Mousecode.left):
-                self.engine.change_scene(registry.scenes.gameplay_scene)
+                if event.is_pressing(Mousecode.left):
+                    self.engine.change_scene(registry.scenes.gameplay_scene)
 
 Nothing unusual here, just the stuff we already know: the scene is pretty static, with just a background image and
 two labels. Mouse click changes the scene to gameplay and ESC quits the game.
@@ -153,9 +150,9 @@ Starting a new game
 
 If you test the flow of the game, you'll notice the following bug: aborting game and then starting new game just returns to the
 previous state of the scene: all monsters are where they were left, frag count is not reset and so on. It's because
-:code:`change_scene` does not destroy scene state it just runs a new scene and freezes all others, as we stated earlier.
+:code:`change_scene` does not destroy scene state it just runs a new scene and freezes all other scenes, as we stated earlier.
 
-A bug needs fixing. Let's refactor :code:`TitleScreenScene` a little bit:
+A bug needs fixing! Let's refactor :code:`TitleScreenScene` a little bit:
 
 .. code-block:: python
     :caption: scenes/title_screen.py
@@ -168,10 +165,10 @@ A bug needs fixing. Let's refactor :code:`TitleScreenScene` a little bit:
             registry.scenes.gameplay_scene = GameplayScene()
             self.engine.change_scene(registry.scenes.gameplay_scene)
 
-        def update(self, dt):
-            # ... rest of the function ...
-
-            if self.input.is_pressed(Mousecode.left):
+    def update(self, dt):
+        for event in self.input.events():
+            # ... cut other code ...
+            if event.is_pressing(Mousecode.left):
                 self.start_new_game()
 
 
