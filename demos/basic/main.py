@@ -53,29 +53,32 @@ class DemoScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.is_quit():
                 self.engine.quit()
-            elif event.is_pressing(Keycode.q):
-                self.engine.quit()
-            elif event.is_pressing(Keycode.s):
-                if self.sound:
-                    self.sound.play(0.5)
-                else:
-                    print("No sound loaded!")
-            elif event.is_pressing(Keycode.n):
-                self.engine.virtual_resolution = \
-                    next(self.virtual_resolutions_cycle)
-                print("Current virtual resolution: {} {!r}"
-                      .format(self.engine.virtual_resolution,
-                              self.engine.virtual_resolution_mode))
-            elif event.is_pressing(Keycode.m):
-                self.engine.virtual_resolution_mode = \
-                    next(self.virtual_resolution_modes_cycle)
-                print("Current virtual resolution: {} {!r}"
-                      .format(self.engine.virtual_resolution,
-                              self.engine.virtual_resolution_mode))
-            elif event.is_pressing(Keycode.p):
-                print("Mouse position: {}".format(self.input.get_mouse_position()))
+
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.q):
+                    self.engine.quit()
+                elif keyboard.is_pressing(Keycode.s):
+                    if self.sound:
+                        self.sound.play(0.5)
+                    else:
+                        print("No sound loaded!")
+                elif keyboard.is_pressing(Keycode.n):
+                    self.engine.virtual_resolution = \
+                        next(self.virtual_resolutions_cycle)
+                    print("Current virtual resolution: {} {!r}"
+                        .format(self.engine.virtual_resolution,
+                                self.engine.virtual_resolution_mode))
+                elif keyboard.is_pressing(Keycode.m):
+                    self.engine.virtual_resolution_mode = \
+                        next(self.virtual_resolution_modes_cycle)
+                    print("Current virtual resolution: {} {!r}"
+                        .format(self.engine.virtual_resolution,
+                                self.engine.virtual_resolution_mode))
+                elif keyboard.is_pressing(Keycode.p):
+                    print("Mouse position: {}".format(self.input.mouse.get_position()))
 
 
 if __name__ == '__main__':
