@@ -1,12 +1,12 @@
 Part 1: Engine and window
 =========================
 
-The tutorial assumes you have installed kaaengine and have python 3.6.1 or newer.
+The tutorial assumes you have installed kaaengine==0.3 and have python 3.6.1 or newer.
 
 By the end of this tutorial you will code a complete game: a top-down shooter with animations, physics, sounds,
 basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with kaa engine.
-Parts 1 and 2 are explaining basic concepts of the engine (you shouldn't skip them, even if you're an experienced
-developer). The actual game development starts in Part 3.
+Parts 1 and 2 are explaining basic concepts of the engine - you shouldn't skip them, even if you're an experienced
+developer. The actual game development starts in Part 3.
 
 We encourage you to make experiments on your own during the tutorial. Each part ends with a complete code listing, so
 if you get lost in the process, you're safe: just grab the code and move on to the next part.

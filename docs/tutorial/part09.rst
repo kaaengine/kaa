@@ -69,7 +69,7 @@ Let's add the following code to the :code:`GameplayScene`
             if self.input.is_pressed(Keycode.home):
                 self.camera.rotation_degrees += 0.03 * dt
             if self.input.is_pressed(Keycode.end):
-                self.camera.rotation_degrees += 0.03 * dt
+                self.camera.rotation_degrees -= 0.03 * dt
 
 Run the game and see how you can control the camera in the gameplay scene.
 
@@ -85,18 +85,25 @@ Let's modify the code in :code:`PlayerController` where :code:`get_mouse_positio
 .. code-block:: python
     :caption: controllers/player_controller.py
 
-    # a line inside update() function:
+    # that fragment inside update() function....
+    elif event.is_pressing(Keycode.space):
+        self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.camera.unproject_position(
+            self.scene.input.get_mouse_position()), rotation_degrees=random.randint(0,360)))
+
+    # another fragment inside update() function:
     mouse_pos = self.scene.camera.unproject_position(self.scene.input.get_mouse_position())
 
-Run the game again and verify that shooting guns have been fixed.
 
-There's still problem with moving the player with WSAD and spawning enemies when camera is rotated, scaled or
-repositioned. Let's fix it.
+Run the game again and verify that shooting guns and spawning enemies have been fixed.
 
-TODO.....
+Moving the player is more interesting problem, but we won't change it now. After all, the player always moves the same way
+it's just the way we look at it that changes!
 
-There isn't a "global" camera
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There isn't a "global" camera, each scene has its own
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each scene has its own camera, so if you apply transformation to a camera in scene A, and then change the scene to B
-then the camera in B will not be affected by those transformations!
+then the camera in scene B will not be affected by those transformations!
+
+That's all you need to know about camera for now. Let's move on to the :doc:`next part of the tutorial </tutorial/part10>`.
