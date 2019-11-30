@@ -7,7 +7,8 @@ from libcpp.vector cimport vector
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
-    CEventType, CSystemEvent, CWindowEvent, CKeyboardEvent, CMouseEvent,
+    CCompoundControllerAxis, CCompoundEventType, CEventType,
+    CSystemEvent, CWindowEvent, CKeyboardEvent, CMouseEvent,
     CControllerEvent, CEvent, CInputManager, CSystemManager,
     CKeyboardManager, CMouseManager, CControllerManager, CControllerID
 )
@@ -315,10 +316,6 @@ class ControllerAxis(IntEnum):
     trigger_left = <uint32_t>CControllerAxis.c_trigger_left
     trigger_right = <uint32_t>CControllerAxis.c_trigger_right
 
-    # composed axes
-    stick_left = <uint32_t>CControllerAxis.c_trigger_left
-    stick_right = <uint32_t>CControllerAxis.c_trigger_left
-
 
 class EventType(IntEnum):
     quit = <uint32_t>CEventType.quit
@@ -339,196 +336,198 @@ class EventType(IntEnum):
     controller_removed = <uint32_t>CEventType.controller_removed
     controller_remapped = <uint32_t>CEventType.controller_remapped
 
-    # composed events
-    window = <uint32_t>CEventType.window
-    system = <uint32_t>CEventType.system
-    keyboard = <uint32_t>CEventType.keyboard
-    mouse = <uint32_t>CEventType.mouse
-    controller = <uint32_t>CEventType.controller
+
+class CompoundEventType(IntEnum):
+    window = <uint32_t>CCompoundEventType.window
+    system = <uint32_t>CCompoundEventType.system
+    keyboard = <uint32_t>CCompoundEventType.keyboard
+    mouse = <uint32_t>CCompoundEventType.mouse
+    controller = <uint32_t>CCompoundEventType.controller
+
+
+class CompoundControllerAxis(IntEnum):
+    left_stick = <uint32_t>CCompoundControllerAxis.left_stick
+    right_stick = <uint32_t>CCompoundControllerAxis.right_stick
+
+
+@cython.freelist(EVENT_FREELIST_SIZE)
+cdef class _BaseEvent:
+    cdef CEvent c_event
+
+    @property
+    def type(self):
+        return EventType(self.c_event.type())
+
+    @property
+    def timestamp(self):
+        return self.c_event.timestamp()
 
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class SystemEvent:
-    cdef CSystemEvent c_event
-
+cdef class SystemEvent(_BaseEvent):
     @staticmethod
-    cdef SystemEvent create(CSystemEvent* system):
+    cdef SystemEvent create(CEvent c_event):
         cdef SystemEvent instance = SystemEvent.__new__(SystemEvent)
-        instance.c_event = system[0]
+        instance.c_event = c_event
         return instance
 
     def is_quit(self):
-        return self.c_event.is_quit()           
+        return self.c_event.system().is_quit()
     
     def is_clipboard_updated(self):
-        return self.c_event.is_clipboard_updated()           
+        return self.c_event.system().is_clipboard_updated()
 
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class WindowEvent:
-    cdef CWindowEvent c_event
-
+cdef class WindowEvent(_BaseEvent):
     @staticmethod
-    cdef WindowEvent create(CWindowEvent* window):
+    cdef WindowEvent create(CEvent c_event):
         cdef WindowEvent instance = WindowEvent.__new__(WindowEvent)
-        instance.c_event = window[0]
+        instance.c_event = c_event
         return instance
+
+    @property
+    def size(self):
+        return Vector.from_c_vector(self.c_event.window().size())
     
+    @property
+    def position(self):
+        return Vector.from_c_vector(self.c_event.window().position())
+
     def is_shown(self):
-        return self.c_event.is_shown()
+        return self.c_event.window().is_shown()
     
     def is_exposed(self):
-        return self.c_event.is_exposed()
+        return self.c_event.window().is_exposed()
     
     def is_moved(self):
-        return self.c_event.is_moved()
+        return self.c_event.window().is_moved()
     
     def is_resized(self):
-        return self.c_event.is_resized()
+        return self.c_event.window().is_resized()
 
-    def is_minimalized(self):
-        return self.c_event.is_minimalized()
+    def is_minimized(self):
+        return self.c_event.window().is_minimized()
 
-    def is_maximalized(self):
-        return self.c_event.is_maximalized()
+    def is_maximized(self):
+        return self.c_event.window().is_maximized()
 
     def is_restored(self):
-        return self.c_event.is_restored()
+        return self.c_event.window().is_restored()
     
     def is_enter(self):
-        return self.c_event.is_enter()
+        return self.c_event.window().is_enter()
 
     def is_leave(self):
-        return self.c_event.is_leave()
+        return self.c_event.window().is_leave()
 
     def is_focus_gained(self):
-        return self.c_event.is_focus_gained()
+        return self.c_event.window().is_focus_gained()
 
     def is_focus_lost(self):
-        return self.c_event.is_focus_lost()
+        return self.c_event.window().is_focus_lost()
 
     def is_close(self):
-        return self.c_event.is_close()
+        return self.c_event.window().is_close()
     
-    def window_size(self):
-        return Vector.from_c_vector(self.c_event.window_size())
-    
-    def window_position(self):
-        return Vector.from_c_vector(self.c_event.window_position())
-
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class KeyboardEvent:
-    cdef CKeyboardEvent c_event
-
+cdef class KeyboardEvent(_BaseEvent):
     @staticmethod
-    cdef KeyboardEvent create(CKeyboardEvent* keyboard):
+    cdef KeyboardEvent create(CEvent c_event):
         cdef KeyboardEvent instance = KeyboardEvent.__new__(KeyboardEvent)
-        instance.c_event = keyboard[0]
+        instance.c_event = c_event
         return instance
     
     def is_pressing(self, kc not None):
-        return self.c_event.is_pressing(
+        return self.c_event.keyboard().is_pressing(
             <CKeycode>(<uint32_t>(kc.value))
         )
 
     def is_releasing(self, kc not None):
-        return self.c_event.is_releasing(
+        return self.c_event.keyboard().is_releasing(
             <CKeycode>(<uint32_t>(kc.value))
         )
 
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class MouseEvent:
-    cdef CMouseEvent c_event
-
+cdef class MouseEvent(_BaseEvent):
     @staticmethod
-    cdef MouseEvent create(CMouseEvent* mouse):
+    cdef MouseEvent create(CEvent c_event):
         cdef MouseEvent instance = MouseEvent.__new__(MouseEvent)
-        instance.c_event = mouse[0]
+        instance.c_event = c_event
         return instance
     
     def is_button(self):
-        return self.c_event.is_button()
+        return self.c_event.mouse().is_button()
 
-    def is_motion(self):
-        return self.c_event.is_motion()
-
-    def is_wheel(self):
-        return self.c_event.is_wheel()
-    
     def is_pressing(self, mb not None):
-        return self.c_event.is_pressing(
+        return self.c_event.mouse().is_pressing(
             <CMouseButton>(<uint32_t>(mb.value))
         )
     
     def is_releasing(self, mb not None):
-        return self.c_event.is_releasing(
+        return self.c_event.mouse().is_releasing(
             <CMouseButton>(<uint32_t>(mb.value))
         )
-    
+
+    def is_motion(self):
+        return self.c_event.mouse().is_motion()
+
+    @property
     def position(self):
-        return Vector.from_c_vector(self.c_event.position())
+        return Vector.from_c_vector(self.c_event.mouse().position())
 
-    def motion(self):
-        return Vector.from_c_vector(self.c_event.motion())
+    def is_wheel(self):
+        return self.c_event.mouse().is_wheel()
 
+    @property
     def scroll(self):
-        return Vector.from_c_vector(self.c_event.scroll())
+        return Vector.from_c_vector(self.c_event.mouse().scroll())
 
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class ControllerEvent:
-    cdef CControllerEvent c_event
-
+cdef class ControllerEvent(_BaseEvent):
     @staticmethod
-    cdef ControllerEvent create(CControllerEvent* controller):
+    cdef ControllerEvent create(CEvent c_event):
         cdef ControllerEvent instance = ControllerEvent.__new__(ControllerEvent)
-        instance.c_event = controller[0]
+        instance.c_event = c_event
         return instance
 
     @property
     def id(self):
-        return self.c_event.id()
+        return self.c_event.controller().id()
     
     def is_button(self):
-        return self.c_event.is_button()
+        return self.c_event.controller().is_button()
 
-    def is_axis(self):
-        return self.c_event.is_axis()
-
-    def is_added(self):
-        return self.c_event.is_added()
-
-    def is_removed(self):
-        return self.c_event.is_removed()
-    
     def is_pressing(self, cb not None):
-        return self.c_event.is_pressing(
+        return self.c_event.controller().is_pressing(
             <CControllerButton>(<uint32_t>(cb.value))
         )
     
     def is_releasing(self, cb not None):
-        return self.c_event.is_releasing(
+        return self.c_event.controller().is_releasing(
             <CControllerButton>(<uint32_t>(cb.value))
         )
 
+    def is_axis(self):
+        return self.c_event.controller().is_axis()
+
     def axis_motion(self, ca not None):
-        return self.c_event.axis_motion(
+        return self.c_event.controller().axis_motion(
             <CControllerAxis>(<uint32_t>(ca.value))
         )
 
+    def is_added(self):
+        return self.c_event.controller().is_added()
+
+    def is_removed(self):
+        return self.c_event.controller().is_removed()
+
 
 @cython.final
-@cython.freelist(EVENT_FREELIST_SIZE)
-cdef class Event:
-    cdef CEvent c_event
-
+cdef class Event(_BaseEvent):
     def __repr__(self):
         return f'<{self.__class__.__name__}@{self.type.name}>'
 
@@ -539,42 +538,29 @@ cdef class Event:
         return instance
     
     @property
-    def type(self):
-        return EventType(self.c_event.type())
-    
-    @property
-    def timestamp(self):
-        return self.c_event.timestamp()
-    
-    @property
     def system(self):
-        cdef CSystemEvent* system = <CSystemEvent*>(self.c_event.system())
-        if system != NULL:
-            return SystemEvent.create(system)
+        if self.c_event.system():
+            return SystemEvent.create(self.c_event)
     
     @property
     def window(self):
-        cdef CWindowEvent* window = <CWindowEvent*>(self.c_event.window())
-        if window != NULL:
-            return WindowEvent.create(window)
+        if self.c_event.window():
+            return WindowEvent.create(self.c_event)
 
     @property
     def keyboard(self):
-        cdef CKeyboardEvent* keyboard = <CKeyboardEvent*>(self.c_event.keyboard())
-        if keyboard != NULL:
-            return KeyboardEvent.create(keyboard)
+        if self.c_event.keyboard():
+            return KeyboardEvent.create(self.c_event)
 
     @property
     def mouse(self):
-        cdef CMouseEvent* mouse = <CMouseEvent*>(self.c_event.mouse())
-        if mouse != NULL:
-            return MouseEvent.create(mouse)
+        if self.c_event.mouse():
+            return MouseEvent.create(self.c_event)
 
     @property
     def controller(self):
-        cdef CControllerEvent* controller = <CControllerEvent*>(self.c_event.controller())
-        if controller != NULL:
-            return ControllerEvent.create(controller)
+        if self.c_event.controller():
+            return ControllerEvent.create(self.c_event)
 
 
 cdef class _BaseInputManager:
@@ -660,10 +646,10 @@ cdef class ControllerManager(_BaseInputManager):
             self.c_input_manager.controller.get_triggers(controller_id)
         )
     
-    def get_sticks(self, axis not None, CControllerID controller_id):
+    def get_sticks(self, compound_axis not None, CControllerID controller_id):
         return Vector.from_c_vector(
             self.c_input_manager.controller.get_sticks(
-                <CControllerAxis>(<uint32_t>(axis.value)), controller_id
+                <CCompoundControllerAxis>(<uint32_t>(compound_axis.value)), controller_id
             )
         )
 
