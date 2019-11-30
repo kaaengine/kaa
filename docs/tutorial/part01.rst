@@ -5,6 +5,14 @@ The tutorial assumes you have installed kaaengine==0.3 and have python 3.6.1 or 
 
 By the end of this tutorial you will code a complete game: a top-down shooter with animations, physics, sounds,
 basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with kaa engine.
+
+With just about 400 lines of python code you'll build this game:
+
+.. raw:: html
+
+    <iframe width="1150" height="646" src="https://www.youtube.com/embed/PkX2RQNLYUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 Parts 1 and 2 are explaining basic concepts of the engine - you shouldn't skip them, even if you're an experienced
 developer. The actual game development starts in Part 3.
 
@@ -12,6 +20,7 @@ We encourage you to make experiments on your own during the tutorial. If you get
 just check out the tutorial code - `it's available in this git repository <https://github.com/PawelRoman/kaa-tutorial>`_
 
 Have fun!
+
 
 Hello world!
 ~~~~~~~~~~~~
