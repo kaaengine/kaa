@@ -38,6 +38,21 @@ Full example
 Let's load a font from file and add some texts in the game.
 
 .. code-block:: python
+    :caption: controllers/assets_controller.py
+
+    from kaa.fonts import Font
+
+    class AssetsController:
+
+        def __init__(self):
+            # ... the rest of the function .....
+
+            # Load all fonts
+            self.font_1 = Font(os.path.join('assets', 'fonts', 'paladise-script.ttf'))
+            self.font_2 = Font(os.path.join('assets', 'fonts', 'DejaVuSans.ttf'))
+
+
+.. code-block:: python
     :caption: scenes/gameplay.py
 
     import registry

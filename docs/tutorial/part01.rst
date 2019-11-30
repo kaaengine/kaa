@@ -8,8 +8,8 @@ basic AI, HUD display and multiple scenes. You will be surprised how easy and in
 Parts 1 and 2 are explaining basic concepts of the engine - you shouldn't skip them, even if you're an experienced
 developer. The actual game development starts in Part 3.
 
-We encourage you to make experiments on your own during the tutorial. Each part ends with a complete code listing, so
-if you get lost in the process, you're safe: just grab the code and move on to the next part.
+We encourage you to make experiments on your own during the tutorial. If you get lost in the process,
+just check out the tutorial code - `it's available in this git repository <https://github.com/PawelRoman/kaa-tutorial>`_
 
 Have fun!
 
