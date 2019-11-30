@@ -7,7 +7,8 @@ Kaaengine documentation
 =======================
 
 Welcome to kaa - the 2D games engine for humans, written in python! You will be able to write 2D games quickly and
-efficiently, working with simple and intuitive interfaces that follow zen of python philosophy. Windows is a first class citizen.
+efficiently, working with simple and intuitive interfaces that follow the
+`zen of python <https://en.wikipedia.org/wiki/Zen_of_Python>`_ philosophy. Windows is a first class citizen.
 
 Installation:
 
