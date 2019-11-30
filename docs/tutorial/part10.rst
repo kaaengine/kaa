@@ -182,10 +182,46 @@ therefore we hear explosion sound at that very moment.
 Running transitions in paralel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Let's say we want to run some transitions (or sequences of those) in paralel. It's quite easy: we need to use
+:code:`NodeTransitionsParallel`. Let's have our node rotate, scale, change color and move at the same time.
+
+.. code-block:: python
+    :caption: scenes/title_screen.py
+
+    def transitions_fun_stuff(self):
+        rotate_transition = NodeRotationTransition(2*math.pi, duration=1000) # rotate 180 degrees (2*pi radians)
+        scale_transition = NodeScaleTransition(Vector(2, 2), duration=1000) # enlarge twice
+        color_transition = NodeColorTransition(Color(1, 0, 0, 1), duration=1000) # change color to red
+
+        self.exit_label.transition = NodeTransitionsParallel([rotate_transition, scale_transition, color_transition],
+                                                             back_and_forth=True, loops=0)
+
+Note that :code:`NodeTransitionsParallel` has two already known properties: :code:`back_and_forth` and :code:`loops`.
+
+You can nest transition sequences in other sequences, run such nested sequences in paralel and so on. Just be careful
+on which level you set :code:`back_and_forth` and :code:`loops`. Feel free to experiment with transitions on your own.
+
+Contradictory transitions?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What happens if you try to run two position transitions in paralel: one moving a node 100 pixels to the right and
+the other moving it 100 pixels to the left. Contrary to intuition, they won't cancel out (regardless of
+:code:`advance_method` being add or set). If there are two or more transitions of the same type running in paralel,
+then the one which is later in the list will be used and the preceding ones will be ignored.
 
 Implementing custom transitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+TODO
 
 Different easing patterns
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you probably noticed, transitions change the property of a node over time in a linear fashion. In other words,
+if transition orders the node to change rotation by 100 degrees in 10 seconds then the node will progress at a
+steady rate of 10 degrees per second.
+
+Future kaa versions will have more types of "easing functions", other than linear, `expect something similar to this <https://easings.net/>`_
+
+Let's move on to :doc:`the last part of the tutorial </tutorial/part11>` where we'll build the game as executable
+file (.exe on Windows or binary executable on Linux)
