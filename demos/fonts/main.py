@@ -14,48 +14,51 @@ class FontDemoScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.is_quit():
                 self.engine.quit()
-            elif event.is_pressing(Keycode.q):
-                self.engine.quit()
-            elif event.is_pressing(Keycode.l):
-                self.text_node.content += "!"
-            elif event.is_pressing(Keycode.kp_7):
-                self.text_node.origin_alignment = Alignment.top_left
-            elif event.is_pressing(Keycode.kp_8):
-                self.text_node.origin_alignment = Alignment.top
-            elif event.is_pressing(Keycode.kp_9):
-                self.text_node.origin_alignment = Alignment.top_right
-            elif event.is_pressing(Keycode.kp_4):
-                self.text_node.origin_alignment = Alignment.left
-            elif event.is_pressing(Keycode.kp_5):
-                self.text_node.origin_alignment = Alignment.center
-            elif event.is_pressing(Keycode.kp_6):
-                self.text_node.origin_alignment = Alignment.right
-            elif event.is_pressing(Keycode.kp_1):
-                self.text_node.origin_alignment = Alignment.bottom_left
-            elif event.is_pressing(Keycode.kp_2):
-                self.text_node.origin_alignment = Alignment.bottom
-            elif event.is_pressing(Keycode.kp_3):
-                self.text_node.origin_alignment = Alignment.bottom_right
-            elif event.is_pressing(Keycode.w):
-                self.camera.position += Vector(0., -0.3)
-            elif event.is_pressing(Keycode.s):
-                self.camera.position += Vector(0., 0.3)
-            elif event.is_pressing(Keycode.a):
-                self.camera.position += Vector(-0.3, 0.)
-            elif event.is_pressing(Keycode.d):
-                self.camera.position += Vector(0.3, 0.)
-            elif event.is_pressing(Keycode.i):
-                self.camera.scale += Vector(0.05, 0.05)
-            elif event.is_pressing(Keycode.o):
-                self.camera.scale += Vector(-0.05, -0.05)
-            elif event.is_pressing(Keycode.r):
-                self.camera.rotation_degrees += 5.
-            elif event.is_pressing(Keycode.f):
-                self.camera.position = self.text_node.position
 
-        print("Mouse position: {}".format(self.input.get_mouse_position()))
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.q):
+                    self.engine.quit()
+                elif keyboard.is_pressing(Keycode.l):
+                    self.text_node.content += "!"
+                elif keyboard.is_pressing(Keycode.kp_7):
+                    self.text_node.origin_alignment = Alignment.top_left
+                elif keyboard.is_pressing(Keycode.kp_8):
+                    self.text_node.origin_alignment = Alignment.top
+                elif keyboard.is_pressing(Keycode.kp_9):
+                    self.text_node.origin_alignment = Alignment.top_right
+                elif keyboard.is_pressing(Keycode.kp_4):
+                    self.text_node.origin_alignment = Alignment.left
+                elif keyboard.is_pressing(Keycode.kp_5):
+                    self.text_node.origin_alignment = Alignment.center
+                elif keyboard.is_pressing(Keycode.kp_6):
+                    self.text_node.origin_alignment = Alignment.right
+                elif keyboard.is_pressing(Keycode.kp_1):
+                    self.text_node.origin_alignment = Alignment.bottom_left
+                elif keyboard.is_pressing(Keycode.kp_2):
+                    self.text_node.origin_alignment = Alignment.bottom
+                elif keyboard.is_pressing(Keycode.kp_3):
+                    self.text_node.origin_alignment = Alignment.bottom_right
+                elif keyboard.is_pressing(Keycode.w):
+                    self.camera.position += Vector(0., -0.3)
+                elif keyboard.is_pressing(Keycode.s):
+                    self.camera.position += Vector(0., 0.3)
+                elif keyboard.is_pressing(Keycode.a):
+                    self.camera.position += Vector(-0.3, 0.)
+                elif keyboard.is_pressing(Keycode.d):
+                    self.camera.position += Vector(0.3, 0.)
+                elif keyboard.is_pressing(Keycode.i):
+                    self.camera.scale += Vector(0.05, 0.05)
+                elif keyboard.is_pressing(Keycode.o):
+                    self.camera.scale += Vector(-0.05, -0.05)
+                elif keyboard.is_pressing(Keycode.r):
+                    self.camera.rotation_degrees += 5.
+                elif keyboard.is_pressing(Keycode.f):
+                    self.camera.position = self.text_node.position
+
+        print("Mouse position: {}".format(self.input.mouse.get_position()))
 
 
 if __name__ == '__main__':

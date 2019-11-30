@@ -32,12 +32,15 @@ class MainScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.is_quit():
                 self.engine.quit()
-            elif event.is_pressing(Keycode.q):
-                self.engine.quit()
-            elif event.is_pressing(Keycode.c):
-                self.engine.change_scene(SCENES['second'])
+
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.q):
+                    self.engine.quit()
+                elif keyboard.is_pressing(Keycode.c):
+                    self.engine.change_scene(SCENES['second'])
 
     def on_exit(self):
         print(f'{self.__class__.__name__} on_exit')
@@ -61,12 +64,15 @@ class SecondScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.is_quit():
                 self.engine.quit()
-            elif event.is_pressing(Keycode.q):
-                self.engine.quit()
-            elif event.is_pressing(Keycode.c):
-                self.engine.change_scene(SCENES['main'])
+            
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.q):
+                    self.engine.quit()
+                elif keyboard.is_pressing(Keycode.c):
+                    self.engine.change_scene(SCENES['main'])
 
     def on_exit(self):
         print(f'{self.__class__.__name__} on_exit')
