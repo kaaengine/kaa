@@ -3,14 +3,14 @@ from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.scenes cimport CScene
-from .kaacore.log cimport log_dynamic, CLogCategory, CLogLevel
+from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 
 cdef cppclass CPyScene(CScene):
     object py_scene_weakref
 
     __init__(object py_scene):
-        log_dynamic(CLogLevel.debug, CLogCategory.engine,
+        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
                     "Created CPyScene")
         this.py_scene_weakref = PyWeakref_NewRef(py_scene, None)
 
@@ -101,7 +101,7 @@ cdef class Scene:
         readonly _SceneCamera camera
 
     def __cinit__(self):
-        log_dynamic(CLogLevel.debug, CLogCategory.engine,
+        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
                     "Initializing Scene")
         self.c_scene = new CPyScene(self)
         self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)

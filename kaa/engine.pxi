@@ -8,7 +8,7 @@ from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport CEngine, get_c_engine, CVirtualResolutionMode
 from .kaacore.display cimport CDisplay
-from .kaacore.log cimport log_dynamic, CLogCategory, CLogLevel
+from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 from . import __version__
 
@@ -138,7 +138,7 @@ def Engine(Vector virtual_resolution,
     assert c_engine_ptr != NULL
     _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
 
-    log_dynamic(CLogLevel.info, CLogCategory.engine,
+    c_log_dynamic(CLogLevel.info, CLogCategory.engine,
                 "Engine initialized.")
     _hello_message()
 
@@ -173,4 +173,4 @@ _    \        /    /
     """.lstrip('\n').rstrip().format(version=__version__)
 
     for line in kaa_ascii_logo.split('\n'):
-        log_dynamic(CLogLevel.info, CLogCategory.engine, line.encode())
+        c_log_dynamic(CLogLevel.info, CLogCategory.engine, line.encode())

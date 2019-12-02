@@ -20,7 +20,9 @@ cdef extern from "kaacore/log.h" nogil:
         misc "kaacore::LogCategory::misc",
         application "kaacore::LogCategory::application",
 
-    void log_dynamic(const CLogLevel level, const CLogCategory category, const char* msg)
+    void c_log_dynamic "log_dynamic"(const CLogLevel level, const CLogCategory category, const char* msg)
 
-    CLogLevel get_logging_level(const CLogCategory category)
-    void set_logging_level(const CLogCategory category, const CLogLevel level)
+    CLogLevel c_get_logging_level "get_logging_level"(const CLogCategory category)
+    void c_set_logging_level "set_logging_level"(const CLogCategory category, const CLogLevel level)
+
+    void c_initialize_logging "initialize_logging"() except +raise_py_error

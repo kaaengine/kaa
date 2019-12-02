@@ -1,8 +1,10 @@
 import logging
+import logging.config
 from enum import IntEnum
 
 from .kaacore.log cimport (
-    log_dynamic, CLogLevel, CLogCategory, get_logging_level, set_logging_level
+    c_log_dynamic, CLogLevel, CLogCategory, c_get_logging_level,
+    c_set_logging_level, c_initialize_logging
 )
 
 
@@ -76,7 +78,7 @@ class CoreHandler(logging.Handler):
         except Exception:
             self.handleError(record)
         else:
-            log_dynamic(
+            c_log_dynamic(
                 _python_to_core_level(record.levelno),
                 <CLogCategory>(<uint32_t>self._core_category),
                 msg_enc
@@ -84,7 +86,7 @@ class CoreHandler(logging.Handler):
 
 
 def get_core_logging_level(core_category):
-    return CoreLogLevel(<uint32_t>get_logging_level(
+    return CoreLogLevel(<uint32_t>c_get_logging_level(
         <CLogCategory>(<uint32_t>core_category.value)
     ))
 
@@ -95,19 +97,30 @@ def set_core_logging_level(core_category, level):
         core_level = <CLogLevel>(<uint32_t>level.value)
     else:
         core_level = _python_to_core_level(logging._checkLevel(level))
-    set_logging_level(
+    c_set_logging_level(
         <CLogCategory>(<uint32_t>core_category.value),
         core_level
     )
 
 
-def prepare_logger(name, level=logging.INFO, propagate=False,
-                   core_category=CoreLogCategory.application):
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = propagate
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'core': {
+            'class': 'kaa.log.CoreHandler',
+            'level': 'NOTSET',
+        },
+    },
+    'loggers': {
+        'kaa': {
+            'handlers': ['core'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
 
-    if CoreHandler not in [h.__class__ for h in logger.handlers]:
-        handler = CoreHandler(core_category)
-        logger.addHandler(handler)
-    return logger
+
+c_initialize_logging()
+logging.config.dictConfig(LOGGING_CONFIG)

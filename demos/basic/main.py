@@ -1,5 +1,6 @@
 import sys
 import itertools
+import logging
 
 from kaa.nodes import Node
 from kaa.input import Keycode
@@ -7,12 +8,11 @@ from kaa.audio import Music, Sound
 from kaa.engine import Engine, Scene, VirtualResolutionMode
 from kaa.geometry import Segment, Circle, Polygon, Vector
 from kaa.log import (
-    prepare_logger, set_core_logging_level,
-    CoreLogLevel, CoreLogCategory
+    set_core_logging_level, CoreLogLevel, CoreLogCategory
 )
 
 
-logger = prepare_logger('kaa_demos.basic')
+logger = logging.getLogger('kaa.demos.basic')
 
 
 class DemoScene(Scene):
