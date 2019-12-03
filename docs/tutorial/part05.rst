@@ -13,11 +13,15 @@ Understanding SpaceNode, BodyNode and HitboxNode
 
 We need to learn about 3 new types of nodes which we need to simulate the physics in the game:
 
-* :code:`SpaceNode` - it represents physical simulation environment. Typically, a scene will need just one SpaceNode. SpaceNode has the following properties:
+* :code:`SpaceNode` - it represents physical simulation environment. Typically, a scene will need just one SpaceNode, but you can have more if needed. SpaceNode has the following properties:
+  
+  * :code:`gravity` - a Vector. A force affecting all BodyNodes added to that SpaceNode. Default is zero vector (no gravity).
+  * :code:`damping` - a float between 0 and 1, representing friction forces in the simulation space. The smaller it is, the faster a freely moving objects will slow down. Default is 1 (no damping)
+  * width/height dimensions are not meanigful for the SpaceNode - it always covers the whole scene
 
- * :code:`gravity` - a Vector. A force affecting all BodyNodes added to that SpaceNode. Default is zero vector (no gravity).
- * :code:`damping` - a float between 0 and 1, representing friction forces in the simulation space. The smaller it is, the faster a freely moving objects will slow down. Default is 1 (no damping)
- * width/height dimensions are not meanigful for the SpaceNode - it always covers the whole scene
+.. raw:: html
+
+	<p></p>
 
 * :code:`BodyNode` - represents a physical body. It has the same properties as Node (in fact it inherits from the Node class) but adds a few new ones, such as:
 
@@ -28,20 +32,27 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
   * :code:`moment` - short explanation TBD
   * and few others.
 
+.. raw:: html
+
+	<p></p>
+
 * :code:`HitboxNode` - represents an area of a BodyNode which can collide with other HitboxNodes. A BodyNode can have multiple HitboxNodes. A BodyNode without HitboxNodes has all physical properties calculated normally but won't collide with anything! HitboxNode properties include:
 
   * :code:`shape` - defines a shape of the hitbox, must be an instance of :code:`kaa.geometry.Circle` or :code:`kaa.geometry.Polygon`
   * :code:`mask` - user-defined enum.IntFlag, indicating "what type of object I am"
   * :code:`collision_mask` - user-defined enum.IntFlag, indicating "what type(s) of objects I can collide with"
   * :code:`trigger_id` - a user-defined ID used for collision handler function
-  * :code:`group` - explanation TODO
 
 When working with regular Nodes, we could build any tree-like structures we wanted, with multiple levels of nested Nodes. When working with physical Nodes some restrictions apply:
 
-* SpaceNode must be assigned directly to the root node.
 * BodyNode must be a child of a SpaceNode. It cannot be a child of other node type.
 * BodyNode cannot have other BodyNodes as children. It can have regular Nodes as children though.
 * HitboxNode must be a child of BodyNode. It cannot be a child of any other node type. BodyNode can have any number of HitboxNodes (including zero).
+* HitboxNode cannot have another HitboxNode as a child, it can have regular Node children though.
+
+.. note::
+
+	Space node doesn't have to be a child of a root node, in fact it can be anywhere in the node tree but for clarity it's recommended to have it as a direct child of a root node.
 
 .. note::
 
@@ -65,7 +76,7 @@ Having said that, there are ways in which you can simulate a more complex or hie
 
 * Apply all BodyNode transformations manually. In other words do the calculations on your own and set the object's position and/or rotation manually.
 * Collision queries - this feature is to be implemented soon. It will allow you to ask a question like "here's a polygon (circle, segment), tell me which HitboxNodes/BodyNodes it collides with"
-* Joints - this feature is to be implemented next. You will be able to connect BodyNodes with 'joints' and they will behave
+* Joints - this feature is to be implemented next. You will be able to connect BodyNodes with 'joints' and they will work together.
 
 
 Types of BodyNodes
@@ -166,9 +177,9 @@ number) - the meaning of this ID will also become clear soon.
 
 A few important remarks about Polygons of hitboxes:
 
-* they must be closed (the first and the last point must be the same)
 * `they must be convex <https://www.google.pl/search?q=convex+shape&tbm=isch&source=univ&sa=X&ved=2ahUKEwjr9pnJ5M7lAhW9AhAIHeVXCRMQsAR6BAgJEAE&biw=1920&bih=967>`_
 * Polygon's coordinates are relative to the node origin
+* they don't need to be closed - the first and the last point don't have to be the same. Kaa will close them automatically.
 
 Run the game and make sure everything works. The gameplay did not change at all, but our hero is now a physical object!
 
@@ -561,6 +572,10 @@ Collision handler function always has the three parameters:
     * :code:`kaa.physics.CollisionPhase.post_solve` - like pre_solve, but called after the engine calculates the physics for the objects.
     * :code:`kaa.physics.CollisionPhase.separate` - indicates that hitboxes of our two objects have separated - the collision has ended
 
+.. raw:: html
+
+	<p></p>
+
 * two "collision_pair" objects, corresponding with trigger_ids. Each collision pair object has two properties:
 
   * :code:`body` - referencing :code:`BodyNode` which collided
@@ -796,7 +811,7 @@ they need to decelerate and accelerate again. To lower the inertia you may incre
 freely moving enemies you may increase damping. Feel free to experiment with different values.
 
 
-applying impulses
+Applying impulses
 ~~~~~~~~~~~~~~~~~
 
 Sometimes we don't want to apply velocity each frame. Instead we want to generate a single impulse that will affect

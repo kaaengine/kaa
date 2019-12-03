@@ -420,9 +420,6 @@ with their child nodes and so on, recursively.
 **IMPORTANT**: after deleting a node you should not call any of its method or access any of its properties!
 Working with deleted nodes is a common mistake for new kaa users. It's very hard to track because it will produce
 non deterministic efects as the game runs, eventually leading to a segmentation fault and a brutal crash to desktop.
-There is a debug build of kaa engine which tracks for this kind of issues much
-better, producing warnings in runtime. It comes at a cost of lower performance. To learn more about using the debug
-version of kaa engine.... (article TODO!)
 
 
 End of Part 2 - full code
