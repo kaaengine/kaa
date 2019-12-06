@@ -113,9 +113,9 @@ class MyScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.system and event.system.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
-            
+
             keyboard = event.keyboard
             if keyboard:
                 if keyboard.is_pressing(Keycode.n):
@@ -144,7 +144,7 @@ class MyScene(Scene):
             if event.mouse and event.mouse.is_pressing(MouseButton.left):
                 self.spawn_object(
                     position=self.camera.unproject_position(
-                        event.get_mouse_position(),
+                        event.mouse.position,
                     ),
                     velocity=Vector(0., 0.),
                 )

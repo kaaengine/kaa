@@ -319,7 +319,22 @@ cdef extern from "kaacore/input.h" nogil:
         controller_button_up "kaacore::EventType::controller_button_up",
         controller_added "kaacore::EventType::controller_added",
         controller_removed "kaacore::EventType::controller_removed",
-        controller_remapped "kaacore::EventType::controller_remapped",
+        controller_remapped "kaacore::EventType::controller_remapped"
+    
+    cdef enum CWindowEventType "kaacore::WindowEventType":
+        shown "kaacore::WindowEventType::shown",
+        hidden "kaacore::WindowEventType::hidden",
+        exposed "kaacore::WindowEventType::exposed",
+        moved "kaacore::WindowEventType::moved",
+        resized "kaacore::WindowEventType::resized",
+        minimized "kaacore::WindowEventType::minimized",
+        maximized "kaacore::WindowEventType::maximized",
+        restored "kaacore::WindowEventType::restored",
+        enter "kaacore::WindowEventType::enter",
+        leave "kaacore::WindowEventType::leave",
+        focus_gained "kaacore::WindowEventType::focus_gained",
+        focus_lost "kaacore::WindowEventType::focus_lost",
+        close "kaacore::WindowEventType::close"
 
     cdef enum CCompoundEventType "kaacore::CompoundEventType":
         window "kaacore::CompoundEventType::window",
@@ -333,35 +348,35 @@ cdef extern from "kaacore/input.h" nogil:
         right_stick "kaacore::CompoundControllerAxis::right_stick"
     
     cdef cppclass CSystemEvent "kaacore::SystemEvent":
-        bint is_quit() \
+        bint quit() \
             except +raise_py_error
-        bint is_clipboard_updated() \
+        bint clipboard_updated() \
             except +raise_py_error
 
     cdef cppclass CWindowEvent "kaacore::WindowEvent":
-        bint is_shown() \
+        bint shown() \
             except +raise_py_error
-        bint is_exposed() \
+        bint exposed() \
             except +raise_py_error
-        bint is_moved() \
+        bint moved() \
             except +raise_py_error
-        bint is_resized() \
+        bint resized() \
             except +raise_py_error
-        bint is_minimized() \
+        bint minimized() \
             except +raise_py_error
-        bint is_maximized() \
+        bint maximized() \
             except +raise_py_error
-        bint is_restored() \
+        bint restored() \
             except +raise_py_error
-        bint is_enter() \
+        bint enter() \
             except +raise_py_error
-        bint is_leave() \
+        bint leave() \
             except +raise_py_error
-        bint is_focus_gained() \
+        bint focus_gained() \
             except +raise_py_error
-        bint is_focus_lost() \
+        bint focus_lost() \
             except +raise_py_error
-        bint is_close() \
+        bint close() \
             except +raise_py_error
         CVector size() \
             except +raise_py_error
@@ -375,11 +390,11 @@ cdef extern from "kaacore/input.h" nogil:
             except +raise_py_error
     
     cdef cppclass CMouseEvent "kaacore::MouseEvent":
-        bint is_button() \
+        bint button() \
             except +raise_py_error
-        bint is_motion() \
+        bint motion() \
             except +raise_py_error
-        bint is_wheel() \
+        bint wheel() \
             except +raise_py_error
         bint is_pressing(CMouseButton mb) \
             except +raise_py_error
@@ -391,15 +406,15 @@ cdef extern from "kaacore/input.h" nogil:
             except +raise_py_error
     
     cdef cppclass CControllerEvent "kaacore::ControllerEvent":
-        bint is_button() \
+        bint button() \
             except +raise_py_error
-        bint is_axis() \
+        bint axis() \
             except +raise_py_error
-        bint is_added() \
+        bint added() \
             except +raise_py_error
-        bint is_removed() \
+        bint removed() \
             except +raise_py_error
-        bint is_remapped() \
+        bint remapped() \
             except +raise_py_error
         int32_t id() \
             except +raise_py_error
