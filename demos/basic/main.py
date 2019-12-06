@@ -61,7 +61,7 @@ class DemoScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.system and event.system.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
 
             keyboard = event.keyboard

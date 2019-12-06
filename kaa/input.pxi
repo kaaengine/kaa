@@ -7,7 +7,7 @@ from libcpp.vector cimport vector
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
-    CCompoundControllerAxis, CCompoundEventType, CEventType,
+    CCompoundControllerAxis, CCompoundEventType, CEventType, CWindowEventType,
     CSystemEvent, CWindowEvent, CKeyboardEvent, CMouseEvent,
     CControllerEvent, CEvent, CInputManager, CSystemManager,
     CKeyboardManager, CMouseManager, CControllerManager, CControllerID
@@ -337,6 +337,22 @@ class EventType(IntEnum):
     controller_remapped = <uint32_t>CEventType.controller_remapped
 
 
+class WindowEventType(IntEnum):
+    shown = <uint32_t>CWindowEventType.shown,
+    hidden = <uint32_t>CWindowEventType.hidden,
+    exposed = <uint32_t>CWindowEventType.exposed,
+    moved = <uint32_t>CWindowEventType.moved,
+    resized = <uint32_t>CWindowEventType.resized,
+    minimized = <uint32_t>CWindowEventType.minimized,
+    maximized = <uint32_t>CWindowEventType.maximized,
+    restored = <uint32_t>CWindowEventType.restored,
+    enter = <uint32_t>CWindowEventType.enter,
+    leave = <uint32_t>CWindowEventType.leave,
+    focus_gained = <uint32_t>CWindowEventType.focus_gained,
+    focus_lost = <uint32_t>CWindowEventType.focus_lost,
+    close = <uint32_t>CWindowEventType.close
+
+
 class CompoundEventType(IntEnum):
     window = <uint32_t>CCompoundEventType.window
     system = <uint32_t>CCompoundEventType.system
@@ -350,13 +366,30 @@ class CompoundControllerAxis(IntEnum):
     right_stick = <uint32_t>CCompoundControllerAxis.right_stick
 
 
+cdef class _TypedReadOnlyProperty:
+    cdef:
+        object get_fun
+        object event_type
+
+    def __init__(self, event_type, get_fun):
+        self.event_type = event_type
+        self.get_fun = get_fun
+
+    def __get__(self, obj, klass):
+        if obj is None:
+            return self.event_type
+        return self.get_fun(obj)
+
+
+cdef typed_property(object event_type):
+    def decorator(fun):
+        return _TypedReadOnlyProperty(event_type, fun)
+    return decorator
+
+
 @cython.freelist(EVENT_FREELIST_SIZE)
 cdef class _BaseEvent:
     cdef CEvent c_event
-
-    @property
-    def type(self):
-        return EventType(self.c_event.type())
 
     @property
     def timestamp(self):
@@ -371,11 +404,13 @@ cdef class SystemEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
 
-    def is_quit(self):
-        return self.c_event.system().is_quit()
+    @typed_property(EventType.quit)
+    def quit(self):
+        return self.c_event.system().quit()
     
-    def is_clipboard_updated(self):
-        return self.c_event.system().is_clipboard_updated()
+    @typed_property(EventType.clipboard_updated)
+    def clipboard_updated(self):
+        return self.c_event.system().clipboard_updated()
 
 
 @cython.final
@@ -386,6 +421,54 @@ cdef class WindowEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
 
+    @typed_property(WindowEventType.shown)
+    def shown(self):
+        return self.c_event.window().shown()
+    
+    @typed_property(WindowEventType.exposed)
+    def exposed(self):
+        return self.c_event.window().exposed()
+    
+    @typed_property(WindowEventType.moved)
+    def moved(self):
+        return self.c_event.window().moved()
+    
+    @typed_property(WindowEventType.resized)
+    def resized(self):
+        return self.c_event.window().resized()
+
+    @typed_property(WindowEventType.minimized)
+    def minimized(self):
+        return self.c_event.window().minimized()
+
+    @typed_property(WindowEventType.maximized)
+    def maximized(self):
+        return self.c_event.window().maximized()
+
+    @typed_property(WindowEventType.restored)
+    def restored(self):
+        return self.c_event.window().restored()
+    
+    @typed_property(WindowEventType.enter)
+    def enter(self):
+        return self.c_event.window().enter()
+
+    @typed_property(WindowEventType.leave)
+    def leave(self):
+        return self.c_event.window().leave()
+
+    @typed_property(WindowEventType.focus_gained)
+    def focus_gained(self):
+        return self.c_event.window().focus_gained()
+
+    @typed_property(WindowEventType.focus_lost)
+    def focus_lost(self):
+        return self.c_event.window().focus_lost()
+
+    @typed_property(WindowEventType.close)
+    def close(self):
+        return self.c_event.window().close()
+
     @property
     def size(self):
         return Vector.from_c_vector(self.c_event.window().size())
@@ -393,42 +476,6 @@ cdef class WindowEvent(_BaseEvent):
     @property
     def position(self):
         return Vector.from_c_vector(self.c_event.window().position())
-
-    def is_shown(self):
-        return self.c_event.window().is_shown()
-    
-    def is_exposed(self):
-        return self.c_event.window().is_exposed()
-    
-    def is_moved(self):
-        return self.c_event.window().is_moved()
-    
-    def is_resized(self):
-        return self.c_event.window().is_resized()
-
-    def is_minimized(self):
-        return self.c_event.window().is_minimized()
-
-    def is_maximized(self):
-        return self.c_event.window().is_maximized()
-
-    def is_restored(self):
-        return self.c_event.window().is_restored()
-    
-    def is_enter(self):
-        return self.c_event.window().is_enter()
-
-    def is_leave(self):
-        return self.c_event.window().is_leave()
-
-    def is_focus_gained(self):
-        return self.c_event.window().is_focus_gained()
-
-    def is_focus_lost(self):
-        return self.c_event.window().is_focus_lost()
-
-    def is_close(self):
-        return self.c_event.window().is_close()
     
 
 @cython.final
@@ -458,8 +505,9 @@ cdef class MouseEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
     
-    def is_button(self):
-        return self.c_event.mouse().is_button()
+    @typed_property((EventType.mouse_button_down, EventType.mouse_button_up))
+    def button(self):
+        return self.c_event.mouse().button()
 
     def is_pressing(self, mb not None):
         return self.c_event.mouse().is_pressing(
@@ -471,15 +519,17 @@ cdef class MouseEvent(_BaseEvent):
             <CMouseButton>(<uint32_t>(mb.value))
         )
 
-    def is_motion(self):
-        return self.c_event.mouse().is_motion()
+    @typed_property(EventType.mouse_motion)
+    def motion(self):
+        return self.c_event.mouse().motion()
 
     @property
     def position(self):
         return Vector.from_c_vector(self.c_event.mouse().position())
 
-    def is_wheel(self):
-        return self.c_event.mouse().is_wheel()
+    @typed_property(EventType.mouse_wheel)
+    def wheel(self):
+        return self.c_event.mouse().wheel()
 
     @property
     def scroll(self):
@@ -498,8 +548,9 @@ cdef class ControllerEvent(_BaseEvent):
     def id(self):
         return self.c_event.controller().id()
     
-    def is_button(self):
-        return self.c_event.controller().is_button()
+    @typed_property((EventType.controller_button_down, EventType.controller_button_up))
+    def button(self):
+        return self.c_event.controller().button()
 
     def is_pressing(self, cb not None):
         return self.c_event.controller().is_pressing(
@@ -511,19 +562,22 @@ cdef class ControllerEvent(_BaseEvent):
             <CControllerButton>(<uint32_t>(cb.value))
         )
 
-    def is_axis(self):
-        return self.c_event.controller().is_axis()
+    @typed_property(EventType.controller_axis_motion)
+    def axis(self):
+        return self.c_event.controller().axis()
 
     def axis_motion(self, ca not None):
         return self.c_event.controller().axis_motion(
             <CControllerAxis>(<uint32_t>(ca.value))
         )
 
-    def is_added(self):
-        return self.c_event.controller().is_added()
+    @typed_property(EventType.controller_added)
+    def added(self):
+        return self.c_event.controller().added()
 
-    def is_removed(self):
-        return self.c_event.controller().is_removed()
+    @typed_property(EventType.controller_removed)
+    def removed(self):
+        return self.c_event.controller().removed()
 
 
 @cython.final
