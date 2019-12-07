@@ -9,7 +9,7 @@ from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
     CCompoundControllerAxis, CCompoundEventType, CEventType, CWindowEventType,
     CSystemEvent, CWindowEvent, CKeyboardEvent, CMouseEvent,
-    CControllerEvent, CEvent, CInputManager, CSystemManager,
+    CControllerEvent, CAudioEvent, CEvent, CInputManager, CSystemManager,
     CKeyboardManager, CMouseManager, CControllerManager, CControllerID
 )
 
@@ -336,6 +336,9 @@ class EventType(IntEnum):
     controller_removed = <uint32_t>CEventType.controller_removed
     controller_remapped = <uint32_t>CEventType.controller_remapped
 
+    music_finished = <uint32_t>CEventType.music_finished
+    channel_finished = <uint32_t>CEventType.channel_finished
+
 
 class WindowEventType(IntEnum):
     shown = <uint32_t>CWindowEventType.shown,
@@ -581,6 +584,19 @@ cdef class ControllerEvent(_BaseEvent):
 
 
 @cython.final
+cdef class AudioEvent(_BaseEvent):
+    @staticmethod
+    cdef AudioEvent create(CEvent c_event):
+        cdef AudioEvent instance = AudioEvent.__new__(AudioEvent)
+        instance.c_event = c_event
+        return instance
+
+    @typed_property(EventType.music_finished)
+    def music_finished(self):
+        return self.c_event.audio().music_finished()
+
+
+@cython.final
 cdef class Event(_BaseEvent):
     def __repr__(self):
         return f'<{self.__class__.__name__}@{self.type.name}>'
@@ -615,6 +631,11 @@ cdef class Event(_BaseEvent):
     def controller(self):
         if self.c_event.controller():
             return ControllerEvent.create(self.c_event)
+
+    @property
+    def audio(self):
+        if self.c_event.audio():
+            return AudioEvent.create(self.c_event)
 
 
 cdef class _BaseInputManager:

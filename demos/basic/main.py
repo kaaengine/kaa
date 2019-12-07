@@ -64,6 +64,8 @@ class DemoScene(Scene):
                 self.engine.quit()
 
             keyboard = event.keyboard
+            audio = event.audio
+
             if keyboard:
                 if keyboard.is_pressing(Keycode.q):
                     self.engine.quit()
@@ -122,6 +124,8 @@ class DemoScene(Scene):
                 elif keyboard.is_pressing(Keycode.b):
                     ret = self.music.stop()
                     print("Stopping music, success: {}".format(ret))
+            elif audio and audio.music_finished:
+                print("Music finished!")
 
 
 if __name__ == '__main__':
