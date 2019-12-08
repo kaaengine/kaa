@@ -27,10 +27,12 @@ class VirtualResolutionMode(IntEnum):
 cdef class _Engine:
     cdef _Window _window
     cdef _Renderer _renderer
+    cdef _AudioManager _audio_manager
 
     def __init__(self):
         self._window = _Window()
         self._renderer = _Renderer()
+        self._audio_manager = _AudioManager()
 
     cdef inline CEngine* _get_c_engine(self):
         cdef CEngine* c_engine = get_c_engine()
@@ -97,6 +99,10 @@ cdef class _Engine:
     @property
     def renderer(self):
         return self._renderer
+
+    @property
+    def audio(self):
+        return self._audio_manager
 
     def stop(self):
         if get_c_engine() == NULL:

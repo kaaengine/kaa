@@ -42,7 +42,6 @@ class DemoScene(Scene):
 
         if music_path:
             self.music = Music(music_path)
-            self.music.play()
         else:
             self.music = None
 
@@ -65,6 +64,8 @@ class DemoScene(Scene):
                 self.engine.quit()
 
             keyboard = event.keyboard
+            audio = event.audio
+
             if keyboard:
                 if keyboard.is_pressing(Keycode.q):
                     self.engine.quit()
@@ -87,6 +88,44 @@ class DemoScene(Scene):
                                 self.engine.virtual_resolution_mode))
                 elif keyboard.is_pressing(Keycode.p):
                     print("Mouse position: {}".format(self.input.mouse.get_position()))
+                elif keyboard.is_pressing(Keycode.num_9):
+                    print("Decreasing master volume")
+                    self.engine.audio.master_volume -= 0.1
+                    print("Master volume: {}".format(self.engine.audio.master_volume))
+                elif keyboard.is_pressing(Keycode.num_0):
+                    print("Increasing master volume")
+                    self.engine.audio.master_volume += 0.1
+                    print("Master volume: {}".format(self.engine.audio.master_volume))
+                elif keyboard.is_pressing(Keycode.num_7):
+                    print("Decreasing master music volume")
+                    self.engine.audio.master_music_volume -= 0.1
+                    print("Master music volume: {}".format(self.engine.audio.master_music_volume))
+                elif keyboard.is_pressing(Keycode.num_8):
+                    print("Increasing master music volume")
+                    self.engine.audio.master_music_volume += 0.1
+                    print("Master music volume: {}".format(self.engine.audio.master_music_volume))
+                elif keyboard.is_pressing(Keycode.num_5):
+                    print("Decreasing master sound volume")
+                    self.engine.audio.master_sound_volume -= 0.1
+                    print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
+                elif keyboard.is_pressing(Keycode.num_6):
+                    print("Increasing master sound volume")
+                    self.engine.audio.master_sound_volume += 0.1
+                    print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
+                elif keyboard.is_pressing(Keycode.x):
+                    self.music.play()
+                    print("Playing music")
+                elif keyboard.is_pressing(Keycode.c):
+                    ret = self.music.pause()
+                    print("Pausing music, success: {}".format(ret))
+                elif keyboard.is_pressing(Keycode.v):
+                    ret = self.music.resume()
+                    print("Resuming music, success: {}".format(ret))
+                elif keyboard.is_pressing(Keycode.b):
+                    ret = self.music.stop()
+                    print("Stopping music, success: {}".format(ret))
+            elif audio and audio.music_finished:
+                print("Music finished!")
 
 
 if __name__ == '__main__':

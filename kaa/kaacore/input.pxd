@@ -319,7 +319,9 @@ cdef extern from "kaacore/input.h" nogil:
         controller_button_up "kaacore::EventType::controller_button_up",
         controller_added "kaacore::EventType::controller_added",
         controller_removed "kaacore::EventType::controller_removed",
-        controller_remapped "kaacore::EventType::controller_remapped"
+        controller_remapped "kaacore::EventType::controller_remapped",
+        music_finished "kaacore::EventType::music_finished",
+        channel_finished "kaacore::EventType::channel_finished",
     
     cdef enum CWindowEventType "kaacore::WindowEventType":
         shown "kaacore::WindowEventType::shown",
@@ -425,6 +427,10 @@ cdef extern from "kaacore/input.h" nogil:
         bint axis_motion(CControllerAxis ca) \
             except +raise_py_error
 
+    cdef cppclass CAudioEvent "kaacore::AudioEvent":
+        bint music_finished() \
+            except +raise_py_error
+
     cdef cppclass CEvent "kaacore::Event":
         uint32_t type() \
             except +raise_py_error
@@ -439,6 +445,8 @@ cdef extern from "kaacore/input.h" nogil:
         const CMouseEvent* const mouse() \
             except +raise_py_error
         const CControllerEvent* const controller() \
+            except +raise_py_error
+        const CAudioEvent* const audio() \
             except +raise_py_error
     
     cdef cppclass CSystemManager "kaacore::InputManager::SystemManager":
