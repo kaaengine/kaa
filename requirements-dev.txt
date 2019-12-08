@@ -1,4 +1,4 @@
-cmake==3.13.1
+cmake>=3.13.1
 ninja==1.9.0.post1
-Cython==0.29.10
+Cython==0.29.14
 scikit-build==0.10.0
