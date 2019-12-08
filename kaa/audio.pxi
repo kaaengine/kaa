@@ -5,6 +5,9 @@ cimport cython
 from .kaacore.engine cimport get_c_engine
 from .kaacore.audio cimport CAudioManager, CSound, CMusic, CMusicState
 
+DEF SOUND_FREELIST_SIZE = 30
+DEF MUSIC_FREELIST_SIZE = 10
+
 
 class MusicState(IntEnum):
     playing = <uint8_t>CMusicState.playing
@@ -12,6 +15,7 @@ class MusicState(IntEnum):
     stopped = <uint8_t>CMusicState.stopped
 
 
+@cython.freelist(SOUND_FREELIST_SIZE)
 cdef class Sound:
     cdef CSound c_sound
 
@@ -39,6 +43,7 @@ cdef Sound get_sound_wrapper(const CSound& c_sound):
     return sound
 
 
+@cython.freelist(MUSIC_FREELIST_SIZE)
 cdef class Music:
     cdef CMusic c_music
 
