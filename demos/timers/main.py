@@ -47,15 +47,18 @@ class MainScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
-            elif event.is_pressing(Keycode.q):
-                self.engine.quit()
-            elif event.is_pressing(Keycode.s):
-                if self.timer.is_running:
-                    self.timer.stop()
-                else:
-                    self.timer.start()
+
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.q):
+                    self.engine.quit()
+                elif keyboard.is_pressing(Keycode.s):
+                    if self.timer.is_running:
+                        self.timer.stop()
+                    else:
+                        self.timer.start()
 
 
 if __name__ == '__main__':

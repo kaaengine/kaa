@@ -2,7 +2,7 @@ import os
 import random
 
 from kaa.colors import Color
-from kaa.input import Keycode, Mousecode
+from kaa.input import Keycode, MouseButton
 from kaa.sprites import Sprite
 from kaa.engine import Engine, Scene
 from kaa.geometry import Vector, Segment, Circle
@@ -113,47 +113,43 @@ class MyScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
-            elif event.is_pressing(Keycode.n):
-                self.spawn_object()
-            elif event.is_pressing(Keycode.d):
-                self.delete_object()
-            elif event.is_pressing(Keycode.r):
-                self.random_collisions = not self.random_collisions
-                print("Random collisions: {}".format(self.random_collisions))
-            elif event.is_pressing(Keycode.t):
-                if self.timer.is_running:
-                    print("Stopping timer")
-                    self.timer.cancel()
-                else:
-                    print("Restarting timer")
-                    self.timer.restart()
-            elif event.is_pressing(Keycode.c):
-                self.collision_spawning = not self.collision_spawning
-                if self.collision_spawning:
-                    print("Collision spawning enabled (for one collision)")
 
-            elif event.is_pressing(Keycode.s):
-                self.observed_ball.velocity *= 1.5
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.n):
+                    self.spawn_object()
+                elif keyboard.is_pressing(Keycode.d):
+                    self.delete_object()
+                elif keyboard.is_pressing(Keycode.r):
+                    self.random_collisions = not self.random_collisions
+                    print("Random collisions: {}".format(self.random_collisions))
+                elif keyboard.is_pressing(Keycode.c):
+                    self.collision_spawning = not self.collision_spawning
+                    if self.collision_spawning:
+                        print("Collision spawning enabled (for one collision)")
 
-            elif event.is_pressing(Keycode.l):
-                all_balls = [
-                    n for n in self.space.children if isinstance(n, FlyingBall)
-                ]
-                if all_balls:
-                    target_ball = random.choice(all_balls)
-                    target_ball.lifetime = 1500
+                elif keyboard.is_pressing(Keycode.s):
+                    self.observed_ball.velocity *= 1.5
 
-            elif event.is_pressing(Mousecode.left):
+                elif keyboard.is_pressing(Keycode.l):
+                    all_balls = [
+                        n for n in self.space.children if isinstance(n, FlyingBall)
+                    ]
+                    if all_balls:
+                        target_ball = random.choice(all_balls)
+                        target_ball.lifetime = 1500
+
+            if event.mouse and event.mouse.is_pressing(MouseButton.left):
                 self.spawn_object(
                     position=self.camera.unproject_position(
-                        event.get_mouse_position(),
+                        event.mouse.position,
                     ),
                     velocity=Vector(0., 0.),
                 )
 
-        if self.input.is_pressed(Keycode.q):
+        if self.input.keyboard.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
             self.engine.quit()
 
@@ -163,7 +159,6 @@ class MyScene(Scene):
 print("Press N to spawn more objects")
 print("Press D to delete random object")
 print("Press R to toggle random collisions")
-print("Press T to stop/restart timer")
 print("Press C to toggle collision spawning")
 
 

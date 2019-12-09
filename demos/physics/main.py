@@ -136,33 +136,36 @@ class MyScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
-            if event.is_pressing(Keycode.c):
-                self.collisions_enabled = not self.collisions_enabled
-                if not self.collisions_enabled:
-                    self.obj1_hitbox.collision_mask = HitboxMask.side
-                    self.obj2_hitbox.collision_mask = HitboxMask.side
-                    # self.obj3_hitbox.collision_mask = HitboxMask.side
-                    # self.obj4_hitbox.collision_mask = HitboxMask.side
-                    print("Objects will NOT collide")
-                else:
-                    self.obj1_hitbox.collision_mask = HitboxMask.all
-                    self.obj2_hitbox.collision_mask = HitboxMask.all
-                    # self.obj3_hitbox.collision_mask = HitboxMask.all
-                    # self.obj4_hitbox.collision_mask = HitboxMask.all
-                    print("Objects will collide")
-            if event.is_pressing(Keycode.f):
-                self.engine.window.fullscreen = not self.engine.window.fullscreen
-            if event.is_pressing(Keycode.l):
-                self.engine.window.size = self.engine.window.size + Vector(20, 20)
-            if event.is_pressing(Keycode.v):
-                self.engine.window.center()
+            
+            keyboard = event.keyboard
+            if keyboard:
+                if keyboard.is_pressing(Keycode.c):
+                    self.collisions_enabled = not self.collisions_enabled
+                    if not self.collisions_enabled:
+                        self.obj1_hitbox.collision_mask = HitboxMask.side
+                        self.obj2_hitbox.collision_mask = HitboxMask.side
+                        # self.obj3_hitbox.collision_mask = HitboxMask.side
+                        # self.obj4_hitbox.collision_mask = HitboxMask.side
+                        print("Objects will NOT collide")
+                    else:
+                        self.obj1_hitbox.collision_mask = HitboxMask.all
+                        self.obj2_hitbox.collision_mask = HitboxMask.all
+                        # self.obj3_hitbox.collision_mask = HitboxMask.all
+                        # self.obj4_hitbox.collision_mask = HitboxMask.all
+                        print("Objects will collide")
+                if keyboard.is_pressing(Keycode.f):
+                    self.engine.window.fullscreen = not self.engine.window.fullscreen
+                if keyboard.is_pressing(Keycode.l):
+                    self.engine.window.size = self.engine.window.size + Vector(20, 20)
+                if keyboard.is_pressing(Keycode.v):
+                    self.engine.window.center()
 
-        if self.input.is_pressed(Keycode.q):
+        if self.input.keyboard.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
             self.engine.quit()
-        elif self.input.is_pressed(Keycode.x) and self.space:
+        elif self.input.keyboard.is_pressed(Keycode.x) and self.space:
             self.space.delete()
             self.space = None
 
