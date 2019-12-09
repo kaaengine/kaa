@@ -141,10 +141,19 @@ cdef class NodeBase:
     @property
     def position(self):
         return Vector.from_c_vector(self._get_c_node().position())
+    
+    @property
+    def absolute_position(self):
+        return Vector.from_c_vector(self._get_c_node().absolute_position())
 
     @position.setter
     def position(self, Vector vec):
         self._get_c_node().position(vec.c_vector)
+    
+    def get_relative_position(self, NodeBase ancestor not None):
+        return Vector.from_c_vector(
+            self._get_c_node().get_relative_position(ancestor._get_c_node())
+        )
 
     @property
     def z_index(self):
@@ -158,6 +167,10 @@ cdef class NodeBase:
     def rotation(self):
         return self._get_c_node().rotation()
 
+    @property
+    def absolute_rotation(self):
+        return self._get_c_node().absolute_rotation()
+
     @rotation.setter
     def rotation(self, double value):
         self._get_c_node().rotation(value)
@@ -165,6 +178,10 @@ cdef class NodeBase:
     @property
     def rotation_degrees(self):
         return degrees(self._get_c_node().rotation())
+    
+    @property
+    def absolute_rotation_degrees(self):
+        return degrees(self._get_c_node().absolute_rotation())
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
@@ -173,6 +190,10 @@ cdef class NodeBase:
     @property
     def scale(self):
         return Vector.from_c_vector(self._get_c_node().scale())
+    
+    @property
+    def absolute_scale(self):
+        return Vector.from_c_vector(self._get_c_node().absolute_scale())
 
     @scale.setter
     def scale(self, Vector vec):

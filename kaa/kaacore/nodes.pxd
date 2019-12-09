@@ -41,12 +41,16 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CVector position() except +raise_py_error
         CVector absolute_position() except +raise_py_error
+
+        CVector get_relative_position(const CNode* const ancestor) except +raise_py_error
         void position(const CVector& position) except +raise_py_error
 
         double rotation() except +raise_py_error
+        double absolute_rotation() except +raise_py_error
         void rotation(const double& rotation) except +raise_py_error
 
         CVector scale() except +raise_py_error
+        CVector absolute_scale() except +raise_py_error
         void scale(const CVector& scale) except +raise_py_error
 
         int16_t z_index() except +raise_py_error
