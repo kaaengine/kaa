@@ -11,6 +11,7 @@ class FontDemoScene(Scene):
 
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
         self.root.add_child(self.text_node)
+        self.text_buffer = []
 
     def update(self, dt):
         for event in self.input.events():
@@ -19,8 +20,16 @@ class FontDemoScene(Scene):
 
             keyboard = event.keyboard
             if keyboard:
+                if keyboard.text_input:
+                    self.text_buffer.append(keyboard.text)
+                    print('Text: {}'.format(''.join(self.text_buffer)))
+
                 if keyboard.is_pressing(Keycode.q):
                     self.engine.quit()
+                elif keyboard.is_pressing(Keycode.backspace):
+                    if self.text_buffer:
+                        self.text_buffer.pop()
+                        print('Text: {}'.format(''.join(self.text_buffer)))
                 elif keyboard.is_pressing(Keycode.l):
                     self.text_node.content += "!"
                 elif keyboard.is_pressing(Keycode.kp_7):
@@ -57,8 +66,6 @@ class FontDemoScene(Scene):
                     self.camera.rotation_degrees += 5.
                 elif keyboard.is_pressing(Keycode.f):
                     self.camera.position = self.text_node.position
-
-        print("Mouse position: {}".format(self.input.mouse.get_position()))
 
 
 if __name__ == '__main__':

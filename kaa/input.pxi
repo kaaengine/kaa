@@ -323,6 +323,7 @@ class EventType(IntEnum):
 
     key_down = <uint32_t>CEventType.key_down
     key_up = <uint32_t>CEventType.key_up
+    text_input = <uint32_t>CEventType.text_input
 
     mouse_motion = <uint32_t>CEventType.mouse_motion
     mouse_button_up = <uint32_t>CEventType.mouse_button_up
@@ -488,6 +489,14 @@ cdef class KeyboardEvent(_BaseEvent):
         cdef KeyboardEvent instance = KeyboardEvent.__new__(KeyboardEvent)
         instance.c_event = c_event
         return instance
+
+    @typed_property(EventType.text_input)
+    def text_input(self):
+        return self.c_event.keyboard().text_input()
+
+    @property
+    def text(self):
+        return self.c_event.keyboard().text().decode('utf-8')
     
     def is_pressing(self, kc not None):
         return self.c_event.keyboard().is_pressing(

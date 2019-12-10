@@ -310,6 +310,7 @@ cdef extern from "kaacore/input.h" nogil:
         clipboard_updated "kaacore::EventType::clipboard_updated",
         key_down "kaacore::EventType::key_down",
         key_up "kaacore::EventType::key_up",
+        text_input "kaacore::EventType::text_input",
         mouse_motion "kaacore::EventType::mouse_motion",
         mouse_button_down "kaacore::EventType::mouse_button_down",
         mouse_button_up "kaacore::EventType::mouse_button_up",
@@ -389,6 +390,10 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_pressing(CKeycode kc) \
             except +raise_py_error
         bint is_releasing(CKeycode kc) \
+            except +raise_py_error
+        bint text_input() \
+            except +raise_py_error
+        string text() \
             except +raise_py_error
     
     cdef cppclass CMouseEvent "kaacore::MouseEvent":
