@@ -1,10 +1,12 @@
 from libc.stdint cimport uint8_t
 from libcpp.functional cimport function
+from libcpp.vector cimport vector
 from libcpp cimport bool
 
 from .glue cimport CPythonicCallbackWrapper
 from .vectors cimport CVector
 from .nodes cimport CNode
+from .shapes cimport CShape
 from .exceptions cimport raise_py_error
 
 
@@ -36,6 +38,16 @@ cdef extern from "kaacore/nodes.h" nogil:
         kinematic "kaacore::BodyNodeType::kinematic",
         static "kaacore::BodyNodeType::static_",
 
+    cdef cppclass CCollisionContactPoint "kaacore::CollisionContactPoint":
+        CVector point_a
+        CVector point_b
+        double distance
+
+    cdef cppclass CShapeQueryResult "kaacore::ShapeQueryResult":
+        CNode* body_node
+        CNode* hitbox_node
+        vector[CCollisionContactPoint] contact_points
+
     cdef cppclass CSpaceNode "kaacore::SpaceNode":
         void gravity(const CVector& gravity) \
             except +raise_py_error
@@ -56,6 +68,8 @@ cdef extern from "kaacore/nodes.h" nogil:
             CCollisionHandlerFunc handler,
             uint8_t phases_mask, bint only_non_deleted_nodes
         ) except +raise_py_error
+        vector[CShapeQueryResult] query_shape(const CShape& shape, const CVector& position) \
+            except +raise_py_error
 
     cdef cppclass CBodyNode "kaacore::BodyNode":
         void body_type(const CBodyNodeType& type) \
