@@ -17,7 +17,8 @@ endif()
 # modify SDL2 linker options since it interferes with weak linking
 # of cython module
 get_target_property(SDL2_LINK_LIBRARIES SDL2 LINK_LIBRARIES)
-list(REMOVE_ITEM SDL2_LINK_LIBRARIES "-Wl,--no-undefined")
+list(REMOVE_ITEM SDL2_LINK_LIBRARIES "-Wl,--no-undefined")  # ld linker
+list(REMOVE_ITEM SDL2_LINK_LIBRARIES "-Wl,-undefined,error")  # gold linker
 set_target_properties(
     SDL2 PROPERTIES
     LINK_LIBRARIES "${SDL2_LINK_LIBRARIES}"

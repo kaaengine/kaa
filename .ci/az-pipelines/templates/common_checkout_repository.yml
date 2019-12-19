@@ -1,0 +1,4 @@
+steps:
+- checkout: self
+- script: git submodule update --init --recursive
+  displayName: 'Fetch submodules'
