@@ -21,6 +21,10 @@ then
             PY_VERSION="python3.7m"
             PY_VERSION_ABI="cp37-cp37m"
             ;;
+        "py38")
+            PY_VERSION="python3.8"
+            PY_VERSION_ABI="cp38-cp38"
+            ;;
         *)
             echo "ERROR: Unknown py version specified: $1"
             exit 1
@@ -34,6 +38,7 @@ fi
 echo "Building for: ${PY_VERSION} (${PY_VERSION_ABI})"
 
 PATH="/opt/python/${PY_VERSION_ABI}/bin:$PATH"
+python --version
 
 yum install -y alsa-lib-devel pulseaudio-libs-devel  # SDL audio dependencies
 yum install -y libXrandr-devel libXcursor-devel  # SDL video dependencies
@@ -50,7 +55,7 @@ KAA_SETUP_CMAKE_SOURCE='/host/' python setup.py --force-cmake \
     bdist_wheel -d /wheels/ \
     -- -DKAA_BUNDLE_SDL:BOOL=OFF
 
-LD_LIBRARY_PATH=$(echo /_skbuild/linux-*/cmake-build/kaacore/third_party/sdl2/)
+LD_LIBRARY_PATH=/usr/local/lib/:$(echo /_skbuild/linux-*/cmake-build/kaacore/third_party/sdl2/)
 for WHEEL in /wheels/*.whl
 do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \

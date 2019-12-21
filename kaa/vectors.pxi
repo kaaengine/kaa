@@ -16,24 +16,20 @@ DEF VECTOR_FREELIST_SIZE = 32
 cdef class Vector:
     cdef CVector c_vector
 
-    def __cinit__(self, x=None, y=None):
-        if x is None and y is None:
-            x = y = 0
-        elif x is None and y is not None:
-            x = y
-        elif x is not None and y is None:
-            y = x
-
+    def __cinit__(self, x not None, y not None):
         assert isinstance(x, Number) and isinstance(y, Number), \
             'Unsupported type.'
 
         self.c_vector = CVector(x, y)
 
     @staticmethod
-    cdef from_c_vector(CVector c_vector):
-        cdef Vector vector = Vector.__new__(Vector)
-        vector.c_vector = c_vector
-        return vector
+    cdef Vector from_c_vector(CVector c_vector):
+        return Vector.__new__(Vector, c_vector.x, c_vector.y)
+
+    @staticmethod
+    def xy(n not None):
+        assert isinstance(n, Number), 'Unsupported type.'
+        return Vector.__new__(Vector, n, n)
 
     @property
     def x(self):

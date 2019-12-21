@@ -48,6 +48,7 @@ struct PythonicCallbackWrapper {
         this->py_callback = wrapper.py_callback;
         this->is_weakref = wrapper.is_weakref;
         Py_INCREF(this->py_callback);
+        return *this;
     }
 };
 

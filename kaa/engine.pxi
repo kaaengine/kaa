@@ -8,6 +8,9 @@ from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport CEngine, get_c_engine, CVirtualResolutionMode
 from .kaacore.display cimport CDisplay
+from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
+
+from . import __version__
 
 
 cdef unique_ptr[CEngine] _c_engine_instance
@@ -24,10 +27,12 @@ class VirtualResolutionMode(IntEnum):
 cdef class _Engine:
     cdef _Window _window
     cdef _Renderer _renderer
+    cdef _AudioManager _audio_manager
 
     def __init__(self):
         self._window = _Window()
         self._renderer = _Renderer()
+        self._audio_manager = _AudioManager()
 
     cdef inline CEngine* _get_c_engine(self):
         cdef CEngine* c_engine = get_c_engine()
@@ -95,6 +100,10 @@ cdef class _Engine:
     def renderer(self):
         return self._renderer
 
+    @property
+    def audio(self):
+        return self._audio_manager
+
     def stop(self):
         if get_c_engine() == NULL:
             raise ValueError("Engine is stopped")
@@ -135,6 +144,10 @@ def Engine(Vector virtual_resolution,
     assert c_engine_ptr != NULL
     _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
 
+    c_log_dynamic(CLogLevel.info, CLogCategory.engine,
+                "Engine initialized.")
+    _hello_message()
+
     if show_window is True:
         _engine_wrapper.window.show()
 
@@ -144,3 +157,26 @@ def Engine(Vector virtual_resolution,
 def get_engine():
     if get_c_engine() != NULL:
         return _engine_wrapper
+
+
+cdef void _hello_message():
+    cdef str kaa_ascii_logo = r"""
+                      _   _
+                   __/ \ / \
+                  / |  @|@__|__
+                 /   \_/      >\
+                /   \__________/==<
+                \       ____/
+                 \     /
+                 /    /
+____            /    /
+    \          /    /
+_    \        /    /
+ \    \      /    /       _   _
+  \    \____/    /   |_/ |_| |_|
+   \            /    | \ | | | |
+    \__________/     v. {version}
+    """.lstrip('\n').rstrip().format(version=__version__)
+
+    for line in kaa_ascii_logo.split('\n'):
+        c_log_dynamic(CLogLevel.info, CLogCategory.engine, line.encode())

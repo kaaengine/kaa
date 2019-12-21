@@ -23,6 +23,7 @@ set(CYTHON_FILES
     timers.pxi
     transitions.pxi
     custom_transitions.pxi
+    log.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -44,6 +45,7 @@ set(CYTHON_FILES
     kaacore/timers.pxd
     kaacore/transitions.pxd
     kaacore/custom_transitions.pxd
+    kaacore/log.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
