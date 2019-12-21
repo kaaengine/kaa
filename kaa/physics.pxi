@@ -263,9 +263,9 @@ cdef class SpaceNode(NodeBase):
             only_non_deleted_nodes=only_non_deleted_nodes
         )
 
-    def query_shape(self, ShapeBase shape not None, Vector position=Vector(0., 0.)):
+    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=Vector(0., 0.)):
         return ShapeQueryResult.create_list(
-            self._get_c_node().space.query_shape(shape.c_shape_ptr[0], position.c_vector)
+            self._get_c_node().space.query_shape_overlaps(shape.c_shape_ptr[0], position.c_vector)
         )
 
 cdef class BodyNode(NodeBase):

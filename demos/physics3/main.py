@@ -82,7 +82,7 @@ class DemoScene(Scene):
             )
 
     def _perform_query(self):
-        results = self.space.query_shape(
+        results = self.space.query_shape_overlaps(
             self.pointer.shape, self.pointer.position
         )
         print("Results count: {}".format(len(results)))

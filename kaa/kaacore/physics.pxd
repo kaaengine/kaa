@@ -68,7 +68,7 @@ cdef extern from "kaacore/nodes.h" nogil:
             CCollisionHandlerFunc handler,
             uint8_t phases_mask, bint only_non_deleted_nodes
         ) except +raise_py_error
-        vector[CShapeQueryResult] query_shape(const CShape& shape, const CVector& position) \
+        vector[CShapeQueryResult] query_shape_overlaps(const CShape& shape, const CVector& position) \
             except +raise_py_error
 
     cdef cppclass CBodyNode "kaacore::BodyNode":
