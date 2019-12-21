@@ -22,6 +22,7 @@ Installation:
    :caption: Contents:
 
    tutorial/index
+   reference/index
 
 
 
