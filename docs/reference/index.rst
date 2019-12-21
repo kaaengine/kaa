@@ -1,30 +1,51 @@
 Kaa engine Reference
-~~~~~~~~~~~~~~~~~~~~
+====================
 
-kaa.audio: Sound, Music
+.. toctree::
+    :maxdepth: 2
+    :caption: Full kaa reference:
 
-kaa.colors: Color
+    audio
 
-kaa.engine: Engine, Scene, VirtualResolutionMode, get_engine
+All kaa imports cheat sheet
+---------------------------
 
-kaa.fonts: Font, TextNode
+.. code-block:: python
 
-kaa.geometry: Vector, Segment, Circle, Polygon, PolygonType, Alignment, classify_polygon
+    from kaa.audio import Sound, Music
 
-kaa.input: Keycode, Mousecode
+    from kaa.colors import Color
 
-kaa.nodes: Node
+    from kaa.engine import Engine, Scene, VirtualResolutionMode, get_engine
 
-kaa.physics: SpaceNode, BodyNode, HitboxNode, BodyNodeType, CollisionPhase
+    from kaa.fonts import Font, TextNode
 
-kaa.renderer: Renderer
+    from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, classify_polygon
 
-kaa.sprites: Sprite
+    from kaa.input import Keycode, MouseButton, ControllerButton, ControllerAxis, Event, SystemEvent, WindowEvent,
+        KeyboardEvent, MouseEvent, ControllerEvent
 
-kaa.timers: Timer
+    from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreLogCategory, CoreHandler,
 
-kaa.transitions: NodeTransitionsSequence, NodeTransitionsParallel, NodeCustomTransition, AttributeTransitionMethod,
-NodePositionTransition, NodeRotationTransition, NodeScaleTransition, NodeColorTransition, BodyNodeVelocityTransition,
-BodyNodeAngularVelocityTransition, NodeTransitionDelay, NodeTransitionCallback,
+    from kaa.nodes import Node
+
+    from kaa.physics import SpaceNode, BodyNode, HitboxNode, BodyNodeType, CollisionPhase
+
+    from kaa.renderer import Renderer
+
+    from kaa.sprites import Sprite
+
+    from kaa.timers import Timer
+
+    from kaa.transitions import NodeTransitionsSequence, NodeTransitionsParallel, NodeCustomTransition,
+        AttributeTransitionMethod, NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
+        NodeColorTransition, BodyNodeVelocityTransition, BodyNodeAngularVelocityTransition, NodeTransitionDelay,
+        NodeTransitionCallback
+
+
+
+
+
+
 
 
