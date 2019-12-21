@@ -1,7 +1,7 @@
 Part 1: Engine and window
 =========================
 
-The tutorial assumes you have installed kaaengine==0.3 and have python 3.6.1 or newer.
+The tutorial assumes you have installed kaaengine==0.4 and have python 3.6.1 or newer.
 
 By the end of this tutorial you will code a complete game: a top-down shooter with animations, physics, sounds,
 basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with kaa engine.
@@ -61,11 +61,11 @@ code inside the scene's update function:
 
     def update(self, dt):
         for event in self.input.events():
-            if event.is_quit():
+            if event.system and event.system.quit:
                 self.engine.quit()
 
 Clicking window's "x" icon will now close it. We also learned how we can consume events from the engine.
-It will be useful later.
+It will be useful later when we'll consume input events from keyboard and mouse.
 
 Understanding virtual resolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -169,7 +169,7 @@ and proceed to :doc:`Part 2 of the tutorial </tutorial/part02>`
 
         def update(self, dt):
             for event in self.input.events():
-                if event.is_quit():
+                if event.system and event.system.quit:
                     self.engine.quit()
 
 

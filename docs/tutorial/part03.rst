@@ -118,7 +118,7 @@ Then, let's create empty Gameplay scene, and add the already known window event 
         def update(self, dt):
 
             for event in self.input.events():
-                if event.is_quit():
+                if event.system and event.system.quit:
                     self.engine.quit()
 
 Keep the main.py clean
@@ -142,7 +142,7 @@ we want the entire game logic to be in controllers, objects and scenes classes.
         gameplay_scene = GameplayScene()
         engine.run(gameplay_scene)
 
-Our main.py looks very professional now! Run the game to make sure it works. You should see an empty, black screen.
+Our main.py looks very pro now! Run the game to make sure it works. You should see an empty, black screen.
 Press Alt+F4 to close it.
 
 Load assets just once, from one place, and make them visible from everywhere
@@ -203,7 +203,7 @@ Let's modify the :code:`main.py` in a following way:
     with Engine(virtual_resolution=Vector(settings.VIEWPORT_WIDTH, settings.VIEWPORT_HEIGHT)) as engine:
         # initialize global controllers and keep them in the registry
         registry.global_controllers.assets_controller = AssetsController()
-        ..... rest of the code .....
+        # ..... rest of the code .....
 
 
 It's good to keep scenes in a global registry too
@@ -216,7 +216,7 @@ anywhere in the code. Let's modify the :code:`main.py` in a following way:
     :caption: main.py
 
     with Engine(virtual_resolution=Vector(settings.VIEWPORT_WIDTH, settings.VIEWPORT_HEIGHT)) as engine:
-        ..... previous code .....
+        # ..... previous code .....
         # initialize scenes and keep them in the registry
         registry.scenes.gameplay_scene = GameplayScene()
         engine.run(registry.scenes.gameplay_scene)

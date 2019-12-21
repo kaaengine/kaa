@@ -193,8 +193,21 @@ Let's say we want to run some transitions (or sequences of those) in paralel. It
         scale_transition = NodeScaleTransition(Vector(2, 2), duration=1000) # enlarge twice
         color_transition = NodeColorTransition(Color(1, 0, 0, 1), duration=1000) # change color to red
 
-        self.exit_label.transition = NodeTransitionsParallel([rotate_transition, scale_transition, color_transition],
-                                                             back_and_forth=True, loops=0)
+        move_transition1 = NodePositionTransition(Vector(-200, 0), duration=1000,
+                                           advance_method=AttributeTransitionMethod.add)
+        move_transition2 = NodePositionTransition(Vector(200, 200), duration=1000,
+                                           advance_method=AttributeTransitionMethod.add)
+        move_transition3 = NodePositionTransition(Vector(200, -200), duration=1000,
+                                           advance_method=AttributeTransitionMethod.add)
+        move_transition4 = NodePositionTransition(Vector(-200, 0), duration=1000,
+                                           advance_method=AttributeTransitionMethod.add)
+
+        move_sequence = NodeTransitionsSequence([move_transition1, move_transition2, move_transition3, move_transition4], loops=0)
+        paralel_sequence = NodeTransitionsParallel([rotate_transition, scale_transition, color_transition], back_and_forth=True, loops=0)
+
+        # run both the movement sequence and rotate+scale+color sequence in paralel
+        self.exit_label.transition = NodeTransitionsParallel([
+            move_sequence, paralel_sequence])
 
 Note that :code:`NodeTransitionsParallel` has two already known properties: :code:`back_and_forth` and :code:`loops`.
 
@@ -212,7 +225,16 @@ then the one which is later in the list will be used and the preceding ones will
 Implementing custom transitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+You can implement your own transition, where you can fully control what's happening with the node over time.
+
+Use :code:`CustomNodeTransition` class. It takes 3 parameters:
+
+* A callable with one parameter of type :code:`<Node>`. This function will be called once, when the transition is assigned to a Node (it will pass that Node as parameter). Imeplement this function to return a state.
+* A callable with three parameters: :code:`state`, :code:`node` and :code:`t`. It will be called every frame during which the transition is in effect. State parameter is an object you prepared in the previous callable. Node parameter is the node that's transitioning. t is a value between 0 and 1 indicating time progress of present transition cycle
+* A numerical value - duration of transition in miliseconds
+
+:code:`CustomNodeTransition` also has the :code:`back_and_forth` and :code:`loops` described in sections above.
+
 
 Different easing patterns
 ~~~~~~~~~~~~~~~~~~~~~~~~~

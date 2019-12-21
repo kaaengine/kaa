@@ -61,7 +61,7 @@ Kaa engine loads images to objects called Sprites. With the image loaded, we can
 
             def update(self, dt):
                 for event in self.input.events():
-                    if event.is_quit():
+                    if event.system and event.system.quit:
                         self.engine.quit()
 
 
@@ -385,8 +385,12 @@ the same Sprite, in fact the Sprite animation state gets copied and is tracked s
 
 .. code-block:: python
 
-    # ... somewhere inside Scene's update():
     my_node.sprite.frame_current = 12
+
+.. note::
+
+    The most efficient way of controlling animations manually is writing custom trainsitions. We'll learn about
+    transitions in :doc:`Chapter 10 of the tutorual </tutorial/part10>`
 
 
 Setting a lifetime of an object
@@ -488,7 +492,7 @@ Anyway, here's the full listing of main.py after Part 2:
 
         def update(self, dt):
             for event in self.input.events():
-                if event.is_quit():
+                if event.system and event.system.quit:
                     self.engine.quit()
             self.arrow2.rotation_degrees += 1  # rotating 1 degree PER FRAME (not the best design)
             self.arrow3.rotation_degrees += 90 * dt / 1000  # rotating 90 degrees PER SECOND (good design!)

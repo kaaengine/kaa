@@ -20,7 +20,7 @@ To get an engine:
     engine = get_engine()
     engine.change_scene(some_new_scene)
 
-Each scene has engine object stored under :code:`self.scene` so you can get it from there as well:
+Each scene has the engine object stored under :code:`self.engine` so you can get it from there as well:
 
 .. code-block:: python
 
@@ -32,7 +32,7 @@ How to create a new scene
 
 Let's write two more scenes:
 
-* :code:`GameTitleScene` - Will be activated when game starts. The scene will be a welcome screen: showing game logo and allowing to start the game or exit it.
+* :code:`GameTitleScene` - Will be activated when the game starts. The scene will be a welcome screen, showing a logo and allowing to start the game or exit it.
 * :code:`PauseScene` - Will be activated when pressing ESC during gameplay. Will show a simple screen allowing to abort game (return to title screen) or resume game (return to gameplay scene)
 
 
@@ -60,19 +60,27 @@ Let's write two more scenes:
             self.root.add_child(TextNode(font=registry.global_controllers.assets_controller.font_2, font_size=30,
                                          position=Vector(settings.VIEWPORT_WIDTH/2, 550), text="Press ESC to exit",
                                          z_index=1, origin_alignment=Alignment.center))
-        def update(self, dt):
-            for event in self.input.events():
-                if event.is_pressing(Keycode.escape):
+    def update(self, dt):
+
+        for event in self.input.events():
+
+            if event.system:
+                if event.system.quit:
                     self.engine.quit()
-                if event.is_quit():
+
+            if event.keyboard:
+                if event.keyboard.is_pressing(Keycode.escape):
                     self.engine.quit()
-                if event.is_pressing(Mousecode.left):
+
+            if event.mouse:
+                if event.mouse.is_pressing(MouseButton.left):
                     self.engine.change_scene(registry.scenes.gameplay_scene)
 
 Nothing unusual here, just the stuff we already know: the scene is pretty static, with just a background image and
-two labels. Mouse click changes the scene to gameplay and ESC quits the game.
+two labels. Mouse click changes the scene to gameplay and ESC quits the game. It won't work yet, because registry
+object does not store gameplay_scene yet, but we'll get there.
 
-The pause scene is very similar:
+For now, let's add the pause scene. It is very similar to the title screen scene:
 
 .. code-block:: python
     :caption: scenes/pause.py
@@ -121,8 +129,9 @@ presses ESC.
 
         for event in self.input.events():
             # .... cut other code ....
-            if event.is_pressing(Keycode.escape):
-                self.engine.change_scene(registry.scenes.pause_scene)
+            if event.keyboard:
+                if event.keyboard.is_pressing(Keycode.escape):
+                    self.engine.change_scene(registry.scenes.pause_scene)
 
 Finally, let's create all our scenes in the :code:`main.py` and add them to the registry to make the :code:`change_scene`
 calls work!
@@ -152,7 +161,7 @@ If you test the flow of the game, you'll notice the following bug: aborting game
 previous state of the scene: all monsters are where they were left, frag count is not reset and so on. It's because
 :code:`change_scene` does not destroy scene state it just runs a new scene and freezes all other scenes, as we stated earlier.
 
-A bug needs fixing! Let's refactor :code:`TitleScreenScene` a little bit:
+A bug needs fixing! Let's refactor the :code:`TitleScreenScene` a little bit:
 
 .. code-block:: python
     :caption: scenes/title_screen.py
@@ -168,11 +177,11 @@ A bug needs fixing! Let's refactor :code:`TitleScreenScene` a little bit:
     def update(self, dt):
         for event in self.input.events():
             # ... cut other code ...
-            if event.is_pressing(Mousecode.left):
+            if event.mouse and event.mouse.is_pressing(Mousecode.left):
                 self.start_new_game()
 
 
-We simply ceate the new instance of GameplayScene before telling engine to change to that scene. Run the game
+We simply create the new instance of GameplayScene before telling engine to change to that scene. Run the game
 again and enjoy the full experience of multiple scenes :)
 
 Scene's on_enter and on_exit methods

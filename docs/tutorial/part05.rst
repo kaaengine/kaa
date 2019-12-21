@@ -1,7 +1,7 @@
 Part 5: Physics
 ===============
 
-In this chapter we will implement physics in the game. We will add enemies which we will be able to shoot with 3 weapons:
+In this chapter we will implement physics in the game. We will add enemies and also implement shooting at them with 3 weapons:
 
 * Machine gun - will shoot regular bullets, which will deal damage to enemies they hit.
 * Grenade launcher - grenades will explode on collision (triggering already known explosion animation) and deal damage to enemies in certain radius and apply force pushing enemies away
@@ -65,7 +65,7 @@ Why a BodyNode cannot have other BodyNodes as children ?
 
 As you'll work on more complex games you'll notice that the most significant restriction is that BodyNode cannot
 have other BodyNodes as children. It means we cannot have a tree-like structure of colliding objects, the list of
-colliding objects in the scene must be a flat list!. It may seem like a serious
+physical objects in the scene must be a flat list!. It may seem like a serious
 constraint, but there are good reasons for it. The purpose of physics engine is to calculate object's position,
 rotation, velocity etc. based on environment properties (gravity, damping) and interactions (e.g. collisions) with
 other dynamic objects. A node whose transformations (position, rotation) would be calculated
@@ -75,7 +75,7 @@ physical node and becomes just a picture drawn on the screen.
 Having said that, there are ways in which you can simulate a more complex or hierarchical structure of physical objects
 
 * Apply all BodyNode transformations manually. In other words do the calculations on your own and set the object's position and/or rotation manually.
-* Collision queries - this feature is to be implemented soon. It will allow you to ask a question like "here's a polygon (circle, segment), tell me which HitboxNodes/BodyNodes it collides with"
+* Spatial queries - it allows to programatically ask a question like "here's a polygon (circle, segment), tell me which HitboxNodes/BodyNodes it collides with"
 * Joints - this feature is to be implemented next. You will be able to connect BodyNodes with 'joints' and they will work together.
 
 
@@ -85,7 +85,7 @@ Types of BodyNodes
 A :code:`BodyNode` can be one of three types. This is determined by setting :code:`body_type` property on a :code:`BodyNode`.
 
 * static (:code:`kaa.physics.BodyNodeType.static`) - this node cannot change position or rotation. Basically a performance hint for the engine. Useful for non-moving platforms, walls etc.
-* kinematic (:code:`kaa.physics.BodyNodeType.kinematic`) - the node can move but does not have a mass (you can set the mass but it won't change its behavior). Upon collision it will behave as a static object. Useful when you're interested just in detecting a collision and handle all consequences on your own.
+* kinematic (:code:`kaa.physics.BodyNodeType.kinematic`) - the node can move but does not have a mass (you can set the mass but it won't change its behavior) therefore no environmental effects (such as damping or gravity) can affect it. When colliding with other objects it will behave as a static object. Using kinemtaic bodies is useful when you're interested just in detecting a collision and handle all consequences on your own.
 * dynamic (:code:`kaa.physics.BodyNodeType.dynamic`) - fully dynamic node. Useful for a 'free' objects which you add to the environment and let the engine work out all the physics.
 
 
@@ -184,22 +184,22 @@ A few important remarks about Polygons of hitboxes:
 Run the game and make sure everything works. The gameplay did not change at all, but our hero is now a physical object!
 
 Remember the naive implementation of player movement (setting player's position on WSAD keys pressed)? From physic's
-engine standpoint such manual change of position would mean that the player is teleporting. It doesn't make sense.
-Instead, let's set player's :code:`velocity` on pressing WSAD keys and let the physics engine calculate the position!
+engine standpoint manual change of objects position makes no sense. Let's set player's :code:`velocity` instead,
+and let the physics engine calculate the position.
 
 .. code-block:: python
     :caption: controllers/player_controller.py
 
     def update(dt):
-        self.player.velocity=Vector(0,0)
+        self.player.velocity=Vector(0,0) # reset velocity to zero, if no keys are pressed the player will stop
 
-        if self.scene.input.is_pressed(Keycode.w):
+        if self.scene.input.keyboard.is_pressed(Keycode.w):
             self.player.velocity += Vector(0, -settings.PLAYER_SPEED)
-        if self.scene.input.is_pressed(Keycode.s):
+        if self.scene.input.keyboard.is_pressed(Keycode.s):
             self.player.velocity += Vector(0, settings.PLAYER_SPEED)
-        if self.scene.input.is_pressed(Keycode.a):
+        if self.scene.input.keyboard.is_pressed(Keycode.a):
             self.player.velocity += Vector(-settings.PLAYER_SPEED, 0)
-        if self.scene.input.is_pressed(Keycode.d):
+        if self.scene.input.keyboard.is_pressed(Keycode.d):
             self.player.velocity += Vector(settings.PLAYER_SPEED, 0)
         # ...... rest of the function ........
 
@@ -221,11 +221,14 @@ be drawn on top of its :code:`BodyNode`.
     hitbox_node.color = Color(1, 0, 1, 0.3)
     hitbox_node.z_index = 1000
 
+Feel free to experiment with setting player's hitbox color, then move on to the next section.
+
 Adding more BodyNodes
 ~~~~~~~~~~~~~~~~~~~~~
 
 We have the player with a gun in hand but where are the enemies? Let's add some. First, let's write an :code:`Enemy`
-class.
+class. Just like the player, the enemy must be a :code:`BodyNode` because we want it to be a physical object with a
+hitbox node attached.
 
 .. code-block:: python
     :caption: objects/enemy.py
@@ -321,15 +324,17 @@ Let's add a feature of spawning enemies by pressing SPACE. The enemy shall be sp
         def update(self, dt):
             # .... rest of the function
             for event in self.scene.input.events():
-                # .... other key pressing checks ....
-                elif event.is_pressing(Keycode.space):
-                    self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.input.get_mouse_position(), rotation_degrees=random.randint(0,360)))
+                if event.keyboard:
+                    # ... other keyboard events ....
+                    elif event.keyboard.is_pressing(Keycode.space):
+                        self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.input.mouse.get_position(),
+                            rotation_degrees=random.randint(0,360)))
 
-Run the game and see how you can spawn them! Cool isn't it?
+Run the game and see how you can spawn them by pressing space bar! Cool isn't it?
 
 You can take a moment to make some experiments, for instance:
 
-* try setting :code:`damping` on the :code:`SpaceNode` (in scenes/gameplay.py) to a very low value e.g. 0.01 and see how it works! Values greater than 1 will result in a funny effect pushed objects actually accelerating!
+* try setting :code:`damping` on the :code:`SpaceNode` (in scenes/gameplay.py) to a very low value e.g. 0.01 and see how it works! Values greater than 1 will result in a funny effect of objects accelerating just by moving in the environment.
 * try giving enemies different masses (e.g. randomly) and observe how it affects them as they collide with each other.
 
 We now know everything to implement shooting the Force Gun - it will basically shoot a dynamic BodyNode objects
@@ -431,7 +436,7 @@ The last thing is to wire it all up in the :code:`PlayerController` inside the :
 .. code-block:: python
     :caption: controllers/player_controller.py
 
-    from kaa.input import Keycode, Mousecode
+    from kaa.input import Keycode, MouseButton
 
     class PlayerController:
         # .... rest of the class ....
@@ -444,7 +449,7 @@ The last thing is to wire it all up in the :code:`PlayerController` inside the :
                 # decrease weapons cooldown time by dt
                 self.player.current_weapon.cooldown_time_remaining -= dt
                 # if left mouse button pressed and weapon is ready to shoot, then, well, shoot a bullet!
-                if self.scene.input.is_pressed(Mousecode.left) and self.player.current_weapon.cooldown_time_remaining<0:
+                if self.scene.input.mouse.is_pressed(MouseButton.left) and self.player.current_weapon.cooldown_time_remaining<0:
                     self.player.current_weapon.shoot_bullet()
 
 Run the game! You can now shoot them with the force gun! How cool is it?
@@ -463,8 +468,7 @@ Let's start with the machine gun bullet object. It's similar to Force Gun bullet
 will have a rectangular hitbox that collides only with enemies.
 
 The most important difference though is that we'll make it a kinematic body type. As
-said before this body type is useful when we want to handle collisions entirely on our own and we will remove the
-object on collision.
+said before this body type is useful when we want to handle collisions entirely on our own.
 
 First let's add the machine gun bullet object and implement shooting logic:
 
@@ -524,7 +528,7 @@ First let's add the machine gun bullet object and implement shooting logic:
 
 The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
 the machine gun bullets don't bounce back when colliding with enemies. In fact they're not affected at all by
-collisions. It's because they're kinematic bodies.
+any collisions. It's because they're kinematic bodies.
 
 Collisions handling
 ~~~~~~~~~~~~~~~~~~~
@@ -638,7 +642,7 @@ And track stagger time and recovery in the enemies controller:
                         enemy.recover_from_stagger()
 
 
-Finally let's add the collision handler function:
+Finally let's implement the proper collision handling logic when a machine gun bullet collides with an enemy:
 
 .. code-block:: python
     :caption: controllers/collisions_controller.py
@@ -801,14 +805,15 @@ Finally, let's implement the movement logic in the :code:`EnemiesController` cla
 
 
 Run the game and check it out. 75% of the enemies will walk towards the player while the other ones will wander
-randomly. What we're doing here is we accelerate enemies by incrementing their velocity every frame. We stop doing
-that if they exceed max velocity. When they're above max velocity they will behave as freely moving objects and
-the drag force in the environment ("damping") will slow them down until they're below the max speed and start
-accelerating again.
+randomly. What we're doing here is we accelerate enemies by incrementing their velocity every frame (as discussed
+before we're taking using dt in the formula to make it independent from the frame duration). We stop the velocity
+incremantation if enemy velocity exceeds the max value. When they're above max velocity they will behave as freely
+moving objects and the drag force in the environment ("damping") will slow them down until they're below the max
+speed and start accelerating again.
 
-An interesting effect of this model is an inertia. Enemies can't change movement direction immediately where they stand,
+An interesting effect of this model is inertia. Enemies can't change movement direction immediately where they stand,
 they need to decelerate and accelerate again. To lower the inertia you may increase the acceleration speed. For
-freely moving enemies you may increase damping. Feel free to experiment with different values.
+the freely moving enemies you may increase damping. Feel free to experiment with different values.
 
 
 Applying impulses

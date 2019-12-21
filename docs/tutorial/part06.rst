@@ -16,6 +16,7 @@ Loading sound effect from file is easy:
 Currently supported sound formats are:
 
 * wav
+* ogg
 
 Playing sound effect
 ~~~~~~~~~~~~~~~~~~~~
@@ -38,8 +39,8 @@ Stopping sound effect being played
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you call :code:`play()` on a :code:`Sound`, kaa will play the whole sound. If you want to stop playing
-the sound effect manually, you need to ..... TODO
-
+the sound effect manually, you need to wait until next version of kaa because stopping sound effects is not
+yet implemented.
 
 Loading music files from files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,6 +55,7 @@ Loading music tracks is very similar to loading sound effects:
 Currently supported music formats are:
 
 * wav
+* ogg
 
 Playing music track
 ~~~~~~~~~~~~~~~~~~~
@@ -70,13 +72,29 @@ You can play only one music track at a time. Playing new music track automatical
 Stopping music track
 ~~~~~~~~~~~~~~~~~~~~
 
-If you want to stop the track being played without replacing it with a new track: .... TODO
+If you want to just stop the current track being played without replacing it with a new track:
+
+.. code-block:: python
+
+    from kaa.audio import Music
+    Music.get_current().stop()
 
 Knowing when music track has ended
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Typically you will like to know when the current music track has ended so you can select a new one. To do
-this: .... TODO
+this look for the audio events in the Scene's :code:`events()` list:
+
+.. code-block:: python
+
+    class MyScene(Scene):
+
+        def update(dt)
+
+            for event in self.input.events():
+                if event.audio: # check if this is audio event
+                    if event.music_finished():
+                        # do something when the track has finished playing ...
 
 Full example
 ~~~~~~~~~~~~

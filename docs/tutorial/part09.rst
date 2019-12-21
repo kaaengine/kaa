@@ -7,11 +7,10 @@ use it to generate some additional visual effects.
 Getting the camera
 ~~~~~~~~~~~~~~~~~~
 
-Camera is available as a scene property.
+Camera is available directly in the scene:
 
 .. code-block:: python
 
-    # somewhere inside Scene object
     class SomeScene(kaa.engine.Scene):
 
         def foo(self):
@@ -52,28 +51,28 @@ Let's add the following code to the :code:`GameplayScene`
         def update(self, dt):
             # ... cut other code ....
 
-            if self.input.is_pressed(Keycode.left):
+            if self.input.keyboard.is_pressed(Keycode.left):
                 self.camera.position -= Vector(-0.1 * dt, 0)
-            if self.input.is_pressed(Keycode.right):
+            if self.input.keyboard.is_pressed(Keycode.right):
                 self.camera.position -= Vector(0.1 * dt, 0)
-            if self.input.is_pressed(Keycode.up):
+            if self.input.keyboard.is_pressed(Keycode.up):
                 self.camera.position -= Vector(0, -0.1 * dt)
-            if self.input.is_pressed(Keycode.down):
+            if self.input.keyboard.is_pressed(Keycode.down):
                 self.camera.position -= Vector(0, 0.1 * dt)
 
-            if self.input.is_pressed(Keycode.pageup):
+            if self.input.keyboard.is_pressed(Keycode.pageup):
                 self.camera.scale -= Vector(0.001*dt, 0.001*dt)
-            if self.input.is_pressed(Keycode.pagedown):
+            if self.input.keyboard.is_pressed(Keycode.pagedown):
                 self.camera.scale += Vector(0.001*dt, 0.001*dt)
 
-            if self.input.is_pressed(Keycode.home):
+            if self.input.keyboard.is_pressed(Keycode.home):
                 self.camera.rotation_degrees += 0.03 * dt
-            if self.input.is_pressed(Keycode.end):
+            if self.input.keyboard.is_pressed(Keycode.end):
                 self.camera.rotation_degrees -= 0.03 * dt
 
 Run the game and see how you can control the camera in the gameplay scene.
 
-Have you noticed? When you transform the camera and then shoot your guns, the bullets don't go where they should...
+Have you noticed? When you transform the camera and then shoot your guns, the bullets don't fly where they should...
 If the mouse pointer is in the (0,0) position i.e. top-left of the screen, the bullets don't fly to that exact place but
 to the top-left corner **of the projected image of the scene**. It's not a bug, it's a feature! Point (0,0) of the scene
 always is a (0,0) regardless of transformations applied to the camera! In other words, if we apply a transformation
@@ -86,12 +85,12 @@ Let's modify the code in :code:`PlayerController` where :code:`get_mouse_positio
     :caption: controllers/player_controller.py
 
     # that fragment inside update() function....
-    elif event.is_pressing(Keycode.space):
+    elif event.keyboard.is_pressing(Keycode.space):
         self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.camera.unproject_position(
-            self.scene.input.get_mouse_position()), rotation_degrees=random.randint(0,360)))
+            self.scene.input.mouse.get_position()), rotation_degrees=random.randint(0,360)))
 
     # another fragment inside update() function:
-    mouse_pos = self.scene.camera.unproject_position(self.scene.input.get_mouse_position())
+    mouse_pos = self.scene.camera.unproject_position(self.scene.input.mouse.get_position())
 
 
 Run the game again and verify that shooting guns and spawning enemies have been fixed.
