@@ -6,6 +6,7 @@ Kaa engine Reference
     :caption: Full kaa reference:
 
     audio
+    colors
 
 All kaa imports cheat sheet
 ---------------------------

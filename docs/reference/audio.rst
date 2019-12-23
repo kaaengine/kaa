@@ -17,11 +17,11 @@ A :class:`Sound` object represents a sound effect. Multiple sound effects can be
 
    volume paramter must be a value between 0 and 1
 
-Instance properties (read and write):
+Instance properties:
 
 .. attribute:: Sound.volume
 
-    Gets or sets a default volume for the sound effect.
+    Gets or sets a default volume of the sound effect.
 
 Instance methods:
 
@@ -50,20 +50,18 @@ as you can pause, resume or stop them on demand. Only one music track can be pla
 
 Instance properties:
 
-.. attribute:: Music.volume
-
-    Gets or sets a default volume for the music track.
-
-Instance properties (read only):
-
 .. attribute:: Music.is_paused
 
-    Returns bool value indicating if the music track is paused.
+    Read only. Returns bool value indicating if the music track is paused.
 
 .. attribute:: Music.is_playing
 
-    Returns bool value indicating if the music track is playing. To find out when a music track stopped playing
+    Read only. Returns bool value indicating if the music track is playing. To find out when a music track stopped playing
     use
+
+.. attribute:: Music.volume
+
+    Gets or sets a default volume of the music track.
 
 Class methods
 
@@ -73,7 +71,7 @@ Class methods
 
 .. classmethod:: Music.get_state()
 
-    ???
+    TODO. This is not working, guys need to surface the enum type to return the Music state (playing, paused, stopped)
 
 Instance methods
 
