@@ -4,11 +4,11 @@ Part 10: Transitions
 When writing a game you often want to apply a set of known transformations to an object. For example, you want your object
 to move 100 pixels to the right, then wait 3 seconds and return 100 pixels to the left. Or you want to implement
 pulsation effect where an object would smoothly change its scale between some min and max values. There's an unlimited
-number of such visual transformations that you may want in your games as they greatly enhance game experience.
+number of such visual transformations that you may want in your games as they greatly improve the game experience.
 
-You can of course implement all this by having a set of boolean flags, time trackers, and other stuff on
-an object instance and use all those helper variables to change the desired properties of your nodes manually.
-But there is an easier way: the mechanism is called Transitions.
+You can of course implement all this by having a set of boolean flags, time trackers, etc. and use all those helper
+variables to change the desired properties of your nodes manually. But there is an easier way: the mechanism is called
+Transitions.
 
 A single Transition object is a recipe of how a given property of a Node (position, scale, rotation, etc.) should
 change over time. Transition can be applied to object once, given number of times or in a loop. You can chains transitions
