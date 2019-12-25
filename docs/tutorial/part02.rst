@@ -7,9 +7,9 @@ showing empty screen. Let's start drawing some actual objects in our game!
 Loading images from files
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to draw anything, we need load an image file first. For this demo we will use a prepared package of
-assets, :download:`available here </files/assets.zip>`. Download the file and unpack it inside the folder with main.py.
-You should have the following folder structure:
+In order to draw anything, we need to load an image file first. For this demo we will use a prepared package of
+assets, :download:`available here </files/assets.zip>` which includes full set of images, sounds and fonts for the
+tutorial. Download the file and unpack it inside the folder with main.py. You should get the following folder structure:
 
 .. code-block:: none
 
@@ -19,7 +19,11 @@ You should have the following folder structure:
                 arrow.png
                 ..... other image files ....
             sfx/
-                .... sound effect files .....
+                .... sound effect files ....
+            music/
+                .... music files ....
+            fonts/
+                .... font files ....
         main.py
 
 Let's now load the first image (arrow.png). Add the following imports at the top of the main.py
