@@ -8,6 +8,7 @@ Kaa engine Reference
     audio
     colors
     engine
+    geometry
     nodes
 
 All kaa imports cheat sheet

@@ -6,7 +6,7 @@
 :class:`Color` reference
 ------------------------
 
-A :class:`Color` represents a color in RGBA standard. Color is a property attribute of a :class:`nodes.Node` instance (and
+A :class:`Color` represents a color, using in RGBA standard. Color is a property attribute of a :class:`nodes.Node` instance (and
 instances of all its subclasses e.g. :class:`physics.BodyNode`, :class:`physics.BodyNode`, :class:`fonts.TextNode`
 etc.).
 
