@@ -1,11 +1,11 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+# KAA wheel building pipeline
+# based on: https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
-name: 'Make wheel'
+name: 'Make wheels'
 trigger:
-- azure-pipelines
+  tags:
+    include:
+    - v*  # trigger on version releases
 
 jobs:
 - job: build_linux
@@ -89,10 +89,7 @@ jobs:
     platform.name: 'macos'
     platform.tag: 'macosx-10.9-x86_64'
   steps:
-  # - template: templates/common_checkout_repository.yml
-  - script: |
-      git clone https://github.com/maniek2332/kaacore --recurse-submodules -b macos-test
-    displayName: 'Fetch submodules'
+  - template: templates/common_checkout_repository.yml
   - template: templates/common_prepare_python.yml
   - script: |
       python setup.py bdist_wheel --plat-name $(platform.tag) -- -DKAA_BUNDLE_SDL:BOOL=OFF
@@ -120,6 +117,7 @@ jobs:
     vmImage: 'ubuntu-16.04'
   variables:
   - group: pypi-credentials-test
+  # selected variable group should provide: TWINE_USERNAME, TWINE_PASSWORD, TWINE_REPOSITORY_URL
   steps:
   - download: current
     patterns: '**/*.whl'
@@ -142,7 +140,7 @@ jobs:
   - script: |
       echo "User: $TWINE_USERNAME"
       echo "URL: $TWINE_REPOSITORY_URL"
-      python -m twine upload --verbose --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
+      python -m twine upload --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
     # populated from TWINE_* env variables
     displayName: 'Twine Upload'
     condition: eq(variables['kaa_version.local'], 'False')
