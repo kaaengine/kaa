@@ -9,6 +9,7 @@ Kaa engine Reference
     colors
     engine
     geometry
+    input
     nodes
 
 All kaa imports cheat sheet

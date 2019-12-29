@@ -90,7 +90,7 @@ Instance properties:
 
     That's where virtual resolution concept comes in. You (typically) declare a virtual resolution for your game just
     once, when initializing the engine, and the engine will always use exactly this resolution when you draw stuff in
-    your game. If you run the game in a window larger than declared virtual resolution, the engine will stretch the
+    your game. If you run the game in a window larger than the declared virtual resolution, the engine will stretch the
     game's frame buffer (actual draw area). If you run it in a window smaller than declared virtual resolution, the
     engine will shrink it.
 
@@ -99,6 +99,7 @@ Instance properties:
 
     Although it is possible to change the virtual resolution (even as the game is running), we don't recommend it
     unless you have a good reason to do that.
+
 
 .. _Engine.virtual_resolution_mode:
 .. attribute:: Engine.virtual_resolution_mode
@@ -136,6 +137,7 @@ Instance properties:
         engine.window.fullscreen = False
         engine.window.size = Vector(1920, 1080)
 
+.. _Engine.renderer:
 .. attribute:: Engine.renderer
 
     A get accessor to the :class:`Renderer` object which exposes kaa renderer properties such as
@@ -149,6 +151,7 @@ Instance properties:
         engine = get_engine()
         engine.renderer.clear_color = Color(1, 0, 0, 1) #set the clear color to red (dunno why we'd do that but we can!)
 
+.. _Engine.audio:
 .. attribute:: Engine.audio
 
     A get accessor to the :class:`AudioManager` object which exposes global audio properties
@@ -168,8 +171,12 @@ Instance methods:
 
 .. method:: Engine.change_scene(new_scene)
 
-    Use this method to change the active scene. Only one scene can be active at a time. All non-active scenes
-    are 'frozen' (their :code:`update()` method is not called).
+    Use this method to change the active scene. Only one scene can be active at a time.
+
+    Active scene is being rendered by the renedrer and has its :code:`update()` method called.
+
+    A non-avtive scene remains 'frozen': it does not lose state (no objects are ever removed by deactivating a Scene)
+    but its :code:`update()` method is not being called and nothing is being rendered.
 
     Example of having two scenes and toggling between them:
 
@@ -183,14 +190,12 @@ Instance methods:
         import os
 
         SCENES = {}
-        FONT = None
-
 
         class TitleScreenScene(Scene):
 
-            def __init__(self):
+            def __init__(self, font):
                 super().__init__()
-                self.root.add_child(TextNode(font=FONT, font_size=30, position=Vector(500, 500),
+                self.root.add_child(TextNode(font=font, font_size=30, position=Vector(500, 500),
                                              text="This is the title screen, press enter to start the game.",
                                              color=Color(1, 1, 0, 1)))
 
@@ -205,9 +210,9 @@ Instance methods:
 
         class GameplayScene(Scene):
 
-            def __init__(self):
+            def __init__(self, font):
                 super().__init__()
-                self.label = TextNode(font=FONT, font_size=30, position=Vector(1000, 500), color=Color(1, 0, 0, 1),
+                self.label = TextNode(font=font, font_size=30, position=Vector(1000, 500), color=Color(1, 0, 0, 1),
                                       text="This is gameplay, press q to get back to the title screen. I'm rotating BTW.")
                 self.root.add_child(self.label)
 
@@ -222,17 +227,17 @@ Instance methods:
 
 
         with Engine(virtual_resolution=Vector(1920, 1080)) as engine:
-            FONT = Font(os.path.join('assets', 'fonts', 'DejaVuSans.ttf'))  # MUST create all kaa objects inside engine context!
-            SCENES['title_screen_scene'] = TitleScreenScene()
-            SCENES['gameplay_scene'] = GameplayScene()
+            font = Font(os.path.join('assets', 'fonts', 'DejaVuSans.ttf'))  # MUST create all kaa objects inside engine context!
+            SCENES['title_screen_scene'] = TitleScreenScene(font)
+            SCENES['gameplay_scene'] = GameplayScene(font)
             engine.window.fullscreen = True
             engine.run(SCENES['title_screen_scene'])
 
 
 .. method:: Engine.get_displays()
 
-    Returns a list of all available displays (monitors) present in the system, along with their properties such as
-    resolution. See the :class:`Display` documentation for a list of all available properties.
+    Returns a list of all available :class:`Display` objects (monitors) present in the system. See the
+    :class:`Display` documentation for a full list of display properties avaiable.
 
     .. code-block:: python
 
@@ -279,11 +284,11 @@ Instance methods:
 ------------------------
 
 The Scene instance is a place where all your in-game objects will live. You should write your own scene class by
-inheriting from this type. Scene's features are:
+inheriting from this type. Scene main features are:
 
 * Each Scene must have a :meth:`Scene.update` function which will be called by the engine on every frame.
 * Use the :ref:`root <Scene.root>` property to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
-* Use the :ref:`input <Scene.input>` property to access :class:`InputManager` which:
+* Use the :ref:`input <Scene.input>` property to access :class:`input.InputManager` which:
 
   * exposes a lot of methods to actively check for input from mouse, keyboard, controllers etc.
   * includes an events list which occurred during the current frame (mouse, keyboard, controllers, music, etc.)
@@ -294,7 +299,19 @@ Constructor:
 
 .. class:: Scene()
 
-    The Scene constructor does not take any parameters.
+    The Scene constructor does not take any parameters. As stated above, you should never instantiate a Scene directly
+    but write your own scene class that inherit from it:
+
+    .. code-block:: python
+
+        from kaa.engine import Scene
+
+        def MyScene(Scene):
+
+            def update(self, dt):
+                pass
+
+        scene = MyScene()
 
 Attributes:
 
@@ -325,10 +342,10 @@ Attributes:
 .. _Scene.input:
 .. attribute:: Scene.input
 
-    A get accessor to the :class:`InputManager` object which offers methods and properties to actively check for
+    A get accessor to the :class:`input.InputManager` object which offers methods and properties to actively check for
     input from mouse, keyboard, controllers etc. It also allows to consume events published by
     those devices, by the system or by the kaa engine itself. Check out the
-    :class:`InputManager` documentation for a full list of available features.
+    :class:`input.InputManager` documentation for a full list of available features.
 
     .. code-block:: python
 
@@ -351,8 +368,8 @@ Attributes:
 .. _Scene.root:
 .. attribute:: Scene.root
 
-    All objects which you will add to the scene or remove from the scene are called Nodes. Nodes can
-    form a tree-like structure (a Node can have many child Nodes, and exacly one parent Node). Each Scene has
+    All objects which you will add to the scene (or remove from the scene) are called Nodes. Nodes can
+    form a tree-like structure, that is: a Node can have many child Nodes, and exacly one parent Node. Each Scene has
     a "root" node, accessible by this property.
 
     Refer to the :doc:`nodes </reference/nodes>` documentation for more information on how the nodes work.
@@ -375,7 +392,7 @@ Attributes:
 .. _Scene.time:
 .. attribute:: Scene.time
 
-    Returns a lifetime of a Scene, in miliseconds. The time is tracked only for the current scene.
+    Returns a lifetime of a Scene, in miliseconds. The counter is being incremented only if the Scene is active.
 
 
 Instance methods:
@@ -399,7 +416,7 @@ Instance methods:
                 self.arrow_node = Node(sprite=self.arrow_sprite, position=Vector(200, 200))
                 self.root.add_child(self.arrow_node)
 
-            def update(dt)
+            def update(self, dt)
                 self.arrow_node.rotation_degrees += 20 * dt / 1000  # rotate the arrow 20 degrees per second, clockwise
 
 
@@ -413,12 +430,6 @@ Instance methods:
     Same as :meth:`Scene.on_enter` but is called just before the scene gets deactivated via the
     :meth:`Engine.change_scene`.
 
-:class:`InputManager` reference
--------------------------------
-
-.. class:: InputManager
-
-Overview TODO
 
 :class:`Window` reference
 -------------------------
@@ -450,7 +461,7 @@ It is possible to toggle between fullscreen and windowed mode as the game is run
 Gets or sets the size of the window, using :class:`geometry.Vector`.
 
 Note that if you set the :code:`fullscreen` to :code:`True` the window will not only resize automatically to fit the
-entire screen but also drop the borders and the top bar. Resizing the window programatically makes most sense if the
+entire screen but will also drop its borders and the top bar. Resizing the window programatically makes most sense if the
 game already runs in the windowed mode (with :code:`window.fullscreen=False`).
 
     .. code-block:: python
@@ -524,7 +535,7 @@ Instance methods:
 
 .. class:: Renderer
 
-Surfaces kaa renderer's properties.
+Renderer object can be accessed via :ref:`Engine.renderer <Engine.renderer>` property. It exposes renderer properties.
 
 Attributes:
 
@@ -563,7 +574,65 @@ An example of 800x600 frame buffer colored in green, running in the 1200x1000 wi
 
 .. class:: AudioManager
 
-Overview TODO
+Audio Manager gives access to global audio settings, such as master sound volume. Audio Manager can be accessed
+via the :class:`Engine.audio <Engine.audio>` property on the Engine instance.
+
+.. attribute:: AudioManager.master_volume
+
+Gets or sets the master volume level for sounds and music, using value between 0 (0% volume) and 1 (100% volume).
+
+Master volume affects sound effects and music tracks volume played with :meth:`audio.Sound.play()` and
+:meth:`audio.Music.play()` respectively.
+
+.. code-block:: python
+
+    from kaa.engine import get_engine
+
+    # somwhere inside Scene....
+    self.engine.master_volume = 1.0  # sets master volume to 100%
+    my_sound.play(volume=0.7)  # plays a sound with 70% volume
+    self.engine.master_volume = 0.1  # sets master volume to 10%
+    my_sound.play(volume=0.5)  # pays a sound with 5% volume (50% sound volume * 10% master volume = 5% final volume)
+
+
+.. attribute:: AudioManager.master_sound_volume
+
+Gets or sets the default volume level for sound effects. Using value between 0 (0% volume) and 1 (100% volume).
+Master sound volume level affects sound effects volume played with :meth:`audio.Sound.play()`
+
+.. code-block:: python
+
+    from kaa.engine import get_engine
+
+    # somwhere inside Scene class ....
+    self.engine.master_sound_volume = 1.0  # sets master sfx volume to 100%
+    my_sound.play(volume=0.7)  # plays a sound with 70% volume
+    self.engine.master_volume = 0.1  # sets master volume to 10%
+    my_sound.play(volume=0.5)  # pays a sound with 5% volume (50% sound volume * 10% master sfx volume = 5% final volume)
+
+
+.. attribute:: AudioManager.master_music_volume
+
+Gets or sets the default master volume level for music. Using value between 0 (0% volume) and 1 (100% volume).
+Master music volume level affects music tracks volume played with :meth:`audio.Music.play()`.
+
+.. code-block:: python
+
+    from kaa.engine import get_engine
+
+    # somwhere inside Scene....
+    self.engine.master_music_volume = 1.0  # sets master music volume to 100%
+    my_music.play(volume=0.7)  # plays a music track with 70% volume
+    self.engine.master_music_volume = 0.1  # sets master music volume to 10%
+    my_music.play(volume=0.5)  # pays music track with 5% volume (50% sound volume * 10% master music volume = 5% final volume)
+
+
+.. _AudioManager.mixing_channels:
+.. attribute:: AudioManager.mixing_channels
+
+Gets or sets the maximum number of sound effects that can be played simultaneously with :meth:`audio.Sound.play()`.
+Note that you can never play more than one music track simultaneously.
+
 
 :class:`Display` reference
 -------------------------------

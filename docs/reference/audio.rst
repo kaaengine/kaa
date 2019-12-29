@@ -27,8 +27,14 @@ Instance methods:
 
 .. method:: Sound.play(volume=1.0)
 
-    Plays the sound effect. If volume is not set, the default volume value is used. Multiple sound effects can be
-    played simultaneously.
+    Plays the sound effect.
+
+    Volume is a value between 0 and 1. The volume is modified by the master sound volume level setting.
+
+    Refer to :class:`engine.AudioManager` documentation on how to set the master volume for sounds.
+
+    Multiple sound effects can be played simultaneously, up to a limit set on the
+    :ref:`AudioManager.mixing_channels <AudioManager.mixing_channels>` property.
 
     Current kaa version does not support stopping sound effect currently being played. It does not publish an event
     when the sound stops playing either. This is to be implemented in the future, currently playing sounds is a
@@ -75,9 +81,13 @@ Class methods
 
 Instance methods
 
-.. method:: Music.play()
+.. method:: Music.play(volume=1.0)
 
     Starts playing the music track. If another music track is playing it is automatically stopped.
+
+    Volume is a value between 0 and 1. The volume is modified by the master music volume level setting.
+
+    Refer to :class:`engine.AudioManager` documentation on how to set the master volume for music.
 
 .. method:: Music.pause()
 
