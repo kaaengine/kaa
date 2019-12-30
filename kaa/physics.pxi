@@ -3,7 +3,7 @@ import weakref
 from enum import IntEnum
 
 import cython
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
+from cpython.ref cimport PyObject
 from libc.stdint cimport uint8_t
 
 from .kaacore.nodes cimport CNode, CNodeType

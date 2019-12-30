@@ -1,9 +1,11 @@
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from libcpp.functional cimport function
 from libc.stdint cimport int32_t, uint32_t
 
 from .vectors cimport CVector
 from .exceptions cimport raise_py_error
+from .glue cimport CPythonicCallbackWrapper
 
 
 cdef extern from "kaacore/input.h" nogil:
@@ -308,6 +310,19 @@ cdef extern from "kaacore/input.h" nogil:
     cdef enum CEventType "kaacore::EventType":
         quit "kaacore::EventType::quit",
         clipboard_updated "kaacore::EventType::clipboard_updated",
+        window_shown "kaacore::EventType::window_shown",
+        window_hidden "kaacore::EventType::window_hidden",
+        window_exposed "kaacore::EventType::window_exposed",
+        window_moved "kaacore::EventType::window_moved",
+        window_resized "kaacore::EventType::window_resized",
+        window_minimized "kaacore::EventType::window_minimized",
+        window_maximized "kaacore::EventType::window_maximized",
+        window_restored "kaacore::EventType::window_restored",
+        window_enter "kaacore::EventType::window_enter",
+        window_leave "kaacore::EventType::window_leave",
+        window_focus_gained "kaacore::EventType::window_focus_gained",
+        window_focus_lost "kaacore::EventType::window_focus_lost",
+        window_close "kaacore::EventType::window_close",
         key_down "kaacore::EventType::key_down",
         key_up "kaacore::EventType::key_up",
         text_input "kaacore::EventType::text_input",
@@ -324,28 +339,6 @@ cdef extern from "kaacore/input.h" nogil:
         music_finished "kaacore::EventType::music_finished",
         channel_finished "kaacore::EventType::channel_finished",
     
-    cdef enum CWindowEventType "kaacore::WindowEventType":
-        shown "kaacore::WindowEventType::shown",
-        hidden "kaacore::WindowEventType::hidden",
-        exposed "kaacore::WindowEventType::exposed",
-        moved "kaacore::WindowEventType::moved",
-        resized "kaacore::WindowEventType::resized",
-        minimized "kaacore::WindowEventType::minimized",
-        maximized "kaacore::WindowEventType::maximized",
-        restored "kaacore::WindowEventType::restored",
-        enter "kaacore::WindowEventType::enter",
-        leave "kaacore::WindowEventType::leave",
-        focus_gained "kaacore::WindowEventType::focus_gained",
-        focus_lost "kaacore::WindowEventType::focus_lost",
-        close "kaacore::WindowEventType::close"
-
-    cdef enum CCompoundEventType "kaacore::CompoundEventType":
-        window "kaacore::CompoundEventType::window",
-        system "kaacore::CompoundEventType::system",
-        keyboard "kaacore::CompoundEventType::keyboard",
-        mouse "kaacore::CompoundEventType::mouse",
-        controller "kaacore::CompoundEventType::controller",
-
     cdef enum CCompoundControllerAxis "kaacore::CompoundControllerAxis":
         left_stick "kaacore::CompoundControllerAxis::left_stick",
         right_stick "kaacore::CompoundControllerAxis::right_stick"
@@ -387,11 +380,13 @@ cdef extern from "kaacore/input.h" nogil:
             except +raise_py_error
 
     cdef cppclass CKeyboardEvent "kaacore::KeyboardEvent":
+        bint key() \
+            except +raise_py_error
+        bint text_input() \
+            except +raise_py_error
         bint is_pressing(CKeycode kc) \
             except +raise_py_error
         bint is_releasing(CKeycode kc) \
-            except +raise_py_error
-        bint text_input() \
             except +raise_py_error
         string text() \
             except +raise_py_error
@@ -437,7 +432,7 @@ cdef extern from "kaacore/input.h" nogil:
             except +raise_py_error
 
     cdef cppclass CEvent "kaacore::Event":
-        uint32_t type() \
+        CEventType type() \
             except +raise_py_error
         uint32_t timestamp() \
             except +raise_py_error
@@ -496,9 +491,21 @@ cdef extern from "kaacore/input.h" nogil:
         vector[int32_t] get_connected_controllers() \
             except +raise_py_error
 
+    ctypedef function[int(const CEvent&)] CEventCallback "kaacore::EventCallback"
+
     cdef cppclass CInputManager "kaacore::InputManager":
         vector[CEvent] events_queue
         CSystemManager system
         CKeyboardManager keyboard
         CMouseManager mouse
         CControllerManager controller
+
+        void register_callback(CEventType type_, CEventCallback callback)
+
+
+cdef extern from "extra/include/pythonic_callback.h":
+    ctypedef int32_t (*CythonEventCallback)(CPythonicCallbackWrapper, const CEvent&)
+    CythonEventCallback bind_cython_event_callback(
+        const CythonEventCallback cy_handler,
+        const CPythonicCallbackWrapper callback
+    )
