@@ -166,9 +166,10 @@ Constructor:
 
     Polygon instance represents a custom shape. Polygons are used e.g. for creating hitboxes.
 
-    points parameter must be a list of `geometry.Vector` instances.
+    points parameter must be a list of :class:`geometry.Vector` instances.
 
-    If you don't close the polygon (i.e. set the last point identical to the first one) kaa will do that for you.
+    If you don't close the polygon (the last point in the list is not identical with the first one) kaa will do
+    that for you.
 
     Note that if you're creating a Polygon for the purpose of the hitbox node (:class:`physics.HitboxNode`) then
     the polygon `must be convex <https://en.wikipedia.org/wiki/Convex_polygon>`_.
