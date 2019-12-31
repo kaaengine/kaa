@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-from .vectors cimport CVector
+from .vectors cimport CVector, CMat3x2
 from .exceptions cimport raise_py_error
 
 
@@ -21,6 +21,25 @@ cdef extern from "kaacore/geometry.h" nogil:
         top_right "kaacore::Alignment::top_right"
         bottom_right "kaacore::Alignment::bottom_right"
         center "kaacore::Alignment::center"
+
+    cdef cppclass CTransformation "kaacore::Transformation":
+        CTransformation()
+
+        @staticmethod
+        CTransformation translate(const CVector&) except +raise_py_error
+
+        @staticmethod
+        CTransformation scale(const CVector&) except +raise_py_error
+
+        @staticmethod
+        CTransformation rotate(const double&) except +raise_py_error
+
+        CTransformation inverse() except +raise_py_error
+
+        CTransformation operator*(const CTransformation&) except +raise_py_error
+        CVector operator*(const CVector&) except +raise_py_error
+
+        const CMat3x2 matrix_abcd_txy()
 
     CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CVector]& points) \
         except +raise_py_error

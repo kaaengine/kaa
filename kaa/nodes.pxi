@@ -200,6 +200,17 @@ cdef class NodeBase:
         self._get_c_node().scale(vec.c_vector)
 
     @property
+    def absolute_transformation(self):
+        return Transformation.create(self._get_c_node().absolute_transformation())
+
+    def get_relative_transformation(self, NodeBase ancestor not None):
+        return Transformation.create(
+            self._get_c_node().get_relative_transformation(
+                ancestor._get_c_node()
+            )
+        )
+
+    @property
     def color(self):
         return Color.from_c_color(self._get_c_node().color())
 

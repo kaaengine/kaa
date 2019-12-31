@@ -4,7 +4,7 @@ from libcpp cimport bool
 from libc.stdint cimport int16_t, uint32_t
 
 from .vectors cimport CVector, CColor
-from .geometry cimport CAlignment
+from .geometry cimport CAlignment, CTransformation
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
@@ -52,6 +52,9 @@ cdef extern from "kaacore/nodes.h" nogil:
         CVector scale() except +raise_py_error
         CVector absolute_scale() except +raise_py_error
         void scale(const CVector& scale) except +raise_py_error
+
+        CTransformation absolute_transformation() except +raise_py_error
+        CTransformation get_relative_transformation(const CNode* const ancestor) except +raise_py_error
 
         int16_t z_index() except +raise_py_error
         void z_index(const int16_t& z_index) except +raise_py_error

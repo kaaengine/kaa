@@ -1,6 +1,7 @@
 from libcpp.vector cimport vector
 
 from .vectors cimport CVector
+from .geometry cimport CTransformation
 from .exceptions cimport raise_py_error
 
 
@@ -33,4 +34,7 @@ cdef extern from "kaacore/shapes.h" nogil:
 
         @staticmethod
         CShape Polygon(const vector[CVector]& points) \
+            except +raise_py_error
+
+        CShape transform(const CTransformation& transformation) \
             except +raise_py_error
