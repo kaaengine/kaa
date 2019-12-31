@@ -6,11 +6,13 @@
 :class:`Engine` reference
 -------------------------
 
-Engine instance is the main object of your game. You should create just one Engine instance.
-
 Constructor:
 
 .. class:: Engine(virtual_resolution, virtual_resolution_mode=None, show_window=True)
+
+    Engine instance is the main object of your game. You should create just one Engine instance.
+
+    Parameters:
 
     * virtual_resolution - required. A :class:`geometry.Vector` with width/height of the virtual resolution (see :ref:`virtual_resolution <Engine.virtual_resolution>` for more information).
     * virtual_resolution_mode - a :class:`VirtualResolutionMode` value.
@@ -283,21 +285,21 @@ Instance methods:
 :class:`Scene` reference
 ------------------------
 
-The Scene instance is a place where all your in-game objects will live. You should write your own scene class by
-inheriting from this type. Scene main features are:
-
-* Each Scene must have a :meth:`Scene.update` function which will be called by the engine on every frame.
-* Use the :ref:`root <Scene.root>` property to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
-* Use the :ref:`input <Scene.input>` property to access :class:`input.InputManager` which:
-
-  * exposes a lot of methods to actively check for input from mouse, keyboard, controllers etc.
-  * includes an events list which occurred during the current frame (mouse, keyboard, controllers, music, etc.)
-
-* Use the :ref:`camera <Scene.camera>` property to control the camera
-
 Constructor:
 
 .. class:: Scene()
+
+    The Scene instance is a place where all your in-game objects will live. You should write your own scene class by
+    inheriting from this type. Scene main features are:
+
+    * Each Scene must have a :meth:`Scene.update` function which will be called by the engine on every frame.
+    * Use the :ref:`root <Scene.root>` property to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
+    * Use the :ref:`input <Scene.input>` property to access :class:`input.InputManager` which:
+
+      * exposes a lot of methods to actively check for input from mouse, keyboard, controllers etc.
+      * includes an events list which occurred during the current frame (mouse, keyboard, controllers, music, etc.)
+
+    * Use the :ref:`camera <Scene.camera>` property to control the camera
 
     The Scene constructor does not take any parameters. As stated above, you should never instantiate a Scene directly
     but write your own scene class that inherit from it:
@@ -397,7 +399,7 @@ Attributes:
 
 Instance methods:
 
-.. method:: Scene.update(self, dt)
+.. method:: Scene.update(dt)
 
     An update method is called every frame. The dt parameter is a previous frame duration, in miliseconds.
     Most of your game logic will live inside the update method.

@@ -6,9 +6,9 @@
 :class:`Sound` reference
 ------------------------
 
-A :class:`Sound` object represents a sound effect. Multiple sound effects can be played simultaneously.
-
 .. class:: Sound(sound_filepath, volume=1.0)
+
+   A :class:`Sound` object represents a sound effect. Multiple sound effects can be played simultaneously.
 
    sound_filepath argument must point to a sound file in a compatible format. Currently supported formats are:
 
@@ -44,10 +44,10 @@ Instance methods:
 :class:`Music` reference
 ------------------------
 
-A :class:`Music` object represents a single music track. There's more control over playing Music tracks than Sounds
-as you can pause, resume or stop them on demand. Only one music track can be played at a time.
-
 .. class:: Music(music_filepath, volume=1.0)
+
+    A :class:`Music` object represents a single music track. There's more control over playing Music tracks than Sounds
+    as you can pause, resume or stop them on demand. Only one music track can be played at a time.
 
     music_filepath argument must point to a soundtrack file in a compatible format. Currently supported formats are:
 

@@ -6,18 +6,18 @@
 :class:`Color` reference
 ------------------------
 
-A :class:`Color` represents a color, using in RGBA standard. Color is a property attribute of a :class:`nodes.Node` instance (and
-instances of all its subclasses e.g. :class:`physics.BodyNode`, :class:`physics.BodyNode`, :class:`fonts.TextNode`
-etc.).
-
-Giving :class:`nodes.Node` tints this node's :class:`geometry.Shape` in that color. In case of text nodes it sets
-the color of the text.
-
 Constructor:
 
 .. class:: Color(r=0.0, g=0.0, b=0.0, a=1.0)
 
-   Parameters r, g, b and a are red, green, blue and alpha. They take values between 0 and 1.
+    A :class:`Color` represents a color in RGBA format. Color is a property attribute of a
+    :class:`nodes.Node` instance and all its subclasses e.g. :class:`physics.BodyNode`,
+    :class:`physics.BodyNode`, :class:`fonts.TextNode` etc.
+
+    Giving :class:`nodes.Node` a color tints this node's :class:`geometry.Shape` in that color. In case of
+    text nodes it sets the color of the text.
+
+    Parameters r, g, b and a are red, green, blue and alpha. They take values between 0 and 1.
 
 Instance properties (read only):
 
