@@ -4,7 +4,7 @@ Part 1: Engine and window
 The tutorial assumes you have installed kaaengine==0.4 and have python 3.6.1 or newer.
 
 By the end of this tutorial you will code a complete game: a top-down shooter with animations, physics, sounds,
-basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with kaa engine.
+basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with the kaa engine.
 
 With just about 400 lines of python code you'll build this game:
 
@@ -13,8 +13,8 @@ With just about 400 lines of python code you'll build this game:
     <iframe width="1150" height="646" src="https://www.youtube.com/embed/PkX2RQNLYUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
-Parts 1 and 2 are explaining basic concepts of the engine - you shouldn't skip them, even if you're an experienced
-developer. The actual game development starts in Part 3.
+Parts 1 and 2 of the tutorial are explaining basic concepts of the engine - you shouldn't skip them, even if you're an
+experienced developer. The actual game development starts in Part 3.
 
 We encourage you to make experiments on your own during the tutorial. If you get lost in the process,
 just check out the tutorial code - `it's available in this git repository <https://github.com/PawelRoman/kaa-tutorial>`_
@@ -54,7 +54,7 @@ Start the game by running:
 
 You should see a 800x600 window with a black background. Congratulations, you got the game running!
 
-You cannot close the window, right? It's because we're not handling quit event. Let's quickly fix it by adding this
+You cannot close the window, right? It's because we're not handling the quit event. Let's quickly fix it by adding this
 code inside the scene's update function:
 
 .. code-block:: python
