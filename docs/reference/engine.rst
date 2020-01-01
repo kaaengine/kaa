@@ -315,7 +315,7 @@ Constructor:
 
         scene = MyScene()
 
-Attributes:
+Instance properties:
 
 .. _Scene.camera:
 .. attribute:: Scene.camera
@@ -442,7 +442,7 @@ Window object exposes properties and methods for the game window. Changing the :
 game run in a fullscreen or windowed mode. If you run the game in the windowed mode, you can resize or reposition the
 window using properties such as :code:`position`, :code:`size` or methods such as :code:`center`.
 
-Attributes:
+Instance properties:
 
 .. attribute:: Window.fullscreen
 
@@ -539,7 +539,7 @@ Instance methods:
 
 Renderer object can be accessed via :ref:`Engine.renderer <Engine.renderer>` property. It exposes renderer properties.
 
-Attributes:
+Instance properties:
 
 .. attribute:: Renderer.clear_color
 
@@ -578,6 +578,8 @@ An example of 800x600 frame buffer colored in green, running in the 1200x1000 wi
 
 Audio Manager gives access to global audio settings, such as master sound volume. Audio Manager can be accessed
 via the :class:`Engine.audio <Engine.audio>` property on the Engine instance.
+
+Instance properties:
 
 .. attribute:: AudioManager.master_volume
 
@@ -643,6 +645,8 @@ Note that you can never play more than one music track simultaneously.
 
 Stores display device properties. A list of Display objects can be obtained by calling :meth:`Engine.get_displays()`.
 
+Instance Properties:
+
 .. attribute:: Display.index
 
 Read only. Returns display index (integer).
@@ -673,7 +677,7 @@ properties.
     There isn't a "global" camera - each Scene has its own. Since only
     one scene can run at a time, only active Scene's camera is being used to project the image.
 
-Attributes:
+Instance properties:
 
 .. attribute:: Camera.position
 

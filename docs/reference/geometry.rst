@@ -56,7 +56,7 @@ Class methods:
         print(v.length())  # 1.0
 
 
-Properties:
+Instance Properties:
 
 .. attribute:: Vector.x
 
