@@ -171,8 +171,9 @@ Constructor:
     If you don't close the polygon (the last point in the list is not identical with the first one) kaa will do
     that for you.
 
-    Note that if you're creating a Polygon for the purpose of the hitbox node (:class:`physics.HitboxNode`) then
-    the polygon `must be convex <https://en.wikipedia.org/wiki/Convex_polygon>`_.
+    The polygon `must be convex <https://en.wikipedia.org/wiki/Convex_polygon>`_. Kaa engine will throw an exception
+    if you try to create a non-convex polygon. You may use :meth:`classify_polygon` function to check if a list of
+    points will form a convex polygon or not.
 
     .. code-block:: python
 
@@ -219,15 +220,21 @@ Available values are:
 
 Enum type returned by the :meth:`classify_polygon()` function. Available values:
 
-
-
-* :code:`PolygonType.convex_cw` - polygon is convex
-* :code:`PolygonType.convex_ccw` - TODO - how's that different from convex_cw
-* :code:`PolygonType.not_convex` - polygon is not convex (will not work well as a hitbox shape)
+* :code:`PolygonType.convex_cw` - the list of points forms a convex polygon, the points are ordered clockwise
+* :code:`PolygonType.convex_ccw` - the list of points forms a convex polygon, the points are ordered counter clockwise
+* :code:`PolygonType.not_convex` - the list of points forms a non-convex polygon
 
 :meth:`classify_polygon` reference
 ----------------------------------
 
 .. method:: classify_polygon(polygon)
 
-Accepts a :class:`geometry.Polygon` and returns convex status in form of a :class:`PolygonType` enum value.
+Accepts a list of points (list of :class:`geometry.Vector`) and returns if polygon formed by those points is convex or
+not. The function returns a :class:`PolygonType` enum value.
+
+.. code-block:: python
+    from kaa.geometry import Vector, classify_polygon
+
+    print(classify_polygon([Vector(0, 0), Vector(10, 0), Vector(10, 10), Vector(0, 10)]))  # PolygonType.conwex_ccw
+    print(classify_polygon([Vector(0, 0), Vector(0, 10), Vector(10, 10), Vector(10, 0)]))  # PolygonType.conwex_cw
+    print(classify_polygon([Vector(0, 0), Vector(10, 0), Vector(2, 2), Vector(0, 10)]))  # PolygonType.not_convex
