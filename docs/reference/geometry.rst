@@ -233,6 +233,7 @@ Accepts a list of points (list of :class:`geometry.Vector`) and returns if polyg
 not. The function returns a :class:`PolygonType` enum value.
 
 .. code-block:: python
+
     from kaa.geometry import Vector, classify_polygon
 
     print(classify_polygon([Vector(0, 0), Vector(10, 0), Vector(10, 10), Vector(0, 10)]))  # PolygonType.conwex_ccw
