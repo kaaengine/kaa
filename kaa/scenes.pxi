@@ -1,6 +1,6 @@
 from libc.stdint cimport uint32_t
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
-from cpython.weakref cimport PyWeakref_NewRef, PyWeakref_GetObject
+from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.scenes cimport CScene
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel

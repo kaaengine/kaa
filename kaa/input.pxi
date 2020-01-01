@@ -834,12 +834,7 @@ cdef class InputManager(_BaseInputManager):
     def _register_callback_from_iter(self, object iterable not None,
                                     object callback not None):
         for element in iterable:
-            if inspect.isclass(element) and issubclass(element, _BaseEvent):
-                self._register_callback_from_cls(element, callback)
-            elif isinstance(element, EventType):
-                self._register_callback_from_obj(element, callback)
-            else:
-                raise TypeError(f'Unsupported argument: {element}.')
+            self.register_callback(element, callback)
 
     def _register_callback_from_obj(self, object event_type not None,
                                     object callback not None):
