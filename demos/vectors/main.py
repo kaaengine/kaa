@@ -1,4 +1,4 @@
-from kaa.geometry import Vector, classify_polygon
+from kaa.geometry import Vector, classify_polygon, Transformation
 
 
 def fmt_print(txt, *args):
@@ -55,3 +55,25 @@ if __name__ == '__main__':
               rev_points, classify_polygon(rev_points))
     fmt_print("classification of polygon {}\n --> {!r}",
               points_invalid, classify_polygon(points_invalid))
+
+    fmt_print("Transformation()\n --> {}", Transformation())
+    fmt_print("Transformation.translate(Vector(20, -10))\n --> {}",
+              Transformation.translate(Vector(20, -10)))
+    fmt_print("Transformation.rotate_degrees(90)\n --> {}",
+              Transformation.rotate_degrees(90))
+    fmt_print("Transformation.scale(Vector(2, 2))\n --> {}",
+              Transformation.translate(Vector(2, 2)))
+    fmt_print("Transformation.translate(Vector(20, -10).inverse())\n --> {}",
+              Transformation.translate(Vector(20, -10)).inverse())
+    fmt_print("Transformation.scale(Vector(2, 2).inverse())\n --> {}",
+              Transformation.translate(Vector(2, 2)).inverse())
+    fmt_print("Transformation.translate(Vector(20, -10)) @ Transformation.scale(Vector(2, 2))\n --> {}",
+              Transformation.translate(Vector(20, -10)) @ Transformation.scale(Vector(2, 2)))
+    fmt_print("Transformation.scale(Vector(2, 2)) @ Transformation.translate(Vector(20, -10))\n --> {}",
+              Transformation.scale(Vector(2, 2)) @ Transformation.translate(Vector(20, -10)))
+    fmt_print("Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10))\n --> {}",
+              Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10)))
+    fmt_print("Vector(5, 5) | Transformation.translate(Vector(20, -10))\n --> {}",
+              Vector(5, 5) | Transformation.translate(Vector(20, -10)))
+    fmt_print("Vector(5, 5) | Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10))\n --> {}",
+              Vector(5, 5) | Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10)))

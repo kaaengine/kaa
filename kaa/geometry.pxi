@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+cimport cython
+
 from libc.stdint cimport uint32_t
 from libcpp.vector cimport vector
 
@@ -8,6 +10,9 @@ from .kaacore.vectors cimport CVector, CMat3x2
 from .kaacore.geometry cimport (
     CPolygonType, CAlignment, CTransformation, c_classify_polygon
 )
+
+
+DEF TRANSFORMATION_FREELIST_SIZE = 32
 
 
 class PolygonType(IntEnum):
@@ -29,6 +34,7 @@ class Alignment(IntEnum):
     center = <uint32_t>CAlignment.center
 
 
+@cython.freelist(TRANSFORMATION_FREELIST_SIZE)
 cdef class Transformation:
     cdef CTransformation c_transformation
 
