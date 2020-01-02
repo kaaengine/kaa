@@ -71,29 +71,33 @@ cdef class Transformation:
             self.c_transformation * operand.c_transformation
         )
 
-    cpdef Transformation _mul_transformation_reversed(self, Transformation operand):
-        return Transformation.create(
-            operand.c_transformation * self.c_transformation
-        )
-
     cpdef Vector _mul_vector(self, Vector operand):
         return Vector.from_c_vector(
             self.c_transformation * operand.c_vector
         )
 
-    def __or__(self, operand):
-        return self._mul_transformation_reversed(operand)
+    def __or__(left, right):
+        """
+        Helper operator for "reversed" matrix multiplication,
+        useful for a more user-friendly order of transformations.
+        `tmn1 | tmn2 | tmn3` is equivalent to `tmn3 @ tmn2 @ tmn1`
+        and `vec | tmn` is equivalent to `tmn @ vec`.
+        """
 
-    def __mul__(self, operand):
-        if isinstance(operand, Transformation):
-            return self._mul_transformation(operand)
-        elif isinstance(operand, Vector):
-            return self._mul_vector(operand)
-        else:
-            raise ValueError(
-                "Invalid type used in multiplication: {}"
-                .format(type(operand))
-            )
+        if isinstance(right, Transformation):
+            if isinstance(left, Transformation):
+                return right._mul_transformation(left)
+            elif isinstance(left, Vector):
+                return right._mul_vector(left)
+        return NotImplemented
+
+    def __matmul__(left, right):
+        if isinstance(left, Transformation):
+            if isinstance(right, Transformation):
+                return left._mul_transformation(right)
+            elif isinstance(right, Vector):
+                return left._mul_vector(right)
+        return NotImplemented
 
 
 def classify_polygon(points):
