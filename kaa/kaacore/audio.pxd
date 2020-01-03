@@ -5,6 +5,12 @@ from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/audio.h" nogil:
+    cdef enum CAudioState "kaacore::AudioState":
+        playing "kaacore::AudioState::playing",
+        paused "kaacore::AudioState::paused",
+        stopped "kaacore::AudioState::stopped",
+
+
     cdef cppclass CSound "kaacore::Sound":
         CSound()
 
@@ -19,10 +25,23 @@ cdef extern from "kaacore/audio.h" nogil:
         void volume(const double) except +raise_py_error
 
 
-    cdef enum CMusicState "kaacore::MusicState":
-        playing "kaacore::MusicState::playing",
-        paused "kaacore::MusicState::paused",
-        stopped "kaacore::MusicState::stopped",
+    cdef cppclass CSoundPlayback "kaacore::SoundPlayback":
+        CSoundPlayback(const CSound& sound, double volume) \
+            except +raise_py_error
+
+        CSound sound() except +raise_py_error
+
+        double volume() except +raise_py_error
+        void volume(const double) except +raise_py_error
+
+        CAudioState state() except +raise_py_error
+        bool is_playing() except +raise_py_error
+        void play(double volume) except +raise_py_error
+
+        bool is_paused() except +raise_py_error
+        bool pause() except +raise_py_error
+        bool resume() except +raise_py_error
+        bool stop() except +raise_py_error
 
 
     cdef cppclass CMusic "kaacore::Music":
@@ -37,7 +56,7 @@ cdef extern from "kaacore/audio.h" nogil:
             except +raise_py_error
 
         @staticmethod
-        CMusicState get_state() \
+        CAudioState get_state() \
             except +raise_py_error
 
         double volume() except +raise_py_error
