@@ -309,7 +309,7 @@ class ControllerButton(IntEnum):
     left_stick = <uint32_t>CControllerButton.c_left_stick
     right_stick = <uint32_t>CControllerButton.c_right_stick
     left_shoulder = <uint32_t>CControllerButton.c_left_shoulder
-    right_shoulder = <uint32_t>CControllerButton.c_left_shoulder
+    right_shoulder = <uint32_t>CControllerButton.c_right_shoulder
     dpad_up = <uint32_t>CControllerButton.c_dpad_up
     dpad_down = <uint32_t>CControllerButton.c_dpad_down
     dpad_left = <uint32_t>CControllerButton.c_dpad_left
