@@ -87,10 +87,6 @@ class DemoTransitionsScene(Scene):
         )
 
     def update(self, dt):
-        for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-
         if self.input.keyboard.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
             self.engine.quit()

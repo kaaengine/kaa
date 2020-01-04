@@ -3,6 +3,7 @@ from enum import IntEnum
 from collections import Iterable
 
 import cython
+from libcpp cimport nullptr
 from cpython.ref cimport PyObject
 from libc.stdint cimport int32_t, uint32_t
 from libcpp.vector cimport vector
@@ -777,9 +778,7 @@ cdef class InputManager(_BaseInputManager):
         for c_event in self.c_input_manager.events_queue:
             yield Event.create(c_event)
 
-    def register_callback(self, object event_type not None,
-                          object callback not None):
-
+    def register_callback(self, object event_type not None, object callback):
         if inspect.isclass(event_type):
             if issubclass(event_type, _BaseEvent):
                 return self._register_callback_from_cls(
@@ -796,8 +795,7 @@ cdef class InputManager(_BaseInputManager):
                 )
         raise TypeError(f'Unsupported argument: {event_type}.')
 
-    def _register_callback_from_cls(self, object cls not None,
-                                    object callback not None):
+    def _register_callback_from_cls(self, object cls not None, object callback):
         cdef object event_types = None
         if cls is SystemEvent:
             event_types = (EventType.quit, EventType.clipboard_updated)
@@ -831,20 +829,21 @@ cdef class InputManager(_BaseInputManager):
 
         self._register_callback_from_iter(event_types, callback)
 
-    def _register_callback_from_iter(self, object iterable not None,
-                                    object callback not None):
+    def _register_callback_from_iter(self, object iterable not None, object callback):
         for element in iterable:
             self.register_callback(element, callback)
 
-    def _register_callback_from_obj(self, object event_type not None,
-                                    object callback not None):
+    def _register_callback_from_obj(self, object event_type not None, object callback):
         assert isinstance(event_type, EventType)
+
+        cdef CEventType c_event_type = <CEventType>(<uint32_t>(event_type.value))
+
+        if callback is None:
+            self.c_input_manager.register_callback(c_event_type, <CEventCallback>nullptr)
+            return
 
         cdef CEventCallback bound_callback = bind_cython_event_callback(
             c_event_handler,
             CPythonicCallbackWrapper(<PyObject*>callback)
         )
-        self.c_input_manager.register_callback(
-            <CEventType>(<uint32_t>(event_type.value)),
-            cmove(bound_callback)
-        )
+        self.c_input_manager.register_callback(c_event_type, cmove(bound_callback))

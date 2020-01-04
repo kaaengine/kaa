@@ -47,9 +47,6 @@ class MainScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-
             keyboard = event.keyboard
             if keyboard:
                 if keyboard.is_pressing(Keycode.q):

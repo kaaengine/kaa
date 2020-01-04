@@ -24,7 +24,6 @@ cdef extern from "kaacore/engine.h" nogil:
         unique_ptr[CRenderer] renderer
         unique_ptr[CInputManager] input_manager
         unique_ptr[CAudioManager] audio_manager
-        CScene* scene
         uint64_t time
 
         CEngine(CUVec2 virtual_resolution)
@@ -39,6 +38,7 @@ cdef extern from "kaacore/engine.h" nogil:
         void quit() \
             except +raise_py_error
 
+        CScene* current_scene()
         CUVec2 virtual_resolution()
         void virtual_resolution(CUVec2 resolution)
 

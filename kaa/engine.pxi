@@ -25,9 +25,10 @@ class VirtualResolutionMode(IntEnum):
 
 @cython.final
 cdef class _Engine:
-    cdef _Window _window
-    cdef _Renderer _renderer
-    cdef _AudioManager _audio_manager
+    cdef:
+         _Window _window
+         _Renderer _renderer
+         _AudioManager _audio_manager
 
     def __init__(self):
         self._window = _Window()
@@ -42,7 +43,7 @@ cdef class _Engine:
 
     @property
     def current_scene(self):
-        return (<CPyScene*>self._get_c_engine().scene).get_py_scene()
+        return (<CPyScene*>self._get_c_engine().current_scene()).get_py_scene()
 
     def change_scene(self, Scene scene not None):
         self._get_c_engine().change_scene(scene.c_scene)
@@ -125,7 +126,7 @@ def Engine(Vector virtual_resolution,
            virtual_resolution_mode=None, show_window=True):
     global _c_engine_instance
     if get_c_engine() != NULL:
-        raise ValueError("Engine was already started")
+        raise ValueError('Engine was already started.')
     assert _c_engine_instance == NULL
 
     cdef CUVec2 c_virtual_resolution = CUVec2(
@@ -144,8 +145,9 @@ def Engine(Vector virtual_resolution,
     assert c_engine_ptr != NULL
     _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
 
-    c_log_dynamic(CLogLevel.info, CLogCategory.engine,
-                "Engine initialized.")
+    c_log_dynamic(
+        CLogLevel.info, CLogCategory.engine, 'Engine initialized.'
+    )
     _hello_message()
 
     if show_window is True:
