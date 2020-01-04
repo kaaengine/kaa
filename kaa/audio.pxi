@@ -79,8 +79,8 @@ cdef class SoundPlayback:
     def is_playing(self):
         return self.c_sound_playback.get().is_playing()
 
-    def play(self, double volume=1.):
-        self.c_sound_playback.get().play(volume)
+    def play(self):
+        self.c_sound_playback.get().play()
 
     @property
     def is_paused(self):

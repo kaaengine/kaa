@@ -36,7 +36,7 @@ cdef extern from "kaacore/audio.h" nogil:
 
         CAudioState state() except +raise_py_error
         bool is_playing() except +raise_py_error
-        void play(double volume) except +raise_py_error
+        void play() except +raise_py_error
 
         bool is_paused() except +raise_py_error
         bool pause() except +raise_py_error
