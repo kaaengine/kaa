@@ -1,8 +1,13 @@
-from kaa.engine import Engine, Scene
-from kaa.input import Keycode
+from kaa.engine import Engine, Scene, get_engine
+from kaa.input import Keycode, KeyboardEvent
 from kaa.fonts import TextNode, Font
 from kaa.geometry import Alignment, Vector
 
+
+def handle_quit(event):
+    if event.keyboard and event.keyboard.is_pressing(Keycode.q):
+        get_engine().quit()
+    return True
 
 class FontDemoScene(Scene):
     def __init__(self):
@@ -12,20 +17,15 @@ class FontDemoScene(Scene):
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
         self.root.add_child(self.text_node)
         self.text_buffer = []
+        self.input_manager.register_callback(KeyboardEvent.key, handle_quit)
 
     def update(self, dt):
         for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-
             keyboard = event.keyboard
             if keyboard:
                 if keyboard.text_input:
                     self.text_buffer.append(keyboard.text)
                     print('Text: {}'.format(''.join(self.text_buffer)))
-
-                if keyboard.is_pressing(Keycode.q):
-                    self.engine.quit()
                 elif keyboard.is_pressing(Keycode.backspace):
                     if self.text_buffer:
                         self.text_buffer.pop()
@@ -69,10 +69,6 @@ class FontDemoScene(Scene):
 
 
 if __name__ == '__main__':
-    engine = Engine(virtual_resolution=Vector(10, 10))
-    engine.window.show()
-    engine.run(FontDemoScene())
-
-    print(" * Deleting engine")
-    del engine
-    print(" * Ending script")
+    with Engine(virtual_resolution=Vector(10, 10)) as engine:
+        engine.window.show()
+        engine.run(FontDemoScene())

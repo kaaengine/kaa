@@ -1,16 +1,24 @@
+import inspect
 from enum import IntEnum
+from collections import Iterable
 
 import cython
-from libc.stdint cimport uint32_t
+from libcpp cimport nullptr
+from cpython.ref cimport PyObject
+from libc.stdint cimport int32_t, uint32_t
 from libcpp.vector cimport vector
+from cymove cimport cymove as cmove
 
 from .kaacore.engine cimport CEngine, get_c_engine
+from .kaacore.glue cimport CPythonicCallbackWrapper
+from .kaacore.exceptions cimport c_wrap_python_exception
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
-    CCompoundControllerAxis, CCompoundEventType, CEventType, CWindowEventType,
-    CSystemEvent, CWindowEvent, CKeyboardEvent, CMouseEvent,
-    CControllerEvent, CAudioEvent, CEvent, CInputManager, CSystemManager,
-    CKeyboardManager, CMouseManager, CControllerManager, CControllerID
+    CCompoundControllerAxis, CEventType, CSystemEvent, CWindowEvent,
+    CKeyboardEvent, CMouseEvent, CControllerEvent, CAudioEvent, CEvent,
+    CInputManager, CSystemManager, CKeyboardManager, CMouseManager,
+    CControllerManager, CControllerID, CEventCallback, CythonEventCallback,
+    bind_cython_event_callback
 )
 
 
@@ -321,6 +329,20 @@ class EventType(IntEnum):
     quit = <uint32_t>CEventType.quit
     clipboard_updated = <uint32_t>CEventType.clipboard_updated
 
+    window_shown = <uint32_t>CEventType.window_shown,
+    window_hidden = <uint32_t>CEventType.window_hidden,
+    window_exposed = <uint32_t>CEventType.window_exposed,
+    window_moved = <uint32_t>CEventType.window_moved,
+    window_resized = <uint32_t>CEventType.window_resized,
+    window_minimized = <uint32_t>CEventType.window_minimized,
+    window_maximized = <uint32_t>CEventType.window_maximized,
+    window_restored = <uint32_t>CEventType.window_restored,
+    window_enter = <uint32_t>CEventType.window_enter,
+    window_leave = <uint32_t>CEventType.window_leave,
+    window_focus_gained = <uint32_t>CEventType.window_focus_gained,
+    window_focus_lost = <uint32_t>CEventType.window_focus_lost,
+    window_close = <uint32_t>CEventType.window_close
+
     key_down = <uint32_t>CEventType.key_down
     key_up = <uint32_t>CEventType.key_up
     text_input = <uint32_t>CEventType.text_input
@@ -339,30 +361,6 @@ class EventType(IntEnum):
 
     music_finished = <uint32_t>CEventType.music_finished
     channel_finished = <uint32_t>CEventType.channel_finished
-
-
-class WindowEventType(IntEnum):
-    shown = <uint32_t>CWindowEventType.shown,
-    hidden = <uint32_t>CWindowEventType.hidden,
-    exposed = <uint32_t>CWindowEventType.exposed,
-    moved = <uint32_t>CWindowEventType.moved,
-    resized = <uint32_t>CWindowEventType.resized,
-    minimized = <uint32_t>CWindowEventType.minimized,
-    maximized = <uint32_t>CWindowEventType.maximized,
-    restored = <uint32_t>CWindowEventType.restored,
-    enter = <uint32_t>CWindowEventType.enter,
-    leave = <uint32_t>CWindowEventType.leave,
-    focus_gained = <uint32_t>CWindowEventType.focus_gained,
-    focus_lost = <uint32_t>CWindowEventType.focus_lost,
-    close = <uint32_t>CWindowEventType.close
-
-
-class CompoundEventType(IntEnum):
-    window = <uint32_t>CCompoundEventType.window
-    system = <uint32_t>CCompoundEventType.system
-    keyboard = <uint32_t>CCompoundEventType.keyboard
-    mouse = <uint32_t>CCompoundEventType.mouse
-    controller = <uint32_t>CCompoundEventType.controller
 
 
 class CompoundControllerAxis(IntEnum):
@@ -425,51 +423,51 @@ cdef class WindowEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
 
-    @typed_property(WindowEventType.shown)
+    @typed_property(EventType.window_shown)
     def shown(self):
         return self.c_event.window().shown()
     
-    @typed_property(WindowEventType.exposed)
+    @typed_property(EventType.window_exposed)
     def exposed(self):
         return self.c_event.window().exposed()
     
-    @typed_property(WindowEventType.moved)
+    @typed_property(EventType.window_moved)
     def moved(self):
         return self.c_event.window().moved()
     
-    @typed_property(WindowEventType.resized)
+    @typed_property(EventType.window_resized)
     def resized(self):
         return self.c_event.window().resized()
 
-    @typed_property(WindowEventType.minimized)
+    @typed_property(EventType.window_minimized)
     def minimized(self):
         return self.c_event.window().minimized()
 
-    @typed_property(WindowEventType.maximized)
+    @typed_property(EventType.window_maximized)
     def maximized(self):
         return self.c_event.window().maximized()
 
-    @typed_property(WindowEventType.restored)
+    @typed_property(EventType.window_restored)
     def restored(self):
         return self.c_event.window().restored()
     
-    @typed_property(WindowEventType.enter)
+    @typed_property(EventType.window_enter)
     def enter(self):
         return self.c_event.window().enter()
 
-    @typed_property(WindowEventType.leave)
+    @typed_property(EventType.window_leave)
     def leave(self):
         return self.c_event.window().leave()
 
-    @typed_property(WindowEventType.focus_gained)
+    @typed_property(EventType.window_focus_gained)
     def focus_gained(self):
         return self.c_event.window().focus_gained()
 
-    @typed_property(WindowEventType.focus_lost)
+    @typed_property(EventType.window_focus_lost)
     def focus_lost(self):
         return self.c_event.window().focus_lost()
 
-    @typed_property(WindowEventType.close)
+    @typed_property(EventType.window_close)
     def close(self):
         return self.c_event.window().close()
 
@@ -489,6 +487,10 @@ cdef class KeyboardEvent(_BaseEvent):
         cdef KeyboardEvent instance = KeyboardEvent.__new__(KeyboardEvent)
         instance.c_event = c_event
         return instance
+
+    @typed_property((EventType.key_down, EventType.key_up))
+    def key(self):
+        return self.c_event.keyboard().key()
 
     @typed_property(EventType.text_input)
     def text_input(self):
@@ -617,6 +619,10 @@ cdef class Event(_BaseEvent):
         return instance
     
     @property
+    def type(self):
+        return EventType(<uint32_t>self.c_event.type())
+
+    @property
     def system(self):
         if self.c_event.system():
             return SystemEvent.create(self.c_event)
@@ -733,9 +739,23 @@ cdef class ControllerManager(_BaseInputManager):
     def get_sticks(self, compound_axis not None, CControllerID controller_id):
         return Vector.from_c_vector(
             self.c_input_manager.controller.get_sticks(
-                <CCompoundControllerAxis>(<uint32_t>(compound_axis.value)), controller_id
+                <CCompoundControllerAxis>(<uint32_t>(compound_axis.value)),
+                controller_id
             )
         )
+
+
+cdef int32_t c_event_handler(const CPythonicCallbackWrapper& c_wrapper,
+                             const CEvent& c_event):
+
+    cdef object callback = <object>c_wrapper.py_callback
+    cdef Event event = Event.create(c_event)
+    try:
+        return 1 if callback(event) is True else 0
+    except Exception as py_exc:
+        c_wrap_python_exception(<PyObject*>py_exc)
+        return 0;
+
 
 @cython.final
 cdef class InputManager(_BaseInputManager):
@@ -757,3 +777,73 @@ cdef class InputManager(_BaseInputManager):
         cdef CEvent c_event
         for c_event in self.c_input_manager.events_queue:
             yield Event.create(c_event)
+
+    def register_callback(self, object event_type not None, object callback):
+        if inspect.isclass(event_type):
+            if issubclass(event_type, _BaseEvent):
+                return self._register_callback_from_cls(
+                    event_type, callback
+                )
+        else:
+            if isinstance(event_type, Iterable):
+                return self._register_callback_from_iter(
+                    event_type, callback
+                )
+            elif isinstance(event_type, EventType):
+                return self._register_callback_from_obj(
+                    event_type, callback
+                )
+        raise TypeError(f'Unsupported argument: {event_type}.')
+
+    def _register_callback_from_cls(self, object cls not None, object callback):
+        cdef object event_types = None
+        if cls is SystemEvent:
+            event_types = (EventType.quit, EventType.clipboard_updated)
+        elif cls is WindowEvent:
+            event_types = (
+                EventType.window_shown, EventType.window_hidden,
+                EventType.window_exposed, EventType.window_moved,
+                EventType.window_resized, EventType.window_minimized,
+                EventType.window_maximized, EventType.window_restored,
+                EventType.window_enter, EventType.window_leave,
+                EventType.window_focus_gained, EventType.window_focus_lost,
+                EventType.window_close
+            )
+        elif cls is KeyboardEvent:
+            event_types = (EventType.key_down, EventType.key_up, EventType.text_input)
+        elif cls is MouseEvent:
+            event_types = (
+                EventType.mouse_motion, EventType.mouse_button_up,
+                EventType.mouse_button_down, EventType.mouse_wheel
+            )
+        elif cls is ControllerEvent:
+            event_types = (
+                EventType.controller_axis_motion, EventType.controller_button_down,
+                EventType.controller_button_up, EventType.controller_added,
+                EventType.controller_removed, EventType.controller_removed
+            )
+        elif cls is AudioEvent:
+            event_types = (EventType.music_finished, EventType.channel_finished)
+        else:
+            raise TypeError(f'Unsupported argument: {cls}.')
+
+        self._register_callback_from_iter(event_types, callback)
+
+    def _register_callback_from_iter(self, object iterable not None, object callback):
+        for element in iterable:
+            self.register_callback(element, callback)
+
+    def _register_callback_from_obj(self, object event_type not None, object callback):
+        assert isinstance(event_type, EventType)
+
+        cdef CEventType c_event_type = <CEventType>(<uint32_t>(event_type.value))
+
+        if callback is None:
+            self.c_input_manager.register_callback(c_event_type, <CEventCallback>nullptr)
+            return
+
+        cdef CEventCallback bound_callback = bind_cython_event_callback(
+            c_event_handler,
+            CPythonicCallbackWrapper(<PyObject*>callback)
+        )
+        self.c_input_manager.register_callback(c_event_type, cmove(bound_callback))
