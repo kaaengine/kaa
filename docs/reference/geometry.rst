@@ -185,10 +185,15 @@ Class methods:
 
 .. classmethod:: Polygon.from_box(vector)
 
-    Creates a rectangular-shaped Polygon whose top-left corner is (0, 0) and bottom-left corner is (vector.x, vector.y)
+    Creates a rectangular-shaped Polygon whose central point is at (0, 0) and width and height are passed as vector.x
+    and vector.y respectively. A useful shorthand function for creating a rectangular shape for a
+    :class:`physics.HitboxNode`.
 
-    TODO: this looks very impractical due to hardcoded (0, 0), a better usage would be
-    from_box(top_left_vec, bottom_right_vec)
+    .. code-block:: python
+
+        from kaa.geometry import Polygon, Vector
+
+        poly = Polygon.from_box(Vector(10, 8)) # creates a rectangular polygon [ V(-5, -4), V(5, -4), V(5, 4), V(-5, 4) ]
 
 TODO: no properties?
 

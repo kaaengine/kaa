@@ -11,7 +11,7 @@
 Input manager object can be accessed via :ref:`Scene.input <Scene.input>` property. It has two main features:
 
 * Gives you access to specialized managers: :class`MouseManager`, :class:`KeyboardManager`, :class:`ControllerManager` and :class:`SystemManager` - they offer methods to actively check for input from your code. For instance, you can ask the :class:`KeyboardManager` if given key is pressed or released.
-* Gives you access to a stream of events via the :meth:`events()` method. For example, an event gets published when user pressed a key on a keyboard or clicks a mouse button. Check out the :class:`Event` documentation for a list of all available events.
+* Gives you access to a stream of events via the :meth:`events()` method. For example, an event gets published when user pressed/released a key on a keyboard or clicks a mouse button. Check out the :class:`Event` documentation for a list of all available events.
 
 Instance Properties:
 
@@ -159,6 +159,48 @@ TODO
 
 TODO
 
+:class:`KeyboardEvent` reference
+--------------------------------
+
+.. class:: KeyboardEvent
+
+TODO
+
+:class:`MouseEvent` reference
+-----------------------------
+
+.. class:: MouseEvent
+
+TODO
+
+:class:`ControllerEvent` reference
+----------------------------------
+
+.. class:: ControllerEvent
+
+TODO
+
+:class:`AudioEvent` reference
+-----------------------------
+
+.. class:: AudioEvent
+
+TODO
+
+:class:`WindowEvent` reference
+------------------------------
+
+.. class:: WindowEvent
+
+TODO
+
+:class:`SystemEvent` reference
+------------------------------
+
+.. class:: SystemEvent
+
+TODO
+
 
 :class:`Keycode` reference
 --------------------------
@@ -180,11 +222,41 @@ TODO
 
 .. class:: ControllerButton
 
-TODO
+Enum type for referencing controller buttons when working with :class:`ControllerManager` methods and :class:`ControllerEvent`
+events. Note that left and right triggers are not buttons, they're considered axis (see :class:`ControllerAxis`)
+
+Available values are:
+
+* :code:`ControllerButton.a`
+* :code:`ControllerButton.b`
+* :code:`ControllerButton.x`
+* :code:`ControllerButton.y`
+* :code:`ControllerButton.back`
+* :code:`ControllerButton.guide`
+* :code:`ControllerButton.start`
+* :code:`ControllerButton.left_stick`
+* :code:`ControllerButton.right_stick`
+* :code:`ControllerButton.left_shoulder`
+* :code:`ControllerButton.right_shoulder`
+* :code:`ControllerButton.dpad_up`
+* :code:`ControllerButton.dpad_down`
+* :code:`ControllerButton.dpad_left`
+* :code:`ControllerButton.dpad_right`
+
 
 :class:`ControllerAxis` reference
 ---------------------------------
 
 .. class:: ControllerAxis
 
-TODO
+Enum type for referencing controller axes when working with :class:`ControllerManager` methods and
+:class:`ControllerEvent` events.
+
+Available values are:
+
+* :code:`ControllerAxis.left_y`
+* :code:`ControllerAxis.left_x`
+* :code:`ControllerAxis.right_x`
+* :code:`ControllerAxis.right_y`
+* :code:`ControllerAxis.trigger_left`
+* :code:`ControllerAxis.trigger_right`
