@@ -81,6 +81,7 @@ class ControllerStatsContainer(Node):
                 label = f"{axes_label}: {motion}, pressed: {is_pressed}, released: {is_released}"
                 self.get_label_for_axes(axes).text = label
 
+
     def log_event(self, controller_event):
         self.events_count += 1
         self.events_logged_txt.text = f"EVENTS LOGGED: {self.events_count}"
@@ -154,7 +155,7 @@ class MyScene(Scene):
         self.slot_nodes[slot_index].controller_stats_container.log_event(controller_event)
 
     def update(self, dt):
-        # handles system event of pressing "X" or ALT+F4 to close the window:
+
         for event in self.input.events():
             if event.keyboard:
                 if event.keyboard.is_pressing(Keycode.q):
@@ -162,11 +163,8 @@ class MyScene(Scene):
 
             if event.controller:
                 if event.controller.added:
-                    print('added')
-                    print(event.controller.id)
                     self.on_controller_connected(event.controller)
                 elif event.controller.removed:
-                    print('removed')
                     self.on_controller_disconnected(event.controller)
                 else:
                     self.log_controller_event(event.controller)

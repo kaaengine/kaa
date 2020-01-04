@@ -10,13 +10,17 @@ Constructor:
 
 .. class:: Engine(virtual_resolution, virtual_resolution_mode=None, show_window=True)
 
-    Engine instance is the main object of your game. You should create just one Engine instance.
+    Engine instance is the first object you need to create to run the game.
 
     Parameters:
 
     * virtual_resolution - required. A :class:`geometry.Vector` with width/height of the virtual resolution (see :ref:`virtual_resolution <Engine.virtual_resolution>` for more information).
     * virtual_resolution_mode - a :class:`VirtualResolutionMode` value.
     * show_window - if you pass False, the engine will start with a hidden window. Useful if you want to run kaa related stuff in a non-windowed environment, for example, when you want to run unit tests from a terminal window. Or when you want to start the game with a hidden window and show it manually later.
+
+    Game's 'entry point' is the :meth:`Engine.run` method which takes in a :class:`Scene` instance as a required
+    parameter. Calling :code:`run` will make the kaa engine run the scene, i.e. call its :meth:`Scene.update` method
+    in a loop.
 
     A typical "Hello World" kaa game (showing just an empty window) would look like the following:
 
@@ -275,8 +279,8 @@ Instance methods:
 
 .. method:: Engine.run(scene)
 
-    Starts running a scene instance. You'll need to call this method just once, to run the first scene of your game.
-    To change between scenes use the :meth:`Engine.change_scene` method.
+    Starts running a scene instance, by calling its :code:`update` method in a loop. You'll need to call this method
+    just once, to run the first scene of your game. To change between scenes use the :meth:`Engine.change_scene` method.
 
 .. method:: Engine.stop()
 
