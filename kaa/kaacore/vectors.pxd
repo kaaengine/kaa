@@ -37,9 +37,6 @@ cdef extern from "glm/glm.hpp" nogil:
         CColor(double r, double g, double b, double a)
         bint operator==(CColor, CColor)
 
-    cdef cppclass CMat3x2 "glm::dmat3x2":
-        CVector& operator[](size_t)
-
 
 cdef extern from "glm/gtx/rotate_vector.hpp" nogil:
     CVector CVector_rotate_angle "glm::rotate" (CVector& v, double angle)

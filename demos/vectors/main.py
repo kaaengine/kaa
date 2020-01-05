@@ -67,10 +67,6 @@ if __name__ == '__main__':
               Transformation.translate(Vector(20, -10)).inverse())
     fmt_print("Transformation.scale(Vector(2, 2).inverse())\n --> {}",
               Transformation.translate(Vector(2, 2)).inverse())
-    fmt_print("Transformation.translate(Vector(20, -10)) @ Transformation.scale(Vector(2, 2))\n --> {}",
-              Transformation.translate(Vector(20, -10)) @ Transformation.scale(Vector(2, 2)))
-    fmt_print("Transformation.scale(Vector(2, 2)) @ Transformation.translate(Vector(20, -10))\n --> {}",
-              Transformation.scale(Vector(2, 2)) @ Transformation.translate(Vector(20, -10)))
     fmt_print("Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10))\n --> {}",
               Transformation.scale(Vector(2, 2)) | Transformation.translate(Vector(20, -10)))
     fmt_print("Vector(5, 5) | Transformation.translate(Vector(20, -10))\n --> {}",
