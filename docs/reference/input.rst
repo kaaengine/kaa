@@ -320,7 +320,19 @@ Instance methods
 
 .. class:: SystemManager
 
-TODO
+System Manager can be accessed via the :ref:`InputManager.system <InputManager.system>` property.
+
+The manager exposes methods for working with system related input such as clipboard.
+
+Instance methods:
+
+.. method:: SystemManager.get_clipboard_text()
+
+    Gets text from the system clipboard
+
+.. method:: SystemManager.set_clipboard_text(text)
+
+    Puts the :code:`text` in the system clipboard
 
 
 :class:`Event` reference
@@ -328,49 +340,289 @@ TODO
 
 .. class:: Event
 
-TODO
+As the game is running, a lot of things happen: the player may press or release keyboard keys
+or mouse buttons, interact with controller, he can also interact with the window in which your game is running, e.g.
+maximize or minimize it, and so on. Kaa engine detects all those events and makes them available via
+:meth:`InputManager.events()` method. The method returns a list of all events that ocurred during the previous frame,
+which means it is cleared on every frame (no events are retained).
+
+Each :class:`Event` object has identical structure with the following properties:
+
+* :code:`system` - gives access to :class:`SystemEvent` properties and methods if this event is a system related event, otherwise it will be :code:`None`
+* :code:`window` - gives access to :class:`WindowEvent` properties and methods if this event is a window related event, otherwise it will be :code:`None`
+* :code:`keyboard` - gives access to :class:`KeyboardEvent` properties and methods if this event is a keyboard related event, otherwise it will be :code:`None`
+* :code:`mouse` - gives access to :class:`MouseEvent` properties and methods if this event is a mouse related event, otherwise it will be :code:`None`
+* :code:`controller` - gives access to :class:`ControllerEvent` properties and methods if this event is a controller related event, otherwise it will be :code:`None`
+* :code:`audio` - gives access to :class:`AudioEvent` properties and methods if this event is an audio related event, otherwise it will be :code:`None`
+
+Depending on the type of the event only one property will be non-null while all the other properties will be null.
+This design usually results in a following way of handling events in the code:
+
+.. code-block:: python
+
+    # ... inside a Scene...
+    def update(self, dt):
+
+        for event in self.input.events():
+            if event.system:
+                # do something if it's a system event
+            elif event.window:
+                # do something if it's a window event
+            elif event.keyboard:
+                # do something if it's a keyboard event
+            elif event.mouse:
+                # do something if it's a mouse event
+            elif event.controller:
+                # do something if it's a controller event
+            elif event.audio:
+                # do something if it's audio event
+
 
 :class:`KeyboardEvent` reference
 --------------------------------
 
 .. class:: KeyboardEvent
 
-TODO
+Represents an event of pressing or releasing a keyboard key.
+
+Instance methods:
+
+.. method:: KeyboardEvent.is_pressing(keycode)
+
+    Returns :code:`True` if given :class:`Keycode` was pressed
+
+.. method:: KeyboardEvent.is_releasing(keycode)
+
+    Returns :code:`True` if given :class:`Keycode` was released
+
+
+TODO: need to add the 'text' property returning a string with a text, now it needs an iteration through all KeyCodes...
+
 
 :class:`MouseEvent` reference
 -----------------------------
 
 .. class:: MouseEvent
 
-TODO
+Represents a mouse related event, such as mouse button click, mouse wheel scroll or a mouse pointer motion.
+
+Instance properties:
+
+.. attribute:: MouseEvent.motion
+
+    A bool flag indicating if the event is motion related. If :code:`True`, then the
+    :code:`position` property can be read to find the mouse position.
+
+.. attribute:: MouseEvent.position
+
+    Returns mouse pointer position as :class:`geometry.Vector`. The :code:`position` property is relevant only if
+    :code:`motion` flag is :code:`True`, otherwise it will be a zero vector.
+
+    .. code-block:: python
+
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.mouse:
+                if event.mouse.motion:
+                    print("Mouse motion: {}. Position is: {}.".format(event.mouse.motion, event.mouse.position))
+
+.. attribute:: MouseEvent.wheel
+
+    A bool flag indicating if the event is related to mouse wheel. If :code:`True`, then the
+    :code:`scroll` property can be read to find out whether the wheel was scrolled up or down
+
+.. attribute:: MouseEvent.scroll
+
+    Returns a :class:`geometry.Vector` indicating whether the mouse wheel was scrolled up or down. The :code:`y`
+    property in the returned vector holds the value, the :code:`x` will always be zero.
+
+    .. code-block:: python
+
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.mouse:
+                if event.mouse.wheel:
+                    print("Mouse wheel: {}. Scroll is: {}.".format(event.mouse.wheel, event.mouse.scroll))
+
+
+.. attribute:: MouseEvent.button
+
+    A bool flag indicating if the event is related to mouse button. If :code:`True`, then you should use methods
+    :meth:`MouseEvent.is_pressing` or :meth:`MouseEvent.is_releasing` to identify which mouse button was pressed
+    or released.
+
+    TODO: need to do that better because right now is_pressing and is_releassing require user to iterate over all
+    possible MouseButton values to find out which button was pressed or released!
+
+Instance methods:
+
+.. method:: MouseEvent.is_pressing(mouse_button)
+
+    Returns :code:`True` if this event represents pressing of given mouse button.
+
+    The mouse_button paramter must be a :class:`MouseButton` value.
+
+.. method:: MouseEvent.is_releasing(mouse_button)
+
+    Returns :code:`True` if this event represents releasing of given mouse button.
+
+    The mouse_button paramter must be a :class:`MouseButton` value.
+
 
 :class:`ControllerEvent` reference
 ----------------------------------
 
 .. class:: ControllerEvent
 
-TODO
+Represents controller related event such as connecting/disconencting a controller or changing the state of
+a button, stick or trigger.
+
+Instance properties:
+
+.. attribute:: ControllerEvent.id
+
+    Since multiple controllers can be connected simultaneously there is a need to tell them apart. Each event holds
+    an id which identifies the controller.
+
+.. attribute:: ControllerEvent.added
+
+    A bool flag - when :code:`True` it means the event represents connecting a new controler.
+
+.. attribute:: ControllerEvent.removed
+
+    A bool flag - when :code:`True` it means the event represents disconnecting a controler.
+
+.. attribute:: ControllerEvent.button
+
+    A bool flag indicating if the event is related to controller button. If :code:`True`, then you may use methods
+    :meth:`ControllerEvent.is_pressing` or :meth:`ControllerEvent.is_releasing` to identify which button was pressed
+    or released.
+
+.. attribute:: ControllerEvent.axis
+
+    A bool flag indicating if the event is related to controller axis motion. If :code:`True`, then you may use
+    the :meth:`ControllerEvent.axis_motion()` method to find which axes has changed.
+
+
+Instance methods:
+
+.. method:: ControllerEvent.is_pressing(controller_button)
+
+    Returns :code:`True` if this event represents pressing given controller button.
+
+    The controller_button paramter must be a :class:`ControllerButton` value.
+
+.. method:: ControllerEvent.is_releasing(mouse_button)
+
+    Returns :code:`True` if this event represents releasing given controller button.
+
+    The controller_button paramter must be a :class:`ControllerButton` value.
+
+.. method:: ControllerEvent.axis_motion(controller_axes)
+
+    Returns :code:`True` if this event represents a motion of given controller axes.
+
+    The controller_axes must be a :class:`ControllerAxis` value.
 
 :class:`AudioEvent` reference
 -----------------------------
 
 .. class:: AudioEvent
 
-TODO
+Represents an audio related event.
+
+Instance methods:
+
+.. method:: music_finished()
+
+    Returns :code:`True` if current music track finished playing.
+
 
 :class:`WindowEvent` reference
 ------------------------------
 
 .. class:: WindowEvent
 
-TODO
+Represents a window related event.
+
+Instance properties:
+
+.. attribute:: WindowEvent.size
+
+    Window size as :class:`geometry.Vector`
+
+.. attribute:: WindowEvent.position
+
+    Window position as :class:`geometry.Vector`
+
+Instance methods:
+
+.. method:: WindowEvent.shown()
+
+    Returns :code:`True` if the window was shown.
+
+.. method:: WindowEvent.exposed()
+
+    Returns :code:`True` if the window was exposed.
+
+.. method:: WindowEvent.moved()
+
+    Returns :code:`True` if the window was moved.
+
+.. method:: WindowEvent.resized()
+
+    Returns :code:`True` if the window was resized.
+
+.. method:: WindowEvent.minimized()
+
+    Returns :code:`True` if the window was minimized.
+
+.. method:: WindowEvent.maximized()
+
+    Returns :code:`True` if the window was maximized.
+
+.. method:: WindowEvent.restored()
+
+    Returns :code:`True` if the window was restored.
+
+.. method:: WindowEvent.enter()
+
+    TODO: ???
+
+.. method:: WindowEvent.leave()
+
+    TODO: ???
+
+.. method:: WindowEvent.focus_gained()
+
+    Returns :code:`True` if the window gained a focus.
+
+.. method:: WindowEvent.focus_lost()
+
+    Returns :code:`True` if the window lost a focus.
+
+.. method:: WindowEvent.close()
+
+    Returns :code:`True` if the window was closed.
+
 
 :class:`SystemEvent` reference
 ------------------------------
 
 .. class:: SystemEvent
 
-TODO
+Represents a system related event.
+
+Instance method:
+
+.. method:: SystemEvent.quit()
+
+    Returns :code:`True` if the game proces is terminating.
+
+.. method:: SystemEvent.clipboard_updated()
+
+    Returns :code:`True` if the system clipboard was updated. You may call :meth:`SystemManager.get_clipboard_text()`
+    method to check the text in the system clipboard.
 
 
 :class:`Keycode` reference
@@ -378,23 +630,296 @@ TODO
 
 .. class:: Keycode
 
-TODO
+Enum type for referencing keyboard keys when working with :class:`KeyboardManager` and :class:`KeyboardEvent`.
 
+Available values are:
+
+* :code:`Keycode.unknown`
+* :code:`Keycode.return_`
+* :code:`Keycode.escape`
+* :code:`Keycode.backspace`
+* :code:`Keycode.tab`
+* :code:`Keycode.space`
+* :code:`Keycode.exclaim`
+* :code:`Keycode.quotedbl`
+* :code:`Keycode.hash`
+* :code:`Keycode.percent`
+* :code:`Keycode.dollar`
+* :code:`Keycode.ampersand`
+* :code:`Keycode.quote`
+* :code:`Keycode.leftparen`
+* :code:`Keycode.rightparen`
+* :code:`Keycode.asterisk`
+* :code:`Keycode.plus`
+* :code:`Keycode.comma`
+* :code:`Keycode.minus`
+* :code:`Keycode.period`
+* :code:`Keycode.slash`
+* :code:`Keycode.num_0`
+* :code:`Keycode.num_1`
+* :code:`Keycode.num_2`
+* :code:`Keycode.num_3`
+* :code:`Keycode.num_4`
+* :code:`Keycode.num_5`
+* :code:`Keycode.num_6`
+* :code:`Keycode.num_7`
+* :code:`Keycode.num_8`
+* :code:`Keycode.num_9`
+* :code:`Keycode.colon`
+* :code:`Keycode.semicolon`
+* :code:`Keycode.less`
+* :code:`Keycode.equals`
+* :code:`Keycode.greater`
+* :code:`Keycode.question`
+* :code:`Keycode.at`
+* :code:`Keycode.leftbracket`
+* :code:`Keycode.backslash`
+* :code:`Keycode.rightbracket`
+* :code:`Keycode.caret`
+* :code:`Keycode.underscore`
+* :code:`Keycode.backquote`
+* :code:`Keycode.a`
+* :code:`Keycode.b`
+* :code:`Keycode.c`
+* :code:`Keycode.d`
+* :code:`Keycode.e`
+* :code:`Keycode.f`
+* :code:`Keycode.g`
+* :code:`Keycode.h`
+* :code:`Keycode.i`
+* :code:`Keycode.j`
+* :code:`Keycode.k`
+* :code:`Keycode.l`
+* :code:`Keycode.m`
+* :code:`Keycode.n`
+* :code:`Keycode.o`
+* :code:`Keycode.p`
+* :code:`Keycode.q`
+* :code:`Keycode.r`
+* :code:`Keycode.s`
+* :code:`Keycode.t`
+* :code:`Keycode.u`
+* :code:`Keycode.v`
+* :code:`Keycode.w`
+* :code:`Keycode.x`
+* :code:`Keycode.y`
+* :code:`Keycode.z`
+* :code:`Keycode.A`
+* :code:`Keycode.B`
+* :code:`Keycode.C`
+* :code:`Keycode.D`
+* :code:`Keycode.E`
+* :code:`Keycode.F`
+* :code:`Keycode.G`
+* :code:`Keycode.H`
+* :code:`Keycode.I`
+* :code:`Keycode.J`
+* :code:`Keycode.K`
+* :code:`Keycode.L`
+* :code:`Keycode.M`
+* :code:`Keycode.N`
+* :code:`Keycode.O`
+* :code:`Keycode.P`
+* :code:`Keycode.Q`
+* :code:`Keycode.R`
+* :code:`Keycode.S`
+* :code:`Keycode.T`
+* :code:`Keycode.U`
+* :code:`Keycode.V`
+* :code:`Keycode.W`
+* :code:`Keycode.X`
+* :code:`Keycode.Y`
+* :code:`Keycode.Z`
+* :code:`Keycode.capslock`
+* :code:`Keycode.F1`
+* :code:`Keycode.F2`
+* :code:`Keycode.F3`
+* :code:`Keycode.F4`
+* :code:`Keycode.F5`
+* :code:`Keycode.F6`
+* :code:`Keycode.F7`
+* :code:`Keycode.F8`
+* :code:`Keycode.F9`
+* :code:`Keycode.F10`
+* :code:`Keycode.F11`
+* :code:`Keycode.F12`
+* :code:`Keycode.printscreen`
+* :code:`Keycode.scrolllock`
+* :code:`Keycode.pause`
+* :code:`Keycode.insert`
+* :code:`Keycode.home`
+* :code:`Keycode.pageup`
+* :code:`Keycode.delete`
+* :code:`Keycode.end`
+* :code:`Keycode.pagedown`
+* :code:`Keycode.right`
+* :code:`Keycode.left`
+* :code:`Keycode.down`
+* :code:`Keycode.up`
+* :code:`Keycode.numlockclear`
+* :code:`Keycode.kp_divide`
+* :code:`Keycode.kp_multiply`
+* :code:`Keycode.kp_minus`
+* :code:`Keycode.kp_plus`
+* :code:`Keycode.kp_enter`
+* :code:`Keycode.kp_1`
+* :code:`Keycode.kp_2`
+* :code:`Keycode.kp_3`
+* :code:`Keycode.kp_4`
+* :code:`Keycode.kp_5`
+* :code:`Keycode.kp_6`
+* :code:`Keycode.kp_7`
+* :code:`Keycode.kp_8`
+* :code:`Keycode.kp_9`
+* :code:`Keycode.kp_0`
+* :code:`Keycode.kp_period`
+* :code:`Keycode.application`
+* :code:`Keycode.power`
+* :code:`Keycode.kp_equals`
+* :code:`Keycode.F13`
+* :code:`Keycode.F14`
+* :code:`Keycode.F15`
+* :code:`Keycode.F16`
+* :code:`Keycode.F17`
+* :code:`Keycode.F18`
+* :code:`Keycode.F19`
+* :code:`Keycode.F20`
+* :code:`Keycode.F21`
+* :code:`Keycode.F22`
+* :code:`Keycode.F23`
+* :code:`Keycode.F24`
+* :code:`Keycode.execute`
+* :code:`Keycode.help`
+* :code:`Keycode.menu`
+* :code:`Keycode.select`
+* :code:`Keycode.stop`
+* :code:`Keycode.again`
+* :code:`Keycode.undo`
+* :code:`Keycode.cut`
+* :code:`Keycode.copy`
+* :code:`Keycode.paste`
+* :code:`Keycode.find`
+* :code:`Keycode.mute`
+* :code:`Keycode.volumeup`
+* :code:`Keycode.volumedown`
+* :code:`Keycode.kp_comma`
+* :code:`Keycode.kp_equalsas400`
+* :code:`Keycode.alterase`
+* :code:`Keycode.sysreq`
+* :code:`Keycode.cancel`
+* :code:`Keycode.clear`
+* :code:`Keycode.prior`
+* :code:`Keycode.return2`
+* :code:`Keycode.separator`
+* :code:`Keycode.out`
+* :code:`Keycode.oper`
+* :code:`Keycode.clearagain`
+* :code:`Keycode.crsel`
+* :code:`Keycode.exsel`
+* :code:`Keycode.kp_00`
+* :code:`Keycode.kp_000`
+* :code:`Keycode.thousandsseparator`
+* :code:`Keycode.decimalseparator`
+* :code:`Keycode.currencyunit`
+* :code:`Keycode.currencysubunit`
+* :code:`Keycode.kp_leftparen`
+* :code:`Keycode.kp_rightparen`
+* :code:`Keycode.kp_leftbrace`
+* :code:`Keycode.kp_rightbrace`
+* :code:`Keycode.kp_tab`
+* :code:`Keycode.kp_backspace`
+* :code:`Keycode.kp_a`
+* :code:`Keycode.kp_b`
+* :code:`Keycode.kp_c`
+* :code:`Keycode.kp_d`
+* :code:`Keycode.kp_e`
+* :code:`Keycode.kp_f`
+* :code:`Keycode.kp_xor`
+* :code:`Keycode.kp_power`
+* :code:`Keycode.kp_percent`
+* :code:`Keycode.kp_less`
+* :code:`Keycode.kp_greater`
+* :code:`Keycode.kp_ampersand`
+* :code:`Keycode.kp_dblampersand`
+* :code:`Keycode.kp_verticalbar`
+* :code:`Keycode.kp_dblverticalbar`
+* :code:`Keycode.kp_colon`
+* :code:`Keycode.kp_hash`
+* :code:`Keycode.kp_space`
+* :code:`Keycode.kp_at`
+* :code:`Keycode.kp_exclam`
+* :code:`Keycode.kp_memstore`
+* :code:`Keycode.kp_memrecall`
+* :code:`Keycode.kp_memclear`
+* :code:`Keycode.kp_memadd`
+* :code:`Keycode.kp_memsubtract`
+* :code:`Keycode.kp_memmultiply`
+* :code:`Keycode.kp_memdivide`
+* :code:`Keycode.kp_plusminus`
+* :code:`Keycode.kp_clear`
+* :code:`Keycode.kp_clearentry`
+* :code:`Keycode.kp_binary`
+* :code:`Keycode.kp_octal`
+* :code:`Keycode.kp_decimal`
+* :code:`Keycode.kp_hexadecimal`
+* :code:`Keycode.lctrl`
+* :code:`Keycode.lshift`
+* :code:`Keycode.lalt`
+* :code:`Keycode.lgui`
+* :code:`Keycode.rctrl`
+* :code:`Keycode.rshift`
+* :code:`Keycode.ralt`
+* :code:`Keycode.rgui`
+* :code:`Keycode.mode`
+* :code:`Keycode.audionext`
+* :code:`Keycode.audioprev`
+* :code:`Keycode.audiostop`
+* :code:`Keycode.audioplay`
+* :code:`Keycode.audiomute`
+* :code:`Keycode.mediaselect`
+* :code:`Keycode.www`
+* :code:`Keycode.mail`
+* :code:`Keycode.calculator`
+* :code:`Keycode.computer`
+* :code:`Keycode.ac_search`
+* :code:`Keycode.ac_home`
+* :code:`Keycode.ac_back`
+* :code:`Keycode.ac_forward`
+* :code:`Keycode.ac_stop`
+* :code:`Keycode.ac_refresh`
+* :code:`Keycode.ac_bookmarks`
+* :code:`Keycode.brightnessdown`
+* :code:`Keycode.brightnessup`
+* :code:`Keycode.displayswitch`
+* :code:`Keycode.kbdillumtoggle`
+* :code:`Keycode.kbdillumdown`
+* :code:`Keycode.kbdillumup`
+* :code:`Keycode.eject`
+* :code:`Keycode.sleep`
 
 :class:`MouseButton` reference
 ------------------------------
 
 .. class:: MouseButton
 
-TODO
+Enum type for referencing mouse buttons when working with :class:`MouseManager` and :class:`MouseEvent`.
+
+Available values are:
+
+* :code:`MouseButton.left`
+* :code:`MouseButton.middle`
+* :code:`MouseButton.right`
+* :code:`MouseButton.x1`
+* :code:`MouseButton.x2`
+
 
 :class:`ControllerButton` reference
 -----------------------------------
 
 .. class:: ControllerButton
 
-Enum type for referencing controller buttons when working with :class:`ControllerManager` methods and :class:`ControllerEvent`
-events. Note that left and right triggers are not buttons, they're considered axis (see :class:`ControllerAxis`)
+Enum type for referencing controller buttons when working with :class:`ControllerManager` and :class:`ControllerEvent`.
+Note that left and right triggers are not buttons, they're considered axis (see :class:`ControllerAxis`)
 
 Available values are:
 
@@ -420,8 +945,8 @@ Available values are:
 
 .. class:: ControllerAxis
 
-Enum type for referencing controller axes when working with :class:`ControllerManager` methods and
-:class:`ControllerEvent` events.
+Enum type for referencing controller axes when working with :class:`ControllerManager` and
+:class:`ControllerEvent`.
 
 Available values are:
 
@@ -433,7 +958,7 @@ Available values are:
 * :code:`ControllerAxis.trigger_right`
 
 
-:class:` CompoundControllerAxis` reference
+:class:`CompoundControllerAxis` reference
 ------------------------------------------
 
 .. class:: CompoundControllerAxis

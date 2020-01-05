@@ -6,10 +6,8 @@ class MyScene(Scene):
 
     def __init__(self):
         self.connected_controller_ids = []
-        self.frame_count = 0
 
     def update(self, dt):
-        self.frame_count += 1
         for event in self.input.events():
 
             if event.controller:
@@ -19,6 +17,10 @@ class MyScene(Scene):
                 elif event.controller.removed:
                     print('Controller disconnected: id is {}'.format(event.controller.id))
                     self.connected_controller_ids.remove(event.controller.id)
+                elif event.controller.axis:
+                    print('Controller axis {}'.format(event.controller.axis))
+                    for axes in list(ControllerAxis):
+                        print("{} : {}".format(str(axes), event.controller.axis_motion(axes)))
 
             if event.system and event.system.quit:
                 self.engine.quit()
