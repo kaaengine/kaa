@@ -424,7 +424,7 @@ cdef extern from "kaacore/input.h" nogil:
             except +raise_py_error
         bint is_releasing(CControllerButton cb) \
             except +raise_py_error
-        bint axis_motion(CControllerAxis ca) \
+        double axis_motion(CControllerAxis ca) \
             except +raise_py_error
 
     cdef cppclass CAudioEvent "kaacore::AudioEvent":
