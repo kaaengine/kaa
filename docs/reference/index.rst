@@ -10,6 +10,7 @@ Kaa engine Reference
     engine
     geometry
     input
+    log
     nodes
 
 All kaa imports cheat sheet
