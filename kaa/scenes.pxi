@@ -116,11 +116,12 @@ cdef class Scene:
     def __cinit__(self):
         if get_c_engine() == NULL:
             raise RuntimeError(
-                'Cannot instance scene since engine is not initialized yet.'
+                'Cannot create scene since engine is not initialized yet.'
             )
 
-        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
-                    'Initializing Scene')
+        c_log_dynamic(
+            CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
+        )
         self.c_scene = new CPyScene(self)
         self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
         self.input_manager = InputManager()
