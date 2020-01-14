@@ -135,20 +135,22 @@ class MyScene(Scene):
             self.root.add_child(controller_slot_info_node)
 
     def find_lowest_controller_slot_index(self):
-        if not self.controller_id_to_slot_index:
-            return -1
-        return min(self.controller_id_to_slot_index.values())
+        slots = sorted(self.controller_id_to_slot_index.values())
+        for i in range(0, 4):
+            if i not in slots:
+                return i
+        raise Exception("This demo can handle max 4 connected controllers, and a fifth controller was connected...")
 
     def on_controller_connected(self, controller_event):
-        slot_index = self.find_lowest_controller_slot_index() + 1
-        if slot_index>3:
-            raise Exception("This demo can handle max 4 connected controllers, and a fifth controller was connected...")
+        slot_index = self.find_lowest_controller_slot_index()
         self.controller_id_to_slot_index[controller_event.id]=slot_index
         self.slot_nodes[slot_index].on_controller_connected(controller_event)
+        print('Controller id {} assigned to slot {}'.format(controller_event.id, slot_index))
 
     def on_controller_disconnected(self, controller_event):
         slot_index = self.controller_id_to_slot_index[controller_event.id]
         self.slot_nodes[slot_index].on_controller_disconnected()
+        del self.controller_id_to_slot_index[controller_event.id]
 
     def log_controller_event(self, controller_event):
         slot_index = self.controller_id_to_slot_index[controller_event.id]
