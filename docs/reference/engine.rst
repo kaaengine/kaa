@@ -296,8 +296,8 @@ Constructor:
     The Scene instance is a place where all your in-game objects will live. You should write your own scene class by
     inheriting from this type. Scene main features are:
 
-    * Each Scene must have a :meth:`Scene.update` function which will be called by the engine on every frame.
-    * Use the :ref:`root <Scene.root>` property to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
+    * Each Scene must define a :meth:`Scene.update` method which will be called by the engine on every frame.
+    * Use the :meth:`Node.add_child` method on Scene's :ref:`root node <Scene.root>` to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
     * Use the :ref:`input <Scene.input>` property to access :class:`input.InputManager` which:
 
       * exposes a lot of methods to actively check for input from mouse, keyboard, controllers etc.
@@ -306,7 +306,7 @@ Constructor:
     * Use the :ref:`camera <Scene.camera>` property to control the camera
 
     The Scene constructor does not take any parameters. As stated above, you should never instantiate a Scene directly
-    but write your own scene class that inherit from it:
+    but write your own scene class that inherit from it. Use the Scene's constructor to add initial objects to the scene
 
     .. code-block:: python
 
@@ -314,10 +314,18 @@ Constructor:
 
         def MyScene(Scene):
 
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                # initialize the scene here, e.g. add some initial objects to the scene...
+
             def update(self, dt):
                 pass
 
-        scene = MyScene()
+        with Engine(virtual_resolution=Vector(800, 600)) as engine:
+            scene = MyScene()
+            engine.run(scene)
+
+
 
 Instance properties:
 
