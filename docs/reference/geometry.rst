@@ -10,8 +10,8 @@ Constructor:
 
 .. class:: Vector(x, y)
 
-    Vector instance represents an Euclidean vector. It stores a pair od 2D corrdinates (x, y). Vectors are used for
-    the following purposes:
+	Vector instance represents an Euclidean vector. It stores a pair od 2D corrdinates (x, y). Vectors
+	are immutable. Vectors are used for the following purposes:
 
     * storing an actual vector pointing from (0, 0) to (x, y), for example :class:`nodes.BodyNode.velocity`
     * storing a 2D point, for example :class:`nodes.Node.position`
@@ -56,15 +56,15 @@ Class methods:
         print(v.length())  # 1.0
 
 
-Instance Properties:
+Instance Properties (read only):
 
 .. attribute:: Vector.x
 
-    Gets or sets the x value of a vector
+    Gets the x value of a vector
 
 .. attribute:: Vector.y
 
-    Gets or sets the y value of a vector
+    Gets the y value of a vector
 
 Instance Methods:
 
