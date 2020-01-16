@@ -12,6 +12,7 @@ cdef extern from "glm/glm.hpp" nogil:
         CVector operator*(CVector, double)
         CVector operator+(CVector, CVector)
         CVector operator-(CVector, CVector)
+        double& operator[](size_t)
 
     CVector CVector_normalize "glm::normalize" (CVector& v)
     double CVector_dot "glm::dot" (CVector& v1, CVector& v2)
