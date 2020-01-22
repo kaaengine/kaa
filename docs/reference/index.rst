@@ -13,6 +13,7 @@ Kaa engine Reference
     log
     nodes
     physics
+    transitions
 
 All kaa imports cheat sheet
 ---------------------------

@@ -20,9 +20,12 @@ but it doesn't have to. Sprite is basically a static or animated image, loaded f
 :class:`sprite.Sprite` documentation for a full list of sprite features.
 
 Until you set a Sprite for a node it will be just a logical entity on the scene, in other words: you won't see it. Such
-logical Nodes are often very useful, for example, as a containers for grouping other nodes.
+logical Nodes are often very useful, for example, as a containers for grouping other nodes. Nodes have many
+properties, such as z_index, shape, color, origin etc. All those concepts are described in the
+documentation below.
 
-Kaa engine comes with a collection of specialized Nodes, which inherit from the base :class:`Node` class:
+Although the bare :class:`Node` will do its job well and allow you to create games, the Kaa engine comes with a collection
+of other specialized Nodes, which inherit from the :class:`Node` class:
 
 * :class:`physics.SpaceNode` - a container node to simulate the physical environment.
 * :class:`physics.BodyNode` - a physical node which can have hitbox nodes. Can interact with other BodyNodes. Must be a direct child of SpaceNode. Can have zero or more Hitbox Nodes.
@@ -32,8 +35,6 @@ Kaa engine comes with a collection of specialized Nodes, which inherit from the 
 For your game's actual objects such as Player, Enemy, Bullet, etc. we recommend writing classes that inherit from
 the Node class (or BodyNode if you want the object to utilize :doc:`kaaengine's physics features </reference/physics>`).
 
-Nodes have other properties, such as z_index, shape, color, origin etc. All those concepts are described in the
-documentation below.
 
 .. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
@@ -48,8 +49,8 @@ documentation below.
 
         # inside a Scene's __init__ :
         my_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png')  # create a sprite from image file
-        self.node = Node(position=Vector(100, 100), sprite=my_sprite))  # create a Node at (100, 100) with a sprite
-        self.root.add_child(self.node)  # until you add a Node to the Scene it won't not show up on the screen!
+        self.node = Node(position=Vector(100, 100), sprite=my_sprite))  # create a Node at (100, 100) with the sprite
+        self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
 
 Instance Properties:
 
@@ -78,6 +79,8 @@ Instance Properties:
         # create another node
         self.node2 = Node(position = Vector(-20, 30))
         self.node1.add_child(self.node2)  # node2 absolute position is (80, 130) !
+
+    Also see: :ref:`Node origin points <Node.origin_alignment>`.
 
 .. _Node.parent:
 .. attribute:: Node.parent
@@ -142,44 +145,143 @@ Instance Properties:
 .. _Node.visible:
 .. attribute:: Node.visible
 
-    TODO
+    Gets or sets the visibility of the node (shows or hides it), using bool.
 
-.. _Node.color:
-.. attribute:: Node.color
+    Makes most sense for nodes which are rendered on the screen such as nodes having sprites, or text nodes.
 
-    TODO
+    Note that this has only a visual effect, so for example setting :code:`visible` to :code:`False` on a
+    :class:`physics.HitboxNode` will not make the hitbox inactive - it will still detect collisions normally.
+
+    Setting visible to :code:`False` will hide all of its child nodes (recursively) as well.
 
 .. _Node.sprite:
 .. attribute:: Node.sprite
 
-    TODO
+    Gets or sets a :class:`sprites.Sprite` for the node.
+
+    A sprite is an immutable object that represents a graphical image, which can have one or more frames.
+    Rrefer to :class:`sprites.Sprite` documentation for more information.
+
+    Assigning a Sprite to a Node will make the sprite be displayed at node's position, with node's rotation and scale.
+
+    Since sprite is a dimensional object (has its width and height) and node position is just a 2D (x, y) coords,
+    it is important to understand the concept of node's origin point. Read more
+    about :ref:`Node origin points <Node.origin_alignment>`.
+
+    .. code-block:: python
+
+        from kaa.nodes import Node
+        from kaa.sprites import Sprite
+        from kaa.geometry import Vector, Alignment
+        import os
+
+        # inside a Scene's __init__ :
+        my_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png')  # create a sprite from image file
+        self.node = Node(position=Vector(100, 100), sprite=my_sprite))  # create a Node at (100, 100) with the sprite
+        self.node.origin_alignment = Alignment.center # this makes the (100, 100) position be at the center of the sprite
+        self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
+
+.. _Node.color:
+.. attribute:: Node.color
+
+    Gets or sets the color of the shape of the node, using :class:`colors.Color`.
+
+    In practice, if a node has a sprite that means that a sprite will be tinted in that color.
+
+    If a node does not have a sprite it still can have a shape (see the :ref:`shape <Node.shape>` property).
+    In that case setting a color will make the shape be rendered in that color.
+
+    For text nodes (:class:`fonts.TextNode`) it gets or sets the color of the text.
+
+    It is often useful to set a color for hitbox nodes (:class:`physics.HitboxNode`) to see where the hitboxes are in
+    relation to the node's sprite. Just remember to set a high enough z_index on the hitbox node.
+
+    The default color of a Node is a "transparent" color (r=0, g=0, b=0, a=0).
 
 .. _Node.shape:
 .. attribute:: Node.shape
 
-    TODO
+    Gets or sets a shape of a Node. A shape can be one of the following types:
+
+    * :code:`None` - this is the default value (no shape)
+    * :class:`geometry.Circle` - the shape has a form of a circle
+    * :class:`geometry.Polygon` - the shape has a form of a polygon.
+
+    The most common scenario for setting a shape manually is for the hitbox nodes (:class:`physics.HitboxNode`). It
+    defines an area that will generate collisions. More information is available in the
+    :doc:`physics module documentation </reference/physics>`).
+
+    If you set a Sprite for a Node, its shape will be automatically set to a rectangular polygon corresponding with the
+    size of the sprite. If Sprite is animated (has many frames) node's shape dimensions will be of a single frame.
+
+    Overriding sprite node's shape is usually not necessary, but you can always do that. For example, you can set
+    a 100x200 px sprite for a node and then set a custom shape e.g. a non-rectangular polygon or a circle.
+    The drawn image will be fit inside a defined shape.
 
 .. _Node.origin_alignment:
 .. attribute:: Node.origin_alignment
 
-    TODO
+    Gets or sets origin alignment of a node, as :class:`geometry.Alignment`.
+
+    It's best to show what origin point is on an example. Assume you have a Node with a 100px width and 50px height
+    sprite. You tell the engine to draw the node at some specific position e.g. :code:`position=Vector(300, 200)`.
+    But what does this actually mean? Which pixel of the 100x50 image will really be drawn at (300, 200)?
+    The top-left pixel? Or the central pixel? Or maybe some other pixel?
+
+    By default it's the central pixel and that reference point is called the 'origin'. By setting the
+    origin_alignment you can change the position of the point to one of the 9 default positions: from top left,
+    through center to the bottom right.
+
+    Setting the origin alignment is especially useful when working with text nodes (:class:`font.TextNode`) as it
+    allows you to align text to the left or right.
+
+    If you need a custom origin point position, not just one of the 9 default values, you can always wrap a node
+    with a parent node. Remember that node positions are always set in relation to their parents, so by creating a
+    parent-child node relations and setting origin_alignment appropriately, you can lay out the nodes on the scene
+    any way you want.
 
 .. _Node.lifetime:
 .. attribute:: Node.lifetime
 
-    TODO
+    Gets or sets a lifetime of the node, in miliseconds.
+
+    By default nodes live forever. After you add them to the scene with :meth:`Node.add_child` method they will stay
+    there until you delete them by calling :meth:`Node.delete`.
+
+    Setting the lifetime of a node will remove the node automatically from the scene after given number of
+    miliseconds. It's important to note that the timer starts ticking after you add the node to the scene, not
+    when you instantiate the node.
 
 .. _Node.transition:
 .. attribute:: Node.transition
 
-    TODO
+    Gets or sets a transition object on the node. Must be one of the types from the :code:`kaa.transitions` namespace.
+
+    Transitions are "recipes" how the node should transform over time, by transformation we mean changing node's
+    position, rotation, scale, color, etc. Transitions system is a very powerful feature,
+    :doc:`refer to transitions documentation for details </reference/transitions>`.
 
 Instance Methods:
 
 .. method:: Node.add_child(child_node)
 
-    TODO
+    Adds a child node to the current node. The child_node must be a :class:`Node` type or subtype.
+
+    Each Scene always has a :ref:`root node <Scene.root>`, which allows to add your first nodes.
+
+    When a parent node gets transformed (repositioned, scaled, rotated), all its child nodes are transformed
+    accordingly.
+
+    You can build the node tree freely, with some exceptions:
+
+    * :class:`physics.BodyNode` - Must be a direct child of a :class:`physics.SpaceNode`
+    * :class:`physics.HitboxNode` - Must be a direct child of a :class:`physics.BodyNode`.
 
 .. method:: Node.delete()
 
-    TODO
+    Deletes a node from the scene. All child nodes get deleted automatically as well.
+
+    **Important:** The node gets deleted immediately so you should not read any of the deleted node's properties
+    afterwards. It may result in segmentation fault error and the whole process crashing down.
+
+    See also: :ref:`Node lifetime <Node.lifetime>`
