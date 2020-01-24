@@ -7,25 +7,24 @@
 :class:`Node` reference
 -----------------------
 
-Nodes are main concept of the kaa engine. They're "objects" which you can add to the Scene. Each Node has properties
-such as position, rotation or scale. A Node can have child Nodes which you can add with :meth:`Node.add_child`
-method, thus creating a tree-like structure of nodes. As the parent node gets transformed (i.e. changes its position,
+Nodes are main concept of the kaa engine. They're "objects" which you can add to the Scene. Each Node has its
+spatial properties such as position, rotation or scale. A Node may also have a sprite (graphics loaded from a file)
+and can be animated. Nodes have other properties such as z_index, shape, color, origin etc. All those attributes are
+described in the documentation below.
+
+A Node can have child Nodes, which you can add with the :meth:`Node.add_child`
+method, thus creating a tree-like structure of nodes on the scene. As the parent node gets transformed (changes its position,
 rotation or scale) all its children nodes will transform accordingly.
 
 Each :class:`engine.Scene` instance has a root node - this is the first node on the Scene to which you can start adding
 your own Nodes.
 
-Nodes should not be confused with images (sprites). A Node may have a sprite (if you want it to be a graphical object),
-but it doesn't have to. Sprite is basically a static or animated image, loaded from a graphics file. Refer to
-:class:`sprite.Sprite` documentation for a full list of sprite features.
+A node without a sprite image (or without a shape and color properties set explicitly) will be just a logical entity
+on the scene, in other words: you won't see it. Such logical Nodes are often very useful, for example, as a containers
+for grouping other nodes.
 
-Until you set a Sprite for a node it will be just a logical entity on the scene, in other words: you won't see it. Such
-logical Nodes are often very useful, for example, as a containers for grouping other nodes. Nodes have many
-properties, such as z_index, shape, color, origin etc. All those concepts are described in the
-documentation below.
-
-Although the bare :class:`Node` will do its job well and allow you to create games, the Kaa engine comes with a collection
-of other specialized Nodes, which inherit from the :class:`Node` class:
+Although the bare :class:`Node` will do its job well and allow you to create simple games, the Kaa engine comes with
+a collection of other specialized Nodes (they all inherit from the :class:`Node` class):
 
 * :class:`physics.SpaceNode` - a container node to simulate the physical environment.
 * :class:`physics.BodyNode` - a physical node which can have hitbox nodes. Can interact with other BodyNodes. Must be a direct child of SpaceNode. Can have zero or more Hitbox Nodes.
@@ -86,11 +85,6 @@ Instance Properties:
 .. attribute:: Node.parent
 
     Retruns this node's parent :class:`Node`, or None in case of the root node.
-
-.. _Node.type:
-.. attribute:: Node.type
-
-    Returns Node type. TODO: what is it?
 
 .. _Node.z_index:
 .. attribute:: Node.z_index
