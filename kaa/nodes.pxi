@@ -8,6 +8,7 @@ from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
     CNodeType, CNode, CNodeType, CForeignNodeWrapper
 )
+from .kaacore.transitions cimport CNodeTransitionHandle
 from .kaacore.math cimport radians, degrees
 from .kaacore.geometry cimport CAlignment
 
@@ -272,14 +273,16 @@ cdef class NodeBase:
 
     @transition.setter
     def transition(self, transition_or_list):
-        # TODO handle None
         cdef NodeTransitionBase transition
-        if isinstance(transition_or_list, list):
-            transition = NodeTransitionsSequence(transition_or_list)
+        if transition_or_list is not None:
+            if isinstance(transition_or_list, list):
+                transition = NodeTransitionsSequence(transition_or_list)
+            else:
+                transition = transition_or_list
+            assert transition.c_handle
+            self._get_c_node().transition(transition.c_handle)
         else:
-            transition = transition_or_list
-        assert transition.c_handle
-        self._get_c_node().transition(transition.c_handle)
+            self._get_c_node().transition(CNodeTransitionHandle())
 
 
 cdef class Node(NodeBase):
