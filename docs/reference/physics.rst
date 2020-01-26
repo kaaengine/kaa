@@ -77,8 +77,9 @@ Instance methods:
 
     .. code-block:: python
 
-        # creating hitboxes
-        bullet_hitbox = HitboxNode(shape=Circle(radius=10), trigger_id=123)  # 123 is our own value which we give
+        # somwhere in the code...
+        bullet_hitbox = HitboxNode(shape=Circle(radius=10), trigger_id=123, ...... )  # 123 is our own value we give to all bullet hitboxes
+        enemy_hitbox = HitboxNode(shape=Circle(radius=10), trigger_id=456, ...... )  # 456 is our own value we give to all enemy hitboxes
 
         # collision handler function:
         def on_collision_bullet_enemy(self, arbiter, bullet_pair, enemy_pair):
@@ -86,11 +87,10 @@ Instance methods:
                 bullet_pair.body, bullet_pair.hitbox, enemy_pair.body, enemy_pair.hitbox))
             # ... write code to handle the collision effects ....
 
-        # assuming space_node is <SpaceNode>:
-        space_node.set_collision_handler(123, 456, self.on_collision_grenade_enemy)
-
-        # note: 123 and 456 are any values of your choice.
-
+        # assuming space_node is <SpaceNode>,
+        # 123 and 456 here are defining which pair of hitbox collisions shall be handled by the on_collision_bullet_enemy
+        # in this case it defines a pair of a bullet hitbox and enemy hitbox
+        space_node.set_collision_handler(123, 456, on_collision_bullet_enemy)
 
     **IMPORTANT**: Collision handler function can be called multiple times for given pair of
     colliding objects (even multiple times per frame). This can happen if object's hitboxes touch for the first time,
