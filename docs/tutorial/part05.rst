@@ -17,7 +17,7 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
   
   * :code:`gravity` - a Vector. A force affecting all BodyNodes added to that SpaceNode. Default is zero vector (no gravity).
   * :code:`damping` - a float between 0 and 1, representing friction forces in the simulation space. The smaller it is, the faster a freely moving objects will slow down. Default is 1 (no damping)
-  * width/height dimensions are not meanigful for the SpaceNode - it always covers the whole scene
+  * SpaceNode has no spatial boundaries
 
 .. raw:: html
 
@@ -25,6 +25,7 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
 
 * :code:`BodyNode` - represents a physical body. It has the same properties as Node (in fact it inherits from the Node class) but adds a few new ones, such as:
 
+  * :code:`body_type` - enum value, determining the type of the body node, check out :ref:`types of body nodes <types_of_body_nodes>`
   * :code:`mass` - a float, heavier objects will hit harder :)
   * :code:`velocity` - a Vector. Vector's rotation is objects' movement direction and vector's length is how fast the object is moving. Default is zero vector (no velocity).
   * :code:`angular_velocity` - a float. How fast the object is rotating around its center. Positive and negative values represent clockwise and anti-clockwise rotation speed respectively. Default is zero.
@@ -78,6 +79,8 @@ Having said that, there are ways in which you can simulate a more complex or hie
 * Spatial queries - it allows to programatically ask a question like "here's a polygon (circle, segment), tell me which HitboxNodes/BodyNodes it collides with"
 * Joints - this feature is to be implemented next. You will be able to connect BodyNodes with 'joints' and they will work together.
 
+
+.. _types_of_body_nodes:
 
 Types of BodyNodes
 ~~~~~~~~~~~~~~~~~~
@@ -560,9 +563,10 @@ that we want our function to be called each time a collision between MG bullet a
 hitbox :code:`trigger_id` here.
 
 It is very important to realize that **a collision handler function can be called multiple times for given pair of
-colliding objects (even multiple times per frame)**. This can happen if object's hitboxes touch for the first time, then they either
-overlap or touch each other for some time and finally - they separate. Our collision handler function will be called every frame,
-as long as the hitboxes are touching or overlap. When they make apart, the collision handler function stops being called.
+colliding objects (even multiple times per frame)**. This can happen if object's hitboxes touch for the first time,
+then they either overlap or touch each other for some time and finally - they separate. The collision handler
+function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the collision
+handler function stops being called.
 
 Collision handler function always has the three parameters:
 
