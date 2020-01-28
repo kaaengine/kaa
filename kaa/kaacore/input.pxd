@@ -344,152 +344,102 @@ cdef extern from "kaacore/input.h" nogil:
         right_stick "kaacore::CompoundControllerAxis::right_stick"
     
     cdef cppclass CSystemEvent "kaacore::SystemEvent":
-        bint quit() \
-            except +raise_py_error
-        bint clipboard_updated() \
-            except +raise_py_error
+        bint is_quit() except +raise_py_error
+        bint is_clipboard_updated() except +raise_py_error
 
     cdef cppclass CWindowEvent "kaacore::WindowEvent":
-        bint shown() \
-            except +raise_py_error
-        bint exposed() \
-            except +raise_py_error
-        bint moved() \
-            except +raise_py_error
-        bint resized() \
-            except +raise_py_error
-        bint minimized() \
-            except +raise_py_error
-        bint maximized() \
-            except +raise_py_error
-        bint restored() \
-            except +raise_py_error
-        bint enter() \
-            except +raise_py_error
-        bint leave() \
-            except +raise_py_error
-        bint focus_gained() \
-            except +raise_py_error
-        bint focus_lost() \
-            except +raise_py_error
-        bint close() \
-            except +raise_py_error
-        CVector size() \
-            except +raise_py_error
-        CVector position() \
-            except +raise_py_error
+        bint is_shown() except +raise_py_error
+        bint is_exposed() except +raise_py_error
+        bint is_moved() except +raise_py_error
+        bint is_resized() except +raise_py_error
+        bint is_minimized() except +raise_py_error
+        bint is_maximized() except +raise_py_error
+        bint is_restored() except +raise_py_error
+        bint is_enter() except +raise_py_error
+        bint is_leave() except +raise_py_error
+        bint is_focus_gained() except +raise_py_error
+        bint is_focus_lost() except +raise_py_error
+        bint is_close() except +raise_py_error
 
-    cdef cppclass CKeyboardEvent "kaacore::KeyboardEvent":
-        bint key() \
-            except +raise_py_error
-        bint text_input() \
-            except +raise_py_error
-        bint is_pressing(CKeycode kc) \
-            except +raise_py_error
-        bint is_releasing(CKeycode kc) \
-            except +raise_py_error
-        string text() \
-            except +raise_py_error
-    
-    cdef cppclass CMouseEvent "kaacore::MouseEvent":
-        bint button() \
-            except +raise_py_error
-        bint motion() \
-            except +raise_py_error
-        bint wheel() \
-            except +raise_py_error
-        bint is_pressing(CMouseButton mb) \
-            except +raise_py_error
-        bint is_releasing(CMouseButton mb) \
-            except +raise_py_error
-        CVector position() \
-            except +raise_py_error
-        CVector scroll() \
-            except +raise_py_error
-    
-    cdef cppclass CControllerEvent "kaacore::ControllerEvent":
-        bint button() \
-            except +raise_py_error
-        bint axis() \
-            except +raise_py_error
-        bint added() \
-            except +raise_py_error
-        bint removed() \
-            except +raise_py_error
-        bint remapped() \
-            except +raise_py_error
-        int32_t id() \
-            except +raise_py_error
-        bint is_pressing(CControllerButton cb) \
-            except +raise_py_error
-        bint is_releasing(CControllerButton cb) \
-            except +raise_py_error
-        double axis_motion(CControllerAxis ca) \
-            except +raise_py_error
+    cdef cppclass CKeyboardKeyEvent "kaacore::KeyboardKeyEvent":
+        CKeycode key() except +raise_py_error
+        bint is_key_down() except +raise_py_error
+        bint is_key_up() except +raise_py_error
+
+    cdef cppclass CKeyboardTextEvent "kaacore::KeyboardTextEvent":
+        string text() except +raise_py_error
+
+    cdef cppclass CMouseButtonEvent "kaacore::MouseButtonEvent":
+        CMouseButton button() except +raise_py_error
+        bint is_button_down() except +raise_py_error
+        bint is_button_up() except +raise_py_error
+        CVector position() except +raise_py_error
+
+    cdef cppclass CMouseMotionEvent "kaacore::MouseMotionEvent":
+        CVector position() except +raise_py_error
+
+    cdef cppclass CMouseWheelEvent "kaacore::MouseWheelEvent":
+        CVector scroll() except +raise_py_error
+
+    cdef cppclass CControllerButtonEvent "kaacore::ControllerButtonEvent":
+        CControllerID id() except +raise_py_error
+        CControllerButton button() except +raise_py_error
+        bint is_button_down() except +raise_py_error
+        bint is_button_up() except +raise_py_error
+
+    cdef cppclass CControllerAxisEvent "kaacore::ControllerAxisEvent":
+        CControllerID id() except +raise_py_error
+        CControllerAxis axis() except +raise_py_error
+        double motion() except +raise_py_error
+
+    cdef cppclass CControllerDeviceEvent "kaacore::ControllerDeviceEvent":
+        CControllerID id() except +raise_py_error
+        bint is_added() except +raise_py_error
+        bint is_removed() except +raise_py_error
 
     cdef cppclass CAudioEvent "kaacore::AudioEvent":
-        bint music_finished() \
-            except +raise_py_error
+        bint is_music_finished() except +raise_py_error
 
     cdef cppclass CEvent "kaacore::Event":
-        CEventType type() \
-            except +raise_py_error
-        uint32_t timestamp() \
-            except +raise_py_error
-        const CSystemEvent* const system() \
-            except +raise_py_error
-        const CWindowEvent* const window() \
-            except +raise_py_error
-        const CKeyboardEvent* const keyboard() \
-            except +raise_py_error
-        const CMouseEvent* const mouse() \
-            except +raise_py_error
-        const CControllerEvent* const controller() \
-            except +raise_py_error
-        const CAudioEvent* const audio() \
-            except +raise_py_error
+        CEventType type() except +raise_py_error
+        uint32_t timestamp() except +raise_py_error
+        const CSystemEvent* const system() except +raise_py_error
+        const CWindowEvent* const window() except +raise_py_error
+        const CKeyboardKeyEvent* const keyboard_key() except +raise_py_error
+        const CKeyboardTextEvent* const keyboard_text() except +raise_py_error
+        const CMouseButtonEvent* const mouse_button() except +raise_py_error
+        const CMouseMotionEvent* const mouse_motion() except +raise_py_error
+        const CMouseWheelEvent* const mouse_wheel() except +raise_py_error
+        const CControllerButtonEvent* const controller_button() except +raise_py_error
+        const CControllerAxisEvent* const controller_axis() except +raise_py_error
+        const CControllerDeviceEvent* const controller_device() except +raise_py_error
+
+        const CAudioEvent* const audio() except +raise_py_error
     
     cdef cppclass CSystemManager "kaacore::InputManager::SystemManager":
-        string get_clipboard_text() \
-            except +raise_py_error
-        void set_clipboard_text(string& text) \
-            except +raise_py_error
+        string get_clipboard_text() except +raise_py_error
+        void set_clipboard_text(string& text) except +raise_py_error
 
     cdef cppclass CKeyboardManager "kaacore::InputManager::KeyboardManager":
-        bint is_pressed(CKeycode kc) \
-            except +raise_py_error
-        bint is_released(CKeycode kc) \
-            except +raise_py_error
+        bint is_pressed(CKeycode kc) except +raise_py_error
+        bint is_released(CKeycode kc) except +raise_py_error
 
     cdef cppclass CMouseManager "kaacore::InputManager::MouseManager":
-        bint is_pressed(CMouseButton mb) \
-            except +raise_py_error
-        bint is_released(CMouseButton mb) \
-            except +raise_py_error
-        CVector get_position() \
-            except +raise_py_error
+        bint is_pressed(CMouseButton mb) except +raise_py_error
+        bint is_released(CMouseButton mb) except +raise_py_error
+        CVector get_position() except +raise_py_error
 
     cdef cppclass CControllerManager "kaacore::InputManager::ControllerManager":
-        bint is_connected(int32_t id_) \
-            except +raise_py_error
-        bint is_pressed(CControllerButton cb, CControllerID id_) \
-            except +raise_py_error
-        bint is_released(CControllerButton cb, CControllerID id_) \
-            except +raise_py_error
-        bint is_pressed (CControllerAxis ca, CControllerID id_) \
-            except +raise_py_error
-        bint is_released (CControllerAxis ca, CControllerID id_) \
-            except +raise_py_error
-        double get_axis_motion(CControllerAxis ca, CControllerID id_) \
-            except +raise_py_error
-        string get_name(CControllerID id_) \
-            except +raise_py_error
-        CVector get_triggers(CControllerID id_) \
-            except +raise_py_error
-        CVector get_sticks(CCompoundControllerAxis ca, CControllerID id_) \
-            except +raise_py_error
-        vector[int32_t] get_connected_controllers() \
-            except +raise_py_error
+        bint is_connected(int32_t id_) except +raise_py_error
+        bint is_pressed(CControllerButton cb, CControllerID id_) except +raise_py_error
+        bint is_released(CControllerButton cb, CControllerID id_) except +raise_py_error
+        bint is_pressed (CControllerAxis ca, CControllerID id_) except +raise_py_error
+        bint is_released (CControllerAxis ca, CControllerID id_) except +raise_py_error
+        double get_axis_motion(CControllerAxis ca, CControllerID id_) except +raise_py_error
+        string get_name(CControllerID id_) except +raise_py_error
+        CVector get_triggers(CControllerID id_) except +raise_py_error
+        CVector get_sticks(CCompoundControllerAxis ca, CControllerID id_) except +raise_py_error
+        vector[int32_t] get_connected_controllers() except +raise_py_error
 
     ctypedef function[int(const CEvent&)] CEventCallback "kaacore::EventCallback"
 

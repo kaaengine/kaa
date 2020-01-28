@@ -60,68 +60,65 @@ class DemoScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            keyboard = event.keyboard
-            audio = event.audio
-
-            if keyboard:
-                if keyboard.is_pressing(Keycode.q):
+            if event.keyboard_key and event.keyboard_key.is_key_down:
+                if event.keyboard_key.key == Keycode.q:
                     self.engine.quit()
-                elif keyboard.is_pressing(Keycode.s):
+                elif event.keyboard_key.key == Keycode.s:
                     if self.sound:
                         self.sound.play(0.5)
                     else:
                         print("No sound loaded!")
-                elif keyboard.is_pressing(Keycode.n):
+                elif event.keyboard_key.key == Keycode.n:
                     self.engine.virtual_resolution = \
                         next(self.virtual_resolutions_cycle)
                     print("Current virtual resolution: {} {!r}"
                         .format(self.engine.virtual_resolution,
                                 self.engine.virtual_resolution_mode))
-                elif keyboard.is_pressing(Keycode.m):
+                elif event.keyboard_key.key == Keycode.m:
                     self.engine.virtual_resolution_mode = \
                         next(self.virtual_resolution_modes_cycle)
                     print("Current virtual resolution: {} {!r}"
                         .format(self.engine.virtual_resolution,
                                 self.engine.virtual_resolution_mode))
-                elif keyboard.is_pressing(Keycode.p):
+                elif event.keyboard_key.key == Keycode.p:
                     print("Mouse position: {}".format(self.input.mouse.get_position()))
-                elif keyboard.is_pressing(Keycode.num_9):
+                elif event.keyboard_key.key == Keycode.num_9:
                     print("Decreasing master volume")
                     self.engine.audio.master_volume -= 0.1
                     print("Master volume: {}".format(self.engine.audio.master_volume))
-                elif keyboard.is_pressing(Keycode.num_0):
+                elif event.keyboard_key.key == Keycode.num_0:
                     print("Increasing master volume")
                     self.engine.audio.master_volume += 0.1
                     print("Master volume: {}".format(self.engine.audio.master_volume))
-                elif keyboard.is_pressing(Keycode.num_7):
+                elif event.keyboard_key.key == Keycode.num_7:
                     print("Decreasing master music volume")
                     self.engine.audio.master_music_volume -= 0.1
                     print("Master music volume: {}".format(self.engine.audio.master_music_volume))
-                elif keyboard.is_pressing(Keycode.num_8):
+                elif event.keyboard_key.key == Keycode.num_8:
                     print("Increasing master music volume")
                     self.engine.audio.master_music_volume += 0.1
                     print("Master music volume: {}".format(self.engine.audio.master_music_volume))
-                elif keyboard.is_pressing(Keycode.num_5):
+                elif event.keyboard_key.key == Keycode.num_5:
                     print("Decreasing master sound volume")
                     self.engine.audio.master_sound_volume -= 0.1
                     print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
-                elif keyboard.is_pressing(Keycode.num_6):
+                elif event.keyboard_key.key == Keycode.num_6:
                     print("Increasing master sound volume")
                     self.engine.audio.master_sound_volume += 0.1
                     print("Master sound volume: {}".format(self.engine.audio.master_sound_volume))
-                elif keyboard.is_pressing(Keycode.x):
+                elif event.keyboard_key.key == Keycode.x:
                     self.music.play()
                     print("Playing music")
-                elif keyboard.is_pressing(Keycode.c):
+                elif event.keyboard_key.key == Keycode.c:
                     ret = self.music.pause()
                     print("Pausing music, success: {}".format(ret))
-                elif keyboard.is_pressing(Keycode.v):
+                elif event.keyboard_key.key == Keycode.v:
                     ret = self.music.resume()
                     print("Resuming music, success: {}".format(ret))
-                elif keyboard.is_pressing(Keycode.b):
+                elif event.keyboard_key.key == Keycode.b:
                     ret = self.music.stop()
                     print("Stopping music, success: {}".format(ret))
-            elif audio and audio.music_finished:
+            elif event.audio and  event.audio.music_finished:
                 print("Music finished!")
 
 
