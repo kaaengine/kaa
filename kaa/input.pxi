@@ -15,14 +15,15 @@ from .kaacore.exceptions cimport c_wrap_python_exception
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
     CCompoundControllerAxis, CEventType, CSystemEvent, CWindowEvent,
-    CKeyboardEvent, CMouseEvent, CControllerEvent, CAudioEvent, CEvent,
-    CInputManager, CSystemManager, CKeyboardManager, CMouseManager,
+    CKeyboardKeyEvent, CKeyboardTextEvent, CMouseButtonEvent, CMouseMotionEvent,
+    CMouseWheelEvent, CControllerButtonEvent, CControllerAxisEvent, CAudioEvent,
+    CEvent, CInputManager, CSystemManager, CKeyboardManager, CMouseManager,
     CControllerManager, CControllerID, CEventCallback, CythonEventCallback,
     bind_cython_event_callback
 )
 
 
-DEF EVENT_FREELIST_SIZE = 10
+DEF EVENT_FREELIST_SIZE = 16
 
 
 class Keycode(IntEnum):
@@ -393,6 +394,13 @@ cdef typed_property(object event_type):
 cdef class _BaseEvent:
     cdef CEvent c_event
 
+    def __repr__(self):
+        return f'<{self.__class__.__name__}@{self.type.name}>'
+
+    @property
+    def type(self):
+        return EventType(<uint32_t>self.c_event.type())
+
     @property
     def timestamp(self):
         return self.c_event.timestamp()
@@ -402,196 +410,252 @@ cdef class _BaseEvent:
 cdef class SystemEvent(_BaseEvent):
     @staticmethod
     cdef SystemEvent create(CEvent c_event):
-        cdef SystemEvent instance = SystemEvent.__new__(SystemEvent)
+        cdef SystemEvent instance = SystemEvent.__new__(
+            SystemEvent
+        )
         instance.c_event = c_event
         return instance
 
     @typed_property(EventType.quit)
     def quit(self):
-        return self.c_event.system().quit()
+        return self.c_event.system().is_quit()
     
     @typed_property(EventType.clipboard_updated)
     def clipboard_updated(self):
-        return self.c_event.system().clipboard_updated()
+        return self.c_event.system().is_clipboard_updated()
 
 
 @cython.final
 cdef class WindowEvent(_BaseEvent):
     @staticmethod
     cdef WindowEvent create(CEvent c_event):
-        cdef WindowEvent instance = WindowEvent.__new__(WindowEvent)
+        cdef WindowEvent instance = WindowEvent.__new__(
+            WindowEvent
+        )
         instance.c_event = c_event
         return instance
 
     @typed_property(EventType.window_shown)
-    def shown(self):
-        return self.c_event.window().shown()
+    def is_shown(self):
+        return self.c_event.window().is_shown()
     
     @typed_property(EventType.window_exposed)
-    def exposed(self):
-        return self.c_event.window().exposed()
+    def is_exposed(self):
+        return self.c_event.window().is_exposed()
     
     @typed_property(EventType.window_moved)
-    def moved(self):
-        return self.c_event.window().moved()
+    def is_moved(self):
+        return self.c_event.window().is_moved()
     
     @typed_property(EventType.window_resized)
-    def resized(self):
-        return self.c_event.window().resized()
+    def is_resized(self):
+        return self.c_event.window().is_resized()
 
     @typed_property(EventType.window_minimized)
-    def minimized(self):
-        return self.c_event.window().minimized()
+    def is_minimized(self):
+        return self.c_event.window().is_minimized()
 
     @typed_property(EventType.window_maximized)
-    def maximized(self):
-        return self.c_event.window().maximized()
+    def is_maximized(self):
+        return self.c_event.window().is_maximized()
 
     @typed_property(EventType.window_restored)
-    def restored(self):
-        return self.c_event.window().restored()
+    def is_restored(self):
+        return self.c_event.window().is_restored()
     
     @typed_property(EventType.window_enter)
-    def enter(self):
-        return self.c_event.window().enter()
+    def is_enter(self):
+        return self.c_event.window().is_enter()
 
     @typed_property(EventType.window_leave)
-    def leave(self):
-        return self.c_event.window().leave()
+    def is_leave(self):
+        return self.c_event.window().is_leave()
 
     @typed_property(EventType.window_focus_gained)
-    def focus_gained(self):
-        return self.c_event.window().focus_gained()
+    def is_focus_gained(self):
+        return self.c_event.window().is_focus_gained()
 
     @typed_property(EventType.window_focus_lost)
-    def focus_lost(self):
-        return self.c_event.window().focus_lost()
+    def is_focus_lost(self):
+        return self.c_event.window().is_focus_lost()
 
     @typed_property(EventType.window_close)
-    def close(self):
-        return self.c_event.window().close()
+    def is_close(self):
+        return self.c_event.window().is_close()
 
-    @property
-    def size(self):
-        return Vector.from_c_vector(self.c_event.window().size())
-    
-    @property
-    def position(self):
-        return Vector.from_c_vector(self.c_event.window().position())
-    
 
 @cython.final
-cdef class KeyboardEvent(_BaseEvent):
+cdef class KeyboardKeyEvent(_BaseEvent):
     @staticmethod
-    cdef KeyboardEvent create(CEvent c_event):
-        cdef KeyboardEvent instance = KeyboardEvent.__new__(KeyboardEvent)
+    cdef KeyboardKeyEvent create(CEvent c_event):
+        cdef KeyboardKeyEvent instance = KeyboardKeyEvent.__new__(
+            KeyboardKeyEvent
+        )
         instance.c_event = c_event
         return instance
 
-    @typed_property((EventType.key_down, EventType.key_up))
+    @property
     def key(self):
-        return self.c_event.keyboard().key()
+        return Keycode(<uint32_t>(self.c_event.keyboard_key().key()))
+    
+    @typed_property(EventType.key_up)
+    def is_key_up(self):
+        return self.c_event.keyboard_key().is_key_up()
 
-    @typed_property(EventType.text_input)
-    def text_input(self):
-        return self.c_event.keyboard().text_input()
+    @typed_property(EventType.key_down)
+    def is_key_down(self):
+        return self.c_event.keyboard_key().is_key_down()
+
+
+@cython.final
+cdef class KeyboardTextEvent(_BaseEvent):
+    @staticmethod
+    cdef KeyboardTextEvent create(CEvent c_event):
+        cdef KeyboardTextEvent instance = KeyboardTextEvent.__new__(
+            KeyboardTextEvent
+        )
+        instance.c_event = c_event
+        return instance
 
     @property
     def text(self):
-        return self.c_event.keyboard().text().decode('utf-8')
-    
-    def is_pressing(self, kc not None):
-        return self.c_event.keyboard().is_pressing(
-            <CKeycode>(<uint32_t>(kc.value))
-        )
-
-    def is_releasing(self, kc not None):
-        return self.c_event.keyboard().is_releasing(
-            <CKeycode>(<uint32_t>(kc.value))
-        )
+        return self.c_event.keyboard_text().text().decode('utf-8')
 
 
 @cython.final
-cdef class MouseEvent(_BaseEvent):
+cdef class MouseButtonEvent(_BaseEvent):
     @staticmethod
-    cdef MouseEvent create(CEvent c_event):
-        cdef MouseEvent instance = MouseEvent.__new__(MouseEvent)
+    cdef MouseButtonEvent create(CEvent c_event):
+        cdef MouseButtonEvent instance = MouseButtonEvent.__new__(
+            MouseButtonEvent
+        )
         instance.c_event = c_event
         return instance
     
-    @typed_property((EventType.mouse_button_down, EventType.mouse_button_up))
     def button(self):
-        return self.c_event.mouse().button()
-
-    def is_pressing(self, mb not None):
-        return self.c_event.mouse().is_pressing(
-            <CMouseButton>(<uint32_t>(mb.value))
-        )
-    
-    def is_releasing(self, mb not None):
-        return self.c_event.mouse().is_releasing(
-            <CMouseButton>(<uint32_t>(mb.value))
-        )
-
-    @typed_property(EventType.mouse_motion)
-    def motion(self):
-        return self.c_event.mouse().motion()
+        return MouseButton(<uint32_t>(self.c_event.mouse_button().button()))
 
     @property
     def position(self):
-        return Vector.from_c_vector(self.c_event.mouse().position())
+        return Vector.from_c_vector(self.c_event.mouse_button().position())
 
-    @typed_property(EventType.mouse_wheel)
-    def wheel(self):
-        return self.c_event.mouse().wheel()
+    @typed_property(EventType.mouse_button_down)
+    def is_button_down(self):
+        return self.c_event.mouse_button().is_button_down()
 
-    @property
-    def scroll(self):
-        return Vector.from_c_vector(self.c_event.mouse().scroll())
+    @typed_property(EventType.mouse_button_up)
+    def is_button_up(self):
+        return self.c_event.mouse_button().is_button_up()
 
 
 @cython.final
-cdef class ControllerEvent(_BaseEvent):
+cdef class MouseMotionEvent(_BaseEvent):
     @staticmethod
-    cdef ControllerEvent create(CEvent c_event):
-        cdef ControllerEvent instance = ControllerEvent.__new__(ControllerEvent)
+    cdef MouseMotionEvent create(CEvent c_event):
+        cdef MouseButtonEvent instance = MouseButtonEvent.__new__(
+            MouseButtonEvent
+        )
+        instance.c_event = c_event
+        return instance
+
+    @property
+    def position(self):
+        return Vector.from_c_vector(
+            self.c_event.mouse_motion().position()
+        )
+
+
+@cython.final
+cdef class MouseWheelEvent(_BaseEvent):
+    @staticmethod
+    cdef MouseWheelEvent create(CEvent c_event):
+        cdef MouseWheelEvent instance = MouseWheelEvent.__new__(
+            MouseWheelEvent
+        )
+        instance.c_event = c_event
+        return instance
+
+    @property
+    def scroll(self):
+        return Vector.from_c_vector(
+            self.c_event.mouse_wheel().scroll()
+        )
+
+
+@cython.final
+cdef class ControllerButtonEvent(_BaseEvent):
+    @staticmethod
+    cdef ControllerButtonEvent create(CEvent c_event):
+        cdef ControllerButtonEvent instance = ControllerButtonEvent.__new__(
+            ControllerButtonEvent
+        )
         instance.c_event = c_event
         return instance
 
     @property
     def id(self):
-        return self.c_event.controller().id()
-    
-    @typed_property((EventType.controller_button_down, EventType.controller_button_up))
+        return self.c_event.controller_button().id()
+
     def button(self):
-        return self.c_event.controller().button()
-
-    def is_pressing(self, cb not None):
-        return self.c_event.controller().is_pressing(
-            <CControllerButton>(<uint32_t>(cb.value))
+        return ControllerButton(
+            <uint32_t>(self.c_event.controller_button().button())
         )
     
-    def is_releasing(self, cb not None):
-        return self.c_event.controller().is_releasing(
-            <CControllerButton>(<uint32_t>(cb.value))
-        )
+    @typed_property(EventType.controller_button_down)
+    def is_button_down(self):
+        return self.c_event.controller_button().is_button_down()
 
-    @typed_property(EventType.controller_axis_motion)
+    @typed_property(EventType.controller_button_up)
+    def is_button_up(self):
+        return self.c_event.controller_button().is_button_up()
+
+
+@cython.final
+cdef class ControllerAxisEvent(_BaseEvent):
+    @staticmethod
+    cdef ControllerAxisEvent create(CEvent c_event):
+        cdef ControllerAxisEvent instance = ControllerAxisEvent.__new__(
+            ControllerAxisEvent
+        )
+        instance.c_event = c_event
+        return instance
+
+    @property
+    def id(self):
+        return self.c_event.controller_axis().id()
+
+    @property
     def axis(self):
-        return self.c_event.controller().axis()
-
-    def axis_motion(self, ca not None):
-        return self.c_event.controller().axis_motion(
-            <CControllerAxis>(<uint32_t>(ca.value))
+        return ControllerAxis(
+            <uint32_t>(self.c_event.controller_axis().axis())
         )
+
+    @property
+    def motion(self):
+        return self.c_event.controller_axis().motion()
+
+
+@cython.final
+cdef class ControllerDeviceEvent(_BaseEvent):
+    @staticmethod
+    cdef ControllerDeviceEvent create(CEvent c_event):
+        cdef ControllerDeviceEvent instance = ControllerDeviceEvent.__new__(
+            ControllerDeviceEvent
+        )
+        instance.c_event = c_event
+        return instance
+
+    @property
+    def id(self):
+        return self.c_event.controller_device().id()
 
     @typed_property(EventType.controller_added)
-    def added(self):
-        return self.c_event.controller().added()
+    def is_added(self):
+        return self.c_event.controller_device().is_added()
 
     @typed_property(EventType.controller_removed)
-    def removed(self):
-        return self.c_event.controller().removed()
+    def is_removed(self):
+        return self.c_event.controller_device().is_removed()
 
 
 @cython.final
@@ -603,55 +667,97 @@ cdef class AudioEvent(_BaseEvent):
         return instance
 
     @typed_property(EventType.music_finished)
-    def music_finished(self):
-        return self.c_event.audio().music_finished()
+    def is_music_finished(self):
+        return self.c_event.audio().is_music_finished()
 
 
 @cython.final
 cdef class Event(_BaseEvent):
-    def __repr__(self):
-        return f'<{self.__class__.__name__}@{self.type.name}>'
-
     @staticmethod
     cdef Event create(CEvent c_event):
         cdef Event instance = Event.__new__(Event)
         instance.c_event = c_event
         return instance
     
-    @property
-    def type(self):
-        return EventType(<uint32_t>self.c_event.type())
-
-    @property
+    @typed_property((
+        EventType.quit,
+        EventType.clipboard_updated
+    ))
     def system(self):
         if self.c_event.system():
             return SystemEvent.create(self.c_event)
     
-    @property
+    @typed_property((
+        EventType.window_shown,
+        EventType.window_hidden,
+        EventType.window_exposed,
+        EventType.window_moved,
+        EventType.window_resized,
+        EventType.window_minimized,
+        EventType.window_maximized,
+        EventType.window_restored,
+        EventType.window_enter,
+        EventType.window_leave,
+        EventType.window_focus_gained,
+        EventType.window_focus_lost,
+        EventType.window_close
+    ))
     def window(self):
         if self.c_event.window():
             return WindowEvent.create(self.c_event)
 
-    @property
-    def keyboard(self):
-        if self.c_event.keyboard():
-            return KeyboardEvent.create(self.c_event)
+    @typed_property((
+        EventType.key_down,
+        EventType.key_up
+    ))
+    def keyboard_key(self):
+        if self.c_event.keyboard_key():
+            return KeyboardKeyEvent.create(self.c_event)
 
-    @property
-    def mouse(self):
-        if self.c_event.mouse():
-            return MouseEvent.create(self.c_event)
+    @typed_property(EventType.text_input)
+    def keyboard_text(self):
+        if self.c_event.keyboard_text():
+            return KeyboardTextEvent.create(self.c_event)
 
-    @property
-    def controller(self):
-        if self.c_event.controller():
-            return ControllerEvent.create(self.c_event)
+    @typed_property((
+        EventType.mouse_button_down,
+        EventType.mouse_button_up
+    ))
+    def mouse_button(self):
+        if self.c_event.mouse_button():
+            return MouseButtonEvent.create(self.c_event)
 
-    @property
+    @typed_property(EventType.mouse_motion)
+    def mouse_motion(self):
+        if self.c_event.mouse_motion():
+            return MouseMotionEvent.create(self.c_event)
+
+    @typed_property(EventType.mouse_wheel)
+    def mouse_wheel(self):
+        if self.c_event.mouse_wheel():
+            return MouseWheelEvent.create(self.c_event)
+
+    @typed_property((
+        EventType.controller_button_down,
+        EventType.controller_button_up
+    ))
+    def controller_button(self):
+        if self.c_event.controller_button():
+            return ControllerButtonEvent.create(self.c_event)
+
+    @typed_property(EventType.controller_axis_motion)
+    def controller_axis(self):
+        if self.c_event.controller_axis():
+            return ControllerAxisEvent.create(self.c_event)
+
+    @typed_property((
+        EventType.music_finished,
+        EventType.channel_finished
+    ))
     def audio(self):
         if self.c_event.audio():
             return AudioEvent.create(self.c_event)
-
+    
 
 cdef class _BaseInputManager:
     cdef CInputManager* c_input_manager
@@ -779,55 +885,15 @@ cdef class InputManager(_BaseInputManager):
             yield Event.create(c_event)
 
     def register_callback(self, object event_type not None, object callback):
-        if inspect.isclass(event_type):
-            if issubclass(event_type, _BaseEvent):
-                return self._register_callback_from_cls(
-                    event_type, callback
-                )
-        else:
-            if isinstance(event_type, Iterable):
-                return self._register_callback_from_iter(
-                    event_type, callback
-                )
-            elif isinstance(event_type, EventType):
-                return self._register_callback_from_obj(
-                    event_type, callback
-                )
+        if isinstance(event_type, Iterable):
+            return self._register_callback_from_iter(
+                event_type, callback
+            )
+        elif isinstance(event_type, EventType):
+            return self._register_callback_from_obj(
+                event_type, callback
+            )
         raise TypeError(f'Unsupported argument: {event_type}.')
-
-    def _register_callback_from_cls(self, object cls not None, object callback):
-        cdef object event_types = None
-        if cls is SystemEvent:
-            event_types = (EventType.quit, EventType.clipboard_updated)
-        elif cls is WindowEvent:
-            event_types = (
-                EventType.window_shown, EventType.window_hidden,
-                EventType.window_exposed, EventType.window_moved,
-                EventType.window_resized, EventType.window_minimized,
-                EventType.window_maximized, EventType.window_restored,
-                EventType.window_enter, EventType.window_leave,
-                EventType.window_focus_gained, EventType.window_focus_lost,
-                EventType.window_close
-            )
-        elif cls is KeyboardEvent:
-            event_types = (EventType.key_down, EventType.key_up, EventType.text_input)
-        elif cls is MouseEvent:
-            event_types = (
-                EventType.mouse_motion, EventType.mouse_button_up,
-                EventType.mouse_button_down, EventType.mouse_wheel
-            )
-        elif cls is ControllerEvent:
-            event_types = (
-                EventType.controller_axis_motion, EventType.controller_button_down,
-                EventType.controller_button_up, EventType.controller_added,
-                EventType.controller_removed, EventType.controller_removed
-            )
-        elif cls is AudioEvent:
-            event_types = (EventType.music_finished, EventType.channel_finished)
-        else:
-            raise TypeError(f'Unsupported argument: {cls}.')
-
-        self._register_callback_from_iter(event_types, callback)
 
     def _register_callback_from_iter(self, object iterable not None, object callback):
         for element in iterable:

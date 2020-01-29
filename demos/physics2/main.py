@@ -105,32 +105,21 @@ class MyScene(Scene):
         ))
         self.objects.append(obj)
 
-    def delete_object(self):
-        all_balls = self.find_nodes(filter_class=FlyingBall)
-        if all_balls:
-            obj = random.choice(all_balls)
-            obj.delete()
-
     def update(self, dt):
         for event in self.input.events():
-            keyboard = event.keyboard
-            if keyboard:
-                if keyboard.is_pressing(Keycode.n):
+            if event.keyboard_key and event.keyboard_key.is_key_down:
+                if event.keyboard_key.key == Keycode.n:
                     self.spawn_object()
-                elif keyboard.is_pressing(Keycode.d):
-                    self.delete_object()
-                elif keyboard.is_pressing(Keycode.r):
+                elif event.keyboard_key.key == Keycode.r:
                     self.random_collisions = not self.random_collisions
                     print("Random collisions: {}".format(self.random_collisions))
-                elif keyboard.is_pressing(Keycode.c):
+                elif event.keyboard_key.key == Keycode.c:
                     self.collision_spawning = not self.collision_spawning
                     if self.collision_spawning:
                         print("Collision spawning enabled (for one collision)")
-
-                elif keyboard.is_pressing(Keycode.s):
+                elif event.keyboard_key.key == Keycode.s:
                     self.observed_ball.velocity *= 1.5
-
-                elif keyboard.is_pressing(Keycode.l):
+                elif event.keyboard_key.key == Keycode.l:
                     all_balls = [
                         n for n in self.space.children if isinstance(n, FlyingBall)
                     ]
@@ -138,7 +127,7 @@ class MyScene(Scene):
                         target_ball = random.choice(all_balls)
                         target_ball.lifetime = 1500
 
-            if event.mouse and event.mouse.is_pressing(MouseButton.left):
+            if event.mouse_button and event.mouse_button.button == MouseButton.left:
                 self.spawn_object(
                     position=self.camera.unproject_position(
                         event.mouse.position,
