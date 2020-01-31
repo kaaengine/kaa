@@ -69,5 +69,6 @@ class FontDemoScene(Scene):
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(10, 10)) as engine:
-        engine.window.show()
+        engine.window.size = Vector(800, 600)
+        engine.window.center()
         engine.run(FontDemoScene())

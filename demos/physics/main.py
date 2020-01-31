@@ -160,4 +160,6 @@ class MyScene(Scene):
 if __name__ == '__main__':
     engine = Engine(virtual_resolution=Vector(10, 10))
     engine.window.title = engine.window.title + "Test 123"
+    engine.window.size = Vector(800, 600)
+    engine.window.center()
     engine.run(MyScene())

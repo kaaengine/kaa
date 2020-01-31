@@ -21,35 +21,31 @@ cdef cppclass CPyScene(CScene):
                 "Tried to retrieve scene which was already destroyed."
             )
         return py_scene
-    
 
     void on_attach() nogil:
         with gil:
             Py_INCREF(this.get_py_scene())
 
-
     void on_enter() nogil:
         with gil:
             try:
                 this.get_py_scene().on_enter()
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
-
 
     void update(uint32_t dt) nogil:
         with gil:
             try:
                 this.get_py_scene().update(dt)
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
 
     void on_exit() nogil:
         with gil:
             try:
                 this.get_py_scene().on_exit()
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
-
 
     void on_detach() nogil:
         with gil:

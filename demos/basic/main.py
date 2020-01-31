@@ -129,7 +129,8 @@ if __name__ == '__main__':
             sound_path=len(sys.argv) >= 2 and sys.argv[1],
             music_path=len(sys.argv) >= 3 and sys.argv[2],
         )
-
+        engine.window.size = Vector(800, 600)
+        engine.window.center()
         engine.run(scene)
 
     print(" * Ending script")

@@ -148,7 +148,7 @@ def Engine(Vector virtual_resolution,
     c_log_dynamic(
         CLogLevel.info, CLogCategory.engine, 'Engine initialized.'
     )
-    _hello_message()
+    _print_hello_message()
 
     if show_window is True:
         _engine_wrapper.window.show()
@@ -161,7 +161,7 @@ def get_engine():
         return _engine_wrapper
 
 
-cdef void _hello_message():
+cdef void _print_hello_message():
     cdef str kaa_ascii_logo = r"""
                       _   _
                    __/ \ / \

@@ -94,4 +94,6 @@ class DemoTransitionsScene(Scene):
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(300, 300)) as engine:
+        engine.window.size = Vector(800, 600)
+        engine.window.center()
         engine.run(DemoTransitionsScene())

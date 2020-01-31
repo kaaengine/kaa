@@ -60,7 +60,7 @@ class SecondScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.keyboard_key:
+            if event.keyboard_key and event.keyboard_key.is_key_down:
                 if event.keyboard_key.key == Keycode.q:
                     self.engine.quit()
                 elif event.keyboard_key.key == Keycode.c:
@@ -74,4 +74,6 @@ if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(10, 10)) as engine:
         main_scene = MainScene()
         SCENES = {'main': main_scene, 'second': SecondScene()}
+        engine.window.size = Vector(800, 600)
+        engine.window.center()
         engine.run(main_scene)
