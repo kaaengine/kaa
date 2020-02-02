@@ -1,6 +1,7 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from libc.stdint cimport uint32_t
+from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 
 from cymove cimport cymove as cmove
@@ -18,14 +19,22 @@ from .kaacore.geometry cimport CAlignment
 
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
+    bool added_to_parent
 
     __init__(PyObject* py_wrapper):
-        Py_XINCREF(py_wrapper)
         this.py_wrapper = py_wrapper
+        this.added_to_parent = False
 
     __dealloc__():
-        Py_XDECREF(this.py_wrapper)
+        if this.added_to_parent:
+            Py_XDECREF(this.py_wrapper)
         this.py_wrapper = NULL
+
+    void on_add_to_parent() nogil:
+        with gil:
+            Py_XINCREF(py_wrapper)
+            this.added_to_parent = True
+
 
 
 cdef class NodeBase:

@@ -40,7 +40,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         text "kaacore::NodeType::text",
 
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
-        pass
+        void on_add_to_parent()
 
     cdef cppclass CNode "kaacore::Node":
         # UNION!
