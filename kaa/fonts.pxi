@@ -20,7 +20,7 @@ cdef Font get_font_wrapper(const CFont& c_font):
 
 cdef class TextNode(NodeBase):
     def __init__(self, **options):
-        self._init_new_node(CNodeType.text)
+        self._make_c_node(CNodeType.text)
         super().__init__(**options)
 
     def setup(self, **options):
