@@ -51,6 +51,9 @@ cdef extern from "kaacore/node_transitions.h" nogil:
     cdef cppclass CNodeColorTransition "kaacore::NodeColorTransition":
         pass
 
+    cdef cppclass CNodeSpriteTransition "kaacore::NodeSpriteTransition":
+        pass
+
     cdef cppclass CBodyNodeVelocityTransition "kaacore::BodyNodeVelocityTransition":
         pass
 

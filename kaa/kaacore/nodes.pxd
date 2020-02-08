@@ -77,7 +77,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         CShape shape() except +raise_py_error
         void shape(const CShape& shape) except +raise_py_error
 
-        CSprite& sprite_ref() except +raise_py_error
+        CSprite sprite() except +raise_py_error
         void sprite(const CSprite& sprite) except +raise_py_error
 
         CColor color() except +raise_py_error
