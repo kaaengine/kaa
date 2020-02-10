@@ -10,7 +10,7 @@ from .fonts cimport CTextNode
 from .shapes cimport CShape
 from .sprites cimport CSprite
 from .scenes cimport CScene
-from .transitions cimport CNodeTransitionHandle
+from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
 
 
@@ -94,6 +94,8 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error
+
+        CNodeTransitionsManager& transitions_manager() except +raise_py_error
 
         CScene* scene() except +raise_py_error
         CNodePtr parent() except +raise_py_error
