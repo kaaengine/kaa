@@ -2,6 +2,7 @@ from libc.stdint cimport uint32_t
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
 
+from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
@@ -112,7 +113,7 @@ cdef class Scene:
         c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
                     "Initializing Scene")
         self.c_scene = new CPyScene(self)
-        self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
+        self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self.c_scene.root_node))
         self.input_manager = InputManager()
         self.camera = _SceneCamera()
         self.camera.attach_c_scene(self.c_scene)

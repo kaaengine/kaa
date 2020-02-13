@@ -4,7 +4,7 @@ from libcpp cimport bool
 
 from .glue cimport CPythonicCallbackWrapper
 from .vectors cimport CVector
-from .nodes cimport CNode
+from .nodes cimport CNode, CNodePtr
 from .exceptions cimport raise_py_error
 
 
@@ -22,11 +22,11 @@ cdef extern from "kaacore/nodes.h" nogil:
 
     cdef cppclass CArbiter "kaacore::Arbiter":
         CCollisionPhase phase
-        CNode* space
+        CNodePtr space
 
     cdef cppclass CCollisionPair "kaacore::CollisionPair":
-        CNode* body_node
-        CNode* hitbox_node
+        CNodePtr body_node
+        CNodePtr hitbox_node
 
     ctypedef function[int(CArbiter, CCollisionPair, CCollisionPair)] \
         CCollisionHandlerFunc "kaacore::CollisionHandlerFunc"
