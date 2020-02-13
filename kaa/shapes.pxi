@@ -19,6 +19,11 @@ cdef class ShapeBase:
         assert self.c_shape_ptr == NULL
         self.c_shape_ptr = c_new_shape
 
+    def transform(self, Transformation transformation not None):
+        return get_shape_wrapper(
+            self.c_shape_ptr[0].transform(transformation.c_transformation)
+        )
+
 
 cdef class Segment(ShapeBase):
     def __init__(self, Vector a, Vector b):
