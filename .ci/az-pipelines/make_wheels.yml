@@ -1,0 +1,146 @@
+# KAA wheel building pipeline
+# based on: https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+name: 'Make wheels'
+trigger:
+  tags:
+    include:
+    - v*  # trigger on version releases
+
+jobs:
+- job: build_linux
+  displayName: "Build Linux wheel"
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
+  variables:
+    docker_image: "quay.io/pypa/manylinux2010_x86_64"
+    platform.name: 'linux'
+  steps:
+  - template: templates/common_checkout_repository.yml
+  - template: templates/common_prepare_python.yml
+  - task: DockerInstaller@0
+    displayName: Docker Installer
+    inputs:
+      dockerVersion: 17.09.0-ce
+      releaseType: stable
+  - script: |
+      touch _build_version.py
+      python -c 'import versioneer; versioneer.write_to_version_file("_build_version.py", versioneer.get_versions())'
+      sudo docker pull $(docker_image)
+      sudo docker run -v $(System.DefaultWorkingDirectory):/host $(docker_image) \
+        /bin/bash /host/scripts/docker_wheel_builder.sh $(python.version_tag)
+    displayName: 'Wheel build manylinux2010'
+  - template: templates/common_store_wheel.yml
+  - template: templates/common_test_wheel.yml
+
+- job: build_windows
+  displayName: "Build Windows wheel"
+  pool:
+    vmImage: 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
+  variables:
+    platform.name: 'windows'
+  steps:
+  - template: templates/common_checkout_repository.yml
+  - template: templates/common_prepare_python.yml
+  - script: |
+      python setup.py bdist_wheel -d wheelhouse -G "Visual Studio 15 2017 Win64"
+    displayName: 'Build wheel'
+  - template: templates/common_store_wheel.yml
+  - template: templates/common_test_wheel.yml
+
+- job: build_macos
+  displayName: "Build macOS wheel"
+  pool:
+    vmImage: 'macOS-10.13'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
+  variables:
+    platform.name: 'macos'
+    platform.tag: 'macosx-10.9-x86_64'
+  steps:
+  - template: templates/common_checkout_repository.yml
+  - template: templates/common_prepare_python.yml
+  - script: |
+      python setup.py bdist_wheel --plat-name $(platform.tag) -- -DKAA_BUNDLE_SDL:BOOL=OFF
+    displayName: 'Build wheel'
+  - bash: |
+      python -m pip install delocate
+      SDL2_LIB_PATH=$(System.DefaultWorkingDirectory)/_skbuild/$(platform.tag)-$(python.version)/cmake-build/kaacore/third_party/sdl2/
+      echo $SDL2_LIB_PATH
+      ls $SDL2_LIB_PATH
+      export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$SDL2_LIB_PATH
+      delocate-listdeps dist/*.whl
+      delocate-wheel -w wheelhouse -v dist/*.whl
+      delocate-listdeps --all wheelhouse/*.whl
+    displayName: 'Delocate wheel'
+  - template: templates/common_store_wheel.yml
+  - template: templates/common_test_wheel.yml
+
+- job: upload
+  displayName: 'Upload wheel'
+  dependsOn:
+  - build_linux
+  - build_windows
+  - build_macos
+  pool:
+    vmImage: 'ubuntu-16.04'
+  variables:
+  - group: pypi-credentials
+  # selected variable group should provide: TWINE_USERNAME, TWINE_PASSWORD, TWINE_REPOSITORY_URL
+  steps:
+  - download: current
+    patterns: '**/*.whl'
+    # downloads go to: $(Pipeline.Workspace)/{artifact_name}
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.7'
+    displayName: 'Use Python 3.7'
+  - script: |
+      python -m pip install --upgrade pip
+      python -m pip install twine
+    displayName: 'Install twine'
+  - template: templates/common_retrieve_kaa_version.yml
+  - script: |
+      echo $(Pipeline.Workspace)/build_*/*.whl
+      zip -jv kaa_gathered_builds.zip $(Pipeline.Workspace)/build_*/*.whl
+    displayName: 'Prepare gathered ZIP'
+  - publish: kaa_gathered_builds.zip
+    artifact: "builds_gathered"
+  - script: |
+      echo "User: $TWINE_USERNAME"
+      echo "URL: $TWINE_REPOSITORY_URL"
+      python -m twine upload --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
+    # populated from TWINE_* env variables
+    displayName: 'Twine Upload'
+    condition: eq(variables['kaa_version.local'], 'False')

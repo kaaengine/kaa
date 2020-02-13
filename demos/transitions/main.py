@@ -87,10 +87,6 @@ class DemoTransitionsScene(Scene):
         )
 
     def update(self, dt):
-        for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-
         if self.input.keyboard.is_pressed(Keycode.q):
             print("q Pressed - Exiting")
             self.engine.quit()
@@ -98,4 +94,6 @@ class DemoTransitionsScene(Scene):
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(300, 300)) as engine:
+        engine.window.size = Vector(800, 600)
+        engine.window.center()
         engine.run(DemoTransitionsScene())

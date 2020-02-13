@@ -3,7 +3,7 @@ import weakref
 from enum import IntEnum
 
 import cython
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
+from cpython.ref cimport PyObject
 from libc.stdint cimport uint8_t
 
 from .kaacore.nodes cimport CNode, CNodeType
@@ -57,8 +57,8 @@ class BodyNodeType(IntEnum):
 
 @cython.freelist(2)
 cdef class CollisionPair:
-    cdef CNode* c_body
-    cdef CNode* c_hitbox
+    cdef CNodePtr c_body
+    cdef CNodePtr c_hitbox
 
     cdef NodeBase _body_node_wrapper
     cdef NodeBase _hitbox_node_wrapper
@@ -72,14 +72,14 @@ cdef class CollisionPair:
 
     @property
     def body(self):
-        if self.c_body != NULL:
+        if self.c_body:
             if self._body_node_wrapper is None:
                 self._body_node_wrapper = get_node_wrapper(self.c_body)
             return self._body_node_wrapper
 
     @property
     def hitbox(self):
-        if self.c_hitbox != NULL:
+        if self.c_hitbox:
             if self._hitbox_node_wrapper is None:
                 self._hitbox_node_wrapper = get_node_wrapper(self.c_hitbox)
             return self._hitbox_node_wrapper
@@ -116,7 +116,7 @@ cdef Arbiter _prepare_arbiter(CArbiter& c_arbiter):
 
 cdef class SpaceNode(NodeBase):
     def __init__(self, **options):
-        self._init_new_node(CNodeType.space)
+        self._make_c_node(CNodeType.space)
         super().__init__(**options)
 
     def setup(self, **options):
@@ -184,7 +184,7 @@ cdef class SpaceNode(NodeBase):
 
 cdef class BodyNode(NodeBase):
     def __init__(self, **options):
-        self._init_new_node(CNodeType.body)
+        self._make_c_node(CNodeType.body)
         super().__init__(**options)
 
     def setup(self, **options):
@@ -292,7 +292,7 @@ cdef class BodyNode(NodeBase):
 
 cdef class HitboxNode(NodeBase):
     def __init__(self, **options):
-        self._init_new_node(CNodeType.hitbox)
+        self._make_c_node(CNodeType.hitbox)
         super().__init__(**options)
 
     def setup(self, **options):

@@ -8,6 +8,7 @@ from .exceptions cimport raise_py_error
 
 cdef extern from "kaacore/transitions.h" nogil:
     cdef cppclass CNodeTransitionHandle "kaacore::NodeTransitionHandle":
+        CNodeTransitionHandle()
         bool operator bool()
 
     cdef cppclass CTransitionStateBase "kaacore::TransitionStateBase":

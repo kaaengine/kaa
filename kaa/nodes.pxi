@@ -1,71 +1,85 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from libc.stdint cimport uint32_t
+from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
+
+from cymove cimport cymove as cmove
 
 from .kaacore.shapes cimport CShape
 from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
-    CNodeType, CNode, CNodeType, CForeignNodeWrapper
+    CNodeType, CNode, CNodePtr, CNodeOwnerPtr, CForeignNodeWrapper,
+    c_make_node,
 )
+from .kaacore.transitions cimport CNodeTransitionHandle
 from .kaacore.math cimport radians, degrees
 from .kaacore.geometry cimport CAlignment
 
 
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
+    bool added_to_parent
 
     __init__(PyObject* py_wrapper):
-        Py_XINCREF(py_wrapper)
         this.py_wrapper = py_wrapper
+        this.added_to_parent = False
 
     __dealloc__():
-        Py_XDECREF(this.py_wrapper)
+        if this.added_to_parent:
+            Py_XDECREF(this.py_wrapper)
         this.py_wrapper = NULL
+
+    void on_add_to_parent() nogil:
+        with gil:
+            Py_XINCREF(py_wrapper)
+            this.added_to_parent = True
+
 
 
 cdef class NodeBase:
     cdef:
-        CNode* c_node
-
-    def __cinit__(self):
-        self.c_node = NULL
+        # When node is created by class __init__ this member will be filled,
+        # it's destructor will be called along with class destructor
+        # (destroying underlying cnode if appropriate).
+        # It's not used if Node class is used as a
+        # wrapper for existing node.
+        CNodeOwnerPtr _c_node_owner_ptr
+        CNodePtr _c_node_ptr
 
     def __init__(self, **options):
         self.setup(**options)
 
     cdef inline CNode* _get_c_node(self):
-        assert self.c_node != NULL, \
+        cdef CNode* c_node = self._c_node_ptr.get()
+        assert c_node != NULL, \
             'Operation on uninitialized or deleted Node. Aborting.'
-        return self.c_node
+        return c_node
 
-    cdef void _attach_c_node(self, CNode* c_node):
-        assert self.c_node == NULL
-        assert c_node != NULL
-        self.c_node = c_node
-
-    cdef void _setup_wrapper(self):
-        assert self.c_node != NULL
-        self.c_node.setup_wrapper(
+    cdef void _make_c_node(self, CNodeType type):
+        self._c_node_owner_ptr = cmove(c_make_node(type))
+        self._c_node_ptr = CNodePtr(self._c_node_owner_ptr.get())
+        self._c_node_ptr.get().setup_wrapper(
             unique_ptr[CForeignNodeWrapper](
                 new CPyNodeWrapper(<PyObject*>self)
             )
         )
 
-    cdef void _init_new_node(self, CNodeType type):
-        cdef CNode* c_node = new CNode(type)
-        self._attach_c_node(c_node)
-        self._setup_wrapper()
+    cdef void _attach_c_node(self, CNodePtr c_node_ptr):
+        assert self._c_node_ptr.get() == NULL, "Node is already initialized, cannot attach."
+        assert c_node_ptr, "Cannot atach NULL node."
+        self._c_node_ptr = c_node_ptr
 
     def add_child(self, NodeBase node):
-        assert self.c_node != NULL
-        assert node.c_node != NULL
-        self.c_node.add_child(node.c_node)
+        assert self._c_node_ptr, "Cannot add_child to NULL node."
+        assert node._c_node_ptr, "Cannot add NULL node as child."
+        assert node._c_node_owner_ptr, "Node added as child must be owned node."
+        self._c_node_ptr.get().add_child(node._c_node_owner_ptr)
         return node
 
     def delete(self):
-        assert self.c_node != NULL
-        del self.c_node
+        assert self._c_node_ptr, "Node already deleted."
+        self._c_node_ptr.destroy()
 
     def setup(self, **options):
         if 'position' in options:
@@ -118,10 +132,10 @@ cdef class NodeBase:
     def children(self):
         cdef:
             CNode* c_node
-            vector[CNode*] children_copy = self.c_node.children()
+            vector[CNode*] children_copy = self._get_c_node().children()
 
         for c_node in children_copy:
-            yield get_node_wrapper(c_node)
+            yield get_node_wrapper(CNodePtr(c_node))
 
     @property
     def type(self):
@@ -135,16 +149,25 @@ cdef class NodeBase:
 
     @property
     def parent(self):
-        if self._get_c_node().parent() != NULL:
+        if self._get_c_node().parent():
             return get_node_wrapper(self._get_c_node().parent())
 
     @property
     def position(self):
         return Vector.from_c_vector(self._get_c_node().position())
+    
+    @property
+    def absolute_position(self):
+        return Vector.from_c_vector(self._get_c_node().absolute_position())
 
     @position.setter
     def position(self, Vector vec):
         self._get_c_node().position(vec.c_vector)
+    
+    def get_relative_position(self, NodeBase ancestor not None):
+        return Vector.from_c_vector(
+            self._get_c_node().get_relative_position(ancestor._get_c_node())
+        )
 
     @property
     def z_index(self):
@@ -158,6 +181,10 @@ cdef class NodeBase:
     def rotation(self):
         return self._get_c_node().rotation()
 
+    @property
+    def absolute_rotation(self):
+        return self._get_c_node().absolute_rotation()
+
     @rotation.setter
     def rotation(self, double value):
         self._get_c_node().rotation(value)
@@ -165,6 +192,10 @@ cdef class NodeBase:
     @property
     def rotation_degrees(self):
         return degrees(self._get_c_node().rotation())
+    
+    @property
+    def absolute_rotation_degrees(self):
+        return degrees(self._get_c_node().absolute_rotation())
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
@@ -173,10 +204,25 @@ cdef class NodeBase:
     @property
     def scale(self):
         return Vector.from_c_vector(self._get_c_node().scale())
+    
+    @property
+    def absolute_scale(self):
+        return Vector.from_c_vector(self._get_c_node().absolute_scale())
 
     @scale.setter
     def scale(self, Vector vec):
         self._get_c_node().scale(vec.c_vector)
+
+    @property
+    def absolute_transformation(self):
+        return Transformation.create(self._get_c_node().absolute_transformation())
+
+    def get_relative_transformation(self, NodeBase ancestor not None):
+        return Transformation.create(
+            self._get_c_node().get_relative_transformation(
+                ancestor._get_c_node()
+            )
+        )
 
     @property
     def color(self):
@@ -240,24 +286,27 @@ cdef class NodeBase:
 
     @transition.setter
     def transition(self, transition_or_list):
-        # TODO handle None
         cdef NodeTransitionBase transition
-        if isinstance(transition_or_list, list):
-            transition = NodeTransitionsSequence(transition_or_list)
+        if transition_or_list is not None:
+            if isinstance(transition_or_list, list):
+                transition = NodeTransitionsSequence(transition_or_list)
+            else:
+                transition = transition_or_list
+            assert transition.c_handle
+            self._get_c_node().transition(transition.c_handle)
         else:
-            transition = transition_or_list
-        assert transition.c_handle
-        self._get_c_node().transition(transition.c_handle)
+            self._get_c_node().transition(CNodeTransitionHandle())
 
 
 cdef class Node(NodeBase):
     def __init__(self, **options):
-        self._init_new_node(CNodeType.basic)
+        self._make_c_node(CNodeType.basic)
         super().__init__(**options)
 
 
-cdef NodeBase get_node_wrapper(CNode* c_node):
-    assert c_node != NULL
+cdef NodeBase get_node_wrapper(CNodePtr c_node_ptr):
+    cdef CNode* c_node = c_node_ptr.get()
+    assert c_node != NULL, "Cannot make wrapper for NULL node."
     cdef NodeBase py_node
     if c_node.wrapper_ptr() != NULL:
         # TODO typeid assert?
@@ -266,17 +315,17 @@ cdef NodeBase get_node_wrapper(CNode* c_node):
         ).py_wrapper
     elif c_node.type() == CNodeType.space:
         py_node = SpaceNode.__new__(SpaceNode)
-        py_node._attach_c_node(c_node)
+        py_node._attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.body:
         py_node = BodyNode.__new__(BodyNode)
-        py_node._attach_c_node(c_node)
+        py_node._attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.hitbox:
         py_node = HitboxNode.__new__(HitboxNode)
-        py_node._attach_c_node(c_node)
+        py_node._attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.text:
         py_node = TextNode.__new__(TextNode)
-        py_node._attach_c_node(c_node)
+        py_node._attach_c_node(c_node_ptr)
     else:
         py_node = Node.__new__(Node)
-        py_node._attach_c_node(c_node)
+        py_node._attach_c_node(c_node_ptr)
     return py_node
