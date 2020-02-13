@@ -35,10 +35,6 @@ cdef class Sound:
     def volume(self):
         return self.c_sound.volume()
 
-    @volume.setter
-    def volume(self, double vol):
-        self.c_sound.volume(vol)
-
     def play(self, double volume=1.):
         self.c_sound.play(volume)
 
@@ -79,8 +75,8 @@ cdef class SoundPlayback:
     def is_playing(self):
         return self.c_sound_playback.get().is_playing()
 
-    def play(self):
-        self.c_sound_playback.get().play()
+    def play(self, *, int loops=1):
+        self.c_sound_playback.get().play(loops)
 
     @property
     def is_paused(self):
@@ -118,10 +114,6 @@ cdef class Music:
     @property
     def volume(self):
         return self.c_music.volume()
-
-    @volume.setter
-    def volume(self, double vol):
-        self.c_music.volume(vol)
 
     @property
     def is_playing(self):

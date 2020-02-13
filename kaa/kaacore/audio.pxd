@@ -22,7 +22,6 @@ cdef extern from "kaacore/audio.h" nogil:
             except +raise_py_error
 
         double volume() except +raise_py_error
-        void volume(const double) except +raise_py_error
 
 
     cdef cppclass CSoundPlayback "kaacore::SoundPlayback":
@@ -36,7 +35,7 @@ cdef extern from "kaacore/audio.h" nogil:
 
         CAudioState state() except +raise_py_error
         bool is_playing() except +raise_py_error
-        void play() except +raise_py_error
+        void play(int loops) except +raise_py_error
 
         bool is_paused() except +raise_py_error
         bool pause() except +raise_py_error
@@ -60,7 +59,6 @@ cdef extern from "kaacore/audio.h" nogil:
             except +raise_py_error
 
         double volume() except +raise_py_error
-        void volume(const double) except +raise_py_error
 
         bool is_playing() \
             except +raise_py_error

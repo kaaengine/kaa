@@ -60,35 +60,35 @@ class SamplePlayerDemoScene(Scene):
         for event in self.input.events():
             if event.system and event.system.quit:
                 self.engine.quit()
-            elif event.keyboard:
-                ev_keyboard = event.keyboard
-                if ev_keyboard.is_pressing(Keycode.up):
+            elif event.keyboard_key and event.keyboard_key.is_key_down:
+                pressed_key = event.keyboard_key.key
+                if pressed_key == Keycode.up:
                     self.active_ui_entry_index = (
                         (self.active_ui_entry_index - 1) % len(self.samples)
                     )
-                elif ev_keyboard.is_pressing(Keycode.down):
+                elif pressed_key == Keycode.down:
                     self.active_ui_entry_index = (
                         (self.active_ui_entry_index + 1) % len(self.samples)
                     )
-                elif ev_keyboard.is_pressing(Keycode.x):
+                elif pressed_key == Keycode.x:
                     self.samples[self.active_ui_entry_index].playback.play()
                     print("Playing sample #{}".
                           format(self.active_ui_entry_index))
-                elif ev_keyboard.is_pressing(Keycode.c):
+                elif pressed_key == Keycode.c:
                     ret = self.samples[self.active_ui_entry_index].playback.pause()
                     print("Pausing sample #{}, success: {}"
                           .format(self.active_ui_entry_index, ret))
-                elif ev_keyboard.is_pressing(Keycode.v):
+                elif pressed_key == Keycode.v:
                     ret = self.samples[self.active_ui_entry_index].playback.resume()
                     print("Resuming sample #{}, success: {}"
                           .format(self.active_ui_entry_index, ret))
-                elif ev_keyboard.is_pressing(Keycode.b):
+                elif pressed_key == Keycode.b:
                     ret = self.samples[self.active_ui_entry_index].playback.stop()
                     print("Stopping sample #{}, success: {}"
                           .format(self.active_ui_entry_index, ret))
-                elif ev_keyboard.is_pressing(Keycode.num_9):
+                elif pressed_key == Keycode.num_9:
                     self.samples[self.active_ui_entry_index].playback.volume -= 0.1
-                elif ev_keyboard.is_pressing(Keycode.num_0):
+                elif pressed_key == Keycode.num_0:
                     self.samples[self.active_ui_entry_index].playback.volume += 0.1
         self._update_ui_nodes()
 
