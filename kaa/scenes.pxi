@@ -4,6 +4,7 @@ from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
+from .kaacore.engine cimport get_c_engine
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 
@@ -110,8 +111,14 @@ cdef class Scene:
         readonly _SceneCamera camera
 
     def __cinit__(self):
-        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
-                    "Initializing Scene")
+        if get_c_engine() == NULL:
+            raise RuntimeError(
+                'Cannot create scene since engine is not initialized yet.'
+            )
+
+        c_log_dynamic(
+            CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
+        )
         self.c_scene = new CPyScene(self)
         self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self.c_scene.root_node))
         self.input_manager = InputManager()
