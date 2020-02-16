@@ -197,6 +197,11 @@ Class methods:
 
 TODO: no properties?
 
+:class:`Transformation` reference
+---------------------------------
+
+TODO
+
 
 :class:`Alignment` reference
 ----------------------------

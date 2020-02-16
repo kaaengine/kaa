@@ -28,7 +28,7 @@ All kaa imports cheat sheet
 
     from kaa.fonts import Font, TextNode
 
-    from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, classify_polygon
+    from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, Transformation, classify_polygon
 
     from kaa.input import Keycode, MouseButton, ControllerButton, ControllerAxis, Event, SystemEvent, WindowEvent,
         KeyboardEvent, MouseEvent, ControllerEvent

@@ -95,7 +95,8 @@ Instance Properties:
 .. _Node.rotation:
 .. attribute:: Node.rotation
 
-    Gets or sets node rotation, in radians.
+    Gets or sets node rotation, in radians. There is no capping value, meaning you can set it to values greater
+    than :code:`math.pi*2` or lower than :code:`-math.pi*2`.
 
     Changing node rotation will make the node rotate around its origin point. Read more about
     :ref:`Node origin points <Node.origin_alignment>`.
@@ -114,7 +115,8 @@ Instance Properties:
 .. _Node.rotation_degrees:
 .. attribute:: Node.rotation_degrees
 
-    Gets or sets node rotation, in degrees (as float).
+    Gets or sets node rotation, in degrees (as float). There is no capping value, meaning you can set it to values greater
+    than 360 degrees or smaller than -360 degrees.
 
     Changing node rotation will make the node rotate around its origin point. Read more about
     :ref:`Node origin points <Node.origin_alignment>`.
@@ -122,7 +124,9 @@ Instance Properties:
 .. _Node.scale:
 .. attribute:: Node.scale
 
-    Gets or sets the node scale, as :class:`geometry.Vector`.
+    Gets or sets the node scale, as :class:`geometry.Vector`. X value of the vector is used to scale the node in the
+    X axis, while Y value is used to scale it in the Y axis. Negative value of X or Y is possible - it will make
+    the node to be rendered as a mirror reflection in X and/or Y axis respectively.
 
     .. code-block:: python
 
