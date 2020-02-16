@@ -297,6 +297,10 @@ cdef class NodeBase:
         else:
             self._get_c_node().transition(CNodeTransitionHandle())
 
+    @property
+    def transitions_manager(self):
+        return _NodeTransitionsManager.create(self._c_node_ptr)
+
 
 cdef class Node(NodeBase):
     def __init__(self, **options):
