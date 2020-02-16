@@ -112,7 +112,7 @@ jobs:
   dependsOn:
   - build_linux
   - build_windows
-  - build_macos
+  # - build_macos
   pool:
     vmImage: 'ubuntu-16.04'
   variables:

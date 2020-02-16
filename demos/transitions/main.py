@@ -4,7 +4,7 @@ import random
 from kaa.engine import Engine, Scene
 from kaa.input import Keycode
 from kaa.geometry import Vector, Circle
-from kaa.sprites import Sprite
+from kaa.sprites import Sprite, split_spritesheet
 from kaa.nodes import Node
 from kaa.physics import SpaceNode, BodyNode
 from kaa.colors import Color
@@ -12,11 +12,12 @@ from kaa.transitions import (
     NodeTransitionsSequence, NodeTransitionsParallel, AttributeTransitionMethod,
     NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
     NodeColorTransition, NodeCustomTransition, BodyNodeVelocityTransition,
-    NodeTransitionDelay, NodeTransitionCallback,
+    NodeTransitionDelay, NodeTransitionCallback, NodeSpriteTransition,
 )
 
 
 PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
+EXPLOSION_IMAGE_PATH = os.path.join('demos', 'assets', 'explosion.png')
 
 
 class DemoTransitionsScene(Scene):
@@ -56,6 +57,13 @@ class DemoTransitionsScene(Scene):
             loops=5,
         )
 
+        spritesheet_frames = split_spritesheet(
+            Sprite(EXPLOSION_IMAGE_PATH), Vector(64, 64),
+        )
+        self.sprite_transition = NodeSpriteTransition(
+            spritesheet_frames, 1000., loops=0, back_and_forth=True,
+        )
+
         self.space = self.root.add_child(
             SpaceNode()
         )
@@ -83,6 +91,13 @@ class DemoTransitionsScene(Scene):
                 sprite=self.python_img,
                 velocity=Vector(0., 30.),
                 transition=BodyNodeVelocityTransition(Vector(0., -30.), 10000.),
+            )
+        )
+
+        self.animated_obj = self.space.add_child(
+            Node(
+                position=Vector(-20., 10.),
+                transition=self.sprite_transition,
             )
         )
 

@@ -2,6 +2,7 @@ from libc.stdint cimport uint32_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.memory cimport unique_ptr
+from libcpp.string cimport string
 
 from .exceptions cimport raise_py_error
 
@@ -26,6 +27,10 @@ cdef extern from "kaacore/transitions.h" nogil:
     cdef CNodeTransitionHandle make_node_transitions_parallel(const vector[CNodeTransitionHandle]&, ...) \
         except +raise_py_error
 
+    cdef cppclass CNodeTransitionsManager "kaacore::NodeTransitionsManager":
+        CNodeTransitionHandle get(const string& name) except +raise_py_error
+        void set(const string& name, const CNodeTransitionHandle& transition) except +raise_py_error
+
 
 cdef extern from "kaacore/node_transitions.h" nogil:
     cdef enum CAttributeTransitionMethod "kaacore::AttributeTransitionMethod":
@@ -49,6 +54,9 @@ cdef extern from "kaacore/node_transitions.h" nogil:
         pass
 
     cdef cppclass CNodeColorTransition "kaacore::NodeColorTransition":
+        pass
+
+    cdef cppclass CNodeSpriteTransition "kaacore::NodeSpriteTransition":
         pass
 
     cdef cppclass CBodyNodeVelocityTransition "kaacore::BodyNodeVelocityTransition":
