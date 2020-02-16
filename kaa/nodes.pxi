@@ -242,13 +242,13 @@ cdef class NodeBase:
 
     @property
     def sprite(self):
-        if self._get_c_node().sprite_ref().has_texture():
-            return get_sprite_wrapper(&self._get_c_node().sprite_ref())
+        if self._get_c_node().sprite().has_texture():
+            return get_sprite_wrapper(self._get_c_node().sprite())
 
     @sprite.setter
     def sprite(self, Sprite sprite):
-        if sprite:
-            self._get_c_node().sprite(sprite.c_sprite_ptr[0])
+        if sprite is not None:
+            self._get_c_node().sprite(sprite.c_sprite)
         else:
             self._get_c_node().sprite(CSprite())
 

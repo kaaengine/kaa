@@ -2,14 +2,17 @@ from enum import IntEnum
 
 import cython
 from libcpp.vector cimport vector
+from cymove cimport cymove as cmove
 
 from .kaacore.vectors cimport CVector
+from .kaacore.sprites cimport CSprite
 from .kaacore.transitions cimport (
     CNodeTransitionHandle, CTransitionWarping,
     CAttributeTransitionMethod, CNodePositionTransition,
     CNodeRotationTransition, CNodeScaleTransition,
     CNodeColorTransition, CBodyNodeVelocityTransition,
     CBodyNodeAngularVelocityTransition, CNodeTransitionDelay,
+    CNodeSpriteTransition,
     make_node_transition, make_node_transitions_sequence,
     make_node_transitions_parallel
 )
@@ -134,6 +137,26 @@ cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
             make_node_transition[CBodyNodeAngularVelocityTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
+                duration,
+                self._prepare_warping(warping_options),
+            )
+        )
+
+
+@cython.final
+cdef class NodeSpriteTransition(NodeTransitionBase):
+    def __init__(self, list sprites, double duration, *,
+                 **warping_options,
+    ):
+        cdef vector[CSprite] c_sprites_vector
+        cdef Sprite sprite
+        c_sprites_vector.reserve(len(sprites))
+        for sprite in sprites:
+            c_sprites_vector.push_back(sprite.c_sprite)
+
+        self._setup_handle(
+            make_node_transition[CNodeSpriteTransition](
+                cmove(c_sprites_vector),
                 duration,
                 self._prepare_warping(warping_options),
             )
