@@ -1,1 +1,1 @@
-from ._kaa import Sound, SoundPlayback, Music, AudioState
+from ._kaa import Sound, SoundPlayback, Music, AudioStatus

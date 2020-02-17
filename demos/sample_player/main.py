@@ -52,7 +52,7 @@ class SamplePlayerDemoScene(Scene):
             else:
                 sample.ui_node.color = ENTRY_INACTIVE_COLOR
             sample.ui_node.text = "{} ({}) [{:.0f}%]".format(
-                sample.name, str(sample.playback.state),
+                sample.name, str(sample.playback.status),
                 sample.playback.volume * 100
             )
 

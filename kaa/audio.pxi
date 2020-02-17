@@ -6,7 +6,7 @@ from libcpp.memory cimport unique_ptr
 
 from .kaacore.engine cimport get_c_engine
 from .kaacore.audio cimport (
-    CAudioManager, CSound, CSoundPlayback, CMusic, CAudioState
+    CAudioManager, CSound, CSoundPlayback, CMusic, CAudioStatus
 )
 
 DEF SOUND_FREELIST_SIZE = 30
@@ -14,10 +14,10 @@ DEF SOUND_PLAYBACK_FREELIST_SIZE = 10
 DEF MUSIC_FREELIST_SIZE = 10
 
 
-class AudioState(IntEnum):
-    playing = <uint8_t>CAudioState.playing
-    paused = <uint8_t>CAudioState.paused
-    stopped = <uint8_t>CAudioState.stopped
+class AudioStatus(IntEnum):
+    playing = <uint8_t>CAudioStatus.playing
+    paused = <uint8_t>CAudioStatus.paused
+    stopped = <uint8_t>CAudioStatus.stopped
 
 
 @cython.freelist(SOUND_FREELIST_SIZE)
@@ -60,8 +60,8 @@ cdef class SoundPlayback:
         return get_sound_wrapper(self.c_sound_playback.get().sound())
 
     @property
-    def state(self):
-        return AudioState(<uint8_t>self.c_sound_playback.get().state())
+    def status(self):
+        return AudioStatus(<uint8_t>self.c_sound_playback.get().status())
 
     @property
     def volume(self):
@@ -107,13 +107,13 @@ cdef class Music:
     def get_current():
         return get_music_wrapper(CMusic.get_current())
 
-    @staticmethod
-    def get_state():
-        return AudioState(<uint8_t>CMusic.get_state())
-
     @property
     def volume(self):
         return self.c_music.volume()
+
+    @property
+    def status(self):
+        return AudioStatus(<uint8_t>self.c_music.status())
 
     @property
     def is_playing(self):
