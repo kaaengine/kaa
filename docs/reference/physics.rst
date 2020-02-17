@@ -50,14 +50,24 @@ Instance properties:
 
 .. attribute:: SpaceNode.damping
 
-
-    Gets or sets the damping inside the SpaceNode. Represents a friction force or a drag force inside the environment which
+    Gets or sets the damping inside the SpaceNode. Represents a "friction" or a "drag force" inside the environment which
     slows all BodyNodes down with time. A damping of 0.25 means velocity of all BodyNodes will decrease by a factor of 4
     in 1 second. A damping of 1 (default) means no slowdown force applied. A damping greater than 1 will make all BodyNodes
     accelerate, proportionally to its value.
 
     Damping is applied only to the dynamic BodyNodes. Kinematic and Static BodyNodes do not have mass and therefore
     ignore the damping effect.
+
+.. attribute:: SpaceNode.sleeping_threshold
+
+    Gets of sets the sleep time threshold (in miliseconds) which affects all BodyNodes in
+    the SpaceNode. If given BodyNode remains static (doesn't change its position or rotation) for that amount of
+    time the engine will stop making physical calculations for it. In some situations it can improve the performance.
+    A body remaining in a sleeping state can still collide with other bodies - that will force it to move and
+    'wake up' as a consequence.
+
+    Default value for the sleeping_threshold is infinite, which effectively means that the performance mechanism is
+    disabled.
 
 Instance methods:
 
@@ -69,7 +79,7 @@ Instance methods:
     are your own values which you use to tag :class:`HitboxNode`. They can be any type, using simple types such as
     numbers or strings is recommended.
 
-    :code:`handler_callable` is your own function which must have the following three parameters:
+    :code:`handler_callable` is your own callable which accepts the following three parameters:
 
     * :code:`arbiter` - an :class:`Arbiter` object that holds additional information about collision.
     * :code:`collision_pair_a`- a :class:`CollisionPair` object that allows identifying which BodyNode and which HitboxNoded collided. Corresponds with HitboxNode identified by trigger_a.
@@ -101,30 +111,130 @@ Instance methods:
 :class:`BodyNode` reference
 ---------------------------
 
-.. class:: BodyNode(body_type=BodyNodeType.dynamic, force=Vector(0,0), velocity=Vector(0,0), mass=20, moment=10000, torque=0, torque_degrees=0, angular_velocity=0, angular_velocity_degrees=0, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
+.. class:: BodyNode(body_type=BodyNodeType.dynamic, force=Vector(0,0), velocity=Vector(0,0), mass=20.0, moment=10000.0, torque=0, torque_degrees=0, angular_velocity=0, angular_velocity_degrees=0, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
-    BodyNode is an extension of a :class:`nodes.Node` class, introducing physical properties. BodyNode must be
-    a child of a SpaceNode. BodyNode is the only node type which can have :class:`HitboxNode` as children.
+    BodyNode extends the :class:`nodes.Node` class, introducing physical features.
 
-    Constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
+    In the nodes tree, BodyNode must be a direct child of a :class:`SpaceNode`.
+
+    BodyNode is the only node type which can have :class:`HitboxNode` as children nodes.
+
+    BodyNode constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
     new parameters:
 
-    * :code:`body_type` - a :class:`BodyNodeType` enum value. :ref:`Read more about available body types <BodyNode.body_type>`
+    * :code:`body_type` - a :class:`BodyNodeType` enum value. :ref:`Learn more here <BodyNode.body_type>`
     * :code:`force` - a :class:`geometry.Vector`
     * :code:`velocity` - a :class:`geometry.Vector`
     * :code:`mass` - a number
     * :code:`moment` - a number
     * :code:`torque` - a number
-    * :code:`torque_degrees` - a number
+    * :code:`torque_degrees` - a number, alternative to :code:`torque`, using degrees instead of radians
     * :code:`angular_velocity` - a number
-    * :code:`angular_velocity_degrees` - a number
+    * :code:`angular_velocity_degrees` - a number, alternative to :code:`angular_velocity`, using degrees instead of radians
 
 Instance properties:
 
 .. _BodyNode.body_type:
-.. attribute:: BodyNode.body_type::
+.. attribute:: BodyNode.body_type
 
-    TODO
+    Gets or sets body type, must be a :class:`BodyNodeType` value. There are three types available:
+
+    * static - the body has infinite mass and won't move when its hitboxes collide with any other hitboxes. You cannot move it "manually" by setting its velocity or angular velocity either. Those nodes are **truly** static.
+    * kinematic - similar to static body in a sense that its velocity or rotation will never be affected by anything, e.g. its hitboxes colliding. But the difference is that you can move and rotate that type of body. The collisions will occur normally and you will be able to handle them.
+    * dynamic - the default type. Physics engine will calculate body's velocity and angular velocity when its hitboxes will collide with other bodies' hitboxes.
+
+    Use static bodies for static obstacles and other elements on the scene that you know won't move, but you want
+    them to collide with other bodies and block their movement. Those bodies will always have zero velocity and
+    zero angular velocity.
+
+    Use kinematic bodies for objects which you want to move but you don't want their velocity controlled by the physics
+    engine. Those nodes won't move or rotate on their own. The onus is on you to set their velocity or angular velocity
+    but you still want to be able to detect collisions between them and other objects on the scene.
+
+    Use dynamic bodies for freely moving objects that you want physics engine to fully take care of. Dynamic bodies
+    have their velocity and angular velocity calculated by the engine.
+
+    .. note::
+
+        Example: a classic space shooter
+        `Git Gud or Get Rekt <https://store.steampowered.com/app/1117810/Git_Gud_or_Get_Rekt/>`_, built with kaa engine
+        is using kinematic bodies for player, enemies, and bullets, and dynamic bodies for debris left
+        on the scene after enemies explode.
+
+
+.. _BodyNode.force:
+.. attribute:: BodyNode.force
+
+    Gets or sets a custom force applied to the BodyNode, as :class:`geometry.Vector`. The force is reset to zero
+    on each frame, so if you want it to constantly work on the object, you need to apply it on each frame.
+
+    Applying force affects object's velocity.
+
+    Force has an effect only on :ref:`dynamic body nodes <BodyNode.body_type>`. Static and kinematic body nodes will
+    not be affected.
+
+
+.. _BodyNode.velocity:
+.. attribute:: BodyNode.velocity
+
+    Gets or sets the linear velocity of the BodyNode, as :class:`geometry.Vector`. Linear velocity vector determines
+    the speed and direction of movement of an object.
+
+    For :ref:`dynamic body nodes <BodyNode.body_type>` the velocity is calculated by the physics engine. You can
+    override the velocity value calculated by the engine but you should consider :ref:`applying force <BodyNode.force>`
+    instead.
+
+    Setting velocity from your code is recommended for kinematic bodies, as they won't move on their own
+    otherwise.
+
+.. _BodyNode.mass:
+.. attribute:: BodyNode.mass
+
+    Gets or sets the mass for the body node. Mass has an effect on the output velocity of dynamic body when it collides with other bodies.
+
+.. _BodyNode.torque:
+.. attribute:: BodyNode.torque
+
+    Gets or sets the torque for the body node. Using radians. The torque is reset to zero on each frame, so if you
+    want it to constantly work on the object you need to apply it on each frame.
+
+    Applying torque affects object's angular velocity.
+
+    Applying torque has an effect only on :ref:`dynamic body nodes <BodyNode.body_type>`. Static and kinematic body
+    nodes are not affected.
+
+    For degrees use :ref:`torque_degrees <BodyNode.torque_degrees>`
+
+.. _BodyNode.torque_degrees:
+.. attribute:: BodyNode.torque_degrees
+
+    Gets or sets the torque for the body node. Using degrees. See :ref:`torque <BodyNode.torque>`
+
+.. _BodyNode.angular_velocity:
+.. attribute:: BodyNode.angular_velocity
+
+    Gets or sets the angular velocity for the body node. Using radians. Angular velocity determines how fast the
+    object rotates and the direction of the rotation (clockwise or anticlockwise).
+
+    Similarly to :ref:`velocity <BodyNode.velocity>` the angular velocity is calculated by the physics engine for
+    :ref:`dynamic body nodes <BodyNode.body_type>`. You can override the angular velocity manually but you should
+    consider :ref:`applying torque <BodyNode.torque>` instead.
+
+    Setting angular velocity from your code is recommended for kinematic bodies, as they won't rotate on their own
+    otherwise.
+
+    For degrees use :ref:`angular_velocity_degrees <BodyNode.angular_velocity_degrees>`
+
+.. _BodyNode.angular_velocity_degrees:
+.. attribute:: BodyNode.angular_velocity_degrees
+
+    Gets or sets the angular velocity for the body node. Using degrees. See :ref:`angular_velocity <BodyNode.angular_velocity>`
+
+.. _BodyNode.moment:
+.. attribute:: BodyNode.moment
+
+    Gets or sets the moment for the body node. Moment has an effect on the output angular velocity of dynamic body when it collides with other bodies.
+
 
 :class:`HitboxNode` reference
 -----------------------------
@@ -174,7 +284,13 @@ Instance properties:
 
 .. class:: BodyNodeType
 
-    TODO
+    Enum type used for classifying BodyNodes. It has the following values:
+
+    * :code:`BodyNodeType.static`
+    * :code:`BodyNodeType.dynamic`
+    * :code:`BodyNodeType.kinematic`
+
+    Refer to BodyNode's :ref:`body_type property<BodyNode.body_type>` for more information.
 
 :class:`CollisionPhase` reference
 ---------------------------------
