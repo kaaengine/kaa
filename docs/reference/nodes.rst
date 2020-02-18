@@ -272,8 +272,8 @@ Instance Methods:
 
     You can build the node tree freely, with some exceptions:
 
-    * :class:`physics.BodyNode` - Must be a direct child of a :class:`physics.SpaceNode`
-    * :class:`physics.HitboxNode` - Must be a direct child of a :class:`physics.BodyNode`.
+    * :class:`physics.BodyNode` must be a direct child of a :class:`physics.SpaceNode`
+    * :class:`physics.HitboxNode` must be a direct child of a :class:`physics.BodyNode`
 
 .. method:: Node.delete()
 

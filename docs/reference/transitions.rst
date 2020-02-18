@@ -56,14 +56,14 @@ Change position of a node, from (100, 100) by (x30, x70), i.e. to (3000, 7000) o
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     node.transition = NodePositionTransition(Vector(30, 70), 2000, advance_method=AttributeTransitionMethod.multiply)
 
-Change position of a node, from (100,100) to (30, 70) over 2 seconds then get back to the initial position.
+Change position of a node, from (100,100) to (30, 70) then back to the initial position (100,100) over 2 seconds.
 
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     node.transition = NodePositionTransition(Vector(30, 70), 2000, back_and_forth=True)
 
-Change position of a node, from (100,100) to (30, 70) over 2 seconds then get back to the initial position. Repeat
+Change position of a node, from (100,100) to (30, 70) then get back to the initial position over 2 seconds. Repeat 
 it 3 times.
 
 .. code-block:: python

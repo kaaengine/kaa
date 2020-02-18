@@ -58,6 +58,7 @@ Instance properties:
     Damping is applied only to the dynamic BodyNodes. Kinematic and Static BodyNodes do not have mass and therefore
     ignore the damping effect.
 
+.. _SpaceNode.sleeping_threshold:
 .. attribute:: SpaceNode.sleeping_threshold
 
     Gets of sets the sleep time threshold (in miliseconds) which affects all BodyNodes in
@@ -71,9 +72,11 @@ Instance properties:
 
 Instance methods:
 
+.. _SpaceNode.set_collision_handler:
 .. method:: SpaceNode.set_collision_handler(trigger_a, trigger_b, handler_callable)
 
-    Registers a custom collision handler function between two :class:`HitboxNode`, tagged with trigger_a and trigger_b.
+    Registers a custom collision handler function between two :class:`HitboxNode` instances, tagged with
+    trigger_a and trigger_b respectively.
 
     Collisions occur between HitboxNodes (not between BodyNodes!). The :code:`trigger_a` and :code:`trigger_b` params
     are your own values which you use to tag :class:`HitboxNode`. They can be any type, using simple types such as
@@ -118,6 +121,9 @@ Instance methods:
     In the nodes tree, BodyNode must be a direct child of a :class:`SpaceNode`.
 
     BodyNode is the only node type which can have :class:`HitboxNode` as children nodes.
+
+    BodyNodes themselves never collide with each other. The need to have HitboxNodes as children to generate collisions.
+    A BodyNode can have multiple HitboxNodes.
 
     BodyNode constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
     new parameters:
@@ -235,19 +241,112 @@ Instance properties:
 
     Gets or sets the moment for the body node. Moment has an effect on the output angular velocity of dynamic body when it collides with other bodies.
 
+.. attribute:: BodyNode.sleeping
+
+    Gets or sets the sleeping status of the node as bool. If set to :code:`True` it gives the physics engine a
+    performance hint, making it ignore this node when calculating its velocity and angular velocity. The node
+    will wake up automatically when it's moving or rotating so it doesn't makes sense to set the sleeping status
+    on a moving or rotating nodes.
+
+    See also: :ref:`SpaceNode.sleeping_threshold <SpaceNode.sleeping_threshold>`.
+
 
 :class:`HitboxNode` reference
 -----------------------------
 
-.. class:: HitboxNode()
+.. class:: HitboxNode(shape, group=None, mask=None, collision_mask=None, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
-    Params:
+    HitboxNode extends the :class:`Node` class and introduces collision detection features.
 
-    * :code:`shape`
-    * :code:`group`
-    * :code:`mask`
-    * :code:`collision_mask`
-    * :code:`trigger_id`
+    In the nodes tree, HitboxNode must be a direct child of a :class:`BodyNode`. A :class:`BodyNode` can have many
+    HitboxNodes.
+
+    HitboxNode inherits all :class:`Node` properties and methods, some of which may be particularly usful for
+    debugging. For example, by setting a color and z_index of on a HitboxNode you can make the hitbox visible.
+
+    Hitbox node has its own specific params:
+
+    * :code:`shape` - can be either :class:`geometry.Polygon` or :class:`geometry.Circle`
+    * :code:`group` - an integer.
+    * :code:`mask` - a bit mask, it's recommended to use enumerated constant using enum.Intflag type
+    * :code:`collision_mask` - a bit mask, it's recommended to use enumerated constant using enum.Intflag type
+    * :code:`trigger_id` - your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
+
+Instance properties:
+
+.. attribute:: HitboxNode.shape
+
+    Gets or sets the shape of the hitbox. It can be either :class:`geometry.Polygon` or :class:`geometry.Circle`.
+
+.. attribute:: HitboxNode.group
+
+    Gets or sets the group of the hitbox, as integer. Hitboxes with the same group won't collide with each other.
+    It's basically a performance hint for the physics engine. Default value is None, meaning no group.
+
+    Another method of telling the engine which hitbox collisions it should ignore is to set :code:`mask` and
+    :code:`collision_mask` on a HitboxNode.
+
+.. attribute:: HitboxNode.mask
+
+    Gets or sets the category of this hitbox node as bit mask. Other nodes will collide with this node if they
+    match on collision_mask. Otherwise collisions will be ignored. Use mask and collision_mask as performance
+    hints for the engine.
+
+    By default mask and hitbox_mask are null which means the engine will try to detect
+    collisions between each pair of hitboxes on the scene.
+
+    In the example below we give the engine the following hints:
+    * player hitbox will collide only with enemy hitbox, enemy bullet hitbox and wall hitbox
+    * player bullet hitbox will collide only with the enemy hitbox
+    * enemy hitbox will collide only with other enemy hitboxes, player, player bullet and wall hitbox
+    * enemy bullet will collide only with the player hitboxes
+    * wall will collide with everything except other wall hitboxes
+
+    .. code-block:: python
+
+        from kaa.physics import HitboxNode
+        from kaa.geometry import Circle, Vector, Polygon
+        import enum
+
+        class CollisionMask(enum.IntFlag):
+            player = enum.auto()
+            player_bullet = enum.auto()
+            enemy = enum.auto()
+            enemy_bullet = enum.auto()
+            wall = enum.auto()
+
+            player_collision_mask = enemy | enemy_bullet | wall
+            enemy_collision_mask = enemy | player | player_bullet | wall
+            wall_collision_mask = player | player_bullet | enemy | enemy_bullet
+
+        player_hitbox = HitboxNode(shape=Circle(radius=20), mask=CollisionMask.player,
+                                   collision_mask=player_collision_mask)
+        player_bullet_hitbox = HitboxNode(shape=Circle(radius=5), mask=CollisionMask.player_bullet,
+                                          collision_mask=enemy)
+        enemy_hitbox = HitboxNode(shape=Circle(radius=20), mask=CollisionMask.enemy,
+                                  collision_mask=enemy_collision_mask)
+        enemy_bullet_hitbox = HitboxNode(shape=Circle(radius=5), mask=CollisionMask.enemy_bullet,
+                                         collision_mask=player)
+        wall = HitboxNode(shape=Polygon([Vector(-50, -50), Vector(-50, 50), Vector(0, 100)],
+                          mask=CollisionMask.wall, collision_mask=wall_collision_mask))
+
+    What if there's assymetry in the mask and collision_mask definitions? For example, what will happens if we
+    set the player hitbox to collide with enemy hitbox, but won't set enemy hitbox to collide with the player
+    hitbox? In that case, the collisions won't occur. The collision masks need to match symmetrically from both sides.
+
+    What if there is a proper symmetry in collision mask definitions but both hitboxes have the same group? In that
+    case the group value takes precedence and collisions won't occur.
+
+.. attribute:: HitboxNode.collision_mask
+
+    Gets or sets the categories of other hitboxes that you want this hitbox to collide with.
+
+    See the full example in the :code:`mask` section above for more information.
+
+.. attribute:: HitboxNode.trigger_id
+
+    Gets or sets the trigger id value. It can be any value of your choice (using integers is recommended). It's a
+    'tag' value which you need to pass when :ref:`registering your custom collision handler function <SpaceNode.set_collision_handler>`
 
 
 :class:`Arbiter` reference
