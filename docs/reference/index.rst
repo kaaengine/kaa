@@ -8,6 +8,7 @@ Kaa engine Reference
     audio
     colors
     engine
+    fonts
     geometry
     input
     log

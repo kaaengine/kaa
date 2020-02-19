@@ -10,7 +10,7 @@
 
 Input manager object can be accessed via :ref:`Scene.input <Scene.input>` property. It has two main features:
 
-* Gives you access to specialized managers: :class`MouseManager`, :class:`KeyboardManager`, :class:`ControllerManager` and :class:`SystemManager` - they offer methods to actively check for input from your code. For instance, you can ask the :class:`KeyboardManager` if given key is pressed or released.
+* Gives you access to specialized managers: :class:`MouseManager`, :class:`KeyboardManager`, :class:`ControllerManager` and :class:`SystemManager` - they offer methods to actively check for input from your code. For instance, you can ask the :class:`KeyboardManager` if given key is pressed or released.
 * Gives you access to a stream of events via the :meth:`events()` method. For example, an event gets published when user pressed/released a key on a keyboard or clicks a mouse button. Check out the :class:`Event` documentation for a list of all available events.
 
 Instance Properties:

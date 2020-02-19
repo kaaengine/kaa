@@ -63,7 +63,7 @@ Change position of a node, from (100,100) to (30, 70) then back to the initial p
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     node.transition = NodePositionTransition(Vector(30, 70), 2000, back_and_forth=True)
 
-Change position of a node, from (100,100) to (30, 70) then get back to the initial position over 2 seconds. Repeat 
+Change position of a node, from (100,100) to (30, 70) then get back to the initial position over 2 seconds. Repeat
 it 3 times.
 
 .. code-block:: python

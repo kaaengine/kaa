@@ -94,7 +94,7 @@ Instance properties:
     to always be the same (100, 200) position on the 1366x768 laptop screen, 1920x1060 full HD monitor or any other
     of `dozens display resolutions out there. <https://en.wikipedia.org/wiki/Display_resolution#/media/File:Vector_Video_Standards8.svg>`_
 
-    That's where virtual resolution concept comes in. You (typically) declare a virtual resolution for your game just
+    That's where virtual resolution concept comes in. You declare a virtual resolution for your game just
     once, when initializing the engine, and the engine will always use exactly this resolution when you draw stuff in
     your game. If you run the game in a window larger than the declared virtual resolution, the engine will stretch the
     game's frame buffer (actual draw area). If you run it in a window smaller than declared virtual resolution, the
@@ -297,7 +297,7 @@ Constructor:
     inheriting from this type. Scene main features are:
 
     * Each Scene must define a :meth:`Scene.update` method which will be called by the engine on every frame.
-    * Use the :meth:`Node.add_child` method on Scene's :ref:`root node <Scene.root>` to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
+    * Use the :meth:`nodes.Node.add_child()` method on Scene's :ref:`root node <Scene.root>` to add objects (Nodes) to the Scene. :doc:`Read more about Nodes </reference/nodes>`.
     * Use the :ref:`input <Scene.input>` property to access :class:`input.InputManager` which:
 
       * exposes a lot of methods to actively check for input from mouse, keyboard, controllers etc.

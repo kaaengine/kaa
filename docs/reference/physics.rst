@@ -7,7 +7,7 @@ Kaa inlcudes a 2D physics engine which allows you to easily add physical feature
 collisions etc. The idea is based on three types of specialized :doc:`nodes </reference/nodes>`:
 
 * :class:`SpaceNode` - it represents physical simulation environment, introducing environmental properties such as gravity or damping.
-* :class:`BodyNode` - represents a physical body. Must be a direct child of a :class:`physics.SpaceNode`. Can have zero or more HitboxNodes.
+* :class:`BodyNode` - represents a physical body. Each BodyNode must be a direct child of a :class:`physics.SpaceNode`. BodyNode can have HitboxNodes as child nodes.
 * :class:`HitboxNode` - represents an area of a BodyNode which can collide with other HitboxNodes. Must be a direct child of a :class:`physics.BodyNode`.
 
 Read more about :doc:`the nodes concept in general </reference/nodes>`.
@@ -268,8 +268,8 @@ Instance properties:
 
     * :code:`shape` - can be either :class:`geometry.Polygon` or :class:`geometry.Circle`
     * :code:`group` - an integer.
-    * :code:`mask` - a bit mask, it's recommended to use enumerated constant using enum.Intflag type
-    * :code:`collision_mask` - a bit mask, it's recommended to use enumerated constant using enum.Intflag type
+    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant
+    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant
     * :code:`trigger_id` - your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
 
 Instance properties:
@@ -288,7 +288,7 @@ Instance properties:
 
 .. attribute:: HitboxNode.mask
 
-    Gets or sets the category of this hitbox node as bit mask. Other nodes will collide with this node if they
+    Gets or sets the category of this hitbox node, as a bit mask. Other nodes will collide with this node if they
     match on collision_mask. Otherwise collisions will be ignored. Use mask and collision_mask as performance
     hints for the engine.
 
@@ -320,19 +320,20 @@ Instance properties:
             wall_collision_mask = player | player_bullet | enemy | enemy_bullet
 
         player_hitbox = HitboxNode(shape=Circle(radius=20), mask=CollisionMask.player,
-                                   collision_mask=player_collision_mask)
+                                   collision_mask=CollisionMask.player_collision_mask)
         player_bullet_hitbox = HitboxNode(shape=Circle(radius=5), mask=CollisionMask.player_bullet,
-                                          collision_mask=enemy)
+                                          collision_mask=CollisionMask.enemy)
         enemy_hitbox = HitboxNode(shape=Circle(radius=20), mask=CollisionMask.enemy,
-                                  collision_mask=enemy_collision_mask)
+                                  collision_mask=CollisionMask.enemy_collision_mask)
         enemy_bullet_hitbox = HitboxNode(shape=Circle(radius=5), mask=CollisionMask.enemy_bullet,
-                                         collision_mask=player)
+                                         collision_mask=CollisionMask.player)
         wall = HitboxNode(shape=Polygon([Vector(-50, -50), Vector(-50, 50), Vector(0, 100)],
-                          mask=CollisionMask.wall, collision_mask=wall_collision_mask))
+                          mask=CollisionMask.wall, collision_mask=CollisionMask.wall_collision_mask))
 
     What if there's assymetry in the mask and collision_mask definitions? For example, what will happens if we
-    set the player hitbox to collide with enemy hitbox, but won't set enemy hitbox to collide with the player
-    hitbox? In that case, the collisions won't occur. The collision masks need to match symmetrically from both sides.
+    set the player to collide with enemy, but won't set enemy to collide with the player?
+    In that case, those collisions won't occur. The collision masks need to match symmetrically from both sides for
+    collision to be detected.
 
     What if there is a proper symmetry in collision mask definitions but both hitboxes have the same group? In that
     case the group value takes precedence and collisions won't occur.
@@ -341,12 +342,14 @@ Instance properties:
 
     Gets or sets the categories of other hitboxes that you want this hitbox to collide with.
 
+
     See the full example in the :code:`mask` section above for more information.
 
 .. attribute:: HitboxNode.trigger_id
 
-    Gets or sets the trigger id value. It can be any value of your choice (using integers is recommended). It's a
-    'tag' value which you need to pass when :ref:`registering your custom collision handler function <SpaceNode.set_collision_handler>`
+    Gets or sets the trigger id value. It can be any value of your choice. It's a
+    'tag' value which you need to pass when :ref:`registering your custom collision
+    handler function <SpaceNode.set_collision_handler>`
 
 
 :class:`Arbiter` reference
