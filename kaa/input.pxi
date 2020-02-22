@@ -532,6 +532,7 @@ cdef class MouseButtonEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
     
+    @property
     def button(self):
         return MouseButton(<uint32_t>(self.c_event.mouse_button().button()))
 
@@ -596,6 +597,7 @@ cdef class ControllerButtonEvent(_BaseEvent):
     def id(self):
         return self.c_event.controller_button().id()
 
+    @property
     def button(self):
         return ControllerButton(
             <uint32_t>(self.c_event.controller_button().button())
@@ -749,6 +751,14 @@ cdef class Event(_BaseEvent):
     def controller_axis(self):
         if self.c_event.controller_axis():
             return ControllerAxisEvent.create(self.c_event)
+
+    @typed_property((
+        EventType.controller_added,
+        EventType.controller_removed
+    ))
+    def controller_device(self):
+        if self.c_event.controller_device():
+            return ControllerDeviceEvent.create(self.c_event)
 
     @typed_property((
         EventType.music_finished,
