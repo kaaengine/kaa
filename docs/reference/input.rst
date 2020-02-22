@@ -8,10 +8,11 @@
 
 .. class:: InputManager
 
-Input manager object can be accessed via :ref:`Scene.input <Scene.input>` property. It has two main features:
+Input manager object can be accessed via :ref:`Scene.input <Scene.input>` property. It has three main features:
 
 * Gives you access to specialized managers: :class:`MouseManager`, :class:`KeyboardManager`, :class:`ControllerManager` and :class:`SystemManager` - they offer methods to actively check for input from your code. For instance, you can ask the :class:`KeyboardManager` if given key is pressed or released.
-* Gives you access to a stream of events via the :meth:`events()` method. For example, an event gets published when user pressed/released a key on a keyboard or clicks a mouse button. Check out the :class:`Event` documentation for a list of all available events.
+* Gives you access to a list of events which ocurred during the frame. This is achieved by calling the :meth:`InputManager.events()` method. Check out the :class:`Event` documentation for a list of all available events that kaaengine detects.
+* Allows you to subscribe to specific types of events by registering your own callback function. This is done using :meth:`InputManager.register_callback()` function.
 
 Instance Properties:
 
@@ -46,6 +47,10 @@ Instance Methods:
     Returns a list of :class:`Event` objects that ocurred during the last frame. Check out the :class:`Event`
     for a full documentation on events.
 
+.. method:: InputManager.register_callback(event_type, callback_func)
+
+    TODO
+
 :class:`KeyboardManager` reference
 ----------------------------------
 
@@ -59,7 +64,7 @@ Instance methods:
 
 .. method:: KeyboardManager.is_pressed(keycode)
 
-    Checks if a specific key is pressed - keycode param must be a :class:`Keycode` value.
+    Checks if a specific key is pressed - keycode param must be a :class:`Keycode` enum value.
 
     .. code-block:: python
 
@@ -76,7 +81,7 @@ Instance methods:
 
 .. method:: KeyboardManager.is_released(keycode)
 
-    Checks if a specific key is released - keycode param must be a :class:`Keycode` value.
+    Checks if a specific key is released - keycode param must be a :class:`Keycode` enum value.
 
     .. code-block:: python
 
@@ -104,7 +109,7 @@ Instance methods:
 
 .. method:: MouseManager.is_pressed(mousebutton)
 
-    Checks if given mouse button is pressed - mousebutton param must be a :class:`MouseButton` value.
+    Checks if given mouse button is pressed - mousebutton param must be a :class:`MouseButton` enum value.
 
     .. code-block:: python
 
@@ -116,7 +121,7 @@ Instance methods:
 
 .. method:: MouseManager.is_released(mousebutton)
 
-    Checks if given mouse button is released - mousebutton param must be a :class:`MouseButton` value.
+    Checks if given mouse button is released - mousebutton param must be a :class:`MouseButton` enum value.
 
     .. code-block:: python
 
@@ -180,13 +185,13 @@ connected controller:
             self.frame_count += 1
             for event in self.input.events():
 
-                if event.controller:
-                    if event.controller.added:
-                        print('New controller connected: id is {}'.format(event.controller.id))
-                        self.connected_controller_ids.append(event.controller.id)
-                    elif event.controller.removed:
-                        print('Controller disconnected: id is {}'.format(event.controller.id))
-                        self.connected_controller_ids.remove(event.controller.id)
+                if event.controller_device:
+                    if event.controller_device.added:
+                        print('New controller connected: id is {}'.format(event.controller_device.id))
+                        self.connected_controller_ids.append(event.controller_device.id)
+                    elif event.controller_device.removed:
+                        print('Controller disconnected: id is {}'.format(event.controller_device.id))
+                        self.connected_controller_ids.remove(event.controller_device.id)
 
                 if event.system and event.system.quit:
                     self.engine.quit()
@@ -215,8 +220,8 @@ Instance methods
 
 .. method:: ControllerManager.is_pressed(controller_button, controller_id)
 
-    Checks if given controller button is pressed. The controller_button param must be a :class:`ControllerButton` type.
-    Check out the :ref:`example above <controller_id_example>` on how to obtain the controller_id.
+    Checks if given controller button is pressed. The controller_button param must be a :class:`ControllerButton` enum
+    value. Check out the :ref:`example above <controller_id_example>` on how to obtain the controller_id.
 
     For example, to check the state of B button on controller 0:
 
@@ -232,7 +237,7 @@ Instance methods
 .. method:: ControllerManager.is_released(controller_button, controller_id)
 
     Checks if given controller button is released on given controller. The controller_button param
-    must be a :class:`ControllerButton` type. Check out the :ref:`example above <controller_id_example>` on how to
+    must be a :class:`ControllerButton` enum value. Check out the :ref:`example above <controller_id_example>` on how to
     obtain the controller_id.
 
     For example, to check the state of B button on controller 2:
@@ -249,7 +254,7 @@ Instance methods
 .. method:: ControllerManager.is_axis_pressed(axis, controller_id)
 
     Checks if given stick axes or trigger is in non-zero position. The axis param must be
-    of :class:`ControllerAxis` type. Check out the :ref:`example above <controller_id_example>` on how to obtain
+    of :class:`ControllerAxis` enum value. Check out the :ref:`example above <controller_id_example>` on how to obtain
     the controller_id.
 
     For example, to check if controller 1 left trigger is pressed:
@@ -265,14 +270,14 @@ Instance methods
 .. method:: ControllerManager.is_axis_released(axis, controller_id)
 
     Same as above, but checks if given stick axes or trigger is in a zero position. The axis param must be
-    of :class:`ControllerAxis` type. Check out the :ref:`example above <controller_id_example>` on how to obtain the
+    of :class:`ControllerAxis` enum value. Check out the :ref:`example above <controller_id_example>` on how to obtain the
     controller_id.
 
 .. method:: ControllerManager.get_axis_motion(axis, controller_id)
 
     Gets an exact value of given stick axes motion or trigger as a number between 0 (stick axes or trigger in
     zero position) and 1 (stick axes or trigger in max position). The axis param must be  of :class:`ControllerAxis`
-    type. Check out the :ref:`example above <controller_id_example>` on how to obtain the controller_id.
+    enum value. Check out the :ref:`example above <controller_id_example>` on how to obtain the controller_id.
 
     For example, to check the state of controller 0 left trigger:
 
@@ -302,7 +307,7 @@ Instance methods
 
     Returns state of given stick as a :class`geometry.Vector`.
 
-    The compound_axis parameter must be of :class:`CompoundControllerAxis` type.
+    The compound_axis parameter must be of :class:`CompoundControllerAxis` enum value.
 
     Check out the :ref:`example above <controller_id_example>` on how to obtain the controller_id.
 
@@ -350,9 +355,14 @@ Each :class:`Event` object has identical structure with the following properties
 
 * :code:`system` - gives access to :class:`SystemEvent` properties and methods if this event is a system related event, otherwise it will be :code:`None`
 * :code:`window` - gives access to :class:`WindowEvent` properties and methods if this event is a window related event, otherwise it will be :code:`None`
-* :code:`keyboard` - gives access to :class:`KeyboardEvent` properties and methods if this event is a keyboard related event, otherwise it will be :code:`None`
-* :code:`mouse` - gives access to :class:`MouseEvent` properties and methods if this event is a mouse related event, otherwise it will be :code:`None`
-* :code:`controller` - gives access to :class:`ControllerEvent` properties and methods if this event is a controller related event, otherwise it will be :code:`None`
+* :code:`keyboard_key` - gives access to :class:`KeyboardKeyEvent` properties and methods if this event is a keyboard key related event, otherwise it will be :code:`None`
+* :code:`keyboard_text` - gives access to :class:`KeyboardTextEvent` properties and methods if this event is a keyboard text related event, otherwise it will be :code:`None`
+* :code:`mouse_button` - gives access to :class:`MouseButtonEvent` properties and methods if this event is a mouse button related event, otherwise it will be :code:`None`
+* :code:`mouse_motion` - gives access to :class:`MouseMotionEvent` properties and methods if this event is a mouse motion related event, otherwise it will be :code:`None`
+* :code:`mouse_wheel` - gives access to :class:`MouseWheelEvent` properties and methods if this event is a mouse wheel related event, otherwise it will be :code:`None`
+* :code:`controller_device` - gives access to :class:`ControllerDeviceEvent` properties and methods if this event is a controller device related event, otherwise it will be :code:`None`
+* :code:`controller_button` - gives access to :class:`ControllerButtonEvent` properties and methods if this event is a controller button related event, otherwise it will be :code:`None`
+* :code:`controller_axis` - gives access to :class:`ControllerAxisEvent` properties and methods if this event is a controller axis related event, otherwise it will be :code:`None`
 * :code:`audio` - gives access to :class:`AudioEvent` properties and methods if this event is an audio related event, otherwise it will be :code:`None`
 
 Depending on the type of the event only one property will be non-null while all the other properties will be null.
@@ -368,70 +378,141 @@ This design usually results in a following way of handling events in the code:
                 # do something if it's a system event
             elif event.window:
                 # do something if it's a window event
-            elif event.keyboard:
-                # do something if it's a keyboard event
-            elif event.mouse:
-                # do something if it's a mouse event
-            elif event.controller:
-                # do something if it's a controller event
+            elif event.keyboard_key:
+                # do something if it's a keyboard key event
+            elif event.keyboard_text:
+                # do something if it's a keyboard text event
+            elif event.mouse_button:
+                # do something if it's a mouse button event
+            elif event.controller_button:
+                # do something if it's a controller button event
             elif event.audio:
                 # do something if it's audio event
+            # ... and so on ...
 
 
-:class:`KeyboardEvent` reference
---------------------------------
+:class:`KeyboardKeyEvent` reference
+-----------------------------------
 
-.. class:: KeyboardEvent
+.. class:: KeyboardKeyEvent
 
 Represents an event of pressing or releasing a keyboard key.
 
-Instance methods:
-
-.. method:: KeyboardEvent.is_pressing(keycode)
-
-    Returns :code:`True` if given :class:`Keycode` was pressed
-
-.. method:: KeyboardEvent.is_releasing(keycode)
-
-    Returns :code:`True` if given :class:`Keycode` was released
-
-
-TODO: need to add the 'text' property returning a string with a text, now it needs an iteration through all KeyCodes...
-
-
-:class:`MouseEvent` reference
------------------------------
-
-.. class:: MouseEvent
-
-Represents a mouse related event, such as mouse button click, mouse wheel scroll or a mouse pointer motion.
+See also: :class:`KeyboardTextEvent`
 
 Instance properties:
 
-.. attribute:: MouseEvent.motion
+.. attribute:: KeyboardEvent.key
 
-    A bool flag indicating if the event is motion related. If :code:`True`, then the
-    :code:`position` property can be read to find the mouse position.
+    Returns the key this event is referring to, as :class:`KeyCode` enum value.
 
-.. attribute:: MouseEvent.position
+.. attribute:: KeyboardEvent.is_key_down
 
-    Returns mouse pointer position as :class:`geometry.Vector`. The :code:`position` property is relevant only if
-    :code:`motion` flag is :code:`True`, otherwise it will be a zero vector.
+    Returns :code:`True` if the key was pressed.
+
+.. attribute:: KeyboardEvent.is_key_up
+
+    Returns :code:`True` if the key was released.
+
+
+:class:`KeyboardTextEvent` reference
+------------------------------------
+
+.. class:: KeyboardTextEvent
+
+Represents an event of text being produced by the keyboard buffer. It lets you conveniently work with the text
+being typed in by the player.
+
+Instance properties:
+
+.. attribute:: KeyboardTextEvent.text
+
+    Returns string with the text typed in.
+
+    For example, imagine a user with a polish keyboard pressing shift key, right alt and 's' keys, holding it for some
+    time and then releasing all pressed keys.
+
+    In a text editor it would result in typing something like this:
+
+    :code:`ŚŚŚŚŚŚ`
+
+    The way ths will be represented in the kaaengine event flow:
+
+    1) You will first receive three :class:`KeyboardKeyEvent` events: one for pressing the shift key, another for pressing the alt key and one for pressing the s key
+    2) You will then receive a number of :class:`KeyboardTextEvent` events, in this case we have six 'Ś' characters typed, so you will get six events. Reading the :code:`text` property on :class:`KeyboardTextEvent` will return "Ś" string.
+    3) Finally, you will first receive three :class:`KeyboardKeyEvent` events: one for releasing the shift key, another for releasing the alt key and another one for releasing the s key
+
+
+:class:`MouseButtonEvent` reference
+-----------------------------------
+
+.. class:: MouseButtonEvent
+
+Represents a mouse button related event, such as pressing or releasing a mouse button.
 
     .. code-block:: python
 
         # ... inside a Scene instance...
         for event in self.input.events():
-            if event.mouse:
-                if event.mouse.motion:
-                    print("Mouse motion: {}. Position is: {}.".format(event.mouse.motion, event.mouse.position))
+            if event.mouse_button:
+                if event.mouse_button.is_button_down:
+                    print("Mouse button {} is DOWN. Mouse position: {}.".format(event.mouse_button.button,
+                          event.mouse_button.position))
+                elif event.mouse_button.is_button_up:
+                    print("Mouse button {} is UP. Mouse position: {}.".format(event.mouse_button.button,
+                          event.mouse_button.position))
 
-.. attribute:: MouseEvent.wheel
 
-    A bool flag indicating if the event is related to mouse wheel. If :code:`True`, then the
-    :code:`scroll` property can be read to find out whether the wheel was scrolled up or down
+Instance properties:
 
-.. attribute:: MouseEvent.scroll
+.. attribute:: MouseButtonEvent.button
+
+    Returns the button this event is referring to, as :class:`MouseButton` enum value.
+
+.. attribute:: MouseButtonEvent.is_button_down
+
+    Returns :code:`True` if the key was pressed.
+
+.. attribute:: MouseButtonEvent.is_button_up
+
+    Returns :code:`True` if the key was released.
+
+.. attribute:: MouseButtonEvent.position
+
+    Returns mouse pointer position, at the moment of the click, as :class:`geometry.Vector`.
+
+
+:class:`MouseMotionEvent` reference
+-----------------------------------
+
+.. class:: MouseMotionEvent
+
+Represents a mouse motion event (changing mouse pointer position)
+
+    .. code-block:: python
+
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.mouse_motion:
+                 print("Mouse motion detected! New position is: {}.".format(event.mouse_motion.position))
+
+Instance properties:
+
+.. attribute:: MouseButtonEvent.position
+
+    Returns mouse pointer position as :class:`geometry.Vector`.
+
+
+:class:`MouseWheelEvent` reference
+-----------------------------------
+
+.. class:: MouseWheelEvent
+
+Represents a mouse wheel related event
+
+Instance properties:
+
+.. attribute:: MouseWheelEvent.scroll
 
     Returns a :class:`geometry.Vector` indicating whether the mouse wheel was scrolled up or down. The :code:`y`
     property in the returned vector holds the value, the :code:`x` will always be zero.
@@ -440,89 +521,113 @@ Instance properties:
 
         # ... inside a Scene instance...
         for event in self.input.events():
-            if event.mouse:
-                if event.mouse.wheel:
-                    print("Mouse wheel: {}. Scroll is: {}.".format(event.mouse.wheel, event.mouse.scroll))
+            if event.mouse_wheel:
+                print("Mouse wheel event detected. Scroll is: {}.".format(event.mouse_wheel.scroll))
 
 
-.. attribute:: MouseEvent.button
+:class:`ControllerDeviceEvent` reference
+----------------------------------------
 
-    A bool flag indicating if the event is related to mouse button. If :code:`True`, then you should use methods
-    :meth:`MouseEvent.is_pressing` or :meth:`MouseEvent.is_releasing` to identify which mouse button was pressed
-    or released.
+Represents a controller device related event, such as controller connected or disconnected.
 
-    TODO: need to do that better because right now is_pressing and is_releassing require user to iterate over all
-    possible MouseButton values to find out which button was pressed or released!
+.. class:: ControllerDeviceEvent
 
-Instance methods:
+    .. code-block:: python
 
-.. method:: MouseEvent.is_pressing(mouse_button)
-
-    Returns :code:`True` if this event represents pressing of given mouse button.
-
-    The mouse_button paramter must be a :class:`MouseButton` value.
-
-.. method:: MouseEvent.is_releasing(mouse_button)
-
-    Returns :code:`True` if this event represents releasing of given mouse button.
-
-    The mouse_button paramter must be a :class:`MouseButton` value.
-
-
-:class:`ControllerEvent` reference
-----------------------------------
-
-.. class:: ControllerEvent
-
-Represents controller related event such as connecting/disconencting a controller or changing the state of
-a button, stick or trigger.
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.controller_device:
+                if event.controller_device.is_added:
+                    print("Controller with id={} connected.".format(event.controller_device.id)
+                elif event.controller_device.is_removed:
+                    print("Controller with id={} disconnected.".format(event.controller_device.id)
 
 Instance properties:
 
-.. attribute:: ControllerEvent.id
+.. attribute:: ControllerDeviceEvent.id
 
-    Since multiple controllers can be connected simultaneously there is a need to tell them apart. Each event holds
-    an id which identifies the controller.
+    Returns an id of controller this event is referring to.
 
-.. attribute:: ControllerEvent.added
+.. attribute:: ControllerDeviceEvent.is_added
 
-    A bool flag - when :code:`True` it means the event represents connecting a new controler.
+    Returns :code:`True` if controller was connected.
 
-.. attribute:: ControllerEvent.removed
+.. attribute:: ControllerDeviceEvent.is_removed
 
-    A bool flag - when :code:`True` it means the event represents disconnecting a controler.
-
-.. attribute:: ControllerEvent.button
-
-    A bool flag indicating if the event is related to controller button. If :code:`True`, then you may use methods
-    :meth:`ControllerEvent.is_pressing` or :meth:`ControllerEvent.is_releasing` to identify which button was pressed
-    or released.
-
-.. attribute:: ControllerEvent.axis
-
-    A bool flag indicating if the event is related to controller axis motion. If :code:`True`, then you may use
-    the :meth:`ControllerEvent.axis_motion()` method to find which axes has changed.
+    Returns :code:`True` if controller was disconnected.
 
 
-Instance methods:
+:class:`ControllerButtonEvent` reference
+----------------------------------------
 
-.. method:: ControllerEvent.is_pressing(controller_button)
+Represents a controller button related event, such as controller button pressed or released.
 
-    Returns :code:`True` if this event represents pressing given controller button.
+.. class:: ControllerButtonEvent
 
-    The controller_button paramter must be a :class:`ControllerButton` value.
+    **Note:** Controller triggers are considered sticks (axis) not buttons! Use :class:`ControllerAxisEvent` to check out
+    events representing triggers changing state.
 
-.. method:: ControllerEvent.is_releasing(mouse_button)
+    .. code-block:: python
 
-    Returns :code:`True` if this event represents releasing given controller button.
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.controller_button:
+                if event.controller_button.is_button_down:
+                    print("Controller button {} on controller id={} was pressed.".format(
+                          event.controller_button.button, event.controller_button.id)
+                elif event.controller_button.is_button_up:
+                    print("Controller button {} on controller id={} was released.".format(
+                          event.controller_button.button, event.controller_button.id)
 
-    The controller_button paramter must be a :class:`ControllerButton` value.
+Instance properties:
 
-.. method:: ControllerEvent.axis_motion(controller_axes)
+.. attribute:: ControllerButtonEvent.id
 
-    Returns :code:`True` if this event represents a motion of given controller axes.
+    Returns an id of controller this event is referring to.
 
-    The controller_axes must be a :class:`ControllerAxis` value.
+.. attribute:: ControllerButtonEvent.button
+
+    Returns controller button this event is referring to, as :class:`ControllerButton` enum value.
+
+.. attribute:: ControllerButtonEvent.is_button_down
+
+    Returns :code:`True` if the button was pressed.
+
+.. attribute:: ControllerButtonEvent.is_button_up
+
+    Returns :code:`True` if the button was released.
+
+
+:class:`ControllerAxisEvent` reference
+--------------------------------------
+
+Represents a controller axis related event, such as controller stick or trigger state change.
+
+    .. code-block:: python
+
+        # ... inside a Scene instance...
+        for event in self.input.events():
+            if event.controller_axis:
+                print("Controller axis {} on controller id={} changed its state. New state is {}.".format(
+                      event.controller_axis.axis, event.controller_axis.id, event.controller_axis.motion)
+
+.. class:: ControllerAxisEvent
+
+Instance properties
+
+.. attribute:: ControllerAxisEvent.id
+
+    Returns an id of controller this event is referring to.
+
+.. attribute:: ControllerAxisEvent.axis
+
+    Returns axis (controller stick or trigger) this event is referring to, as :class:`ControllerAxis` enum value.
+
+.. attribute:: ControllerAxisEvent.motion
+
+    Returns the axis (controller stick or trigger) state, as a :class:`geometry.Vector`. The length of the vector
+    will be between 0 (stick or trigger is in neutral position) and 1 (stick or trigger is in its maximum position)
+
 
 :class:`AudioEvent` reference
 -----------------------------
@@ -547,61 +652,51 @@ Represents a window related event.
 
 Instance properties:
 
-.. attribute:: WindowEvent.size
-
-    Window size as :class:`geometry.Vector`
-
-.. attribute:: WindowEvent.position
-
-    Window position as :class:`geometry.Vector`
-
-Instance methods:
-
-.. method:: WindowEvent.shown()
+.. attribute:: WindowEvent.is_shown
 
     Returns :code:`True` if the window was shown.
 
-.. method:: WindowEvent.exposed()
+.. attribute:: WindowEvent.is_exposed
 
     Returns :code:`True` if the window was exposed.
 
-.. method:: WindowEvent.moved()
+.. attribute:: WindowEvent.is_moved
 
     Returns :code:`True` if the window was moved.
 
-.. method:: WindowEvent.resized()
+.. attribute:: WindowEvent.is_resized
 
     Returns :code:`True` if the window was resized.
 
-.. method:: WindowEvent.minimized()
+.. attribute:: WindowEvent.is_minimized
 
     Returns :code:`True` if the window was minimized.
 
-.. method:: WindowEvent.maximized()
+.. attribute:: WindowEvent.is_maximized
 
     Returns :code:`True` if the window was maximized.
 
-.. method:: WindowEvent.restored()
+.. attribute:: WindowEvent.is_restored
 
     Returns :code:`True` if the window was restored.
 
-.. method:: WindowEvent.enter()
+.. attribute:: WindowEvent.is_enter
 
     TODO: ???
 
-.. method:: WindowEvent.leave()
+.. attribute:: WindowEvent.is_leave
 
     TODO: ???
 
-.. method:: WindowEvent.focus_gained()
+.. attribute:: WindowEvent.is_focus_gained
 
     Returns :code:`True` if the window gained a focus.
 
-.. method:: WindowEvent.focus_lost()
+.. attribute:: WindowEvent.is_focus_lost
 
     Returns :code:`True` if the window lost a focus.
 
-.. method:: WindowEvent.close()
+.. attribute:: WindowEvent.is_close
 
     Returns :code:`True` if the window was closed.
 
@@ -613,16 +708,16 @@ Instance methods:
 
 Represents a system related event.
 
-Instance method:
+Instance properties:
 
-.. method:: SystemEvent.quit()
+.. attribute:: SystemEvent.quit
 
     Returns :code:`True` if the game proces is terminating.
 
-.. method:: SystemEvent.clipboard_updated()
+.. attribute:: SystemEvent.clipboard_updated
 
     Returns :code:`True` if the system clipboard was updated. You may call :meth:`SystemManager.get_clipboard_text()`
-    method to check the text in the system clipboard.
+    method to check out the text in the system clipboard.
 
 
 :class:`Keycode` reference
@@ -630,7 +725,8 @@ Instance method:
 
 .. class:: Keycode
 
-Enum type for referencing keyboard keys when working with :class:`KeyboardManager` and :class:`KeyboardEvent`.
+Enum type for referencing keyboard keys when working with :class:`KeyboardManager`, :class:`KeyboardKeyEvent` and
+:class:`KeyboardTextEvent`.
 
 Available values are:
 
@@ -902,7 +998,7 @@ Available values are:
 
 .. class:: MouseButton
 
-Enum type for referencing mouse buttons when working with :class:`MouseManager` and :class:`MouseEvent`.
+Enum type for referencing mouse buttons when working with :class:`MouseManager` and :class:`MouseButtonEvent`.
 
 Available values are:
 
@@ -918,8 +1014,8 @@ Available values are:
 
 .. class:: ControllerButton
 
-Enum type for referencing controller buttons when working with :class:`ControllerManager` and :class:`ControllerEvent`.
-Note that left and right triggers are not buttons, they're considered axis (see :class:`ControllerAxis`)
+Enum type for referencing controller buttons when working with :class:`ControllerManager` and :class:`ControllerButtonEvent`.
+Note that left and right triggers are not buttons, they're considered axis (see :class:`ControllerAxisEvent`)
 
 Available values are:
 
@@ -945,8 +1041,7 @@ Available values are:
 
 .. class:: ControllerAxis
 
-Enum type for referencing controller axes when working with :class:`ControllerManager` and
-:class:`ControllerEvent`.
+Enum type for referencing controller axes when working with :class:`ControllerManager` and :class:`ControllerAxisEvent`.
 
 Available values are:
 
