@@ -64,8 +64,11 @@ Instance Properties:
 
     Gets or sets node position, as a :class:`geometry.Vector`.
 
-    **IMPORTANT:** Node position is always relative to its parent node, it is not an "absolute" position on the Scene.
-    It is illustrated by the example below:
+    **IMPORTANT:** Node position is always get or set relative to its parent node. To get the absolute position,
+    use the :ref:`absolute_position<Node.absolute_position>` property.
+
+    If the Node is few levels deep in the nodes hierarchy and you want to know the position
+    of the node in relation to one of its ancestors, use :meth:`get_relative_position()` method.
 
     .. code-block:: python
 
@@ -75,11 +78,21 @@ Instance Properties:
         # inside a Scene's __init__ :
         self.node1 = Node(position = Vector(100, 100))
         self.root.add_child(self.node1)  # adding to scene's root node, so node1 absolute position is (100, 100)
-        # create another node
+        # create a child node
         self.node2 = Node(position = Vector(-20, 30))
-        self.node1.add_child(self.node2)  # node2 absolute position is (80, 130) !
+        self.node1.add_child(self.node2)
+        print(self.node2.position) # prints out V[-20, 30]
+        print(self.node2.absolute_position) # prints out V[80, 130]
+
 
     Also see: :ref:`Node origin points <Node.origin_alignment>`.
+
+.. _Node.absolute_position:
+.. attribute:: Node.absolute_position
+
+    Read only. Gets an absolute position of the node, i.e. the position on the scene. Returns :class:`geometry.Vector`.
+
+    Check out the example in the :ref:`position <Node.position>` property section.
 
 .. _Node.parent:
 .. attribute:: Node.parent
@@ -98,6 +111,9 @@ Instance Properties:
     Gets or sets node rotation, in radians. There is no capping value, meaning you can set it to values greater
     than :code:`math.pi*2` or lower than :code:`-math.pi*2`.
 
+    **IMPORTANT:** Node rotation is always get or set relative to its parent node. To get the absolute rotation,
+    use the :ref:`absolute_rotation <Node.absolute_rotation>` property.
+
     Changing node rotation will make the node rotate around its origin point. Read more about
     :ref:`Node origin points <Node.origin_alignment>`.
 
@@ -108,25 +124,51 @@ Instance Properties:
         from kaa.geometry import Vector
 
         # inside a Scene's __init__ :
-        self.node1 = Node(position = Vector(100, 100), sprite=self.my_sprite)
+        # add node 1
+        self.node1 = Node(position = Vector(100, 100), rotation=math.pi / 4)
         self.root.add_child(self.node1)
-        self.node1.rotation = -math.pi / 4
+        # add node 2 as child of node 1
+        self.node2 = Node(position = Vector(10, 10), rotation=math.pi / 4)
+        self.node1.add_child(self.node2)
+
+        print(self.node1.rotation) # 0.7853981633974483 (math.pi / 4)
+        print(self.node2.rotation) # 0.7853981633974483 (math.pi / 4)
+        print(self.node2.absolute_rotation) # 1.5707963705062866 (math.pi / 2)
+
+
+.. _Node.absolute_rotation:
+.. attribute:: Node.absolute_rotation
+
+    Read only. Returns an absolute rotation of the node, in radians. Check out the example in
+    the :ref:`rotation <Node.rotation>` property section.
 
 .. _Node.rotation_degrees:
 .. attribute:: Node.rotation_degrees
 
-    Gets or sets node rotation, in degrees (as float). There is no capping value, meaning you can set it to values greater
-    than 360 degrees or smaller than -360 degrees.
+    Same as :ref:`rotation <Node.rotation>` property, but uses degrees (as float). There is no capping value,
+    meaning you can set it to values greater than 360 degrees or smaller than -360 degrees.
 
     Changing node rotation will make the node rotate around its origin point. Read more about
     :ref:`Node origin points <Node.origin_alignment>`.
 
+    See also: :ref:`absolute_rotation_degrees <Node.absolute_rotation_degrees>`.
+
+.. _Node.absolute_rotation_degrees:
+.. attribute:: Node.absolute_rotation_degrees
+
+    Read only. Same as :ref:`absolute_rotation <Node.absolute_rotation>` but returns degrees.
+
 .. _Node.scale:
 .. attribute:: Node.scale
 
-    Gets or sets the node scale, as :class:`geometry.Vector`. X value of the vector is used to scale the node in the
-    X axis, while Y value is used to scale it in the Y axis. Negative value of X or Y is possible - it will make
-    the node to be rendered as a mirror reflection in X and/or Y axis respectively.
+    Gets or sets the node scale, as :class:`geometry.Vector`.
+
+    **IMPORTANT:** Node scale is always get or set relative to its parent node. To get the absolute scale,
+    use the :ref:`absolute_scale <Node.absolute_scale>` property.
+
+    The x value of the vector represents scaling in the X axis, while y value is for scaling in the Y axis.
+    Negative values of x or y are possible - it will make the node to be rendered as a mirror reflection in
+    X and/or Y axis respectively.
 
     .. code-block:: python
 
@@ -135,10 +177,24 @@ Instance Properties:
         from kaa.geometry import Vector
 
         # inside a Scene's __init__ :
-        self.node1 = Node(position = Vector(100, 100), sprite=self.my_sprite)
+        self.node1 = Node(position = Vector(100, 100))
         self.root.add_child(self.node1)
         self.node1.scale = Vector(2, 0.5)  # stretch the node by a factor of 2 in the X axis and shrink it by a factor of 0.5 in the Y axis
 
+        # add a child node
+        self.node2 = Node(position=Vector(-5, -15), scale=Vector(4, 0.5))
+        self.node1.add_child(self.node2)
+
+        print(self.node1.scale)  # V[2.0, 0.5]
+        print(self.node2.scale)  # V[4.0, 0.5]
+        print(self.node2.absolute_scale)  # V[8.0, 0.25]
+
+
+.. _Node.absolute_scale:
+.. attribute:: Node.absolute_scale
+
+    Read only. Returns an absolute scale, as :class:`geometry.Vector`. Check out the example in the
+    :ref:`scale <Node.scale>` property section.
 
 .. _Node.visible:
 .. attribute:: Node.visible
@@ -283,3 +339,10 @@ Instance Methods:
     afterwards. It may result in segmentation fault error and the whole process crashing down.
 
     See also: :ref:`Node lifetime <Node.lifetime>`
+
+.. method:: Node.get_relative_position(ancestor)
+
+    Returns node's position (:class:`geometry.Vector`) in relation to its selected ancestor.
+
+    The :code:`ancestor` parameter must be a :class:`Node` and it must be an ancestor of a node on which the method
+    is called.
