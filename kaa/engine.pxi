@@ -121,7 +121,7 @@ cdef _Engine _engine_wrapper = _Engine()
 def Engine(Vector virtual_resolution,
            virtual_resolution_mode=None, show_window=True):
     if is_c_engine_initialized():
-        raise ValueError('Engine was already started.')
+        raise ValueError('Engine is already started.')
 
     cdef CUVec2 c_virtual_resolution = CUVec2(
         virtual_resolution.x, virtual_resolution.y
