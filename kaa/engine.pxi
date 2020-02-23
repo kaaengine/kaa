@@ -103,7 +103,7 @@ cdef class _Engine:
 
     def stop(self):
         if not is_c_engine_initialized():
-            raise ValueError("Engine is stopped")
+            raise ValueError('Engine is already stopped.')
         assert _c_engine_instance != NULL
 
         _c_engine_instance.reset(NULL)
