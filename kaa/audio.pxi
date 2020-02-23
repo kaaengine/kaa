@@ -98,7 +98,7 @@ cdef Music get_music_wrapper(const CMusic& c_music):
 
 @cython.final
 cdef class _AudioManager:
-    cdef CAudioManager* _get_c_audio_manager(self):
+    cdef CAudioManager* _get_c_audio_manager(self) except NULL:
         return get_c_engine().audio_manager.get()
 
     @property

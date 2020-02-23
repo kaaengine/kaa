@@ -7,7 +7,7 @@ from .kaacore.engine cimport CEngine, get_c_engine
 
 @cython.final
 cdef class _Renderer:
-    cdef CRenderer* _get_c_renderer(self):
+    cdef CRenderer* _get_c_renderer(self) except NULL:
         return get_c_engine().renderer.get()
     
     @property

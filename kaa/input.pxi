@@ -770,7 +770,7 @@ cdef class Event(_BaseEvent):
     
 
 cdef class _BaseInputManager:
-    cdef CInputManager* _get_c_input_manager(self):
+    cdef CInputManager* _get_c_input_manager(self) except NULL:
         return get_c_engine().input_manager.get()
 
 
