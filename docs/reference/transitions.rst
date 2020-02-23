@@ -22,6 +22,8 @@ changing Node's sprite over time, the transition mechanism comes useful for that
 Common transition parameters
 ----------------------------
 
+**Note**: All transitions are immutable.
+
 To create a Transition you'll typically need to pass the following parameters:
 
 * :code:`advance_value` - advance value for given transition type (e.g. target position for :class:`NodePositionTransition`).
@@ -110,8 +112,8 @@ Change position of a node by (150, 100) over 2 seconds, then enlarge it twice ov
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     transitions = [
         NodePositionTransition(Vector(150, 100), 2000, advance_method=AttributeTransitionMethod.add),
-        NodeScaleTransition(Vector(2, 2), 1000)
-        NodeTransitionDelay(2000)
+        NodeScaleTransition(Vector(2, 2), 1000),
+        NodeTransitionDelay(2000),
         NodeRotationTransition(math.pi, 3000)
     ]
     node.transition = NodeTransitionsSequence(transitions, loops=2, back_and_forth=True)
@@ -124,8 +126,8 @@ back and forth in 1500 milisecond intervals.
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     transitions = [
         NodePositionTransition(Vector(150, 100), 2000, advance_method=AttributeTransitionMethod.add),
-        NodeScaleTransition(Vector(2, 2), 1000)
-        NodeTransitionDelay(2000)
+        NodeScaleTransition(Vector(2, 2), 1000),
+        NodeTransitionDelay(2000),
         NodeRotationTransition(math.pi, 3000)
     ]
     color_transition = NodeColorTransition(Color(1,0,0,1), 1500, loops=0, back_and_forth=True)
@@ -147,6 +149,17 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
     node.transition = NodeTransitionSequence([
         NodePositionTransition(Vector(30, 70), 2000),
         NodeTransitionCallback(my_func)])
+
+
+Change sprite of a node, creating an animation effect:
+
+.. code-block:: python
+
+    spritesheet = Sprite(os.path.join('assets', 'gfx', 'spritesheet.png')
+    frames = split_spritesheet(spritesheet, Vector(100,100)) # cut the spritesheet into <Sprite> instances
+    animation = NodeSpriteTransition(frames, duration=2000, loops=0, back_and_forth=False)
+    node = Node(position=Vector(100, 100), transition=animation)
+
 
 
 :class:`NodePositionTransition` reference
@@ -287,13 +300,23 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
 
     Since transitions runing in parallel may have different durations, the :code:`loops` parameter is using the
     following logic: The longest duration is considered the "base" duration. Transitions whose duration is shorter than
-    the base duration will wait (doing nothing) until the one with the "base" duration ends. When the base transition
-    ends, the new loop begins and all transitions start running in parallel again.
+    the base duration will wait (doing nothing) when they complete, until the one with the "base" duration ends.
+    When the "base" transition ends, the new loop begins and all transitions start running in parallel again.
 
     The :code:`back_and_forth=True` is using the same logic: the engine will wait for the longest transition to end
     before playing all parallel transitions backwards.
 
     See the `Examples`_ sections for a sample code using NodeTransitionsParallel.
+
+    Like all other transitions, NodeTransitionsParallel is immutable. That causes problems when you want transitions
+    to be managed independently. Consider a situation where you want to have a Node with sprite animation
+    (NodeSpriteTransition) and some other transition (e.g. NodePositionTransition), both running simuntaneously. Suppose
+    you do that by wrapping the two transitions in :class:`NodeTransitionsParallel`. Now, if you want to change just
+    the sprite animation transition **without changing the state of the position transition** (a perfectly valid case
+    in many 2D games), you won't be able to do that because NodeTransitionsParallel is immutable!
+
+    To solve that problem, you should use :code:`NodeTransitionsManager` - it allows running and managing multiple
+    simultaneous transitions on a Node truly independently from each other.
 
 
 :class:`NodeTransitionDelay` reference
@@ -354,6 +377,53 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
                 10000.,
                 loops=5,
             )
+
+
+:class:`NodeTransitionsManager` reference
+-----------------------------------------
+
+.. class:: NodeTransitionsManager
+
+    Node Transitions Manager is accessed by the transitions_manager property on a :class:`nodes.Node`. It allows to
+    run multiple transitions on a node at the same time. Unlike :class:`NodeTransitionsParallel`, which also runs multiple
+    transitions simultaneously, the transitions managed by the NodeTransitionsManager are truly isolated. It
+    means you can manage them (stop or replace them) **individually** not affecting other running transitions. This is
+    not possible with transitions inside :class:`NodeTransitionsParallel`, because the wrapper is immutable.
+
+    The manager offers a simple dictionary-like interface with two methods: :meth:`get()` and :meth:`set()` to access and set
+    transitions by a string key.
+
+    Note that the transition manager is used when you set transition on a Node via the
+    :ref:`transition property <Node.transition>`. That transition can be accessed via :code:`get('__default__')`
+
+    Similarly to :class:`NodeTransitionsParallel` when you set two contradictory transitions of the same type to run on
+    the manager (for example position transitions that pull the node in two opposite direction) - they will not cancel
+    out. One of them will 'dominate'. It is undetermined which one will dominate therefore it's recommended not to
+    compose transitions that way (why would you want to do it anyway?).
+
+.. method:: NodeTransitionsManager.get(transition_name)
+
+    Gets a transition by name (a string).
+
+    :code:`Node.transitions_manager.get('__default__')` is an equivalent of :ref:`Node.transition <Node.transition>` getter.
+
+.. method:: NodeTransitionsManager.set(transition_name, transition)
+
+    Sets a transition with a specific name (a string). The :code:`transition` object can be any transition, either
+    'atomic' or a serial / parallel combo.
+
+    :code:`Node.transitions_manager.set('__default__', transition)` is an equivalent of :ref:`Node.transition <Node.transition>` setter.
+
+    .. code-block:: python
+
+        node = Node(position=Vector(15, 60))
+        node.transitions_manager.set('my_transition', NodePositionTransition(Vector(100,100), duration=300, loops=0))
+        node.transitions_manager.set('other_transition', NodeRotationTransition(math.pi/2))
+        node.transitions_manager.set('can_use_sequence_coz_why_not',  NodeTransitionsSequence([
+            NodeScaleTransition(Vector(2, 2), 1000),
+            NodeTransitionDelay(2000),
+            NodeColorTransition(Color(0.5, 1, 0, 1), 3000)],
+            loops=2, back_and_forth=True))
 
 
 :class:`AttributeTransitionMethod` reference

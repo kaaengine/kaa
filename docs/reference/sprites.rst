@@ -21,18 +21,9 @@
     If the file includes multiple spritesheets, use the combination of :meth:`Sprite.crop()` and
     :meth:`split_spritesheet()` to 'cut' all frames from their respective areas.
 
-    To draw a Sprite on the screen, create a :class:`nodes.Node`, :ref:`assign a sprite <Node.sprite>` to it, and
-    add the node to the :class:`engine.Scene`. :doc:`Read more about Nodes here. </reference/nodes>`.
+    For information how to draw a Sprite on the screen or how to create animations, :ref:`see here <Node.sprite>`.
 
-    To run a frame-by-frame animation, create a :class:`nodes.Node`, create the animation (the
-    :class:`transitions.NodeSpriteTransition`), :ref:`assign the transition to Node <Node.transition>` and
-    add the Node to the :class:`engine.Scene`.
-
-    .. note::
-
-        Transitions are a more general mechanism than just sprite animations. :doc:`Read more about transitions here. </reference/transitions>`.
-
-    Example of loading a Sprite from file, creating a Node and adding it to Scene:
+    A full example:
 
     .. code-block:: python
 

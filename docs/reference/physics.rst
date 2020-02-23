@@ -19,9 +19,9 @@ Read more about :doc:`the nodes concept in general </reference/nodes>`.
 :class:`SpaceNode` reference
 ----------------------------
 
-.. class:: SpaceNode(gravity=Vector(0,0), damping=1)
+.. class:: SpaceNode(gravity=Vector(0,0), damping=1, position=Vector(0, 0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0, 0, 0, 0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
-    SpaceNode is a :class:`nodes.Node` that represents physical simulation environment. All BodyNodes
+    SpaceNode extends the :class:`nodes.Node`. It represents physical simulation environment. All BodyNodes
     must be direct children of a SpaceNode. Typically you'll need just one SpaceNode per Scene, but nothing
     prevents you from adding more. If you decide to use multiple SpaceNodes on a Scene, be aware that they will be
     isolated (BodyNodes under SpaceNode A won't be able to interact with BodyNodes under SpaceNode B).

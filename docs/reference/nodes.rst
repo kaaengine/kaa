@@ -247,7 +247,7 @@ Instance Properties:
         my_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png')  # create a sprite from image file
         self.node = Node(position=Vector(100, 100), sprite=my_sprite))  # create a Node at (100, 100) with the sprite
         self.node.origin_alignment = Alignment.center # this makes the (100, 100) position be at the center of the sprite
-        self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
+        self.root.add_child(self.node)  # until you add the Node to the Scene it won't show up on the screen!
 
     Example 2 - a node with frame by frame animation running in an infinite loop:
 
@@ -263,7 +263,7 @@ Instance Properties:
         frames = split_spritesheet(spritesheet, Vector(100,100)) # cut the spritesheet into 100 individual <Sprite> instances
         animation = NodeSpriteTransition(frames, duration=2000, loops=0, back_and_forth=False) # With 100 frames a duration of 2000 means 20 miliseconds per frame.
         self.node = Node(position=Vector(100, 100), transition=animation)  # the transition will take care of setting the appropriate <Sprite> over time, thus creating an animation effect.
-        self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
+        self.root.add_child(self.node)  # until you add the Node to the Scene it won't show up on the screen!
 
     To stop playing an animation simply set the node's transition to :code:`None`
 
@@ -309,8 +309,8 @@ Instance Properties:
 
     Gets or sets origin alignment of a node, as :class:`geometry.Alignment`.
 
-    It's best to show what origin point is on an example. Assume you have a Node with a 100px width and 50px height
-    sprite. You tell the engine to draw the node at some specific position e.g. :code:`position=Vector(300, 200)`.
+    It's best to show what origin point is on an example. Assume you have a Node with a 100x50 px :ref:`sprite <Node.sprite>`.
+    You tell the engine to draw the node at some specific position e.g. :code:`position=Vector(300, 200)`.
     But what does this actually mean? Which pixel of the 100x50 image will really be drawn at (300, 200)?
     The top-left pixel? Or the central pixel? Or maybe some other pixel?
 
@@ -341,11 +341,22 @@ Instance Properties:
 .. _Node.transition:
 .. attribute:: Node.transition
 
-    Gets or sets a transition object on the node. Must be one of the types from the :code:`kaa.transitions` namespace.
+    Gets or sets a default transition object.
 
-    Transitions are "recipes" how the node should transform over time, by transformation we mean changing node's
-    position, rotation, scale, color, sprite etc. Transitions system is a very powerful feature,
+    Transitions are "recipes" how the node's properties (such as position, rotation, scale, color, sprite, etc.) should
+    evolve over time. Transitions system is a very powerful feature,
     :doc:`refer to transitions documentation for details </reference/transitions>`.
+
+.. _Node.transitions_manager:
+.. attribute:: Node.transitions_manager
+
+    Read only. Returns a :class:`transitions.NodeTransitionsManager` object which allows you to manage multiple
+    transitions on a Node.
+
+    Transitions are "recipes" how the node's properties (such as position, rotation, scale, color, sprite, etc.) should
+    evolve over time. Transitions system is a very powerful feature,
+    :doc:`refer to transitions documentation for details </reference/transitions>`.
+
 
 .. _Node.absolute_transformation:
 .. attribute:: Node.absolute_transformation
