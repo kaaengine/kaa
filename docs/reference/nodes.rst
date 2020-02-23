@@ -9,8 +9,8 @@
 
 Nodes are the core concept of the kaa engine. They're "objects" which you can add to the Scene. Each Node has its
 spatial properties such as position, rotation or scale. A Node may also have a sprite (graphics loaded from a file),
-which can be animated. Nodes have other properties such as z_index, shape, color, origin etc. All those properties are
-described in the documentation below.
+:ref:`which can be animated <Transitions.NodeSpriteTransition>`. Nodes have other properties such as z_index, shape,
+color, origin etc. All those properties are described in the documentation below.
 
 A Node can have child Nodes, which you can add with the :meth:`Node.add_child`
 method, thus creating a tree-like structure of nodes on the scene. As the parent node gets transformed (changes its position,
@@ -28,12 +28,11 @@ a collection of other specialized Nodes (they all inherit from the :class:`Node`
 
 * :class:`physics.SpaceNode` - a container node to simulate the physical environment.
 * :class:`physics.BodyNode` - a physical node which can have hitbox nodes. Can interact with other BodyNodes. Must be a direct child of SpaceNode. Can have zero or more Hitbox Nodes.
-* :class:`physics.HitboxNode` - defines an area that will collide, and allows wiring up your own collision handler function. Hitbox Node must be a child node of a BodyNode.
+* :class:`physics.HitboxNode` - defines an area that can collide with other hitboxes, and allows wiring up your own collision handler function. Hitbox Node must be a child node of a BodyNode.
 * :class:`fonts.TextNode` - a node used to render text on the screen.
 
 For your game's actual objects such as Player, Enemy, Bullet, etc. we recommend writing classes that inherit from
 the Node class (or BodyNode if you want the object to utilize :doc:`kaaengine's physics features </reference/physics>`).
-
 
 .. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
@@ -213,14 +212,29 @@ Instance Properties:
 
     Gets or sets a :class:`sprites.Sprite` for the node.
 
-    A sprite is an immutable object that represents a graphical image, which can have one or more frames.
-    Rrefer to :class:`sprites.Sprite` documentation for more information.
+    A sprite is an immutable object that wraps a graphical image.
 
     Assigning a Sprite to a Node will make the sprite be displayed at node's position, with node's rotation and scale.
+
+    Creating a frame by frame animation is a two step process:
+
+    First you'll need to have a list of frames, each frame being an individual :class:`sprites.Sprite` instance. You can load
+    each frame from a separate file or, if you have a spritesheet (a single graphical file which includes all frames) use
+    the utility function :meth:`sprites.split_spritesheet()` to cut the sprites out of the file.
+
+    Second, you'll need to create a :class:`transitions.NodeSpriteTransition` transition using the list of sprites,
+    which also allows you to specify the animation duration, looping etc. and
+    :ref:`assign that transition to the node <Node.transition>`
+
+    .. note::
+
+        Transitions are a more general mechanism than just sprite animations. :doc:`Read more about transitions here. </reference/transitions>`.
 
     Since sprite is a dimensional object (has its width and height) and node position is just a 2D (x, y) coords,
     it is important to understand the concept of node's origin point. Read more
     about :ref:`Node origin points <Node.origin_alignment>`.
+
+    Example 1 - a node with a static sprite.
 
     .. code-block:: python
 
@@ -234,6 +248,24 @@ Instance Properties:
         self.node = Node(position=Vector(100, 100), sprite=my_sprite))  # create a Node at (100, 100) with the sprite
         self.node.origin_alignment = Alignment.center # this makes the (100, 100) position be at the center of the sprite
         self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
+
+    Example 2 - a node with frame by frame animation running in an infinite loop:
+
+    .. code-block:: python
+
+        from kaa.nodes import Node
+        from kaa.sprites import Sprite
+        from kaa.geometry import Vector
+        from kaa.transitions import NodeSpriteTransition
+
+        # inside a Scene's __init__:
+        spritesheet = Sprite(os.path.join('assets', 'gfx', 'spritesheet.png')  # a 1000x1000 spritesheet with hundred 100x100 frames
+        frames = split_spritesheet(spritesheet, Vector(100,100)) # cut the spritesheet into 100 individual <Sprite> instances
+        animation = NodeSpriteTransition(frames, duration=2000, loops=0, back_and_forth=False) # With 100 frames a duration of 2000 means 20 miliseconds per frame.
+        self.node = Node(position=Vector(100, 100), transition=animation)  # the transition will take care of setting the appropriate <Sprite> over time, thus creating an animation effect.
+        self.root.add_child(self.node)  # until you add the Node to the Scene it won't not show up on the screen!
+
+    To stop playing an animation simply set the node's transition to :code:`None`
 
 .. _Node.color:
 .. attribute:: Node.color
@@ -312,7 +344,7 @@ Instance Properties:
     Gets or sets a transition object on the node. Must be one of the types from the :code:`kaa.transitions` namespace.
 
     Transitions are "recipes" how the node should transform over time, by transformation we mean changing node's
-    position, rotation, scale, color, etc. Transitions system is a very powerful feature,
+    position, rotation, scale, color, sprite etc. Transitions system is a very powerful feature,
     :doc:`refer to transitions documentation for details </reference/transitions>`.
 
 .. _Node.absolute_transformation:

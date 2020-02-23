@@ -11,17 +11,26 @@
 
     Sprite instance represents an image. The constructor accepts a path to a file. Supported formats are png and jpg.
 
-    **Sprites instances are immutable.**
+    Sprites instances are immutable.
 
     If you want to load just a fragment of the image from a file, use the :meth:`Sprite.crop()` method.
 
     If the file contains a spritesheet with multiple frames, use a helper function :meth:`split_spritesheet()` to
     automatically create a Sprite for each frame.
 
-    To draw a Sprite on the screen, create a node, assign a sprite to it then add the node to the Scene.
-    :doc:`Read more about Nodes here. </reference/nodes>`
+    If the file includes multiple spritesheets, use the combination of :meth:`Sprite.crop()` and
+    :meth:`split_spritesheet()` to 'cut' all frames from their respective areas.
 
-    To run a frame-by-frame animation - TODO
+    To draw a Sprite on the screen, create a :class:`nodes.Node`, :ref:`assign a sprite <Node.sprite>` to it, and
+    add the node to the :class:`engine.Scene`. :doc:`Read more about Nodes here. </reference/nodes>`.
+
+    To run a frame-by-frame animation, create a :class:`nodes.Node`, create the animation (the
+    :class:`transitions.NodeSpriteTransition`), :ref:`assign the transition to Node <Node.transition>` and
+    add the Node to the :class:`engine.Scene`.
+
+    .. note::
+
+        Transitions are a more general mechanism than just sprite animations. :doc:`Read more about transitions here. </reference/transitions>`.
 
     Example of loading a Sprite from file, creating a Node and adding it to Scene:
 
@@ -58,13 +67,9 @@ Instance Properties
 
     Returns Sprite size (width and height), as :class:`geometry.Vector`
 
-.. attribute:: Sprite.dimensions
-
-    TODO
-
 .. attribute:: Sprite.origin
 
-    TODO
+    If the sprite was a result of a crop, it will return crop's origin point. Otherwise it'll return Vector(0,0)
 
 Instance methods
 
@@ -92,13 +97,14 @@ Instance methods
 .. method:: split_spritesheet(spritesheet, frame_dimensions, frames_offset=0, frames_count=None, frame_padding=None)
 
     When an image file is a spritesheet you need to 'cut' it into individual Sprites (individual frames), which
-    you can then use for making an animation. This utility function does exactly that. It takes the following params:
+    you can then use for making an animation using :class:`transitions.NodeSpriteTransition`. This utility function
+    does the cutting for you. It takes the following params:
 
-    * :code:`spritesheet - a :class:`Sprite` instance
+    * :code:`spritesheet` - a :class:`Sprite` instance holding your spritesheet
     * :code:`frame_dimensions` - dimensions of a single frame, expects :class:`geometry.Vector` where x is frame width and y is frame height
     * :code:`frames_offset` - if you're interested in getting a subset of the frames, pass the start frame index. Default offset is zero (start from the first frame)
-    * :code:`frames_count` - if you're interested in getting a subset of the frames, pass the number of frames.
-    * :code:`frame_padding` - some spritesheet tools can add a padding to each frame, if your spritesheet is using that feature pass a :class:`geometry.Vector` where x is left/right padding and y is top/bottom padding.
+    * :code:`frames_count` - if you're interested in getting just a subset of the frames, pass the number of frames. By default the function will 'cut' as many frames as geometrically possible.
+    * :code:`frame_padding` - some spritesheet tools can add a padding to each frame, if your spritesheet is using that feature pass a :class:`geometry.Vector` where x is left+right padding and y is top+bottom padding. Example: if using 1-pixel padding on all sides, pass Vector(2,2)
 
     The function will process the spritesheet going from left to right and from top to bottom, cutting out the
     individual frames, returning a list of Sprites.
@@ -109,5 +115,9 @@ Instance methods
         spritesheet = Sprite('path/to/spritesheet.png')
         # cut all frames:
         all_frames = split_spritesheet(spritesheet, Vector(100, 100))
-        # cut 10 frames, from 20 to 30
-        subset_of_frames = split_spritesheet(spritesheet, Vector(100, 100), 20, 10)
+        # cut 10 frames, from 20 to 29
+        subset_of_frames = split_spritesheet(spritesheet, Vector(100, 100), frames_offset=20, frames_count=10)
+        # crop a 40x40 area starting from (20,20), and cut five frames starting from frame 3
+        another_subset_of_frames = split_spritesheet(spritesheet.crop(Vector(20,20), Vector(40,40)),
+            frame_offset=3, frames_count=5)
+

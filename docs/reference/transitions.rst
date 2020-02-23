@@ -12,8 +12,12 @@ visual transformations and their combinations, that you may want to have in your
 You can of course implement all this, by having a set of boolean flags, time trackers, etc. and use all those helper
 variables to manually change the desired properties of your nodes from within the update() method. But there is an
 easier way: the mechanism is called Transitions. A single Transition object is a recipe of how a given property
-of a Node (position, scale, rotation, color, etc.) should change over time. Transition can be played once,
+of a Node (position, scale, rotation, color, sprite, etc.) should change over time. Transition can be played once,
 given number of times or in a loop. You can also chains transitions to run one after another or in parallel.
+
+Transitions are the primary way of creating animations. Since animation is nothing else than just
+changing Node's sprite over time, the transition mechanism comes useful for that purpose.
+
 
 Common transition parameters
 ----------------------------
@@ -225,6 +229,7 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
     Refer to the `Common transition parameters`_ and `Examples`_ sections for information on other parameters used
     by the transition.
 
+.. _Transitions.NodeSpriteTransition:
 
 :class:`NodeSpriteTransition` reference
 ----------------------------------------------------
@@ -234,7 +239,8 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
     Use this transition to create animations. The transition will change Node's sprite over time specified by
     the :code:`duration` parameter, iterating through sprites list specified by the :code:`sprites` parameter.
 
-    The :code:`sprites` must be an iterable holding :class:`sprites.Sprite` instances.
+    The :code:`sprites` must be an iterable holding :class:`sprites.Sprite` instances. To cut a spritesheet file into
+    individual sprites (individual frames) use the utility function :meth:`sprites.split_spritesheet()`
 
     The :code:`loops` and :code:`back_and_forth` parameters work normally - refer to the `Common transition parameters`_
     section for more information on those parameters.
