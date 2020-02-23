@@ -26,10 +26,15 @@ To create a Transition you'll typically need to pass the following parameters:
     * :code:`AttributeTransitionMethod.set` - node's property will be changed towards the target advance_value over time
     * :code:`AttributeTransitionMethod.add` - node's property will be changed by adding the advance_value over time
     * :code:`AttributeTransitionMethod.multiply` - node's property will be changed by multiplying the advance_value over time
-* :code:`loops` - how many times the transition should "play". Set to 0 to play infinite number of times.
-* :code:`back_and_forth` - if set to :code:`True`, the transition will be played back and forth.
+* :code:`loops` - how many times the transition should "play". Set to 0 to play infinite number of times. Default is 1.
+* :code:`back_and_forth` - if set to :code:`True`, the transition will be played back and forth. Default is False.
 
-All transitions use linear easing. More built-in easing types to be added soon.
+**Note:** the :code:`duration` parameter always refers to one loop, one direction. So for example, transition
+with the following set of parameters: :code:`duration=1000, loops=3, back_and_forth=True` will take 6000 miliseconds.
+1000 milisecond played back and forth is 2000 miliseconds, and it will be played 3 times, hence a total time
+of 6000 miliseconds.
+
+All transitions use linear easing. More built-in easing types are to be added soon.
 
 Examples
 --------
@@ -140,7 +145,6 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
         NodeTransitionCallback(my_func)])
 
 
-
 :class:`NodePositionTransition` reference
 -----------------------------------------
 
@@ -212,11 +216,28 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
 
 .. class:: BodyNodeAngularVelocityTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
 
-    Use this transition to change BodyNode's angular velocity gradually over time, towards given advance_value or by given advance_value.
+    Use this transition to change BodyNode's angular velocity gradually over time, towards given advance_value or by
+    given advance_value.
 
-    The :code:`advance_value` param must be a number and is the target angular velocity value (or angular velocity change value), *in radians*
+    The :code:`advance_value` param must be a number and is the target angular velocity value (or angular velocity
+    change value), *in radians*
 
-    Refer to the `Common transition parameters`_ and `Examples`_ sections for information on other parameters used by the transition.
+    Refer to the `Common transition parameters`_ and `Examples`_ sections for information on other parameters used
+    by the transition.
+
+
+:class:`NodeSpriteTransition` reference
+----------------------------------------------------
+
+.. class:: NodeSpriteTransition(sprites, duration, loops=1, back_and_forth=False)
+
+    Use this transition to create animations. The transition will change Node's sprite over time specified by
+    the :code:`duration` parameter, iterating through sprites list specified by the :code:`sprites` parameter.
+
+    The :code:`sprites` must be an iterable holding :class:`sprites.Sprite` instances.
+
+    The :code:`loops` and :code:`back_and_forth` parameters work normally - refer to the `Common transition parameters`_
+    section for more information on those parameters.
 
 
 :class:`NodeTransitionsSequence` reference
@@ -242,7 +263,7 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
 :class:`NodeTransitionsParallel` reference
 ------------------------------------------
 
-.. class:: NodeTransitionsParallel(transitions)
+.. class:: NodeTransitionsParallel(transitions, loops=1, back_and_forth=False)
 
     A wrapping container used to make transitions run in parallel.
 
@@ -253,12 +274,18 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
     :class:`NodeTransitionSequence`, or :class:`NodeTransitionsParallel` thus building
     a more complex structure.
 
-    You may have two contradictory transitions running in paralel, for example two :class:`NodePositionTransition`
+    You may have two contradictory transitions running in parallel, for example two :class:`NodePositionTransition`
     trying to change node position in opposite directions. Contrary to intuition, they won’t cancel out (regardless
     of advance_method being :code:`add` or :code:`set`). If there are two or more transitions of the same type running in paralel,
     then the one which is later in the list will be used and all the preceding ones will be ignored.
 
-    The loops and back_and_forth parameters are not being used.
+    Since transitions runing in parallel may have different durations, the :code:`loops` parameter is using the
+    following logic: The longest duration is considered the "base" duration. Transitions whose duration is shorter than
+    the base duration will wait (doing nothing) until the one with the "base" duration ends. When the base transition
+    ends, the new loop begins and all transitions start running in parallel again.
+
+    The :code:`back_and_forth=True` is using the same logic: the engine will wait for the longest transition to end
+    before playing all parallel transitions backwards.
 
     See the `Examples`_ sections for a sample code using NodeTransitionsParallel.
 
