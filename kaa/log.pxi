@@ -1,5 +1,4 @@
 import logging
-import logging.config
 from enum import IntEnum
 
 from .kaacore.log cimport (
@@ -102,25 +101,4 @@ def set_core_logging_level(core_category, level):
         core_level
     )
 
-
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'core': {
-            'class': 'kaa.log.CoreHandler',
-            'level': 'NOTSET',
-        },
-    },
-    'loggers': {
-        'kaa': {
-            'handlers': ['core'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-}
-
-
 c_initialize_logging()
-logging.config.dictConfig(LOGGING_CONFIG)
