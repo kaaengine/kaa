@@ -115,3 +115,6 @@ cdef class Vector:
 
     def length(self):
         return CVector_length(self.c_vector)
+
+    def transform(self, Transformation transformation not None):
+        return transformation._mul_vector(self)

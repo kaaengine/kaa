@@ -4,6 +4,7 @@
 
 #include "kaacore/physics.h"
 #include "kaacore/transitions.h"
+#include "kaacore/node_ptr.h"
 #include "kaacore/nodes.h"
 #include "kaacore/timers.h"
 #include "kaacore/input.h"
@@ -113,7 +114,7 @@ TimerCallback bind_cython_timer_callback(
 }
 
 
-typedef void (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper, Node*);
+typedef void (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper, NodePtr);
 
 NodeTransitionCallbackFunc bind_cython_transition_callback(
     const CythonNodeTransitionCallback cy_handler, const PythonicCallbackWrapper& callback

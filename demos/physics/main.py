@@ -29,16 +29,13 @@ class MyScene(Scene):
     def __init__(self):
         self.camera.position = Vector(0., 0.)
         self.python_img = Sprite(PYTHON_IMAGE_PATH)
-        # self.box_img = self.game.assets.load_image(BOX_IMAGE_PATH)
         self.collisions_enabled = True
 
         self.space = self.root.add_child(SpaceNode(
-            # scale=Vector(0.01, 0.01),
             position=Vector(0, 0),
         ))
         self.box = self.space.add_child(BodyNode(
             body_type=BodyNodeType.kinematic,
-            # rotation=45.,
             angular_velocity=0.3,
         ))
         # create bounding collision box with segments
@@ -71,7 +68,6 @@ class MyScene(Scene):
             mass=1e10,
             position=Vector(0, -2),
             velocity=Vector(-3.0, 0.5),  # * 10,
-            # angular_velocity=-160.,
             shape=Circle(0.2),
             sprite=self.python_img,
             color=Color(1., 0., 0., 1.),
@@ -88,7 +84,6 @@ class MyScene(Scene):
             mass=1e10,
             position=Vector(0, 2),
             velocity=Vector(4.0, -0.1),  # * 10,
-            # angular_velocity=20.,
             shape=Circle(0.2),
             sprite=self.python_img,
         ))
@@ -136,27 +131,22 @@ class MyScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            keyboard = event.keyboard
-            if keyboard:
-                if keyboard.is_pressing(Keycode.c):
+            if event.keyboard_key and event.keyboard_key.is_key_down:
+                if event.keyboard_key.key == Keycode.c:
                     self.collisions_enabled = not self.collisions_enabled
                     if not self.collisions_enabled:
                         self.obj1_hitbox.collision_mask = HitboxMask.side
                         self.obj2_hitbox.collision_mask = HitboxMask.side
-                        # self.obj3_hitbox.collision_mask = HitboxMask.side
-                        # self.obj4_hitbox.collision_mask = HitboxMask.side
                         print("Objects will NOT collide")
                     else:
                         self.obj1_hitbox.collision_mask = HitboxMask.all
                         self.obj2_hitbox.collision_mask = HitboxMask.all
-                        # self.obj3_hitbox.collision_mask = HitboxMask.all
-                        # self.obj4_hitbox.collision_mask = HitboxMask.all
                         print("Objects will collide")
-                if keyboard.is_pressing(Keycode.f):
+                if event.keyboard_key.key == Keycode.f:
                     self.engine.window.fullscreen = not self.engine.window.fullscreen
-                if keyboard.is_pressing(Keycode.l):
+                if event.keyboard_key.key == Keycode.l:
                     self.engine.window.size = self.engine.window.size + Vector(20, 20)
-                if keyboard.is_pressing(Keycode.v):
+                if event.keyboard_key.key == Keycode.v:
                     self.engine.window.center()
 
         if self.input.keyboard.is_pressed(Keycode.q):
@@ -170,4 +160,6 @@ class MyScene(Scene):
 if __name__ == '__main__':
     engine = Engine(virtual_resolution=Vector(10, 10))
     engine.window.title = engine.window.title + "Test 123"
+    engine.window.size = Vector(800, 600)
+    engine.window.center()
     engine.run(MyScene())
