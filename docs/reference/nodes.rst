@@ -7,9 +7,9 @@
 :class:`Node` reference
 -----------------------
 
-Nodes are main concept of the kaa engine. They're "objects" which you can add to the Scene. Each Node has its
-spatial properties such as position, rotation or scale. A Node may also have a sprite (graphics loaded from a file)
-and can be animated. Nodes have other properties such as z_index, shape, color, origin etc. All those attributes are
+Nodes are the core concept of the kaa engine. They're "objects" which you can add to the Scene. Each Node has its
+spatial properties such as position, rotation or scale. A Node may also have a sprite (graphics loaded from a file),
+which can be animated. Nodes have other properties such as z_index, shape, color, origin etc. All those properties are
 described in the documentation below.
 
 A Node can have child Nodes, which you can add with the :meth:`Node.add_child`
@@ -286,7 +286,7 @@ Instance Properties:
     origin_alignment you can change the position of the point to one of the 9 default positions: from top left,
     through center to the bottom right.
 
-    Setting the origin alignment is especially useful when working with text nodes (:class:`font.TextNode`) as it
+    Setting the origin alignment is especially useful when working with text nodes (:class:`fonts.TextNode`) as it
     allows you to align text to the left or right.
 
     If you need a custom origin point position, not just one of the 9 default values, you can always wrap a node
@@ -315,6 +315,11 @@ Instance Properties:
     position, rotation, scale, color, etc. Transitions system is a very powerful feature,
     :doc:`refer to transitions documentation for details </reference/transitions>`.
 
+.. _Node.absolute_transformation:
+.. attribute:: Node.absolute_transformation
+
+    Gets the absolute transformation of the Node, in form of a :class:`geometry.Transformation` instance.
+
 Instance Methods:
 
 .. method:: Node.add_child(child_node)
@@ -342,7 +347,14 @@ Instance Methods:
 
 .. method:: Node.get_relative_position(ancestor)
 
-    Returns node's position (:class:`geometry.Vector`) in relation to its selected ancestor.
+    Returns node's position (:class:`geometry.Vector`) relative to given ancestor.
+
+    The :code:`ancestor` parameter must be a :class:`Node` and it must be an ancestor of a node on which the method
+    is called.
+
+.. method:: Node.get_relative_transformation(ancestor)
+
+    Returns node's transformation (:class:`geomtry.Transformation`) relative to given ancestor.
 
     The :code:`ancestor` parameter must be a :class:`Node` and it must be an ancestor of a node on which the method
     is called.

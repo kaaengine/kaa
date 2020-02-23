@@ -10,7 +10,10 @@ Constructor:
 
 .. class:: Vector(x, y)
 
-    Vectors	are immutable. Vector instance represents an Euclidean vector. It stores a pair od 2D corrdinates (x, y).
+    Vector instance represents an Euclidean vector. It stores a pair od 2D corrdinates (x, y).
+
+    Vectors	are immutable.
+
     Vectors are used for the following purposes:
 
     * storing an actual vector pointing from (0, 0) to (x, y), for example :class:`nodes.BodyNode.velocity`
@@ -139,10 +142,29 @@ Constructor:
 
     Segment instance represents a segment between two points, a and b.
 
+    Segments are immutable.
+
     vector_a and vector_b params are :class:`geometry.Vector` instances indicating both ends of a Segment
 
 
-TODO: no properties?
+Instance properties:
+
+.. attribute:: Segment.point_a
+
+    Read only. Returns point A of the segment
+
+.. attribute:: Segment.point_b
+
+    Read only. Returns point B of the segment
+
+Instance methods:
+
+.. method:: Segment.transform(transformation)
+
+    Applies given transformation to this Segment and returns a new Segment.
+
+    The :code:`transformation` parameter must be a :class:`Transformation` instance.
+
 
 :class:`Circle` reference
 -------------------------
@@ -153,9 +175,28 @@ Constructor:
 
     Circle instance represents a circualar shape, with a center and a radius. Circles are used e.g. for creating hitboxes.
 
-    center parameter must be :class:`geometry.Vector`, radius is a number.
+    Circles are immutable.
 
-TODO: no properties?
+    The :code:`center` parameter must be :class:`geometry.Vector`, radius is a number.
+
+Instance properties:
+
+.. attribute:: Circle.radius
+
+    Read only. Returns circle radius.
+
+.. attribute:: Circle.center
+
+    Read only. Returns circle center.
+
+Instance methods:
+
+.. method:: Circle.transform(transformation)
+
+    Applies given transformation to this Circle and returns a new Circle.
+
+    The :code:`transformation` parameter must be a :class:`Transformation` instance.
+
 
 :class:`Polygon` reference
 --------------------------
@@ -166,7 +207,9 @@ Constructor:
 
     Polygon instance represents a custom shape. Polygons are used e.g. for creating hitboxes.
 
-    points parameter must be a list of :class:`geometry.Vector` instances.
+    Polygons are immutable.
+
+    The :code:`points` parameter must be a list of :class:`geometry.Vector` instances.
 
     If you don't close the polygon (the last point in the list is not identical with the first one) kaa will do
     that for you.
@@ -195,13 +238,120 @@ Class methods:
 
         poly = Polygon.from_box(Vector(10, 8)) # creates a rectangular polygon [ V(-5, -4), V(5, -4), V(5, 4), V(-5, 4) ]
 
-TODO: no properties?
+Instance properties:
+
+.. attribute:: Polygon.points
+
+    Read only. Returns a list of points constituting the Polygon.
+
+Instance methods:
+
+.. method:: Polygon.transform(transformation)
+
+    Applies given transformation to this Polygon and returns a new Polygon.
+
+    The :code:`transformation` parameter must be a :class:`Transformation` instance.
 
 :class:`Transformation` reference
 ---------------------------------
 
-TODO
+.. class:: Transformation()
 
+    Transformation is a 'geometrical recipe', which can be applied to a :class:`Segment`, :class:`Circle` or
+    :class:`Polygon` (using the :code:`transform()` method) to change their position, rotation and scale.
+
+    Transformations cannot be applied to :doc:`Nodes </reference/nodes>`, although if a Node
+    :ref:`has a shape <Node.shape>`, you can apply Transformations to that shape.
+
+    Transformation objects are immutable.
+
+    Transformation constructor does not accept any parameters and creates a 'void' transformation which, when applied,
+    does not have any effect.
+
+    To create an actual Transformation use one of the class methods: :meth:`rotate()`, :meth:`rotate_degrees()`,
+    :meth:`scale()` or :meth:`translate()`
+
+    .. code-block:: python
+
+        from kaa.geometry import Transformation
+        import math
+
+        t1 = Transformation.rotate(math.pi / 2)  # a 90 degrees transformation, clockwise
+        t2 = Transformation.rotate_degrees(-45)  # a 45 degrees transformation, anti-clockwise
+        t3 = Transformation.scale(Vector(2,2))  # scale change transformation (enlarge twice)
+        t4 = Transformation.translate(Vector(10, 0))  # position change transformation (10 units to the right)
+
+    You can chain transformations by applying the :code:`|` operator, which results in a new, combined transformations:
+
+    .. code-block:: python
+
+        combined_transformation = t1 | t2 | t3 | t4
+
+    Rotation and scaling is always relative to the origin of the Euclidean space, or in other words, relative to (0,0)
+    point. Therefore, a sequence of transformations in a chain is important. Consider the following two transformations:
+
+    .. code-block:: python
+
+       rotate_than_move = t2 | t4
+       move_than_rotate = t4 | t2
+
+    Contrary to intuition they won't give the same result. When applied to a square with an edge length
+    of 1 and the middle in the (0,0) the first one will rotate the square 45 degrees around (0,0) and then
+    move 10 units to the right, while the second one will move the square 10 units to the right and then rotate,
+    but since the center of the square is now at (10,0) the rotation is going to "wheel" it 45 degrees around
+    the (0,0), making the Polygon end up in a different position. It's illustrated in the example below:
+
+    .. code-block:: python
+
+        from kaa.geometry import Vector, Polygon
+
+        square = Polygon.from_box(Vector(2,2))
+        print(square.points)  #[V[-1.0, -1.0], V[1.0, -1.0], V[1.0, 1.0], V[-1.0, 1.0]]
+
+        # just move it
+        square_2 = square.transform(t4)
+        print(square_2.points)  #[V[9.0, -1.0], V[11.0, -1.0], V[11.0, 1.0], V[9.0, 1.0]]
+
+        # rotate then move
+        square_3 = square.transform(t2 | t4)
+        print(square_3.points)  # [V[8.585, 0.0], V[10.0, -1.414], V[11.414, 0.0], V[10.0, 1.414]]
+
+        # move then rotate
+        square_4 = square.transform(t4 | t2)
+        print(square_4.points)  # [V[5.656, -7.071], V[7.071, -8.485], V[8.485, -7.071], V[7.0710, -5.656]]
+
+    Finally, you can use the :meth:`inverse()` method on the Transformation instance to get the inversed transformation:
+
+    .. code-block:: python
+
+        combined_transformation = t1 | t2 | t3 | t4
+        inversed_combined_transformation = combined_transformation.inverse()
+
+Class methods:
+
+.. classmethod:: Transformation.rotate(rotation)
+
+    Creates a new rotation Transformation. The :code:`rotation` value must be a number (rotation in radians).
+
+.. classmethod:: Transformation.rotate_degrees(rotation_degrees)
+
+    Creates a new rotation Transformation. The :code:`rotation` value must be a number (rotation in degrees).
+
+.. classmethod:: Transformation.scale(scaling_vector)
+
+    Creates a new scaling Transformation. The :code:`scaling_vector` must be a :class:`Vector` whose x and y
+    represent scaling in x and y axis respectively.
+
+.. classmethod:: Transformation.translate(translation_vector)
+
+    Creates a new translation (position change) Transformation. The :code:`translation_vector` must be
+    a :class:`Vector`.
+
+Instance methods:
+
+.. method:: Transformation.inverse()
+
+    Returns a new Transformation, being an inversed version of this Transformation.
 
 :class:`Alignment` reference
 ----------------------------

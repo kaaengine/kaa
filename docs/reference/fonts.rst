@@ -33,7 +33,7 @@ Constructor:
 
 .. class:: TextNode(font, text="", font_size=28.0, line_width=float("Inf"), interline_spacing=1.0, first_line_indent=0, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
-    HitboxNode extends the :class:`nodes.Node` class to give you ability to comfortably work with text.
+    TextNode extends the :class:`nodes.Node` class to give you ability to comfortably work with text.
 
     In addition to all :class:`nodes.Node` params the TextNode constructor accepts the following ones:
 
