@@ -44,12 +44,66 @@ Instance Methods:
 
 .. method:: InputManager.events()
 
-    Returns a list of :class:`Event` objects that ocurred during the last frame. Check out the :class:`Event`
-    for a full documentation on events.
+    Returns a list of :class:`Event` objects that ocurred during the last frame. Check out the
+    :class:`Event` instance documentation for details.
 
 .. method:: InputManager.register_callback(event_type, callback_func)
 
-    TODO
+    Registers a callback function which will be called when specific event type(s) occur. Allows for an easy consumption
+    of events you're interested in.
+
+    The :code:`event_type` parameter must be a specific :class:`Event` subtype. You can also pass an iterable of those.
+    Represents event type(s) you want to subscribe to.
+
+    The :code:`callback_func` must be a callable. It will get called each time given event type occurs, passing the event
+    as parameter.
+
+    .. code-block:: python
+
+        from kaa.input import EventType
+
+        def on_text_input(event):
+            print('user typed this: {}'.format(event.keyboard_text.text))
+
+        def on_mouse_event(event):
+            print('mouse button/wheel stuff happened!')
+
+        # somewhere inside a Scene instance...
+        self.input.register_callback(Event.keyboard_text, on_text_input)
+        self.input.register_callback([Event.mouse_button, Event.mouse_wheel], on_mouse_event)
+
+    Only one callback for given event type can be registered at a time. Registering another callback with the same
+    event type will overwrite the previous one:
+
+    .. code-block:: python
+
+        from kaa.input import EventType
+
+        def on_text_input_1(event):
+            print('1 - user typed this: {}'.format(event.keyboard_text.text))
+
+        def on_text_input_2(event):
+            print('2 - user typed this: {}'.format(event.keyboard_text.text))
+
+        # somewhere inside a Scene instance...
+        self.input.register_callback(Event.keyboard_text, on_text_input_1)
+        # this will cancel the previous callback (i.e. on_text_input_1 will never be called):
+        self.input.register_callback(Event.keyboard_text, on_text_input_2)
+
+    If you pass :code:`None` as callback_func, it will unregister the currently existing callback for that even type or
+    do nothing if no callback for that type is currently registered.
+
+    .. code-block:: python
+
+        from kaa.input import EventType
+
+        def on_text_input(event):
+            print('user typed this: {}'.format(event.keyboard_text.text))
+
+        # somewhere inside a Scene instance...
+        self.input.register_callback(Event.keyboard_text, on_text_input)
+        self.input.register_callback(Event.keyboard_text, None) # unregisters the callback, on_text_input won't be called
+
 
 :class:`KeyboardManager` reference
 ----------------------------------
@@ -68,7 +122,7 @@ Instance methods:
 
     .. code-block:: python
 
-        from kaa.input import KeyCode
+        from kaa.input import Keycode
 
         # somewhere inside a Scene instance...
         if self.input.keyboard.is_pressed(Keycode.w):
@@ -305,7 +359,7 @@ Instance methods
 
 .. method:: ControllerManager.get_sticks(compound_axis, controller_id)
 
-    Returns state of given stick as a :class`geometry.Vector`.
+    Returns state of given stick as a :class:`geometry.Vector`.
 
     The compound_axis parameter must be of :class:`CompoundControllerAxis` enum value.
 
@@ -347,23 +401,24 @@ Instance methods:
 
 As the game is running, a lot of things happen: the player may press or release keyboard keys
 or mouse buttons, interact with controller, he can also interact with the window in which your game is running, e.g.
-maximize or minimize it, and so on. Kaa engine detects all those events and makes them available via
-:meth:`InputManager.events()` method. The method returns a list of all events that ocurred during the previous frame,
-which means it is cleared on every frame (no events are retained).
+maximize or minimize it, and so on. Kaa engine detects all those events and makes them consumable either via
+:meth:`InputManager.events()` method or by registering a callback function :meth:`InputManager.register_callback()`.
 
-Each :class:`Event` object has identical structure with the following properties:
+Each :class:`Event` **instance** has identical structure with the following instance properties:
 
-* :code:`system` - gives access to :class:`SystemEvent` properties and methods if this event is a system related event, otherwise it will be :code:`None`
-* :code:`window` - gives access to :class:`WindowEvent` properties and methods if this event is a window related event, otherwise it will be :code:`None`
-* :code:`keyboard_key` - gives access to :class:`KeyboardKeyEvent` properties and methods if this event is a keyboard key related event, otherwise it will be :code:`None`
-* :code:`keyboard_text` - gives access to :class:`KeyboardTextEvent` properties and methods if this event is a keyboard text related event, otherwise it will be :code:`None`
-* :code:`mouse_button` - gives access to :class:`MouseButtonEvent` properties and methods if this event is a mouse button related event, otherwise it will be :code:`None`
-* :code:`mouse_motion` - gives access to :class:`MouseMotionEvent` properties and methods if this event is a mouse motion related event, otherwise it will be :code:`None`
-* :code:`mouse_wheel` - gives access to :class:`MouseWheelEvent` properties and methods if this event is a mouse wheel related event, otherwise it will be :code:`None`
-* :code:`controller_device` - gives access to :class:`ControllerDeviceEvent` properties and methods if this event is a controller device related event, otherwise it will be :code:`None`
-* :code:`controller_button` - gives access to :class:`ControllerButtonEvent` properties and methods if this event is a controller button related event, otherwise it will be :code:`None`
-* :code:`controller_axis` - gives access to :class:`ControllerAxisEvent` properties and methods if this event is a controller axis related event, otherwise it will be :code:`None`
-* :code:`audio` - gives access to :class:`AudioEvent` properties and methods if this event is an audio related event, otherwise it will be :code:`None`
+* :code:`type` - returns event type
+* :code:`timestamp` - returns time of the event occurrence
+* :code:`system` - stores :class:`SystemEvent` instance if this event is a system related event, otherwise it will be :code:`None`
+* :code:`window` - stores :class:`WindowEvent` instance if this event is a window related event, otherwise it will be :code:`None`
+* :code:`keyboard_key` - stores :class:`KeyboardKeyEvent` instance if this event is a keyboard key related event, otherwise it will be :code:`None`
+* :code:`keyboard_text` - stores :class:`KeyboardTextEvent` instance if this event is a keyboard text related event, otherwise it will be :code:`None`
+* :code:`mouse_button` - stores :class:`MouseButtonEvent` instance if this event is a mouse button related event, otherwise it will be :code:`None`
+* :code:`mouse_motion` - stores :class:`MouseMotionEvent` instance if this event is a mouse motion related event, otherwise it will be :code:`None`
+* :code:`mouse_wheel` - stores :class:`MouseWheelEvent` instance if this event is a mouse wheel related event, otherwise it will be :code:`None`
+* :code:`controller_device` - stores :class:`ControllerDeviceEvent` instance if this event is a controller device related event, otherwise it will be :code:`None`
+* :code:`controller_button` - stores :class:`ControllerButtonEvent` instance if this event is a controller button related event, otherwise it will be :code:`None`
+* :code:`controller_axis` - stores :class:`ControllerAxisEvent` instance if this event is a controller axis related event, otherwise it will be :code:`None`
+* :code:`audio` - stores :class:`AudioEvent` instance if this event is an audio related event, otherwise it will be :code:`None`
 
 Depending on the type of the event only one property will be non-null while all the other properties will be null.
 This design usually results in a following way of handling events in the code:
@@ -391,6 +446,36 @@ This design usually results in a following way of handling events in the code:
             # ... and so on ...
 
 
+Event **class** also has descriptors ("static properties") that return appropariate event types:
+
+* Event.system - returns :class:`SystemEvent` type
+* Event.window - returns :class:`WindowEvent` type
+* Event.keyboard_key - returns :class:`KeyboardKeyEvent` type
+* Event.keyboard_text - returns :class:`KeyboardTextEvent` type
+* Event.mouse_button - returns :class:`MouseButtonEvent` type
+* Event.mouse_motion - returns :class:`MouseMotionEvent` type
+* Event.mouse_wheel - returns :class:`MouseWheelEvent` type
+* Event.controller_device - returns :class:`ControllerDeviceEvent` type
+* Event.controller_button - returns :class:`ControllerButtonEvent` type
+* Event.controller_axis - returns :class:`ControllerAxisEvent` type
+* Event.audio - returns :class:`AudioEvent` type
+
+which allows checking the :code:`type` property on the event instance:
+
+.. code-block:: python
+
+    # ... inside a Scene...
+    def update(self, dt):
+
+        for event in self.input.events():
+            if event.type == Event.system:
+                # do something
+            elif event.type == Event.keyboard_key:
+                # do something ...
+            elif event.type == Event.controller_axis:
+                # do something ...
+            # ... and so on
+
 :class:`KeyboardKeyEvent` reference
 -----------------------------------
 
@@ -404,7 +489,7 @@ Instance properties:
 
 .. attribute:: KeyboardEvent.key
 
-    Returns the key this event is referring to, as :class:`KeyCode` enum value.
+    Returns the key this event is referring to, as :class:`Keycode` enum value.
 
 .. attribute:: KeyboardEvent.is_key_down
 
@@ -725,8 +810,7 @@ Instance properties:
 
 .. class:: Keycode
 
-Enum type for referencing keyboard keys when working with :class:`KeyboardManager`, :class:`KeyboardKeyEvent` and
-:class:`KeyboardTextEvent`.
+Enum type for referencing keyboard keys when working with :class:`KeyboardManager` and :class:`KeyboardKeyEvent`.
 
 Available values are:
 
