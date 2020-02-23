@@ -399,4 +399,9 @@ Instance properties:
 
 .. class:: CollisionPhase
 
-    TODO
+    Enum type used by the collision handler :class:`Arbiter`. It has the following values:
+
+    * :code:`CollisionPhase.begin`
+    * :code:`CollisionPhase.pre_solve`
+    * :code:`CollisionPhase.post_solve`
+    * :code:`CollisionPhase.separate`

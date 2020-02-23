@@ -767,11 +767,11 @@ Instance properties:
 
 .. attribute:: WindowEvent.is_enter
 
-    TODO: ???
+    Returns :code:`True` if the mouse pointer entered the window area.
 
 .. attribute:: WindowEvent.is_leave
 
-    TODO: ???
+    Returns :code:`True` if the mouse pointer left the window area.
 
 .. attribute:: WindowEvent.is_focus_gained
 

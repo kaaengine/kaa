@@ -32,8 +32,7 @@ All kaa imports cheat sheet
 
     from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, Transformation, classify_polygon
 
-    from kaa.input import Keycode, MouseButton, ControllerButton, ControllerAxis, Event, SystemEvent, WindowEvent,
-        KeyboardEvent, MouseEvent, ControllerEvent
+    from kaa.input import Event, Keycode, MouseButton, ControllerButton, ControllerAxis, CompoundControllerAxis
 
     from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreLogCategory, CoreHandler,
 
@@ -43,14 +42,14 @@ All kaa imports cheat sheet
 
     from kaa.renderer import Renderer
 
-    from kaa.sprites import Sprite
+    from kaa.sprites import Sprite, split_spritesheet
 
     from kaa.timers import Timer
 
     from kaa.transitions import NodeTransitionsSequence, NodeTransitionsParallel, NodeCustomTransition,
         AttributeTransitionMethod, NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
         NodeColorTransition, BodyNodeVelocityTransition, BodyNodeAngularVelocityTransition, NodeTransitionDelay,
-        NodeTransitionCallback
+        NodeTransitionCallback, NodeSpriteTransition
 
 
 

@@ -284,7 +284,8 @@ Instance methods:
 
 .. method:: Engine.stop()
 
-    Description TODO....
+    Stops the engine. You won't need to call it if you use context manager, i.e. initialize the Engine using the
+    :code:`with` statement.
 
 :class:`Scene` reference
 ------------------------
@@ -525,11 +526,11 @@ Instance methods:
 
 .. method:: Window.maximize()
 
-    Maximizes the window.
+    Maximizes the window. Makes most sense if using windowed mode (:code:`window.fullscreen=False`)
 
 .. method:: Window.minimize()
 
-    Minimizes the window.
+    Minimizes the window. Makes most sense if using windowed mode (:code:`window.fullscreen=False`)
 
 .. method:: Window.show()
 
@@ -541,7 +542,8 @@ Instance methods:
 
 .. method:: Window.restore()
 
-    Restores the window. TODO: what does that mean?
+    Restores the window from the maximized/minimized state to the default state. Makes most sense if using windowed
+    mode (:code:`window.fullscreen=False`)
 
 
 :class:`Renderer` reference
