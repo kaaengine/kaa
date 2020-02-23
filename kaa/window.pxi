@@ -11,12 +11,8 @@ from .kaacore.vectors cimport CVector, CUVec2
 
 @cython.final
 cdef class _Window:
-    cdef CWindow* _get_c_window(self):
-        cdef CEngine* c_engine = get_c_engine()
-        assert c_engine != NULL
-        cdef CWindow* c_window = c_engine.window.get()
-        assert c_window != NULL
-        return c_window
+    cdef CWindow* _get_c_window(self) except NULL:
+        return get_c_engine().window.get()
 
     def show(self):
         self._get_c_window().show()

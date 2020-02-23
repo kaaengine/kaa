@@ -36,7 +36,6 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
             this.added_to_parent = True
 
 
-
 cdef class NodeBase:
     cdef:
         # When node is created by class __init__ this member will be filled,
@@ -50,7 +49,7 @@ cdef class NodeBase:
     def __init__(self, **options):
         self.setup(**options)
 
-    cdef inline CNode* _get_c_node(self):
+    cdef inline CNode* _get_c_node(self) except NULL:
         cdef CNode* c_node = self._c_node_ptr.get()
         assert c_node != NULL, \
             'Operation on uninitialized or deleted Node. Aborting.'

@@ -118,7 +118,7 @@ class DemoScene(Scene):
                 elif event.keyboard_key.key == Keycode.b:
                     ret = self.music.stop()
                     print("Stopping music, success: {}".format(ret))
-            elif event.audio and  event.audio.music_finished:
+            elif event.music_finished:
                 print("Music finished!")
 
 
