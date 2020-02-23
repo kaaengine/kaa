@@ -99,11 +99,7 @@ cdef Music get_music_wrapper(const CMusic& c_music):
 @cython.final
 cdef class _AudioManager:
     cdef CAudioManager* _get_c_audio_manager(self):
-        cdef CEngine* c_engine = get_c_engine()
-        assert c_engine != NULL
-        cdef CAudioManager* c_audio_manager = c_engine.audio_manager.get()
-        assert c_audio_manager != NULL
-        return c_audio_manager
+        return get_c_engine().audio_manager.get()
 
     @property
     def master_volume(self):

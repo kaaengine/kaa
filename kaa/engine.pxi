@@ -6,7 +6,9 @@ from libcpp.vector cimport vector
 
 from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
-from .kaacore.engine cimport CEngine, get_c_engine, CVirtualResolutionMode
+from .kaacore.engine cimport (
+    CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
+)
 from .kaacore.display cimport CDisplay
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
@@ -30,32 +32,26 @@ cdef class _Engine:
          _Renderer _renderer
          _AudioManager _audio_manager
 
-    def __init__(self):
+    def __cinit__(self):
         self._window = _Window()
         self._renderer = _Renderer()
         self._audio_manager = _AudioManager()
 
-    cdef inline CEngine* _get_c_engine(self):
-        cdef CEngine* c_engine = get_c_engine()
-        if c_engine == NULL:
-            raise ValueError("Engine is not running")
-        return c_engine
-
     @property
     def current_scene(self):
-        return (<CPyScene*>self._get_c_engine().current_scene()).get_py_scene()
+        return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
 
     def change_scene(self, Scene scene not None):
-        self._get_c_engine().change_scene(scene.c_scene)
+        get_c_engine().change_scene(scene.c_scene)
 
     def run(self, Scene scene not None):
-        self._get_c_engine().run(<CScene*>scene.c_scene)
+        get_c_engine().run(<CScene*>scene.c_scene)
 
     def quit(self):
-        self._get_c_engine().quit()
+        get_c_engine().quit()
 
     def get_displays(self):
-        cdef vector[CDisplay] c_displays = self._get_c_engine().get_displays()
+        cdef vector[CDisplay] c_displays = get_c_engine().get_displays()
         cdef CDisplay c_disp
         displays_list = []
 
@@ -65,31 +61,31 @@ cdef class _Engine:
 
     @property
     def virtual_resolution(self):
-        cdef CUVec2 c_virtual_resolution = self._get_c_engine().virtual_resolution()
+        cdef CUVec2 c_virtual_resolution = get_c_engine().virtual_resolution()
         return Vector(c_virtual_resolution.x,
                       c_virtual_resolution.y)
 
     @virtual_resolution.setter
     def virtual_resolution(self, Vector new_resolution):
-        self._get_c_engine().virtual_resolution(
+        get_c_engine().virtual_resolution(
             CUVec2(new_resolution.x, new_resolution.y)
         )
 
     @property
     def virtual_resolution_mode(self):
         return VirtualResolutionMode(
-            <uint32_t>self._get_c_engine().virtual_resolution_mode()
+            <uint32_t>get_c_engine().virtual_resolution_mode()
         )
 
     @property
     def virtual_resolution_mode(self):
         return VirtualResolutionMode(
-            <uint32_t>self._get_c_engine().virtual_resolution_mode()
+            <uint32_t>get_c_engine().virtual_resolution_mode()
         )
 
     @virtual_resolution_mode.setter
     def virtual_resolution_mode(self, new_mode):
-        self._get_c_engine().virtual_resolution_mode(
+        get_c_engine().virtual_resolution_mode(
             <CVirtualResolutionMode>(<uint32_t>(int(new_mode)))
         )
 
@@ -106,7 +102,7 @@ cdef class _Engine:
         return self._audio_manager
 
     def stop(self):
-        if get_c_engine() == NULL:
+        if not is_c_engine_initialized():
             raise ValueError("Engine is stopped")
         assert _c_engine_instance != NULL
 
@@ -124,10 +120,8 @@ cdef _Engine _engine_wrapper = _Engine()
 
 def Engine(Vector virtual_resolution,
            virtual_resolution_mode=None, show_window=True):
-    global _c_engine_instance
-    if get_c_engine() != NULL:
+    if is_c_engine_initialized():
         raise ValueError('Engine was already started.')
-    assert _c_engine_instance == NULL
 
     cdef CUVec2 c_virtual_resolution = CUVec2(
         virtual_resolution.x, virtual_resolution.y
@@ -143,6 +137,7 @@ def Engine(Vector virtual_resolution,
             c_virtual_resolution,
         )
     assert c_engine_ptr != NULL
+    global _c_engine_instance
     _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
 
     c_log_dynamic(
@@ -157,7 +152,7 @@ def Engine(Vector virtual_resolution,
 
 
 def get_engine():
-    if get_c_engine() != NULL:
+    if is_c_engine_initialized():
         return _engine_wrapper
 
 

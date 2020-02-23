@@ -4,7 +4,7 @@ from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
-from .kaacore.engine cimport get_c_engine
+from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 
@@ -57,12 +57,11 @@ cdef cppclass CPyScene(CScene):
 cdef class _SceneCamera:
     cdef CPyScene* c_scene
 
-    def __cinit__(self):
-        self.c_scene = NULL
-
-    cdef attach_c_scene(self, CPyScene* c_scene):
-        assert self.c_scene == NULL
-        self.c_scene = c_scene
+    @staticmethod
+    cdef _SceneCamera create(CPyScene* c_scene):
+        cdef _SceneCamera camera = _SceneCamera.__new__(_SceneCamera)
+        camera.c_scene = c_scene
+        return camera
 
     @property
     def position(self):
@@ -111,7 +110,7 @@ cdef class Scene:
         readonly _SceneCamera camera
 
     def __cinit__(self):
-        if get_c_engine() == NULL:
+        if not is_c_engine_initialized():
             raise RuntimeError(
                 'Cannot create scene since engine is not initialized yet.'
             )
@@ -120,10 +119,11 @@ cdef class Scene:
             CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
         )
         self.c_scene = new CPyScene(self)
+        assert self.c_scene != NULL
+
         self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self.c_scene.root_node))
         self.input_manager = InputManager()
-        self.camera = _SceneCamera()
-        self.camera.attach_c_scene(self.c_scene)
+        self.camera = _SceneCamera.create(self.c_scene)
 
     def __dealloc__(self):
         del self.c_scene

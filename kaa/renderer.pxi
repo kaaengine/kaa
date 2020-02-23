@@ -8,11 +8,7 @@ from .kaacore.engine cimport CEngine, get_c_engine
 @cython.final
 cdef class _Renderer:
     cdef CRenderer* _get_c_renderer(self):
-        cdef CEngine* c_engine = get_c_engine()
-        assert c_engine != NULL
-        cdef CRenderer* c_renderer = c_engine.renderer.get()
-        assert c_renderer != NULL
-        return c_renderer
+        return get_c_engine().renderer.get()
     
     @property
     def clear_color(self):
