@@ -16,7 +16,7 @@ from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
     CCompoundControllerAxis, CEventType, CSystemEvent, CWindowEvent,
     CKeyboardKeyEvent, CKeyboardTextEvent, CMouseButtonEvent, CMouseMotionEvent,
-    CMouseWheelEvent, CControllerButtonEvent, CControllerAxisEvent, CAudioEvent,
+    CMouseWheelEvent, CControllerButtonEvent, CControllerAxisEvent, CMusicFinishedEvent,
     CEvent, CInputManager, CSystemManager, CKeyboardManager, CMouseManager,
     CControllerManager, CControllerID, CEventCallback, CythonEventCallback,
     bind_cython_event_callback
@@ -532,7 +532,6 @@ cdef class MouseButtonEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
     
-    @property
     def button(self):
         return MouseButton(<uint32_t>(self.c_event.mouse_button().button()))
 
@@ -597,7 +596,6 @@ cdef class ControllerButtonEvent(_BaseEvent):
     def id(self):
         return self.c_event.controller_button().id()
 
-    @property
     def button(self):
         return ControllerButton(
             <uint32_t>(self.c_event.controller_button().button())
@@ -661,16 +659,12 @@ cdef class ControllerDeviceEvent(_BaseEvent):
 
 
 @cython.final
-cdef class AudioEvent(_BaseEvent):
+cdef class MusicFinishedEvent(_BaseEvent):
     @staticmethod
-    cdef AudioEvent create(CEvent c_event):
-        cdef AudioEvent instance = AudioEvent.__new__(AudioEvent)
+    cdef MusicFinishedEvent create(CEvent c_event):
+        cdef MusicFinishedEvent instance = MusicFinishedEvent.__new__(MusicFinishedEvent)
         instance.c_event = c_event
         return instance
-
-    @typed_property(EventType.music_finished)
-    def is_music_finished(self):
-        return self.c_event.audio().is_music_finished()
 
 
 @cython.final
@@ -760,13 +754,10 @@ cdef class Event(_BaseEvent):
         if self.c_event.controller_device():
             return ControllerDeviceEvent.create(self.c_event)
 
-    @typed_property((
-        EventType.music_finished,
-        EventType.channel_finished
-    ))
-    def audio(self):
-        if self.c_event.audio():
-            return AudioEvent.create(self.c_event)
+    @typed_property(EventType.music_finished)
+    def music_finished(self):
+        if self.c_event.music_finished():
+            return MusicFinishedEvent.create(self.c_event)
     
 
 cdef class _BaseInputManager:
