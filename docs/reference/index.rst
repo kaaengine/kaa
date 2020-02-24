@@ -22,7 +22,7 @@ All kaa imports cheat sheet
 
 .. code-block:: python
 
-    from kaa.audio import Sound, Music
+    from kaa.audio import Sound, SoundPlayback, Music, AudioStatus
 
     from kaa.colors import Color
 

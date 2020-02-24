@@ -36,9 +36,68 @@ Instance methods:
     Multiple sound effects can be played simultaneously, up to a limit set on the
     :ref:`AudioManager.mixing_channels <AudioManager.mixing_channels>` property.
 
-    Current kaa version does not support stopping sound effect currently being played. It does not publish an event
-    when the sound stops playing either. This is to be implemented in the future, currently playing sounds is a
-    "fire and forget" mode.
+    The play() method is a simple "fire and forget" mechanism. It does not allow you to stop, pause or resume the
+    sound. If you need more control on how the sound effects playback, use the :class:`SoundPlayback` wrapper.
+
+
+:class:`SoundPlayback` reference
+--------------------------------
+
+.. class:: SoundPlayback(sound, volume=1.0)
+
+    A wrapper class for :class:`Sound` objects, offering more control over sound effects playback.
+
+    The :code:`sound` parameter must be a :class:`Sound` instance.
+
+    Volume must be a value between 0 and 1.
+
+Instance properties:
+
+.. attribute:: SoundPlayback.sound
+
+    Read only. Returns the wrapped :class:`Sound` instance
+
+.. attribute:: SoundPlayback.status
+
+    Read only. Returns the sound status, as :class:`AudioStatus` enum value.
+
+.. attribute:: SoundPlayback.is_playing
+
+    Read only. Returns :code:`True` if the sound is playing.
+
+.. attribute:: SoundPlayback.is_paused
+
+    Read only. Returns :code:`True` if the sound is paused.
+
+.. attribute:: SoundPlayback.volume
+
+    Gets or sets the volume. Must be a number between 0 and 1.
+
+Instance methods:
+
+.. method:: SoundPlayback.play(loops=1)
+
+    Plays the sound effect.
+
+    The :code:`loops` parameter is how many times the sound should play. Set to 0 to play the sound in the infinite
+    loop.
+
+    Multiple sound effects can be played simultaneously, up to a limit set on the
+    :ref:`AudioManager.mixing_channels <AudioManager.mixing_channels>` property.
+
+    Use :meth:`stop()`, :meth:`pause()` and :meth:`resume()` methods to control the sound playback.
+
+.. method:: SoundPlayback.stop()
+
+    Stops the sound playback if it's playing or paused.
+
+.. method:: SoundPlayback.pause()
+
+    Pauses the sound playback if it's playing.
+
+.. method:: SoundPlayback.resume()
+
+    Resumes the sound playback if it's paused.
 
 
 :class:`Music` reference
@@ -75,9 +134,19 @@ Class methods
 
     Returns :class:`Music` instance currently being played
 
-.. classmethod:: Music.get_state()
+Instance properties
 
-    TODO. This is not working, guys need to surface the enum type to return the Music state (playing, paused, stopped)
+.. attribute:: Music.status
+
+    Read only. Returns the status of the Music track, as :class:`AudioStatus` enum value.
+
+.. attribute:: Music.is_playing
+
+    Read only. Returns :code:`True` if the music is playing.
+
+.. attribute:: Music.is_paused
+
+    Read only. Returns :code:`True` if the music is paused.
 
 Instance methods
 
@@ -91,12 +160,25 @@ Instance methods
 
 .. method:: Music.pause()
 
-    Pauses the music track currently being played. Can be resumed with :meth:`Music.resume` method
+    Pauses the music track currently being played. Can be resumed with :meth:`Music.resume()` method
 
 .. method:: Music.resume()
 
-    Resumes music track paused by :meth:`Music.pause`. If the track is not paused, it does nothing.
+    Resumes music track paused by :meth:`Music.pause()`. If the track is not paused, it does nothing.
 
 .. method:: Music.stop()
 
     Stops the music track.
+
+
+:class:`AudioStatus` reference
+------------------------------
+
+.. class:: AudioStatus
+
+    Enum type used for referencing sound or music status when working with :class:`Music`, :class:`Sound` and
+    :class:`SoundPlayback` objects. It has the following values:
+
+    * :code:`AudioStatus.playing`
+    * :code:`AudioStatus.paused`
+    * :code:`AudioStatus.stopped`
