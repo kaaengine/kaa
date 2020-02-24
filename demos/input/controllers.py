@@ -159,17 +159,17 @@ class MyScene(Scene):
     def update(self, dt):
 
         for event in self.input.events():
-            if event.keyboard:
-                if event.keyboard.is_pressing(Keycode.q):
+            if event.keyboard_key :
+                if event.keyboard_key.is_key_down(Keycode.q):
                     self.engine.quit()
 
-            if event.controller:
-                if event.controller.added:
-                    self.on_controller_connected(event.controller)
-                elif event.controller.removed:
-                    self.on_controller_disconnected(event.controller)
+            if event.controller_device:
+                if event.controller_device.added:
+                    self.on_controller_connected(event.controller_device)
+                elif event.controller_device.removed:
+                    self.on_controller_disconnected(event.controller_device)
                 else:
-                    self.log_controller_event(event.controller)
+                    self.log_controller_event(event.controller_device)
 
             if event.system and event.system.quit:
                 self.engine.quit()
