@@ -15,6 +15,7 @@ Kaa engine Reference
     nodes
     physics
     sprites
+    timers
     transitions
 
 All kaa imports cheat sheet
