@@ -397,8 +397,8 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_added() except +raise_py_error
         bint is_removed() except +raise_py_error
 
-    cdef cppclass CAudioEvent "kaacore::AudioEvent":
-        bint is_music_finished() except +raise_py_error
+    cdef cppclass CMusicFinishedEvent "kaacore::MusicFinishedEvent":
+        pass
 
     cdef cppclass CEvent "kaacore::Event":
         CEventType type() except +raise_py_error
@@ -413,8 +413,7 @@ cdef extern from "kaacore/input.h" nogil:
         const CControllerButtonEvent* const controller_button() except +raise_py_error
         const CControllerAxisEvent* const controller_axis() except +raise_py_error
         const CControllerDeviceEvent* const controller_device() except +raise_py_error
-
-        const CAudioEvent* const audio() except +raise_py_error
+        const CMusicFinishedEvent* const music_finished() except +raise_py_error
     
     cdef cppclass CSystemManager "kaacore::InputManager::SystemManager":
         string get_clipboard_text() except +raise_py_error
