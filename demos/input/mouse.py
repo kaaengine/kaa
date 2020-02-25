@@ -9,13 +9,13 @@ class MyScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.mouse:
-                if event.mouse.motion:
-                    print("Mouse motion: {}. Pos is: {}. Scroll is: {}".format(event.mouse.motion, event.mouse.position, event.mouse.scroll))
-                if event.mouse.wheel:
-                    print("Mouse wheel: {}. Pos is: {}. Scroll is: {}".format(event.mouse.wheel, event.mouse.position, event.mouse.scroll))
-                if event.mouse.button:
-                    print("Mouse button: {}".format(event.mouse.button))
+            if event.mouse_motion:
+                print("Mouse motion occurred. New pos is: {}".format(event.mouse_motion.position))
+            elif event.mouse_wheel:
+                print("Mouse wheel event ocurred: Wheel scrolled by {}".format(event.mouse_wheel.scroll))
+            elif event.mouse_button:
+                print("Mouse button event ocurred. Button={}, is down={}, is up={}".format(
+                    str(event.mouse_button.button), event.mouse_button.is_button_down, event.mouse_button.is_button_up))
 
             if event.system and event.system.quit:
                 self.engine.quit()

@@ -164,9 +164,9 @@ class MyScene(Scene):
                     self.engine.quit()
 
             if event.controller_device:
-                if event.controller_device.added:
+                if event.controller_device.is_added:
                     self.on_controller_connected(event.controller_device)
-                elif event.controller_device.removed:
+                elif event.controller_device.is_removed:
                     self.on_controller_disconnected(event.controller_device)
                 else:
                     self.log_controller_event(event.controller_device)
