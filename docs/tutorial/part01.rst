@@ -54,19 +54,6 @@ Start the game by running:
 
 You should see a 800x600 window with a black background. Congratulations, you got the game running!
 
-You cannot close the window, right? It's because we're not handling the quit event. Let's quickly fix it by adding this
-code inside the scene's update function:
-
-.. code-block:: python
-
-    def update(self, dt):
-        for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-
-Clicking window's "x" icon will now close it. We also learned how we can consume events from the engine.
-It will be useful later when we'll consume input events from keyboard and mouse.
-
 Understanding virtual resolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -168,9 +155,7 @@ and proceed to :doc:`Part 2 of the tutorial </tutorial/part02>`
     class MyScene(Scene):
 
         def update(self, dt):
-            for event in self.input.events():
-                if event.system and event.system.quit:
-                    self.engine.quit()
+            pass
 
 
     with Engine(virtual_resolution=Vector(800, 600)) as engine:

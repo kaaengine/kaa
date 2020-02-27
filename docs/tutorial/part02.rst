@@ -56,7 +56,7 @@ Kaa engine loads images to objects called Sprites. With the image loaded, we can
         from kaa.sprites import Sprite
         import os
 
-        # creating objects outside engine's 'with' context like this will cause your program crash:
+        # creating objects outside engine's 'with' context like this will throw an exception
         loose_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png'))
 
 
@@ -73,7 +73,7 @@ Kaa engine loads images to objects called Sprites. With the image loaded, we can
             my_scene = MyScene()
             engine.run(my_scene)
 
-    Try running it. It will crash badly because of that Sprite creation outside engine context.
+    Try running it. Kaaengine will thrown an exception because of that Sprite creation outside the engine context.
 
 Drawing objects on the screen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,6 +110,8 @@ Let's add our objects as children of the root node:
         self.root.add_child(self.arrow3)
 
 Run the game again. Looks much better doesn't it? The arrows appear exactly where we put them.
+
+**Note**: Sprites are immutable. Think of them as wrapper objects for image files.
 
 Moving objects around
 ~~~~~~~~~~~~~~~~~~~~~
@@ -225,7 +227,7 @@ origin alignment. Not surprisingly, we can see that origin marker is to the righ
 You can re-set the origin to be in one of the 9 standard positions: top-left, top, top-right, left, central (default), right,
 bottom-left, bottom and bottom-right. The node's rectangular shape will be drawn according to origin position.
 
-All transformations such as positioning, scaling or rotating are made in relation to the origin. We'll see that in
+All transformations such as positioning, scaling or rotating are applied in relation to the origin. We'll see that in
 practice in the next section.
 
 .. note::
@@ -253,9 +255,9 @@ Let's get to it. Modify the :code:`update` function in :code:`MyScene` class:
         self.arrow2.rotation_degrees += 1  # rotating 1 degree PER FRAME (not the best design)
         self.arrow3.rotation_degrees += 90 * dt / 1000  # rotating 90 degrees PER SECOND (good design!)
 
-Run the game and notice how the arrows rotate around their respective origin points. It's also worth noting that
+Run the game and notice how the arrows rotate **around their respective origin points**. It's also worth noting that
 it's generally better to include dt in all formulas which transform game objects. Rotating, moving, or generally applying
-any other transformation by a fixed value **per frame** can lead to problems because it is not guaranteed
+any other transformation by a fixed value per frame can lead to problems because it is not guaranteed
 that frame time (dt) will always be identical. Some frames may take longer to process than others and the visible
 transformations would suddenly speed up or slow down, confusing the player. Thus it's usually better to apply
 transformations **per second**.
@@ -266,8 +268,8 @@ Objects can have child objects
 So far we've been adding objects (Nodes) to the root Node of the scene. But each node we create can have its own
 child nodes, those child nodes can have their own children and so on.
 
-All transformations applied to a node are also applied to all its child nodes. Let's check this out in practice. Add
-the following code to the :code:`__init__` function of the Scene.
+All transformations applied to a node are automatically applied to all its child nodes. Let's check this out in
+practice. Add the following code to the :code:`__init__` function of the Scene.
 
 .. code-block:: python
 
@@ -278,10 +280,20 @@ the following code to the :code:`__init__` function of the Scene.
         self.arrow3.add_child(self.child_arrow1)
 
 Run the game and check out the result. First thing you have probably noticed is that we set child_arrow1's position to
-(0,0) yet the green arrow is being shown at (600, 500)! This is because child node's position value is not absolute
-but relative to the parent. Since parent's position is (600, 500) and child's offset is (0, 0) therefore
+(0,0) yet the green arrow is being shown at (600, 500)! This is because **child node's position value is not absolute
+but relative to the parent**. Since parent's position is (600, 500) and child's offset is (0, 0) therefore
 calculated child position is (600, 500). As you have noticed the child arrow is rotating together with the parent,
 rotated (again, relatively) by +90 degrees.
+
+It is very important to remember that position, scale and rotation of each node are always relative to their parent node.
+There is a way to get an **absolute** position, scale or rotation of a Node:
+
+.. code-block:: python
+
+    print(self.arrow3.absolute_position)
+    print(self.arrow3.absolute_rotation)
+    print(self.arrow3.absolute_rotation_degrees)
+    print(self.arrow3.absolute_scale)
 
 Take some time to experiment with the parent-child system. Try changing child and parent node's properties such as position,
 origin_alignment, rotation, scaling etc., try updating both nodes properties inside update() function and observe
@@ -309,106 +321,100 @@ Using animated sprites
 
 So far we've been using single-frame images. Kaa engine supports frame-by-frame sprite animations. Take a look at
 :code:`assets/gfx/explosion.png` file. It is a frame by frame animation of an explosion, frame size is 100x100
-and there are 75 actual frames in the file. Let's tell kaa to create an animated Sprite.
+and there are 75 actual frames in the file.
+
+Creating animation is a two step process:
+
+First, we need to 'cut' each frame from the :code:`explosion.png` spritesheet file and make it a separate :code:`Sprite`.
+In other words we need to have 75 Sprites, one for each frame. Fortunately we don't need to do that manually,
+there's a helper function for slicing spritesheets: :code:`split_spritesheet`. Let's use it.
+
+.. code-block:: python
+
+    from kaa.sprites import Sprite, split_spritesheet
+
+    def __init__(self):
+        # .... previous code .....
+        self.explosion_spritesheet = Sprite(os.path.join('assets', 'gfx', 'explosion.png')) # laod the whole spritesheet
+        self.explosion_frames = split_spritesheet(self.explosion_spritesheet, frame_dimensions=Vector(100,100),
+            frames_count=75)  # create 75 separate <Sprite> objects
+
+The function is rather self-explanatory, it takes a sprite, goes through it left to right and top to bottom, cutting out
+frames using specified frame dimensions. It stops after :code:`frames_count` frames.
+
+The second step is to create an animation, and assign it to a node. We then add the Node to the scene:
+
+.. code-block:: python
+
+    from kaa.transitions import NodeSpriteTransition
+
+    def __init__(self):
+        # .... previous code .....
+        explosion_animation = NodeSpriteTransition(self.explosion_frames, duration=1000, loops=0)  # create animation
+        self.explosion = Node(position=Vector(600, 150), transition=explosion_animation)  # create node
+        self.root.add_child(self.explosion)  # add node to scene
+
+Few things demand explanation here. First, you may the weird name of the animation object. Why is it called
+:code:`NodeSpriteTransition`, not just :code:`SpriteAnimation` or something similar? Why is it imported from
+:code:`kaa.transitions` namespace ? The reason is because it's a part of much more general mechanism called...
+transitions! Transitions are recipes how node's property should evolve over time. In this case the evolving property
+is a sprite, but as you will see in the :doc:`Part 9 of the tutorial </tutorial/part09>` there are also transitions
+for properties such as position, rotation, scale, color and others. The mechanism allows to 'change' those properties
+over time just like we change the sprite over time. That also explains why node property is called :code:`transition`.
+
+Let's look at the :code:`NodeSpriteTransition` parameters. First one is obviously a list of frames, the :code:`duration`
+tells how long the animation should take (in miliseconds). The :code:`loops` parameter tells how many times the
+animation should repeat. 0 means infinite number of repetitions.
+
+Run the game and behold the animated explosion, if you haven't yet!
+
+**Note**: All transitions, including :code:`NodeSpriteTransition` are immutable which means if you need to create a
+transition with different parameters, you need to create a new transition object. You can re-use the same transition
+on multiple nodes though.
+
+Let's illustrate this on example. Let's use the same set of frames to create a new animation: longer duration,
+with 3 loops instead of the infinite loop, and running back and forth. Then let's add two explosion Nodes
+using that animation
 
 .. code-block:: python
 
     def __init__(self):
         # .... previous code .....
-        self.explosion_sprite_looped = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=75,
-                                        frame_dimensions=Vector(100,100), animation_frame_duration=25,
-                                        animation_loop=True)
-
-Apart from frame dimension and frame count we've set frame duration (in miliseconds) and animation_loop flag
-which will cause all objects using that Sprite to replay animation in a loop. Let's now add an object to the scene
-usining that explosion sprite
-
-.. code-block:: python
-
-    def __init__(self):
-        # .... previous code .....
-        self.explosion = Node(sprite=self.explosion_sprite_looped, position=Vector(600, 150))
-        self.root.add_child(self.explosion)
-
-Run the game and behold the animated explosion!
-
-.. note::
-
-    When loading animation frames from file kaa is reading them left-to-right and top-to-bottom.
-
-A question you may ask now is: what if I want to show some objects in my game with the same animated graphics but with
-different animation options (e.g. slower animation and without a loop). Should I create a new sprite
-for each animation options combination? The answer is yes! Sprite objects don't have to map one-to-one with image files.
-If needed, you can create as many Sprites as you wish from the same file, and then as many objects as you wish using
-any of those Sprites.
-
-For example: let's use the same explosion.png file to create a new Sprite, with longer frame duration and without
-animation loop. Then let's add two explosions using that Sprite
-
-.. code-block:: python
-
-    def __init__(self):
-        # .... previous code .....
-        self.explosion_sprite_long = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=75,
-                                        frame_dimensions=Vector(100,100), animation_frame_duration=100)
-        self.explosion2 = Node(sprite=self.explosion_sprite_long, position=Vector(100, 400))
-        self.explosion3 = Node(sprite=self.explosion_sprite_long, position=Vector(200, 500))
+        explosion_animation_long =  NodeSpriteTransition(self.explosion_frames, duration=4000, loops=3,
+                                                         back_and_forth=True)  # create animation
+        self.explosion2 = Node(position=Vector(100, 400), transition=explosion_animation_long)
+        self.explosion3 = Node(position=Vector(200, 500), transition=explosion_animation_long)
         self.root.add_child(self.explosion2)
         self.root.add_child(self.explosion3)
 
-Run the game and check out the new explosions.
+Run the game and check out the new explosions. We've also learned about :code:`back_and_forth` flag on the
+:code:`NodeSpriteTransition`!
 
-Using one image file with multiple animations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Many 2D sprite tools pack multiple different animations into one file, which is often called "sprite atlas". You can
-tell kaa to load a Sprite from a part of the file using Sprite's :code:`crop()` method.
+How to crop a Sprite
+~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
-
-    def __init__(self):
-        # .... previous code .....
-        self.explosion_sprite_cropped = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=5,
-                                               frame_dimensions=Vector(100, 100), animation_frame_duration=1000).crop(
-            Vector(0, 300), Vector(500, 100))
-        self.explosion_cropped = Node(sprite=self.explosion_sprite_cropped, position=Vector(300, 100))
-        self.root.add_child(self.explosion_cropped)
-
-The first parameter of the :code:`crop()` is crop start point, the second parameter is crop size width and height.
-In this case we have cropped a 500x100 area from explosion.png starting from point (0,300). Since this area holds
-5 frames, we set sprite's frame_count to 5.
-
-Run the game and observe the animation. Notice that the last frame always remains visible after the animation ends.
+What if you want to crop the Sprite manually? Use :code:`crop()` method on Sprite object, getting a new Sprite:
 
 Controlling animations manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to take full control of the animation you can select frame you want to display by setting
-:code:`frame_current` on a Sprite. It is zero-based index of the current frame. Although the nodes may re-use
-the same Sprite, in fact the Sprite animation state gets copied and is tracked separately for each Node.
-
-.. code-block:: python
-
-    my_node.sprite.frame_current = 12
-
-.. note::
-
-    The most efficient way of controlling animations manually is writing custom trainsitions. We'll learn about
-    transitions in :doc:`Chapter 10 of the tutorual </tutorial/part10>`
-
+If you want to take full control of the animation you need to set each frame manually (set the :code:`sprite` on
+given Node manually). It's entirely up to you how you do that, let's just say that there's something like custom
+transitions. We'll learn more about transitions in :doc:`Chapter 10 of the tutorual </tutorial/part10>`
 
 Setting a lifetime of an object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For every Node you create you can set a :code:`lifetime` property. It is a number of miliseconds after which the node
 will be automatically removed from the scene. Just remember that the timer starts ticking from the moment of adding node to the
-scene, not from the moment of constructing the Node.
+scene, not from the moment of creating the Node object. If a node is already added to the Scene, the timer starts immediately.
 
-Let's set lifetime property on the explosion_cropped Node:
+Let's set lifetime property on one of the nodes:
 
 .. code-block:: python
 
-    self.explosion_cropped = Node(sprite=self.explosion_sprite_cropped, position=Vector(300, 100), lifetime=5000)
+    self.explosion3.lifetime = 5000
 
 Run the game, and observe that the node gets removed after 5 seconds.
 
@@ -425,9 +431,9 @@ You will of course need to remove Nodes from the scene programmatically as well.
 The node will get removed from the scene immediately. If it has child nodes, they will be removed as well, together
 with their child nodes and so on, recursively.
 
-**IMPORTANT**: after deleting a node you should not call any of its method or access any of its properties!
-Working with deleted nodes is a common mistake for new kaa users. It's very hard to track because it will produce
-non deterministic efects as the game runs, eventually leading to a segmentation fault and a brutal crash to desktop.
+**IMPORTANT**: after deleting a node you should not call any of its method or access any of its properties, even
+the read-only properties. It will cause non deterministic efects as the game runs, eventually leading to a
+segmentation fault and a crash to desktop.
 
 
 End of Part 2 - full code
@@ -441,11 +447,12 @@ Anyway, here's the full listing of main.py after Part 2:
 .. code-block:: python
 
     from kaa.engine import Engine, Scene
-    from kaa.geometry import Vector, Alignment
-    from kaa.sprites import Sprite
+    from kaa.geometry import Vector
+    from kaa.sprites import Sprite, split_spritesheet
     from kaa.nodes import Node
+    from kaa.geometry import Alignment
+    from kaa.transitions import NodeSpriteTransition
     import os
-
 
     class MyScene(Scene):
 
@@ -460,7 +467,7 @@ Anyway, here's the full listing of main.py after Part 2:
             self.root.add_child(self.arrow3)
             self.arrow1.position = Vector(360, 285)
             self.arrow1.z_index = 1  # note: default z_index is 0
-            self.arrow1.rotation_degrees = 45  # note: default rotation_degrees is 0
+            self.arrow1.rotation_degrees = 45
             self.arrow1.scale = Vector(0.5, 1)  # note: default is Vector(1,1)
             # create pixel marker sprite
             self.pixel_marker_sprite = Sprite(os.path.join('assets', 'gfx', 'pixel-marker.png'))
@@ -473,36 +480,34 @@ Anyway, here's the full listing of main.py after Part 2:
             self.root.add_child(self.pixel_marker2)
             self.arrow3.origin_alignment = Alignment.right  # default is Alignment.center
             self.green_arrow_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow-green.png'))
-            self.child_arrow1 = Node(sprite=self.green_arrow_sprite, position=Vector(0, 0), rotation_degrees=90, z_index=1)
+            self.child_arrow1 = Node(sprite=self.green_arrow_sprite, position=Vector(0,0), rotation_degrees=90, z_index=1)
             self.arrow3.add_child(self.child_arrow1)
-            self.explosion_sprite_looped = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=75,
-                                                  frame_dimensions=Vector(100, 100), animation_frame_duration=25,
-                                                  animation_loop=True)
-            self.explosion = Node(sprite=self.explosion_sprite_looped, position=Vector(600, 150))
-            self.root.add_child(self.explosion)
+            self.explosion_spritesheet = Sprite(os.path.join('assets', 'gfx', 'explosion.png')) # laod the whole spritesheet
+            self.explosion_frames = split_spritesheet(self.explosion_spritesheet, frame_dimensions=Vector(100,100),
+                frames_count=75)  # create 75 separate <Sprite> objects
+            explosion_animation = NodeSpriteTransition(self.explosion_frames, duration=1000, loops=0)  # create animation
+            self.explosion = Node(position=Vector(600, 150), transition=explosion_animation)  # create node with animation
+            self.root.add_child(self.explosion)  # add node to scene
 
-            self.explosion_sprite_long = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=75,
-                                                frame_dimensions=Vector(100, 100), animation_frame_duration=100)
-            self.explosion2 = Node(sprite=self.explosion_sprite_long, position=Vector(100, 400))
-            self.explosion3 = Node(sprite=self.explosion_sprite_long, position=Vector(200, 500))
+            explosion_animation_long =  NodeSpriteTransition(self.explosion_frames, duration=4000, loops=3,
+                                                             back_and_forth=True)  # create animation
+            self.explosion2 = Node(position=Vector(100, 400), transition=explosion_animation_long)
+            self.explosion3 = Node(position=Vector(200, 500), transition=explosion_animation_long)
             self.root.add_child(self.explosion2)
             self.root.add_child(self.explosion3)
+            self.explosion3.lifetime = 5000
 
-            self.explosion_sprite_cropped = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=5,
-                                                   frame_dimensions=Vector(100, 100), animation_frame_duration=1000).crop(
-                Vector(0, 300), Vector(500, 100))
-            self.explosion_cropped = Node(sprite=self.explosion_sprite_cropped, position=Vector(300, 100), lifetime=5000)
-            self.root.add_child(self.explosion_cropped)
 
         def update(self, dt):
-            for event in self.input.events():
-                if event.system and event.system.quit:
-                    self.engine.quit()
+            #  .... previous code ....
             self.arrow2.rotation_degrees += 1  # rotating 1 degree PER FRAME (not the best design)
             self.arrow3.rotation_degrees += 90 * dt / 1000  # rotating 90 degrees PER SECOND (good design!)
 
 
     with Engine(virtual_resolution=Vector(800, 600)) as engine:
+        # set  window properties
+        engine.window.size = Vector(800, 600)
+        engine.window.title = "My first kaa game!"
         # initialize and run the scene
         my_scene = MyScene()
         engine.run(my_scene)

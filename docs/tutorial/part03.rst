@@ -7,8 +7,8 @@ add child nodes to other nodes and how to use animations. Let's start writing th
 The game will be a top-down shooter with 3 weapons: machine gun, grenade launcher and force gun (will
 shoot non-lethal bullets which will push enemies away) and one type of enemy (a zombie). Enemies will have a basic AI with
 two behavior patterns: walk towards the player or just walk towards randomly selected point. We will implement
-some animations such as explosions of blood splatters. We'll use kaa's physics system to detect collisions between
-bullets and enemies as well as between characters in the game (player and enemies).  We'll use some sound effects and
+some animations such as explosions and blood splatters. We'll use kaa's physics system to detect collisions between
+bullets and enemies as well as between characters in the game (player and enemies).  We'll add some sound effects and
 music for a better experience. We will also learn how to draw text and how to control a camera.
 Finally, we'll learn how to add more scenes, such as main screen or pause screen and how to switch between them.
 

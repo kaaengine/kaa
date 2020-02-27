@@ -85,6 +85,9 @@ Instance methods
         new_sprite = sprite.crop(Vector(150,200), Vector(20,30))  # crop a new (20x30) sprite, starting at (150,200)
         print(new_sprite.size) # V[20,30]
 
+:meth:`split_spritesheet` reference
+-----------------------------------
+
 .. method:: split_spritesheet(spritesheet, frame_dimensions, frames_offset=0, frames_count=None, frame_padding=None)
 
     When an image file is a spritesheet you need to 'cut' it into individual Sprites (individual frames), which
