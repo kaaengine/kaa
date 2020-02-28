@@ -39,6 +39,7 @@ and files structure.
         objects/
             weapons/
                 __init__.py
+                base.py
                 force_gun.py
                 grenade_launcher.py
                 machine_gun.py
@@ -154,20 +155,20 @@ and created again. If we load assets inside scene's __init__ - we would re-load 
 player starts a new game).
 
 Scene's :code:`__init__` should only create Nodes needed to initialize the scene. Sprites and other assets-related
-objects should be created only once, when the game starts. That's what our :code:`AssetsController` class is for.
-Let's edit the :code:`assets_controller.py` file:
+objects are immutable, so should be created only once, when the game starts. That's what our :code:`AssetsController`
+class is for. Let's edit the :code:`assets_controller.py` file:
 
 .. code-block:: python
     :caption: controllers/assets_controller.py
 
     import os
-    from kaa.sprites import Sprite
+    from kaa.sprites import Sprite, split_spritesheet
     from kaa.geometry import Vector
 
     class AssetsController:
 
         def __init__(self):
-            # Load all images:
+            # Load images:
             self.background_img = Sprite(os.path.join('assets', 'gfx', 'background.png'))
             self.title_screen_background_img = Sprite(os.path.join('assets', 'gfx', 'title-screen.png'))
             self.player_img = Sprite(os.path.join('assets', 'gfx', 'player.png'))
@@ -177,20 +178,29 @@ Let's edit the :code:`assets_controller.py` file:
             self.machine_gun_bullet_img = Sprite(os.path.join('assets', 'gfx', 'machine-gun-bullet.png'))
             self.force_gun_bullet_img = Sprite(os.path.join('assets', 'gfx', 'force-gun-bullet.png'))
             self.grenade_launcher_bullet_img = Sprite(os.path.join('assets', 'gfx', 'grenade-launcher-bullet.png'))
-
-            self.enemy_img = Sprite(os.path.join('assets', 'gfx', 'enemy.png'), frame_dimensions=Vector(33, 74),
-                                    frame_count=8, animation_frame_duration=50, animation_loop=True)
             self.enemy_stagger_img = Sprite(os.path.join('assets', 'gfx', 'enemy-stagger.png'))
-            # enemy-death.png has a few death animations, so make this a list
-            self.enemy_death_imgs = [Sprite(os.path.join('assets','gfx','enemy-death.png'), frame_dimensions=Vector(103, 74),
-                                          frame_count=9, animation_loop=False, animation_frame_duration=50).crop(
-                Vector(0, i*74), Vector(103*9, 74)) for i in range(0, 5)]
-            self.blood_splatter_img = Sprite(os.path.join('assets', 'gfx', 'blood-splatter.png'), frame_dimensions=Vector(50, 50),
-                                          frame_count=7, animation_loop=False, animation_frame_duration=20)
-            self.explosion_img = Sprite(os.path.join('assets', 'gfx', 'explosion.png'), frame_count=75,
-                                        frame_dimensions=Vector(100,100), animation_frame_duration=12, animation_loop=False)
             # few variants of bloodstains, put them in the same list so we can pick them randomly later
             self.bloodstain_imgs = [Sprite(os.path.join('assets', 'gfx', f'bloodstain{i}.png')) for i in range(1, 5)]
+
+            # Load spritesheets
+            self.enemy_spritesheet = Sprite(os.path.join('assets', 'gfx', 'enemy.png'))
+            self.blood_splatter_spritesheet = Sprite(os.path.join('assets', 'gfx', 'blood-splatter.png'))
+            self.explosion_spritesheet = Sprite(os.path.join('assets', 'gfx', 'explosion.png'))
+            # enemy-death.png has a few death animations, so make this a list
+            self.enemy_death_spritesheet = Sprite(os.path.join('assets','gfx','enemy-death.png'))
+
+            # use the spritesheets to create framesets
+            self.enemy_frames = split_spritesheet(self.enemy_spritesheet, frame_dimensions=Vector(33, 74))
+            self.blood_splatter_frames = split_spritesheet(self.blood_splatter_spritesheet, frame_dimensions=Vector(50, 50))
+            self.explosion_frames = split_spritesheet(self.explosion_spritesheet, frame_dimensions=Vector(100, 100), frames_count=75)
+
+            self.enemy_death_frames = [
+                split_spritesheet(self.enemy_death_spritesheet.crop(Vector(0, i*74), Vector(103*9, 74)),
+                                  frame_dimensions=Vector(103, 74)) for i in range(0, 5)
+            ]
+
+The code is using things we've learned in previous chapter: creating a new Sprite, using crop method and using
+split_spritesheet to prepare individual animation frames which we'll use later.
 
 Feel free to review the contents of the :code:`assets/gfx` folder to verify we're loading the files correctly.
 
@@ -200,17 +210,19 @@ Let's modify the :code:`main.py` in a following way:
 .. code-block:: python
     :caption: main.py
 
+    import registry
+    from controllers.assets_controller import AssetsController
+
     with Engine(virtual_resolution=Vector(settings.VIEWPORT_WIDTH, settings.VIEWPORT_HEIGHT)) as engine:
         # initialize global controllers and keep them in the registry
         registry.global_controllers.assets_controller = AssetsController()
         # ..... rest of the code .....
 
-
 It's good to keep scenes in a global registry too
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It's practical to store scene instances in the registry as well. That will make them accessible from
-anywhere in the code. Let's modify the :code:`main.py` in a following way:
+anywhere in the code. Let's modify that part of :code:`main.py` where GameplayScene is created:
 
 .. code-block:: python
     :caption: main.py
@@ -273,9 +285,9 @@ class, called WeaponBase extending Node, and all our wepons will then extend the
 
     class MachineGun(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_img)
 
 .. code-block:: python
     :caption: objects/weapons/force_gun.py
@@ -286,9 +298,9 @@ class, called WeaponBase extending Node, and all our wepons will then extend the
 
     class ForceGun(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.force_gun_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.force_gun_img)
 
 
 .. code-block:: python
@@ -300,9 +312,9 @@ class, called WeaponBase extending Node, and all our wepons will then extend the
 
     class GrenadeLauncher(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_img)
 
 
 Implement object-related logic inside object classes
@@ -345,14 +357,14 @@ And then add the change_weapon method in the :code:`Player` class:
     class Player(Node):
 
         def change_weapon(self, new_weapon):
-            if self.change_weapon is not None:
+            if self.current_weapon is not None:
                 self.current_weapon.delete()  # delete the weapon's node from the scene
             if new_weapon == WeaponType.MachineGun:
-                weapon = MachineGun(position=Vector(0, 0))  # position relative to the Player
+                weapon = MachineGun()  # position relative to the Player
             elif new_weapon == WeaponType.GrenadeLauncher:
-                weapon = GrenadeLauncher(position=Vector(0, 0))
+                weapon = GrenadeLauncher()
             elif new_weapon == WeaponType.ForceGun:
-                weapon = ForceGun(position=Vector(0, 0))
+                weapon = ForceGun()
             else:
                 raise Exception('Unknown weapon type: {}'.format(new_weapon))
             self.add_child(weapon)  # add the weapon node as player's child node (to make the weapon move and rotate together with the player)
@@ -387,7 +399,7 @@ Another important thing we want controllers to do is to add initial objects to t
         def __init__(self, scene):
             self.scene = scene
             self.player = Player(position=Vector(settings.VIEWPORT_WIDTH/2, settings.VIEWPORT_HEIGHT/2))
-            self.scene.add_child(self.player)
+            self.scene.root.add_child(self.player)
 
 .. note::
     As your code base will grow and you'll add more objects and controllers you will sometimes face a dillema where to
@@ -410,21 +422,7 @@ Let's add the player controller to the scene:
             super().__init__()
             self.player_controller = PlayerController(self)
 
-Finally, let's run the game! We should see the player in the middle of the screen, holding the machine gun. But wait!
-The weapon is drawn centrally on the player's head. Let's move it few pixels to the right. Modify that fragment
-of the code in :code:`player.py`:
-
-.. code-block:: python
-    :caption: objects/player.py
-
-    if new_weapon == WeaponType.MachineGun:
-        weapon = MachineGun()
-    elif new_weapon == WeaponType.GrenadeLauncher:
-        weapon = GrenadeLauncher()
-    elif new_weapon == WeaponType.ForceGun:
-        weapon = ForceGun()
-
-That should work. Run the game and see the player holding the machine gun properly, everything looking better.
+Finally, let's run the game! We should see the player in the middle of the screen, holding the machine gun.
 
 Finally, let's add some nicer background (black background is not fun).
 
