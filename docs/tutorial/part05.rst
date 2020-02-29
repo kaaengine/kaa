@@ -17,7 +17,6 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
   
   * :code:`gravity` - a Vector. A force affecting all BodyNodes added to that SpaceNode. Default is zero vector (no gravity).
   * :code:`damping` - a float between 0 and 1, representing friction forces in the simulation space. The smaller it is, the faster a freely moving objects will slow down. Default is 1 (no damping)
-  * SpaceNode has no spatial boundaries
 
 .. raw:: html
 
@@ -30,8 +29,7 @@ We need to learn about 3 new types of nodes which we need to simulate the physic
   * :code:`velocity` - a Vector. Vector's rotation is objects' movement direction and vector's length is how fast the object is moving. Default is zero vector (no velocity).
   * :code:`angular_velocity` - a float. How fast the object is rotating around its center. Positive and negative values represent clockwise and anti-clockwise rotation speed respectively. Default is zero.
   * :code:`force` - a Vector, representing a force working on the object. The force vector is reset to zero on each frame. Non-zero force applied each frame will cause the object to accelerate. Default is zero vector (no force).
-  * :code:`moment` - short explanation TBD
-  * and few others.
+  * and few others (out of scope of the tutorial, check out the API reference on :class:`physics.BodyNode` for more info)
 
 .. raw:: html
 
@@ -53,7 +51,7 @@ When working with regular Nodes, we could build any tree-like structures we want
 
 .. note::
 
-	Space node doesn't have to be a child of a root node, in fact it can be anywhere in the node tree but for clarity it's recommended to have it as a direct child of a root node.
+	Space node doesn't have to be a child of a root node, in fact it can be anywhere in the node tree but for clarity it's recommended to have it as a direct child of the root node.
 
 .. note::
 
@@ -148,8 +146,8 @@ Let's add few variables to settings.py. We'll need it later, just trust me and a
     MACHINE_GUN_BULLET_SPEED = 1200
     GRENADE_LAUNCHER_BULLET_SPEED = 200
 
-Finally, let's change the :code:`Player` object to be a dynamic :code:`BodyNode` with a mass of 1. Let's also add
-a hitbox for the player!
+Finally, let's make the :code:`Player` object to inherit from a :code:`BodyNode`, making it a physical object. Let's
+give it a mass of 1. Let's also add a hitbox node to the player!
 
 .. code-block:: python
     :caption: objects/player.py
@@ -157,12 +155,11 @@ a hitbox for the player!
     import settings
     from kaa.physics import BodyNode, BodyNodeType, HitboxNode
     from kaa.geometry import Vector, Polygon
-    from kaa.enum import WeaponType, HitboxMask
+    from common.enums import WeaponType, HitboxMask
 
     class Player(BodyNode): # changed from kaa.Node
 
         def __init__(self, position, hp=100):
-            # node's properties
             super().__init__(body_type=BodyNodeType.dynamic, mass=1,
                              z_index=10, sprite=registry.global_controllers.assets_controller.player_img, position=position)
             # create a hitbox and add it as a child node to the Player
@@ -241,14 +238,18 @@ hitbox node attached.
     from common.enums import HitboxMask
     import registry
     import settings
-
+    from kaa.transitions import NodeSpriteTransition
+    import random
 
     class Enemy(BodyNode):
 
-        def __init__(self, position, hp=100):
+        def __init__(self, position, hp=100, *args, **kwargs):
             # node's properties
             super().__init__(body_type=BodyNodeType.dynamic, mass=1,
-                             z_index=10, sprite=registry.global_controllers.assets_controller.enemy_img, position=position)
+                             z_index=10, position=position,
+                             transition=NodeSpriteTransition(registry.global_controllers.assets_controller.enemy_frames,
+                                                             duration=max(200, random.gauss(400,100)), loops=0),
+                             *args, **kwargs)
             # create a hitbox and add it as a child node to the Enemy
             self.add_child(HitboxNode(
                 shape=Polygon([Vector(-8, -19), Vector(8, -19), Vector(8, 19), Vector(-8, 19), Vector(-8, -19)]),
@@ -259,10 +260,12 @@ hitbox node attached.
             # custom properties
             self.hp = hp
 
+We're using the already known features: creating an animation loop (using :code:`NodeSpriteTransition`), and adding
+a hitbox as a child node.
 
 Next, let's write :code:`EnemiesController` class which will have methods such as :code:`add_enemy` and
 :code:`remove_enemy`. It will also have an :code:`update()` function where we will implement enemies AI. We shall
-add some enemies to the scene in the :code:`__init__`.
+add some initial enemies to the scene in the :code:`__init__`.
 
 .. code-block:: python
     :caption: controllers/enemies_controller.py
@@ -313,8 +316,8 @@ Let's put the controller in the scene and hook up the :code:`update()`:
             self.enemies_controller.update(dt)
             # ... rest of the function
 
-Run the game. We have the enemies on the scene! They're not moving yet but they're regular physical objects, as you
-run into them they collide with the player and with each other. Since we're not applying any forces to enemies yet
+Run the game. We have the enemies on the scene! They're animated but not moving yet. They're regular physical objects, as you
+run into them they'll collide with you and with each other. Since we're not applying any forces to enemies yet
 it looks as if they were on an ice rink :)
 
 Let's add a feature of spawning enemies by pressing SPACE. The enemy shall be spawned at current mouse pointer position.
@@ -322,14 +325,17 @@ Let's add a feature of spawning enemies by pressing SPACE. The enemy shall be sp
 .. code-block:: python
     :caption: controllers/player_controller.py
 
+    import random
+    from objects.enemy import Enemy
+
     class PlayerController:
 
         def update(self, dt):
             # .... rest of the function
             for event in self.scene.input.events():
-                if event.keyboard:
+                if event.keyboard_key:
                     # ... other keyboard events ....
-                    elif event.keyboard.is_pressing(Keycode.space):
+                    elif event.keyboard_key.key == Keycode.space:
                         self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.input.mouse.get_position(),
                             rotation_degrees=random.randint(0,360)))
 
@@ -412,9 +418,9 @@ Next, let's add methods for shooting in the :code:`WeaponBase` class and in the 
 
     class ForceGun(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.force_gun_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.force_gun_img)
 
         def shoot_bullet(self):
             bullet_position = self.get_initial_bullet_position()
@@ -460,7 +466,7 @@ Run the game! You can now shoot them with the force gun! How cool is it?
 Did you get :code:`NotImplementedError`? It's because other weapons are not implemented, just look at the code! Change
 to ForceGun by pressing 3 and then try shooting. Better? Much better!
 
-The game starts looking like a playable thing. We can move around, spawn enemies and shoot our Force Gun at them.
+The game slowly starts looking like a playable thing. We can move around, spawn enemies and shoot our Force Gun at them.
 
 Let's now do shooting the machine gun!
 
@@ -513,9 +519,9 @@ First let's add the machine gun bullet object and implement shooting logic:
 
     class MachineGun(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.machine_gun_img)
 
         def shoot_bullet(self):
             bullet_position = self.get_initial_bullet_position()
@@ -531,7 +537,8 @@ First let's add the machine gun bullet object and implement shooting logic:
 
 The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
 the machine gun bullets don't bounce back when colliding with enemies. In fact they're not affected at all by
-any collisions. It's because they're kinematic bodies.
+any collisions, and behave as if they had very large mass, pushing enemies with great energy. It's because they're
+kinematic bodies. We need to handle MG bullet collisions with enemies manually.
 
 Collisions handling
 ~~~~~~~~~~~~~~~~~~~
@@ -594,6 +601,8 @@ Next, let's  hook up the controller with the scene in :code:`scenes/gameplay.py`
 .. code-block:: python
     :caption: scenes/gameplay.py
 
+    from controllers.collisions_controller import CollisionsController
+
     class GameplayScene(Scene):
 
         def __init__(self):
@@ -615,16 +624,17 @@ is displayed.
             self.stagger_time_left = 0
 
         def stagger(self):
-            # use "stagger" sprite
+            # use the "stagger" sprite
             self.sprite = registry.global_controllers.assets_controller.enemy_stagger_img
             # stagger stops enemy from moving:
             self.velocity = Vector(0, 0)
-            # track time for staying in the staggered state
+            # track time for staying in the "staggered" state
             self.stagger_time_left = 150
 
         def recover_from_stagger(self):
-            # user regular sprite:
-            self.sprite = registry.global_controllers.assets_controller.enemy_img
+            # start using the standard sprite animation again
+            self.transition=NodeSpriteTransition(registry.global_controllers.assets_controller.enemy_frames,
+                                                             duration=max(200, random.gauss(400, 100)), loops=0)
 
             self.stagger_time_left = 0
 
@@ -646,7 +656,9 @@ And track stagger time and recovery in the enemies controller:
                         enemy.recover_from_stagger()
 
 
-Finally let's implement the proper collision handling logic when a machine gun bullet collides with an enemy:
+Finally let's implement the proper collision handling logic when a machine gun bullet collides with an enemy. We
+would apply 10 HP damage and add a blood splatter animation at a place where collision occurred. If enemy HP drops
+below zero we remove the enemy from the scene and play enemy death animation.
 
 .. code-block:: python
     :caption: controllers/collisions_controller.py
@@ -671,7 +683,9 @@ Finally let's implement the proper collision handling logic when a machine gun b
                 enemy.hp -= 10
                 # add the blood splatter animation to the scene
                 self.scene.root.add_child(Node(z_index=900,
-                                               sprite=registry.global_controllers.assets_controller.blood_splatter_img,
+                                               transition=NodeSpriteTransition(
+                                                   registry.global_controllers.assets_controller.blood_splatter_frames,
+                                                   duration=140),
                                                position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
                                                lifetime=140))
                 # add a random bloodstain - make smaller ones more likely since it's a small arms hit :)
@@ -679,12 +693,14 @@ Finally let's implement the proper collision handling logic when a machine gun b
                     registry.global_controllers.assets_controller.bloodstain_imgs, weights=[5, 3, 1, 0.5])[0],
                                                position=enemy.position, rotation=mg_bullet_pair.body.rotation + math.pi,
                                                lifetime=random.randint(20000, 40000)))
-                if enemy.hp<=0:
+                if enemy.hp <= 0:
                     # show death animation
                     self.scene.root.add_child(Node(z_index=1,
-                                                   sprite=random.choice(registry.global_controllers.assets_controller.enemy_death_imgs),
+                                                   transition=NodeSpriteTransition(random.choice(
+                                                       registry.global_controllers.assets_controller.enemy_death_frames),
+                                                       duration=450),
                                                    position=enemy.position, rotation=enemy.rotation,
-                                                   origin_alignment = Alignment.right,
+                                                   origin_alignment=Alignment.right,
                                                    lifetime=random.randint(10000, 20000)))
                     # remove enemy node from the scene
                     self.scene.enemies_controller.remove_enemy(enemy)
@@ -695,7 +711,7 @@ Finally let's implement the proper collision handling logic when a machine gun b
 
 The bullet-enemy collision handling logic is rather self-explanatory. What's interesting is that we remove objects
 from the scene at the end of the function. Remember that when a :code:`delete()` is called on an object
-we can no longer use its properties (even if we only want to read them).
+we can no longer use its properties, even if we only want to read them!
 
 Run the game and enjoy shooting at enemies with machine gun, blood splatters and bodies falling down :)
 
@@ -783,8 +799,8 @@ Finally, let's implement the movement logic in the :code:`EnemiesController` cla
                 # handle enemy stagger time and stagger recovery
                 if enemy.stagger_time_left > 0:
                     enemy.stagger_time_left -= dt
-                if enemy.stagger_time_left <= 0:
-                    enemy.recover_from_stagger()
+                    if enemy.stagger_time_left <= 0:
+                        enemy.recover_from_stagger()
 
                 # handle enemy movement
                 if enemy.movement_mode == EnemyMovementMode.MoveToWaypoint:
@@ -878,9 +894,9 @@ machine gun logic, just using different sprite and a different hitbox shape for 
 
     class GrenadeLauncher(WeaponBase):
 
-        def __init__(self, position):
+        def __init__(self):
             # node's properties
-            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_img, position=position)
+            super().__init__(sprite=registry.global_controllers.assets_controller.grenade_launcher_img)
 
         def shoot_bullet(self):
             bullet_position = self.get_initial_bullet_position()
