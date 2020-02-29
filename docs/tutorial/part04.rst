@@ -39,22 +39,25 @@ Then let's call that method from the :code:`GameplayScene`:
             #....... rest of the method .........
 
 
-Two ways for handling input
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Three ways for handling input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Kaa offers two ways for handling input.
+Kaa offers three ways for handling input.
 
-* Active. You can actively check given key's status (pressed, released etc.). You do that by calling appropriate methods:
+* You can actively check given key's status (pressed, released etc.). You do that by calling appropriate methods:
 
   * Scene's :code:`input.keyboard` methods for keyboard (e.g. :code:`input.keyboard.is_pressed(KeyCode.esc)`)
   * Scene's :code:`input.mouse` methods for mouse (e.g. :code:`input.keyboard.is_pressed(MouseButton.left)`)
   * Scene's :code:`input.controller` methods for controllers (e.g. :code:`input.controller.is_pressed(ControllerButton.a)`)
   * Scene's :code:`input.system` methods for system (e.g. :code:`system.get_clipboard_text()`)
 
-* Passive. You can iterate through events returned by the Scene's :code:`input.events()` method to check for input events (keystrokes, mouse clicks, controller sticks moved, etc.).
+* You can iterate through events returned by the Scene's :code:`input.events()` method to check for input events (keystrokes, mouse clicks, controller sticks moved, etc.).
+* You can subscribe to specific type of events using Scene's :code:`input.register_callback()` method.
 
-Handling input from keyboard (active)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We're going to use the first two methods in the tutorial.
+
+Handling input from keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The function which you can call at any time and get an answer if a keyboard key is up or down is
 :code:`input.keyboard.is_pressed()`. Let's use it in our :code:`player_controller.py`:
@@ -132,8 +135,8 @@ because the :code:`update()` function is called by the engine as frequently as 6
 
 Let's fix this! There is another method of handling input from keyboard, it captures individual key strokes.
 
-Handling input from keyboard (passive)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Handling events from keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's remove the :code:`if self.scene.input.keyboard.is_pressed(Keycode.tab):` part from the update function inside
 :code:`PlayerController` and put the following code instead:
@@ -151,27 +154,39 @@ Let's remove the :code:`if self.scene.input.keyboard.is_pressed(Keycode.tab):` p
 
             # ....... rest of the method .........
 
-            for event in self.scene.input.events():
-                if event.keyboard: # check if the event is a keyboard event
-                    if event.keyboard.is_pressing(Keycode.tab):
-                        self.player.cycle_weapons()
-                    elif event.keyboard.is_pressing(Keycode.num_1):
-                        self.player.change_weapon(WeaponType.MachineGun)
-                    elif event.keyboard.is_pressing(Keycode.num_2):
-                        self.player.change_weapon(WeaponType.GrenadeLauncher)
-                    elif event.keyboard.is_pressing(Keycode.num_3):
-                        self.player.change_weapon(WeaponType.ForceGun)
+            for event in self.scene.input.events(): # iterate over all events which occurred during this frame
+                if event.keyboard_key:  # check if the event is a keyboard key related event
+                    if event.keyboard_key.is_key_down:  # check if the event is "key down event"
+                        # check which key was pressed down:
+                        if event.keyboard_key.key == Keycode.tab:
+                            self.player.cycle_weapons()
+                        elif event.keyboard_key.key == Keycode.num_1:
+                            self.player.change_weapon(WeaponType.MachineGun)
+                        elif event.keyboard_key.key == Keycode.num_2:
+                            self.player.change_weapon(WeaponType.GrenadeLauncher)
+                        elif event.keyboard_key.key == Keycode.num_3:
+                            self.player.change_weapon(WeaponType.ForceGun)
 
-Run the game. Works much better now. It's because :code:`is_pressing` event is published on a first key stroke
-and then in reasonable intervals (same as used when typing).
+
+Run the game. Works much better now, right?
+
+Let's take a look at the code. What happens here is we iterate on all events which occurred during current
+frame. Each Event object has identical structure - it holds properties such as :code:`keyboard_key`,
+:code:`mouse_button` and about a dozen others. Of those properties only one will be non null, which indicates what
+type of event it is. The non-null property (such as :code:`keyboard_key`) gives access to new properties, related
+with given event type. Refer to :class:`input.Event` documentation  in the kaaengine reference for more details.
+
+In our case the :code:`keyboard_key.is_key_down` event is published on a first key stroke and then in reasonable
+intervals (same as when typing on the keyboard) which allows us to react to individual key stroke events more naturally,
+instead of a key down check made 60 times a second.
 
 .. note::
-    You can use :code:`event.keyboard.is_releasing()` to detect when a key was released.
+    You can use :code:`event.keyboard_key.is_key_up` to detect when a key was released.
 
 We now have ability to move our hero, cycle through weapons with tab, and select weapon with 1, 2 and 3.
 
 One more thing before we move on, it's annoying to press ALT+F4 to close the window, let's just bind it with pressing 'q'.
-Let's update the :code:`update()` (no pun intended)
+Let's update the :code:`update()` (no pun intended) in the Scene.
 
 .. code-block:: python
     :caption: scenes/gameplay.py
@@ -186,16 +201,15 @@ Let's update the :code:`update()` (no pun intended)
             self.player_controller.update(dt)
 
             for event in self.input.events():
-                if event.keyboard: # check if it's a keyboard event
-                    if event.keyboard.is_pressing(Keycode.q):
-                        self.engine.quit()
-                if event.system: # check if it's a system event
-                    if event.system.quit:
-                        self.engine.quit()
+                if event.keyboard_key:  # check if the event is a keyboard key related event
+                    if event.keyboard_key.is_key_down:  # check if the event is "key down event"
+                        # check which key was pressed down:
+                        if event.keyboard_key.key == Keycode.q:
+                            self.engine.quit()
 
 
-Getting mouse position (active)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Getting mouse position
+~~~~~~~~~~~~~~~~~~~~~~
 
 Getting mouse position is very easy. All we need is to call :code:`input.mouse.get_position()` on our scene instance.
 
@@ -216,17 +230,20 @@ Let's get current mouse position and use it to rotate the player towards the mou
             player_rotation_vector = mouse_pos - self.player.position
             self.player.rotation_degrees = player_rotation_vector.to_angle_degrees()
 
-What happens here: to get a direction vector between positions A and B we need to substract those two vectors.
+Let's look at the code: to get a direction vector between positions A and B we need to substract those two vectors.
 We then use :code:`to_angle_degrees()` on a vector to get a number between 0 and 360 representing vector's angle.
-Finally we set player's rotation (in degrees) to the calculated value
+Finally we set player's rotation (in degrees) to the calculated value.
 
 Run the game. We can now walk with WSAD, change weapons with tab, 1, 2, and 3 keys, and we can aim! It starts looking good!
 Let's now add a shooting mechanics!
 
-Getting mouse button click events (active and passive)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Getting mouse button click events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Handling mouse click events, either actively or passively is very similar to handling keyboard events:
+Handling mouse click events, is very similar to handling keyboard events. We can actively check if mouse button is
+pressed/released or we can check for mouse button events present in the Scene's :code:`input.events()` list.
+
+Look at the example below but don't add it to the game's code yet. We'll do that in the next chapter.
 
 .. code-block:: python
 
@@ -236,10 +253,11 @@ Handling mouse click events, either actively or passively is very similar to han
     if scene.input.mouse.is_pressed(MouseButton.left):
         # ..... do stuff ....
 
-    # passive check (reading from events):
     for event in self.scene.input.events():
-        if event.mouse: # check if it's a mouse event
-            if event.mouse.is_pressing(MouseButton.right): # getting event
+        # check if it's a mouse button - related event and if it's about mouse button being pressed:
+        if event.mouse_button and event.mouse_button.is_button_down:
+            # check which button the event is about:
+            if event.mouse_button.button == MouseButton.right:
                 # ..... do stuff .....
 
 We will use the left mouse button click in the :doc:`next part of the tutorial </tutorial/part05>`, where we'll

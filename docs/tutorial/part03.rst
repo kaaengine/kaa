@@ -104,7 +104,7 @@ Then registry.py:
 Keep scenes in separate .py files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Then, let's create empty Gameplay scene, and add the already known window event handling code:
+Let's create a stub of a Gameplay scene in :code:`scenes/gameplay.py`
 
 .. code-block:: python
     :caption: scenes/gameplay.py
@@ -117,10 +117,8 @@ Then, let's create empty Gameplay scene, and add the already known window event 
             super().__init__()
 
         def update(self, dt):
+            pass
 
-            for event in self.input.events():
-                if event.system and event.system.quit:
-                    self.engine.quit()
 
 Keep the main.py clean
 ~~~~~~~~~~~~~~~~~~~~~~
