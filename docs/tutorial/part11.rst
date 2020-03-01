@@ -1,11 +1,10 @@
-Part 11: Building executable file and distributing via steam
+Part 11: Building executable file and distributing via Steam
 ============================================================
 
-When distributing your game to other people (via steam or other platform), you cannot give them a bunch of .py files.
+When distributing your game to other people (via Steam or other platform), you cannot give them a bunch of .py files.
 A distributable package must include a "native" executable file (exe on Windows or binary executable on Linux).
 
-There are few tools that build native executables from python scripts. We'll use pyinstaller. The process is surprisingly
-easy.
+There are few tools that build native executables from python scripts. We'll use pyinstaller.
 
 First, you need to install pyinstaller.
 
@@ -49,14 +48,14 @@ Troubleshooting
 Distributing kaa games on steam
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once you have distributable package (assets + binary executable) you can distribute it via steam. Whe you configure your game for distribution
-in its steamworks panel, be sure to go to Installation->Redistributable Packages and select "Visual C++ Redist 2017" and "DirectX June 2010"
+Once you have distributable package (assets + binary executable) you can distribute it via Steam. Whe you configure your game for distribution
+in the Steamworks panel, be sure to go to Installation->Redistributable Packages and select "Visual C++ Redist 2017" and "DirectX June 2010"
 
 
 Games made with kaa
 ~~~~~~~~~~~~~~~~~~~
 
-"Git Gud or Get Rekt!" - `retro space shooter, available for free on steam <https://store.steampowered.com/app/1117810/Git_Gud_or_Get_Rekt>`_
+"Git Gud or Get Rekt!" - `retro space shooter, available for free on Steam <https://store.steampowered.com/app/1117810/Git_Gud_or_Get_Rekt>`_
 
 Did you make your own game with the kaa engine? Let us know! We'll be more than happy to include it on the list.
 

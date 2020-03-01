@@ -1,16 +1,19 @@
 Part 10: Transitions
 ====================
 
-When writing a game you often want to apply a set of known transformations to an object. For example, you want your object
+We're already familiar with the :code:`SpriteNodeTransition` object which we used to make Node's sprite change,
+creating a frame-by-frame animation effect. We mentioned that transitions are much general and powerful mechanism.
+It's time to explain what they are and how to use them.
+
+When writing a game you'll often want to apply a set of known transformations to an object. For example, you want your object
 to move 100 pixels to the right, then wait 3 seconds and return 100 pixels to the left. Or you want to implement
 pulsation effect where an object would smoothly change its scale between some min and max values. There's an unlimited
 number of such visual transformations that you may want in your games as they greatly improve the game experience.
 
 You can of course implement all this by having a set of boolean flags, time trackers, etc. and use all those helper
-variables to change the desired properties of your nodes manually. But there is an easier way: the mechanism is called
-Transitions.
+variables to change the desired properties of your nodes over time manually. But there is an easier way: Transitions.
 
-A single Transition object is a recipe of how a given property of a Node (position, scale, rotation, etc.) should
+A single Transition object is a 'recipe' of how a given property of a Node (position, scale, rotation, etc.) should
 change over time. Transition can be applied to object once, given number of times or in a loop. You can chains transitions
 to run serially or in parallel.
 
@@ -47,8 +50,8 @@ Then add the :code:`transitions_fun_stuff` method:
         my_transition = NodePositionTransition(Vector(300, 850), duration=3000)
         self.exit_label.transition = my_transition
 
-Run the game and see the label moving from its original position to (300, 850), the movement takes 3 seconds! Isn't it
-cool?
+Run the game and see the label moving from its original position to (300, 850), the movement takes 3 seconds! We did
+not have to change its position manually inside :code:`update()`, it all happened automatically. Isn't it cool?
 
 Changing a value incrementally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +87,8 @@ To run transition back and forth simply set :code:`back_and_forth=True` on a tra
                                                back_and_forth=True)
         self.exit_label.transition = my_transition
 
+Notice that the 3000 milisecond is the one-way time duration. Total transition duration back and forth takes 6000
+miliseconds
 
 Running transition specific number of times
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,6 +119,7 @@ All types of transitions
 
 We've learned about :code:`NodePositionTransition` but what other transitions are available?
 
+* :code:`kaa.transitions.NodeSpriteTransition` - changes sprite of a node (we've already learned that)
 * :code:`kaa.transitions.NodePositionTransition` - changes position of a node
 * :code:`kaa.transitions.NodeRotationTransition` - changes rotation of a node
 * :code:`kaa.transitions.NodeScaleTransition` - changes scale of a node
@@ -134,6 +140,7 @@ wait 0.5 second, then scale, and finally change color. To build such a sequence 
     :caption: scenes/title_screen.py
 
     from kaa.colors import Color
+    import math
 
     def transitions_fun_stuff(self):
         move_transition = NodePositionTransition(Vector(-50, 200), duration=1000, advance_method=AttributeTransitionMethod.add)
@@ -148,7 +155,7 @@ wait 0.5 second, then scale, and finally change color. To build such a sequence 
 Run the game and enjoy the nice transition sequence!
 
 :code:`NodeTransitionsSequence` has two already known properties: :code:`back_and_forth` and :code:`loops`. You can
-use them to run the whole sequence back and forth, specific number of times or in an infinite loop.
+use them to run **the whole sequence** back and forth, specific number of times or in an infinite loop.
 
 Knowing that a transition has ended
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,8 +218,9 @@ Let's say we want to run some transitions (or sequences of those) in paralel. It
 
 Note that :code:`NodeTransitionsParallel` has two already known properties: :code:`back_and_forth` and :code:`loops`.
 
-You can nest transition sequences in other sequences, run such nested sequences in paralel and so on. Just be careful
-on which level you set :code:`back_and_forth` and :code:`loops`. Feel free to experiment with transitions on your own.
+You can nest transition sequences in other sequences, run such nested sequences in paralel and so on. Be aware
+on which level you set the :code:`back_and_forth` and :code:`loops` param values. Feel free to experiment with
+transitions on your own.
 
 Contradictory transitions?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
