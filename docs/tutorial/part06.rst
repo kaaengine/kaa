@@ -27,8 +27,8 @@ To play the sound effect:
 
     my_sound.play(volume=0.9) # volume parameter ranging from 0 to 1, default is 1
 
-You can play many sound effects simultaneously. There is a max limit of simultaneous sound, default is .... TODO. To
-change the limit: .... TODO
+You can play many sound effects simultaneously. There is a max limit of simultaneous sound that can be played. To
+change the limit use Scene's :code:`audio.mixing_channels` property.
 
 .. note::
 
@@ -64,7 +64,7 @@ To play the music track call :code:`play` on your :code:`Music` object:
 
 .. code-block:: python
 
-    my_music_track.play()  # no volume?
+    my_music_track.play(volume=1.0)
 
 
 You can play only one music track at a time. Playing new music track automatically stops the current track being played.
@@ -92,8 +92,8 @@ this look for the audio events in the Scene's :code:`events()` list:
         def update(dt)
 
             for event in self.input.events():
-                if event.audio: # check if this is audio event
-                    if event.music_finished():
+                if event.audio: # check if it's an audio related event
+                    if event.audio.music_finished:
                         # do something when the track has finished playing ...
 
 Full example
@@ -124,7 +124,7 @@ First, let's load all assets from files first, in our :code:`AssetsController`
             self.music_track_1 = Music(os.path.join('assets', 'music', 'track_1.wav'))
 
 
-Let's play music when the game starts.
+Let's play the music when the game starts.
 
 .. code-block:: python
     :caption: main.py

@@ -721,9 +721,9 @@ Instance properties
 
 Represents an audio related event.
 
-Instance methods:
+Instance properties:
 
-.. method:: music_finished()
+.. attribute:: AudioEvent.music_finished
 
     Returns :code:`True` if current music track finished playing.
 
