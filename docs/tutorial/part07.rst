@@ -26,7 +26,6 @@ It adds the following new properties:
 
 * :code:`font` - A font to use when rendering text. Pass a :code:`Font` instance.
 * :code:`text` - a string. A text you want to draw.
-* :code:`content` - TODO
 * :code:`font_size` - an integer. Size of the text.
 * :code:`line_width` - an integer. Width of the text, in pixels. If set, the text will wrap automatically to fit this width. If not set, text won't wrap.
 * :code:`interline_spacing` - an integer. Space between lines of text in pixels. Used when the text wraps (due to line_width).
@@ -131,11 +130,5 @@ Text Nodes can also be a child nodes of other nodes, and can have child nodes th
     tn = TextNode(font = my_font, text="Hello world")
     tn.add_child(Node(sprite=my_sprite))
 
-The future: text markup language
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Kaa :code:`TextNode` does not currently support a complex markup. In other words, you cannot mix different styles
-(such as different colors, fonts or sizes) within a single TextNode. Those more complex scenarios are to be supported
-in the future versions of the engine by introducing a built-in text markup feature.
 
 Let's move on, :doc:`to the next part of the tutorial </tutorial/part08>`
