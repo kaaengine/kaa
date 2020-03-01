@@ -22,14 +22,14 @@ From this point on we're writing the actual game and the tutorial will have a lo
 
 Be aware that there will be two types of code examples:
 
-1) A general example that explains a mechanism existing in the code:
+A general example that explains a mechanism existing in the code. You don't need to put that code anywhere.
 
 .. code-block:: python
 
     def foo()
         print('Hello world')
 
-2) An actual code of the game we're coding. Those code snippets will have a blue header bar telling you which file
+An actual code of the game we're creating. Those code snippets will have a blue header bar telling you which file
 you should put the code in. For example, this code should be put in :code:`folder/subfolder/foo.py`
 
 .. code-block:: python
@@ -93,7 +93,7 @@ Scenes package will hold scenes. Yes, our game will eventually have many scenes,
 
 settings.py is a config file for our game
 
-registry.py is a module to store global variables - we'll be able to import them from just everywhere in the game code.
+registry.py is a module to store global variables - we'll be able to import them from anywhere in our code.
 
 .. note::
     The organization above is just a suggestion, not some rigid convention required by the kaa engine.
@@ -220,7 +220,7 @@ class is for. Let's edit the :code:`assets_controller.py` file:
                                   frame_dimensions=Vector(103, 74)) for i in range(0, 5)
             ]
 
-The code is using things we've learned in previous chapter: creating a new Sprite, using crop method and using
+The code is using features we've learned in previous chapter: creating a new Sprite, using crop method and using
 split_spritesheet to prepare individual animation frames which we'll use later.
 
 Feel free to review the contents of the :code:`assets/gfx` folder to verify we're loading the files correctly.
@@ -242,7 +242,7 @@ Let's modify the :code:`main.py` in a following way:
 It's good to keep scenes in a global registry too
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It's practical to store scene instances in the registry as well. That will make them accessible from
+It's practical to store scene instances in the global registry as well. That will make them accessible from
 anywhere in the code. Let's modify that part of :code:`main.py` where GameplayScene is created:
 
 .. code-block:: python
@@ -402,7 +402,7 @@ Let's make the player start with machine gun. Add this line at the end of :code:
 Implement higher-tier logic in controller classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's now write a controller class to manage a Player. Generally we want the controller classes to be used
+Let's now write a controller class to manage the Player. Generally we want the controller classes to be used
 for higher-tier logic such as interactions between in-game objects and other classes (controllers or other in-game
 objects), managing collections, handling input, and so on...
 
@@ -445,7 +445,7 @@ Let's add the player controller to the scene:
 
 Finally, let's run the game! We should see the player in the middle of the screen, holding the machine gun.
 
-Finally, let's add some nicer background (black background is not fun).
+Lastly, let's add some nicer background (black background is not fun).
 
 .. code-block:: python
     :caption: scenes/gameplay.py

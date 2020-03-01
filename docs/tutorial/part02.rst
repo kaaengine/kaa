@@ -78,7 +78,8 @@ Kaa engine loads images to objects called Sprites. With the image loaded, we can
 Drawing objects on the screen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Object instances are called Nodes. Let's create three arrow objects (three Nodes) using arrow_sprite.
+Object instances present on the scene are called Nodes. Let's create three arrow objects (three Nodes) using the
+arrow sprite.
 
 .. code-block:: python
 
@@ -93,8 +94,8 @@ Object instances are called Nodes. Let's create three arrow objects (three Nodes
         self.arrow2 = Node(sprite=self.arrow_sprite, position=Vector(400, 300))
         self.arrow3 = Node(sprite=self.arrow_sprite, position=Vector(600, 500))
 
-Run the game and... No nodes are visible! It's because we created them but did not add them to the scene. A
-shameful display! Let's fix it. The Scene holds a tree-like structure of Nodes, and always has the "root" Node.
+Run the game and... No objects are visible on the screen! It's because we created them but did not add them to the
+Scene. A shameful display! Let's fix it. The Scene holds a tree-like structure of Nodes, and always has the "root" Node.
 Let's add our objects as children of the root node:
 
 .. code-block:: python
@@ -224,7 +225,7 @@ Now, let's change just one thing: origin_alignment of arrow 3
 Re-run the game and see how arrow3 is now drawn in a different place! We did not change its position, just the
 origin alignment. Not surprisingly, we can see that origin marker is to the right of the node's rectangle.
 
-You can re-set the origin to be in one of the 9 standard positions: top-left, top, top-right, left, central (default), right,
+You can set the origin to be in one of the 9 standard positions: top-left, top, top-right, left, central (default), right,
 bottom-left, bottom and bottom-right. The node's rectangular shape will be drawn according to origin position.
 
 All transformations such as positioning, scaling or rotating are applied in relation to the origin. We'll see that in
@@ -316,7 +317,7 @@ If you need to hide or show a node, use :code:`visible` property:
 
 Hiding a node will automatically hide all its child nodes.
 
-Using animated sprites
+Introducing animations
 ~~~~~~~~~~~~~~~~~~~~~~
 
 So far we've been using single-frame images. Kaa engine supports frame-by-frame sprite animations. Take a look at
@@ -325,7 +326,7 @@ and there are 75 actual frames in the file.
 
 Creating animation is a two step process:
 
-First, we need to 'cut' each frame from the :code:`explosion.png` spritesheet file and make it a separate :code:`Sprite`.
+First, we need to 'cut' each frame from the :code:`explosion.png` file and make it a separate :code:`Sprite`.
 In other words we need to have 75 Sprites, one for each frame. Fortunately we don't need to do that manually,
 there's a helper function for slicing spritesheets: :code:`split_spritesheet`. Let's use it.
 
@@ -354,7 +355,7 @@ The second step is to create an animation, and assign it to a node. We then add 
         self.explosion = Node(position=Vector(600, 150), transition=explosion_animation)  # create node
         self.root.add_child(self.explosion)  # add node to scene
 
-Few things demand explanation here. First, you may the weird name of the animation object. Why is it called
+Few things demand explanation here. First, the seemingly weird name of the animation object. Why is it called
 :code:`NodeSpriteTransition`, not just :code:`SpriteAnimation` or something similar? Why is it imported from
 :code:`kaa.transitions` namespace ? The reason is because it's a part of much more general mechanism called...
 transitions! Transitions are recipes how node's property should evolve over time. In this case the evolving property
@@ -394,7 +395,13 @@ Run the game and check out the new explosions. We've also learned about :code:`b
 How to crop a Sprite
 ~~~~~~~~~~~~~~~~~~~~
 
-What if you want to crop the Sprite manually? Use :code:`crop()` method on Sprite object, getting a new Sprite:
+What if you want to crop the Sprite manually? Use :code:`crop()` method on Sprite object, getting a new Sprite
+
+.. code-block:: python
+
+    new_sprite = self.arrow1.crop(Vector(5,5), Vector(10,20))
+
+The example above will create a new, 10x20 px Sprite from arrow1, starting the crop from position (5,5).
 
 Controlling animations manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

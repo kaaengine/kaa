@@ -32,10 +32,7 @@ Constructor:
         class MyScene(Scene):
 
             def update(self, dt):
-                # handles system event of pressing "X" or ALT+F4 to close the window:
-                for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
+                pass
 
         with Engine(virtual_resolution=Vector(800, 600)) as engine:
             scene = MyScene()
@@ -207,10 +204,8 @@ Instance methods:
 
             def update(self, dt):
                 for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
-                    if event.keyboard:
-                        if event.keyboard.is_pressing(Keycode.return_):
+                    if event.keyboard_key:
+                        if event.keyboard_key.is_key_down and event.keyboard_key.key == Keycode.return_:
                             self.engine.change_scene(SCENES['gameplay_scene'])
 
 
@@ -224,10 +219,8 @@ Instance methods:
 
             def update(self, dt):
                 for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
-                    if event.keyboard:
-                        if event.keyboard.is_pressing(Keycode.q):
+                    if event.keyboard_key:
+                        if event.keyboard_key.is_key_down and event.keyboard_key.key == Keycode.q:
                             self.engine.change_scene(SCENES['title_screen_scene'])
                 self.label.rotation_degrees += dt*20 / 1000
 
@@ -272,7 +265,7 @@ Instance methods:
                         # handle the system event of pressing "X" or ALT+F4 to close the window:
                         self.engine.quit()
 
-                    if event.keyboard and event.keyboard.is_pressing(Keycode.q):
+                    if event.keyboard_key and event.keyboard_key.key == Keycode.q:
                         # quit the game on pressing the Q key
                         self.engine.quit()
 
@@ -570,10 +563,8 @@ An example of 800x600 frame buffer colored in green, running in the 1200x1000 wi
         class MyScene(Scene):
 
             def update(self, dt):
-                # handles system event of pressing "X" or ALT+F4 to close the window:
-                for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
+                pass
+
 
         with Engine(virtual_resolution=Vector(800, 600),
                     virtual_resolution_mode=VirtualResolutionMode.no_stretch) as engine:
@@ -772,9 +763,7 @@ Full example:
             def update(self, dt):
 
                 for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
-                    if event.mouse and event.mouse.is_pressing(MouseButton.left):
+                    if event.mouse_button and event.mouse_button.is_button_down and event.mouse_button.button == MouseButton.left:
                         position = self.input.mouse.get_position()
                         unproj_position = self.camera.unproject_position(position)
                         print(f'Before the camera rotation: Mouse position {position} -> unproject -> {unproj_position}')

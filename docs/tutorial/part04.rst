@@ -44,7 +44,7 @@ Three ways for handling input
 
 Kaa offers three ways for handling input.
 
-* You can actively check given key's status (pressed, released etc.). You do that by calling appropriate methods:
+* You can actively check given key/button status (pressed, released etc.). You do that by calling appropriate methods:
 
   * Scene's :code:`input.keyboard` methods for keyboard (e.g. :code:`input.keyboard.is_pressed(KeyCode.esc)`)
   * Scene's :code:`input.mouse` methods for mouse (e.g. :code:`input.keyboard.is_pressed(MouseButton.left)`)
@@ -172,13 +172,13 @@ Run the game. Works much better now, right?
 
 Let's take a look at the code. What happens here is we iterate on all events which occurred during current
 frame. Each Event object has identical structure - it holds properties such as :code:`keyboard_key`,
-:code:`mouse_button` and about a dozen others. Of those properties only one will be non null, which indicates what
-type of event it is. The non-null property (such as :code:`keyboard_key`) gives access to new properties, related
-with given event type. Refer to :class:`input.Event` documentation  in the kaaengine reference for more details.
+:code:`mouse_button` and about a dozen others. Of those properties only one will be non null - that indicates what
+type of event this is. For example, if the :code:`keyboard_key` property is not :code:`None` it means this event is a keyboard
+key related event. Accessing :code:`keyboard_key` property gives access to new properties, specific for
+this type of event. Refer to :class:`input.Event` documentation for more details.
 
-In our case the :code:`keyboard_key.is_key_down` event is published on a first key stroke and then in reasonable
-intervals (same as when typing on the keyboard) which allows us to react to individual key stroke events more naturally,
-instead of a key down check made 60 times a second.
+In our case the :code:`keyboard_key.is_key_down` event is published on a first key stroke. That allows us to react
+to individual key stroke events more naturally, unlike checking for a "key pressed" status 60 times a second.
 
 .. note::
     You can use :code:`event.keyboard_key.is_key_up` to detect when a key was released.

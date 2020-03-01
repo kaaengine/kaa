@@ -1,8 +1,6 @@
 Part 1: Engine and window
 =========================
 
-The tutorial assumes you have installed kaaengine==0.4 and have python 3.6.1 or newer.
-
 By the end of this tutorial you will code a complete game: a top-down shooter with animations, physics, sounds,
 basic AI, HUD display and multiple scenes. You will be surprised how easy and intuitive it is with the kaa engine.
 
@@ -20,6 +18,17 @@ We encourage you to make experiments on your own during the tutorial. If you get
 just check out the tutorial code - `it's available in this git repository <https://github.com/PawelRoman/kaa-tutorial>`_
 
 Have fun!
+
+Installing kaaengine
+~~~~~~~~~~~~~~~~~~~~
+
+To install kaaengine:
+
+.. code-block:: none
+
+    pip install kaaengine==0.6
+
+**NOTE** Kaaengine requires python 3.X. The tutorial assumes you're using python 3.6.X or newer.
 
 Hello world!
 ~~~~~~~~~~~~
