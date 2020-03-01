@@ -556,11 +556,11 @@ Instance properties:
 
 .. attribute:: MouseButtonEvent.is_button_down
 
-    Returns :code:`True` if the key was pressed.
+    Returns :code:`True` if the button was pressed.
 
 .. attribute:: MouseButtonEvent.is_button_up
 
-    Returns :code:`True` if the key was released.
+    Returns :code:`True` if the button was released.
 
 .. attribute:: MouseButtonEvent.position
 

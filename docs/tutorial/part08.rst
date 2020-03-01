@@ -42,7 +42,7 @@ Let's write two more scenes:
     import registry
     import settings
     from kaa.engine import Scene
-    from kaa.input import Keycode, Mousecode
+    from kaa.input import Keycode, MouseButton
     from kaa.nodes import Node
     from kaa.geometry import Vector, Alignment
     from kaa.fonts import TextNode
@@ -60,21 +60,18 @@ Let's write two more scenes:
             self.root.add_child(TextNode(font=registry.global_controllers.assets_controller.font_2, font_size=30,
                                          position=Vector(settings.VIEWPORT_WIDTH/2, 550), text="Press ESC to exit",
                                          z_index=1, origin_alignment=Alignment.center))
-    def update(self, dt):
 
-        for event in self.input.events():
+        def update(self, dt):
 
-            if event.system:
-                if event.system.quit:
-                    self.engine.quit()
+            for event in self.input.events():
 
-            if event.keyboard:
-                if event.keyboard.is_pressing(Keycode.escape):
-                    self.engine.quit()
+                if event.keyboard_key:
+                    if event.keyboard_key.is_key_down and event.keyboard_key.key == Keycode.escape:
+                        self.engine.quit()
 
-            if event.mouse:
-                if event.mouse.is_pressing(MouseButton.left):
-                    self.engine.change_scene(registry.scenes.gameplay_scene)
+                if event.mouse_button:
+                    if event.mouse_button.is_button_down and event.mouse_button.button == MouseButton.left:
+                        self.engine.change_scene(registry.scenes.gameplay_scene)
 
 Nothing unusual here, just the stuff we already know: the scene is pretty static, with just a background image and
 two labels. Mouse click changes the scene to gameplay and ESC quits the game. It won't work yet, because registry
@@ -110,12 +107,11 @@ For now, let's add the pause scene. It is very similar to the title screen scene
 
         def update(self, dt):
             for event in self.input.events():
-                if event.is_pressing(Keycode.escape):
-                    self.engine.change_scene(registry.scenes.gameplay_scene)
-                if event.is_pressing(Keycode.q):
-                    self.engine.change_scene(registry.scenes.title_screen_scene)
-                if event.is_quit():
-                    self.engine.quit()
+                if event.keyboard_key and event.keyboard_key.is_key_down:
+                    if event.keyboard_key.key == Keycode.escape:
+                        self.engine.change_scene(registry.scenes.gameplay_scene)
+                    if event.keyboard_key.key == Keycode.q:
+                        self.engine.change_scene(registry.scenes.title_screen_scene)
 
 
 Let's now make a small modification to the :code:`GameplayScene` allowing to change scene to pause, when player
@@ -125,12 +121,12 @@ presses ESC.
     :caption: scenes/gameplay.py
 
     def update(self, dt):
-        # .... cut other code ....
+        # .... other code ....
 
         for event in self.input.events():
-            # .... cut other code ....
-            if event.keyboard:
-                if event.keyboard.is_pressing(Keycode.escape):
+            # .... other code ....
+            if event.keyboard_key and event.keyboard_key.is_key_down:
+                if event.keyboard_key.key == Keycode.escape:
                     self.engine.change_scene(registry.scenes.pause_scene)
 
 Finally, let's create all our scenes in the :code:`main.py` and add them to the registry to make the :code:`change_scene`
@@ -166,6 +162,7 @@ A bug needs fixing! Let's refactor the :code:`TitleScreenScene` a little bit:
 .. code-block:: python
     :caption: scenes/title_screen.py
 
+    from scenes.gameplay import GameplayScene
 
     class TitleScreenScene(Scene):
         # .... rest of the class ....
@@ -174,11 +171,11 @@ A bug needs fixing! Let's refactor the :code:`TitleScreenScene` a little bit:
             registry.scenes.gameplay_scene = GameplayScene()
             self.engine.change_scene(registry.scenes.gameplay_scene)
 
-    def update(self, dt):
-        for event in self.input.events():
-            # ... cut other code ...
-            if event.mouse and event.mouse.is_pressing(Mousecode.left):
-                self.start_new_game()
+        def update(self, dt):
+            for event in self.input.events():
+                # ... other code ...
+                if event.mouse_button and event.mouse_button.is_button_down and event.mouse_button.button == MouseButton.left:
+                    self.start_new_game()
 
 
 We simply create the new instance of GameplayScene before telling engine to change to that scene. Run the game
