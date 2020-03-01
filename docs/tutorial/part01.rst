@@ -21,7 +21,6 @@ just check out the tutorial code - `it's available in this git repository <https
 
 Have fun!
 
-
 Hello world!
 ~~~~~~~~~~~~
 

@@ -15,6 +15,29 @@ Finally, we'll learn how to add more scenes, such as main screen or pause screen
 It would not look good if we put all that stuff in main.py, so let's create a better structure for the game files and folders first.
 We'll also clean up the code we wrote before.
 
+Before we begin
+~~~~~~~~~~~~~~~
+
+From this point on we're writing the actual game and the tutorial will have a lot of code in form of snippets.
+
+Be aware that there will be two types of code examples:
+
+1) A general example that explains a mechanism existing in the code:
+
+.. code-block:: python
+
+    def foo()
+        print('Hello world')
+
+2) An actual code of the game we're coding. Those code snippets will have a blue header bar telling you which file
+you should put the code in. For example, this code should be put in :code:`folder/subfolder/foo.py`
+
+.. code-block:: python
+    :caption: folder/subfolder/foo.py
+
+    def bar():
+        print('hello sailor!')
+
 Structure of directories & files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

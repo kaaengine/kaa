@@ -1,8 +1,7 @@
 Part 9: The camera
 ==================
 
-Camera projects the scene into your display. In 2D games controlling camera isn't usually very important but we can
-use it to generate some additional visual effects.
+Camera projects the scene into your 2D display. Controlling the camera allows us to add few extra visual effects.
 
 Getting the camera
 ~~~~~~~~~~~~~~~~~~
@@ -49,7 +48,7 @@ Let's add the following code to the :code:`GameplayScene`
         # ... rest of the class ...
 
         def update(self, dt):
-            # ... cut other code ....
+            # ... other code ....
 
             if self.input.keyboard.is_pressed(Keycode.left):
                 self.camera.position -= Vector(-0.1 * dt, 0)
@@ -70,14 +69,17 @@ Let's add the following code to the :code:`GameplayScene`
             if self.input.keyboard.is_pressed(Keycode.end):
                 self.camera.rotation_degrees -= 0.03 * dt
 
-Run the game and see how you can control the camera in the gameplay scene.
+Run the game and see how you can control the camera in the gameplay scene using arrow keys, page up/down and home/end
+keys.
 
-Have you noticed? When you transform the camera and then shoot your guns, the bullets don't fly where they should...
-If the mouse pointer is in the (0,0) position i.e. top-left of the screen, the bullets don't fly to that exact place but
-to the top-left corner **of the projected image of the scene**. It's not a bug, it's a feature! Point (0,0) of the scene
-always is a (0,0) regardless of transformations applied to the camera! In other words, if we apply a transformation
-to the camera we also need to apply the same transformation to the :code:`get_mouse_position()` function!
-That's where camera's :code:`unproject_position(position_vector)` function can help.
+Have you noticed? When you transform the camera (especially when you rotate it) and then shoot your guns, the bullets
+don't fly where they should... If the mouse pointer is in the (0,0) position i.e. top-left of the screen, the bullets
+don't fly to that exact place but to the top-left corner **of the projected image of the scene**. It's not a bug,
+it's a feature! Point (0,0) of the scene always is a (0,0) regardless of transformations applied to the camera!
+
+In other words, if we apply a transformation to the camera we also need to apply the same transformation to
+the :code:`get_mouse_position()` function! That's where camera's :code:`unproject_position(position_vector)` function
+can help.
 
 Let's modify the code in :code:`PlayerController` where :code:`get_mouse_position()` is used.
 
@@ -85,7 +87,7 @@ Let's modify the code in :code:`PlayerController` where :code:`get_mouse_positio
     :caption: controllers/player_controller.py
 
     # that fragment inside update() function....
-    elif event.keyboard.is_pressing(Keycode.space):
+    elif event.keyboard_key.key == Keycode.space:
         self.scene.enemies_controller.add_enemy(Enemy(position=self.scene.camera.unproject_position(
             self.scene.input.mouse.get_position()), rotation_degrees=random.randint(0,360)))
 
