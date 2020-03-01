@@ -552,8 +552,8 @@ cdef class MouseButtonEvent(_BaseEvent):
 cdef class MouseMotionEvent(_BaseEvent):
     @staticmethod
     cdef MouseMotionEvent create(CEvent c_event):
-        cdef MouseButtonEvent instance = MouseButtonEvent.__new__(
-            MouseButtonEvent
+        cdef MouseMotionEvent instance = MouseMotionEvent.__new__(
+            MouseMotionEvent
         )
         instance.c_event = c_event
         return instance
