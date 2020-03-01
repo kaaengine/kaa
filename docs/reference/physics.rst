@@ -88,6 +88,10 @@ Instance methods:
     * :code:`collision_pair_a`- a :class:`CollisionPair` object that allows identifying which BodyNode and which HitboxNoded collided. Corresponds with HitboxNode identified by trigger_a.
     * :code:`collision_pair_b`- a :class:`CollisionPair` object that allows identifying which BodyNode and which HitboxNoded collided. Corresponds with HitboxNode identified by trigger_b.
 
+    If your collision handler function does not return any value, the collision will occur normally. However if you
+    return 0 in the collision handler AND you do that in the begin or pre_solve phase, then collision will be ignored
+    by the physics engine (no impulses will be applied to colliding objects). 
+
     .. code-block:: python
 
         # somwhere in the code...

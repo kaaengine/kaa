@@ -538,7 +538,7 @@ First let's add the machine gun bullet object and implement shooting logic:
 The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
 the machine gun bullets don't bounce back when colliding with enemies. In fact they're not affected at all by
 any collisions, and behave as if they had very large mass, pushing enemies with great energy. It's because they're
-kinematic bodies. We need to handle MG bullet collisions with enemies manually.
+kinematic bodies. We'll fix that in a moment, by writing our own collision handler.
 
 Collisions handling
 ~~~~~~~~~~~~~~~~~~~
@@ -708,10 +708,16 @@ below zero we remove the enemy from the scene and play enemy death animation.
                     enemy.stagger()
 
                 mg_bullet_pair.body.delete()  # remove the bullet from the scene
+                return 0 # tell the engine to ignore this collision
 
-The bullet-enemy collision handling logic is rather self-explanatory. What's interesting is that we remove objects
-from the scene at the end of the function. Remember that when a :code:`delete()` is called on an object
-we can no longer use its properties, even if we only want to read them!
+The bullet-enemy collision handling logic is rather self-explanatory but let's highlight a few things
+
+First, note that we remove objects from the scene at the end of the function. Remember that when a :code:`delete()`
+is called on an object we can no longer use its properties, even if we only want to read them!
+
+Next, notice :code:`return 0`. This tells the engine to ignore the collision effects. Normally, the bullet
+(kinematic body node) would push the enemy (dynamic body node), but we don't want this to happen - we just want the
+bullet to be destroyed on collision and we apply 'stagger'.
 
 Run the game and enjoy shooting at enemies with machine gun, blood splatters and bodies falling down :)
 
@@ -950,14 +956,18 @@ center.
                     enemy.hp -= int(damage)
                     # add the blood splatter animation over the enemy
                     self.scene.root.add_child(Node(z_index=900,
-                                                   sprite=registry.global_controllers.assets_controller.blood_splatter_img,
+                                                   transition=NodeSpriteTransition(
+                                                       registry.global_controllers.assets_controller.blood_splatter_frames,
+                                                       duration=140),
                                                    position=enemy.position, rotation=(enemy.position-explosion_center).to_angle() + math.pi,
                                                    lifetime=140))
 
                     if enemy.hp < 0:  # IZ DED!
                         # show the death animation (pick random sprite from few animations we have loaded from one png file)
                         self.scene.root.add_child(Node(z_index=1,
-                                                       sprite=random.choice(registry.global_controllers.assets_controller.enemy_death_imgs),
+                                                       transition=NodeSpriteTransition(random.choice(
+                                                           registry.global_controllers.assets_controller.enemy_death_frames),
+                                                           duration=450),
                                                        position=enemy.position, rotation=enemy.rotation,
                                                        origin_alignment=Alignment.right,
                                                        lifetime=random.randint(10000,20000)))
@@ -990,12 +1000,14 @@ function we've just written.
 
             if arbiter.phase == CollisionPhase.begin:
                 # show explosion animation
-                self.scene.root.add_child(Node(sprite=registry.global_controllers.assets_controller.explosion_img,
-                                          position=grenade_pair.body.position, z_index=1000, lifetime=12*75))
+                self.scene.root.add_child(Node(transition=NodeSpriteTransition(
+                    registry.global_controllers.assets_controller.explosion_frames, duration=12*75),
+                    position=grenade_pair.body.position, z_index=1000, lifetime=12*75))
                 # apply explosion effects to enemies (deal damage & push them back)
                 self.scene.enemies_controller.apply_explosion_effects(grenade_pair.body.position)
 
                 grenade_pair.body.delete()  # remove the grenade from the scene
+                return 0
 
 Run the game, spawn a lot of enemies by pressing SPACE and have fun with the grenade launcher :) Be sure to verify
 they're being pushed back by the explosion and taking damage!
