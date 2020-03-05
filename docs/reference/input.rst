@@ -240,10 +240,10 @@ connected controller:
             for event in self.input.events():
 
                 if event.controller_device:
-                    if event.controller_device.added:
+                    if event.controller_device.is_added:
                         print('New controller connected: id is {}'.format(event.controller_device.id))
                         self.connected_controller_ids.append(event.controller_device.id)
-                    elif event.controller_device.removed:
+                    elif event.controller_device.is_removed:
                         print('Controller disconnected: id is {}'.format(event.controller_device.id))
                         self.connected_controller_ids.remove(event.controller_device.id)
 
