@@ -8,6 +8,7 @@ from .kaacore.engine cimport get_c_engine
 from .kaacore.audio cimport (
     CAudioManager, CSound, CSoundPlayback, CMusic, CAudioStatus
 )
+from .kaacore.hashing cimport c_calculate_hash
 
 DEF SOUND_FREELIST_SIZE = 30
 DEF SOUND_PLAYBACK_FREELIST_SIZE = 10
@@ -30,6 +31,17 @@ cdef class Sound:
 
     def __init__(self, str sound_filepath, double volume=1.):
         self._attach_c_sound(CSound.load(sound_filepath.encode(), volume))
+
+    def __richcmp__(self, Sound other, op):
+        if op == 2:
+            return self.c_sound == other.c_sound
+        elif op == 3:
+            return not self.c_sound == other.c_sound
+        else:
+            return NotImplemented
+
+    def __hash__(self):
+        return c_calculate_hash[CSound](self.c_sound)
 
     @property
     def volume(self):
@@ -102,6 +114,17 @@ cdef class Music:
 
     def __init__(self, str music_filepath, double volume=1.):
         self._attach_c_music(CMusic.load(music_filepath.encode(), volume))
+
+    def __richcmp__(self, Music other, op):
+        if op == 2:
+            return self.c_music == other.c_music
+        elif op == 3:
+            return not self.c_music == other.c_music
+        else:
+            return NotImplemented
+
+    def __hash__(self):
+        return c_calculate_hash[CMusic](self.c_music)
 
     @staticmethod
     def get_current():

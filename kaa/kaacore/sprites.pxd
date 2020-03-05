@@ -17,6 +17,7 @@ cdef extern from "kaacore/sprites.h" nogil:
         CSprite load(const char* path, uint64_t flags) \
             except +raise_py_error
 
+        bool operator==(const CSprite&)
 
         CSprite crop(CVector new_origin, CVector new_dimensions) \
             except +raise_py_error

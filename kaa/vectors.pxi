@@ -6,6 +6,7 @@ from .kaacore.vectors cimport (
     CVector_rotate_angle, CVector_oriented_angle
 )
 from .kaacore.math cimport radians, degrees
+from .kaacore.hashing cimport c_calculate_hash
 
 
 DEF VECTOR_FREELIST_SIZE = 32
@@ -47,6 +48,9 @@ cdef class Vector:
 
     def __repr__(self):
         return "V[{x}, {y}]".format(x=self.x, y=self.y)
+
+    def __hash__(self):
+        return c_calculate_hash(self.c_vector)
 
     def __richcmp__(self, Vector other, op):
         if op == 2:
