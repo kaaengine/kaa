@@ -2,17 +2,22 @@ from enum import IntEnum
 
 import cython
 from libcpp.vector cimport vector
+from cymove cimport cymove as cmove
 
 from .kaacore.vectors cimport CVector
+from .kaacore.sprites cimport CSprite
 from .kaacore.transitions cimport (
     CNodeTransitionHandle, CTransitionWarping,
+    CNodeTransitionsManager,
     CAttributeTransitionMethod, CNodePositionTransition,
     CNodeRotationTransition, CNodeScaleTransition,
     CNodeColorTransition, CBodyNodeVelocityTransition,
     CBodyNodeAngularVelocityTransition, CNodeTransitionDelay,
+    CNodeSpriteTransition,
     make_node_transition, make_node_transitions_sequence,
     make_node_transitions_parallel
 )
+from .kaacore.nodes cimport CNodePtr
 
 
 class AttributeTransitionMethod(IntEnum):
@@ -141,6 +146,26 @@ cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
 
 
 @cython.final
+cdef class NodeSpriteTransition(NodeTransitionBase):
+    def __init__(self, list sprites, double duration, *,
+                 **warping_options,
+    ):
+        cdef vector[CSprite] c_sprites_vector
+        cdef Sprite sprite
+        c_sprites_vector.reserve(len(sprites))
+        for sprite in sprites:
+            c_sprites_vector.push_back(sprite.c_sprite)
+
+        self._setup_handle(
+            make_node_transition[CNodeSpriteTransition](
+                cmove(c_sprites_vector),
+                duration,
+                self._prepare_warping(warping_options),
+            )
+        )
+
+
+@cython.final
 cdef class NodeTransitionDelay(NodeTransitionBase):
     def __init__(self, double duration):
         self._setup_handle(
@@ -196,3 +221,34 @@ cdef NodeTransitionBase get_transition_wrapper(const CNodeTransitionHandle& tran
     py_transition._setup_handle(transition)
 
     return py_transition
+
+
+cdef class _NodeTransitionsManager:
+    cdef CNodePtr c_node
+
+    def __init__(self):
+        raise ValueError("This class shouldn't be initialized manually!")
+
+    @staticmethod
+    cdef create(CNodePtr c_node):
+        assert c_node
+        cdef _NodeTransitionsManager manager = \
+            _NodeTransitionsManager.__new__(_NodeTransitionsManager)
+        manager.c_node = c_node
+        return manager
+
+    def get(self, str transition_name):
+        cdef CNodeTransitionHandle c_transition = \
+            self.c_node.get().transitions_manager().get(transition_name.encode('ascii'))
+        if c_transition:
+            return get_transition_wrapper(cmove(c_transition))
+
+    def set(self, str transition_name, NodeTransitionBase transition):
+        if transition is not None:
+            self.c_node.get().transitions_manager().set(
+                transition_name.encode('ascii'), transition.c_handle
+            )
+        else:
+            self.c_node.get().transitions_manager().set(
+                transition_name.encode('ascii'), CNodeTransitionHandle()
+            )

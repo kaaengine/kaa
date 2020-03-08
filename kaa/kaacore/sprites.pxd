@@ -1,5 +1,6 @@
 from libc.stdint cimport uint16_t, uint32_t, uint64_t
 from libcpp cimport bool
+from libcpp.vector cimport vector
 
 from .vectors cimport CVector
 from .exceptions cimport raise_py_error
@@ -9,16 +10,6 @@ cdef extern from "kaacore/sprites.h" nogil:
     cdef cppclass CSprite "kaacore::Sprite":
         CVector origin
         CVector dimensions
-        CVector frame_dimensions
-
-        uint16_t frame_offset
-        uint16_t frame_count
-        uint16_t frame_current
-
-        uint16_t animation_frame_duration
-        uint32_t animation_time_acc
-        bool animation_loop
-        bool auto_animate
 
         CSprite()
 
@@ -33,3 +24,9 @@ cdef extern from "kaacore/sprites.h" nogil:
             except +raise_py_error
         CVector get_size() \
             except +raise_py_error
+
+    vector[CSprite] c_split_spritesheet "kaacore::split_spritesheet"(
+        const CSprite& spritesheet, const CVector frame_dimensions,
+        const size_t frames_offset, const size_t frames_count,
+        const CVector frame_padding
+    ) except +raise_py_error

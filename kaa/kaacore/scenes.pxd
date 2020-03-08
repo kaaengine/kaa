@@ -15,11 +15,12 @@ cdef extern from "kaacore/scenes.h" nogil:
 
     cdef cppclass CScene "kaacore::Scene":
         CNode root_node
-        uint32_t time
         CCamera camera
 
         void process_frame(uint32_t dt)
+        void on_attach()
         void on_enter()
         void update(uint32_t dt)
         void on_exit()
+        void on_detach()
         void process_nodes(uint32_t dt)

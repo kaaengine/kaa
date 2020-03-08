@@ -1,0 +1,3 @@
+steps:
+- publish: wheelhouse/
+  artifact: "build_$(platform.name)_$(python.version_tag)"

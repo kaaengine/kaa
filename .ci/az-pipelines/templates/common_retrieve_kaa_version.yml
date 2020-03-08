@@ -1,0 +1,14 @@
+steps:
+- bash: |
+    python <<EOF
+    import versioneer
+    version = versioneer.get_versions()
+    print(f"##vso[task.setvariable variable=kaa_version.version]{version['version']}")
+    print(f"##vso[task.setvariable variable=kaa_version.dirty]{version['dirty']}")
+    print(f"##vso[task.setvariable variable=kaa_version.local]{version['version'].find('+') > -1}")
+    EOF
+  displayName: 'Retrieve kaa version info'
+- bash: |
+    echo "Version: $(kaa_version.version)"
+    echo "Version dirty: $(kaa_version.dirty)"
+  displayName: 'Print kaa version info'

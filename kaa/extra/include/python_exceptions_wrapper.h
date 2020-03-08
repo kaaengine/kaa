@@ -20,7 +20,7 @@ struct PythonException : std::exception {
 
     ~PythonException()
     {
-        KAACORE_ASSERT(PyGILState_Check());
+        KAACORE_ASSERT_TERMINATE(PyGILState_Check());
         Py_DECREF(this->py_exception);
     }
 

@@ -19,17 +19,42 @@ cdef class ShapeBase:
         assert self.c_shape_ptr == NULL
         self.c_shape_ptr = c_new_shape
 
+    def transform(self, Transformation transformation not None):
+        return get_shape_wrapper(
+            self.c_shape_ptr[0].transform(transformation.c_transformation)
+        )
+
 
 cdef class Segment(ShapeBase):
     def __init__(self, Vector a, Vector b):
         self._set_stack_c_shape()
         self.c_shape_ptr[0] = CShape.Segment(a.c_vector, b.c_vector)
 
+    @property
+    def point_a(self):
+        assert self.c_shape_ptr != NULL
+        return Vector.from_c_vector(self.c_shape_ptr[0].points[0])
+
+    @property
+    def point_b(self):
+        assert self.c_shape_ptr != NULL
+        return Vector.from_c_vector(self.c_shape_ptr[0].points[1])
+
 
 cdef class Circle(ShapeBase):
     def __init__(self, double radius, Vector center=Vector(0., 0.)):
         self._set_stack_c_shape()
         self.c_shape_ptr[0] = CShape.Circle(radius, center.c_vector)
+
+    @property
+    def radius(self):
+        assert self.c_shape_ptr != NULL
+        return self.c_shape_ptr[0].radius
+
+    @property
+    def center(self):
+        assert self.c_shape_ptr != NULL
+        return Vector.from_c_vector(self.c_shape_ptr[0].points[0])
 
 
 cdef class Polygon(ShapeBase):
@@ -48,6 +73,15 @@ cdef class Polygon(ShapeBase):
         polygon_box._set_stack_c_shape()
         polygon_box.c_shape_ptr[0] = CShape.Box(a.c_vector)
         return polygon_box
+
+    @property
+    def points(self):
+        assert self.c_shape_ptr != NULL
+        cdef CVector pt
+        return [
+            Vector.from_c_vector(pt)
+            for pt in self.c_shape_ptr[0].points
+        ]
 
 
 cdef ShapeBase get_shape_wrapper(const CShape& c_shape):

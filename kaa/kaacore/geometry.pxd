@@ -22,5 +22,24 @@ cdef extern from "kaacore/geometry.h" nogil:
         bottom_right "kaacore::Alignment::bottom_right"
         center "kaacore::Alignment::center"
 
+    cdef cppclass CTransformation "kaacore::Transformation":
+        CTransformation()
+
+        @staticmethod
+        CTransformation translate(const CVector&) except +raise_py_error
+
+        @staticmethod
+        CTransformation scale(const CVector&) except +raise_py_error
+
+        @staticmethod
+        CTransformation rotate(const double&) except +raise_py_error
+
+        CTransformation inverse() except +raise_py_error
+
+        double at(const size_t col, const size_t row) except +raise_py_error
+
+    CTransformation operator|(const CTransformation&, const CTransformation&) except +raise_py_error
+    CVector operator|(const CVector&, const CTransformation&) except +raise_py_error
+
     CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CVector]& points) \
         except +raise_py_error

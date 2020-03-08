@@ -1,4 +1,4 @@
 from ._kaa import (
-    Keycode, MouseButton, ControllerButton, ControllerAxis, Event,
-    SystemEvent, WindowEvent, KeyboardEvent, MouseEvent, ControllerEvent
+    Event, Keycode, MouseButton,
+    ControllerButton, ControllerAxis, CompoundControllerAxis
 )

@@ -2,20 +2,26 @@ from enum import IntEnum
 
 cimport cython
 
+from libcpp.memory cimport unique_ptr
+
 from .kaacore.engine cimport get_c_engine
-from .kaacore.audio cimport CAudioManager, CSound, CMusic, CMusicState
+from .kaacore.audio cimport (
+    CAudioManager, CSound, CSoundPlayback, CMusic, CAudioStatus
+)
 
 DEF SOUND_FREELIST_SIZE = 30
+DEF SOUND_PLAYBACK_FREELIST_SIZE = 10
 DEF MUSIC_FREELIST_SIZE = 10
 
 
-class MusicState(IntEnum):
-    playing = <uint8_t>CMusicState.playing
-    paused = <uint8_t>CMusicState.paused
-    stopped = <uint8_t>CMusicState.stopped
+class AudioStatus(IntEnum):
+    playing = <uint8_t>CAudioStatus.playing
+    paused = <uint8_t>CAudioStatus.paused
+    stopped = <uint8_t>CAudioStatus.stopped
 
 
 @cython.freelist(SOUND_FREELIST_SIZE)
+@cython.final
 cdef class Sound:
     cdef CSound c_sound
 
@@ -29,10 +35,6 @@ cdef class Sound:
     def volume(self):
         return self.c_sound.volume()
 
-    @volume.setter
-    def volume(self, double vol):
-        self.c_sound.volume(vol)
-
     def play(self, double volume=1.):
         self.c_sound.play(volume)
 
@@ -43,7 +45,55 @@ cdef Sound get_sound_wrapper(const CSound& c_sound):
     return sound
 
 
+@cython.freelist(SOUND_PLAYBACK_FREELIST_SIZE)
+@cython.final
+cdef class SoundPlayback:
+    cdef unique_ptr[CSoundPlayback] c_sound_playback
+
+    def __cinit__(self, Sound sound not None, double volume=1.):
+        self.c_sound_playback = unique_ptr[CSoundPlayback](
+            new CSoundPlayback(sound.c_sound, volume)
+        )
+
+    @property
+    def sound(self):
+        return get_sound_wrapper(self.c_sound_playback.get().sound())
+
+    @property
+    def status(self):
+        return AudioStatus(<uint8_t>self.c_sound_playback.get().status())
+
+    @property
+    def volume(self):
+        return self.c_sound_playback.get().volume()
+
+    @volume.setter
+    def volume(self, double vol):
+        self.c_sound_playback.get().volume(vol)
+
+    @property
+    def is_playing(self):
+        return self.c_sound_playback.get().is_playing()
+
+    def play(self, *, int loops=1):
+        self.c_sound_playback.get().play(loops)
+
+    @property
+    def is_paused(self):
+        return self.c_sound_playback.get().is_paused()
+
+    def pause(self):
+        return self.c_sound_playback.get().pause()
+
+    def resume(self):
+        return self.c_sound_playback.get().resume()
+
+    def stop(self):
+        return self.c_sound_playback.get().stop()
+
+
 @cython.freelist(MUSIC_FREELIST_SIZE)
+@cython.final
 cdef class Music:
     cdef CMusic c_music
 
@@ -57,17 +107,13 @@ cdef class Music:
     def get_current():
         return get_music_wrapper(CMusic.get_current())
 
-    @staticmethod
-    def get_state():
-        return MusicState(<uint8_t>CMusic.get_state())
-
     @property
     def volume(self):
         return self.c_music.volume()
 
-    @volume.setter
-    def volume(self, double vol):
-        self.c_music.volume(vol)
+    @property
+    def status(self):
+        return AudioStatus(<uint8_t>self.c_music.status())
 
     @property
     def is_playing(self):
@@ -98,12 +144,8 @@ cdef Music get_music_wrapper(const CMusic& c_music):
 
 @cython.final
 cdef class _AudioManager:
-    cdef CAudioManager* _get_c_audio_manager(self):
-        cdef CEngine* c_engine = get_c_engine()
-        assert c_engine != NULL
-        cdef CAudioManager* c_audio_manager = c_engine.audio_manager.get()
-        assert c_audio_manager != NULL
-        return c_audio_manager
+    cdef CAudioManager* _get_c_audio_manager(self) except NULL:
+        return get_c_engine().audio_manager.get()
 
     @property
     def master_volume(self):

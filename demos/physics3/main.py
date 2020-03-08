@@ -62,7 +62,6 @@ class DemoScene(Scene):
         self.pointer_shapes_gen = itertools.cycle(POINTER_SHAPES)
         self.pointer = self.root.add_child(Node(
             position=Vector(-500, -500),  # start offscreen
-            # shape=Circle(20.),
             shape=next(self.pointer_shapes_gen),
             color=POINTER_COLOR_NORMAL,
             z_index=10,
@@ -89,11 +88,8 @@ class DemoScene(Scene):
         for r in results:
             r.hitbox.color = Color(0., 1., 1., 1.)
             r.body.velocity = Vector(0, 0)
-            # r.body.sleeping = True
             for cp in r.contact_points:
-                # r.hitbox.add_child(Node(
                 self.space.add_child(Node(
-                    # position=cp.point_b - r.body.position,
                     position=cp.point_b,
                     shape=Circle(0.5),
                     color=Color(1., 0., 0., 1.),
@@ -103,22 +99,21 @@ class DemoScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.system and event.system.quit:
-                self.engine.quit()
-            elif event.keyboard:
-                keyboard_ev = event.keyboard
-                if keyboard_ev.is_pressing(Keycode.q):
+            if event.keyboard_key and event.keyboard_key.is_key_down:
+                key = event.keyboard_key.key
+                if key == Keycode.q:
                     self.engine.quit()
-                elif keyboard_ev.is_pressing(Keycode.x):
+                elif key == Keycode.x:
                     self.pointer.shape = next(self.pointer_shapes_gen)
-            elif event.mouse:
-                mouse_ev = event.mouse
-                if mouse_ev.motion:
-                    self.pointer.position = mouse_ev.position
-                elif mouse_ev.is_pressing(MouseButton.left):
+            elif event.mouse_motion:
+                self.pointer.position = event.mouse_motion.position
+            elif (
+                event.mouse_button and event.mouse_button.button() == MouseButton.left
+            ):
+                if event.mouse_button.is_button_down:
                     self.pointer.color = POINTER_COLOR_ACTIVE
                     self._perform_query()
-                elif mouse_ev.is_releasing(MouseButton.left):
+                else:
                     self.pointer.color = POINTER_COLOR_NORMAL
 
 

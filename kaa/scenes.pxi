@@ -2,7 +2,9 @@ from libc.stdint cimport uint32_t
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
 
+from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
+from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 
@@ -18,42 +20,48 @@ cdef cppclass CPyScene(CScene):
         cdef object py_scene = this.py_scene_weakref()
         if py_scene is None:
             raise RuntimeError(
-                "Tried to retrieve scene which was already destroyed"
+                "Tried to retrieve scene which was already destroyed."
             )
         return py_scene
+
+    void on_attach() nogil:
+        with gil:
+            Py_INCREF(this.get_py_scene())
 
     void on_enter() nogil:
         with gil:
             try:
                 this.get_py_scene().on_enter()
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
-
 
     void update(uint32_t dt) nogil:
         with gil:
             try:
                 this.get_py_scene().update(dt)
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
 
     void on_exit() nogil:
         with gil:
             try:
                 this.get_py_scene().on_exit()
-            except Exception as py_exc:
+            except BaseException as py_exc:
                 c_wrap_python_exception(<PyObject*>py_exc)
+
+    void on_detach() nogil:
+        with gil:
+            Py_DECREF(this.get_py_scene())
 
 
 cdef class _SceneCamera:
     cdef CPyScene* c_scene
 
-    def __cinit__(self):
-        self.c_scene = NULL
-
-    cdef attach_c_scene(self, CPyScene* c_scene):
-        assert self.c_scene == NULL
-        self.c_scene = c_scene
+    @staticmethod
+    cdef _SceneCamera create(CPyScene* c_scene):
+        cdef _SceneCamera camera = _SceneCamera.__new__(_SceneCamera)
+        camera.c_scene = c_scene
+        return camera
 
     @property
     def position(self):
@@ -95,19 +103,27 @@ cdef class _SceneCamera:
 
 cdef class Scene:
     cdef:
+        object __weakref__
         CPyScene* c_scene
         Node py_root_node_wrapper
         readonly InputManager input_manager
         readonly _SceneCamera camera
 
     def __cinit__(self):
-        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
-                    "Initializing Scene")
+        if not is_c_engine_initialized():
+            raise RuntimeError(
+                'Cannot create scene since engine is not initialized yet.'
+            )
+
+        c_log_dynamic(
+            CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
+        )
         self.c_scene = new CPyScene(self)
-        self.py_root_node_wrapper = get_node_wrapper(&self.c_scene.root_node)
+        assert self.c_scene != NULL
+
+        self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self.c_scene.root_node))
         self.input_manager = InputManager()
-        self.camera = _SceneCamera()
-        self.camera.attach_c_scene(self.c_scene)
+        self.camera = _SceneCamera.create(self.c_scene)
 
     def __dealloc__(self):
         del self.c_scene
@@ -124,10 +140,6 @@ cdef class Scene:
     @property
     def engine(self):
         return get_engine()
-
-    @property
-    def time(self):
-        return self.c_scene.time
 
     @property
     def input(self):
