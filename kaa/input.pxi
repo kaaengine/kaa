@@ -532,6 +532,9 @@ cdef class MouseButtonEvent(_BaseEvent):
         instance.c_event = c_event
         return instance
     
+    @typed_property((
+        EventType.mouse_button_down, EventType.mouse_button_up
+    ))
     def button(self):
         return MouseButton(<uint32_t>(self.c_event.mouse_button().button()))
 
@@ -596,6 +599,9 @@ cdef class ControllerButtonEvent(_BaseEvent):
     def id(self):
         return self.c_event.controller_button().id()
 
+    @typed_property((
+        EventType.controller_button_down, EventType.controller_button_up
+    ))
     def button(self):
         return ControllerButton(
             <uint32_t>(self.c_event.controller_button().button())
