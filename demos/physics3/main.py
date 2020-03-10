@@ -108,7 +108,7 @@ class DemoScene(Scene):
             elif event.mouse_motion:
                 self.pointer.position = event.mouse_motion.position
             elif (
-                event.mouse_button and event.mouse_button.button() == MouseButton.left
+                event.mouse_button and event.mouse_button.button == MouseButton.left
             ):
                 if event.mouse_button.is_button_down:
                     self.pointer.color = POINTER_COLOR_ACTIVE
