@@ -32,13 +32,8 @@ cdef class Sound:
     def __init__(self, str sound_filepath, double volume=1.):
         self._attach_c_sound(CSound.load(sound_filepath.encode(), volume))
 
-    def __richcmp__(self, Sound other, op):
-        if op == 2:
-            return self.c_sound == other.c_sound
-        elif op == 3:
-            return not self.c_sound == other.c_sound
-        else:
-            return NotImplemented
+    def __eq__(self, Sound other):
+        return self.c_sound == other.c_sound
 
     def __hash__(self):
         return c_calculate_hash[CSound](self.c_sound)
@@ -115,13 +110,8 @@ cdef class Music:
     def __init__(self, str music_filepath, double volume=1.):
         self._attach_c_music(CMusic.load(music_filepath.encode(), volume))
 
-    def __richcmp__(self, Music other, op):
-        if op == 2:
-            return self.c_music == other.c_music
-        elif op == 3:
-            return not self.c_music == other.c_music
-        else:
-            return NotImplemented
+    def __eq__(self, Music other):
+        return self.c_music == other.c_music
 
     def __hash__(self):
         return c_calculate_hash[CMusic](self.c_music)

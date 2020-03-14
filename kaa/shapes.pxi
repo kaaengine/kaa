@@ -25,16 +25,11 @@ cdef class ShapeBase:
             self.c_shape_ptr[0].transform(transformation.c_transformation)
         )
 
+    def __eq__(self, ShapeBase other):
+        return self.c_shape_ptr[0] == other.c_shape_ptr[0]
+
     def __hash__(self):
         return c_calculate_hash[CShape](self.c_shape_ptr[0])
-
-    def __richcmp__(self, ShapeBase other, op):
-        if op == 2:
-            return self.c_shape_ptr[0] == other.c_shape_ptr[0]
-        elif op == 3:
-            return not self.c_shape_ptr[0] == other.c_shape_ptr[0]
-        else:
-            return NotImplemented
 
 
 cdef class Segment(ShapeBase):
