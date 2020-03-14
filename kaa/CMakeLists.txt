@@ -46,9 +46,11 @@ set(CYTHON_FILES
     kaacore/transitions.pxd
     kaacore/custom_transitions.pxd
     kaacore/log.pxd
+    kaacore/hashing.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
+    extra/include/hashing.h
 )
 
 add_custom_command(
