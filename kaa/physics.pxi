@@ -5,12 +5,14 @@ from enum import IntEnum
 import cython
 from cpython.ref cimport PyObject
 from libc.stdint cimport uint8_t
+from libcpp.vector cimport vector
 
 from .kaacore.nodes cimport CNode, CNodeType
 from .kaacore.physics cimport (
     CollisionTriggerId, CCollisionPhase, CArbiter, CCollisionPair,
     CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
-    bind_cython_collision_handler, CBodyNodeType
+    bind_cython_collision_handler, CBodyNodeType,
+    CCollisionContactPoint, CShapeQueryResult
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
@@ -83,6 +85,86 @@ cdef class CollisionPair:
             if self._hitbox_node_wrapper is None:
                 self._hitbox_node_wrapper = get_node_wrapper(self.c_hitbox)
             return self._hitbox_node_wrapper
+
+
+@cython.freelist(64)
+cdef class CollisionContactPoint:
+    cdef CCollisionContactPoint c_collision_contact_point
+
+    @staticmethod
+    cdef CollisionContactPoint create(CCollisionContactPoint& c_collision_contact_point):
+        cdef CollisionContactPoint collision_contact_point = \
+            CollisionContactPoint.__new__(CollisionContactPoint)
+        collision_contact_point.c_collision_contact_point = c_collision_contact_point
+        return collision_contact_point
+
+    def __init__(self):
+        raise ValueError("Do not initialize manually!")
+
+    @property
+    def point_a(self):
+        return Vector.from_c_vector(self.c_collision_contact_point.point_a)
+
+    @property
+    def point_b(self):
+        return Vector.from_c_vector(self.c_collision_contact_point.point_b)
+
+    @property
+    def distance(self):
+        return self.c_collision_contact_point.distance
+
+
+@cython.freelist(32)
+cdef class ShapeQueryResult:
+    cdef CShapeQueryResult c_shape_query_result
+
+    cdef NodeBase _body_node_wrapper
+    cdef NodeBase _hitbox_node_wrapper
+    cdef list _contact_points_list
+
+    def __cinit__(self):
+        self._body_node_wrapper = None
+        self._hitbox_node_wrapper = None
+        self._contact_points_list = None
+
+    @staticmethod
+    cdef ShapeQueryResult create(CShapeQueryResult& c_shape_query_result):
+        cdef ShapeQueryResult shape_query_result = \
+            ShapeQueryResult.__new__(ShapeQueryResult)
+        shape_query_result.c_shape_query_result = c_shape_query_result
+        return shape_query_result
+
+    @staticmethod
+    cdef list create_list(vector[CShapeQueryResult]& c_shape_query_results_vector):
+        return [
+            ShapeQueryResult.create(c_res) for c_res in c_shape_query_results_vector
+        ]
+
+    def __init__(self):
+        raise ValueError("Do not initialize manually!")
+
+    @property
+    def body(self):
+        if self.c_shape_query_result.body_node:
+            if self._body_node_wrapper is None:
+                self._body_node_wrapper = get_node_wrapper(self.c_shape_query_result.body_node)
+            return self._body_node_wrapper
+
+    @property
+    def hitbox(self):
+        if self.c_shape_query_result.hitbox_node:
+            if self._hitbox_node_wrapper is None:
+                self._hitbox_node_wrapper = get_node_wrapper(self.c_shape_query_result.hitbox_node)
+            return self._hitbox_node_wrapper
+
+    @property
+    def contact_points(self):
+        if self._contact_points_list is None:
+            self._contact_points_list = [
+                CollisionContactPoint.create(c_ccp)
+                for c_ccp in self.c_shape_query_result.contact_points
+            ]
+        return self._contact_points_list.copy()
 
 
 @cython.freelist(1)
@@ -181,6 +263,10 @@ cdef class SpaceNode(NodeBase):
             only_non_deleted_nodes=only_non_deleted_nodes
         )
 
+    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=Vector(0., 0.)):
+        return ShapeQueryResult.create_list(
+            self._get_c_node().space.query_shape_overlaps(shape.c_shape_ptr[0], position.c_vector)
+        )
 
 cdef class BodyNode(NodeBase):
     def __init__(self, **options):

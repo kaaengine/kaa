@@ -4,6 +4,7 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 
 from .kaacore.sprites cimport CSprite, c_split_spritesheet
+from .kaacore.hashing cimport c_calculate_hash
 
 DEF SPRITE_FREELIST_SIZE = 250
 
@@ -17,6 +18,17 @@ cdef class Sprite:
 
     def __init__(self, str path):
         self._set_c_sprite(CSprite.load(path.encode(), 0))
+
+    def __richcmp__(self, Sprite other, op):
+        if op == 2:
+            return self.c_sprite == other.c_sprite
+        elif op == 3:
+            return not self.c_sprite == other.c_sprite
+        else:
+            return NotImplemented
+
+    def __hash__(self):
+        return c_calculate_hash[CSprite](self.c_sprite)
 
     def crop(self, Vector origin, Vector dimensions):
         assert self.c_sprite.has_texture()
