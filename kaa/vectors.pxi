@@ -6,6 +6,7 @@ from .kaacore.vectors cimport (
     CVector_rotate_angle, CVector_oriented_angle
 )
 from .kaacore.math cimport radians, degrees
+from .kaacore.hashing cimport c_calculate_hash
 
 
 DEF VECTOR_FREELIST_SIZE = 32
@@ -48,13 +49,11 @@ cdef class Vector:
     def __repr__(self):
         return "V[{x}, {y}]".format(x=self.x, y=self.y)
 
-    def __richcmp__(self, Vector other, op):
-        if op == 2:
-            return self.c_vector == other.c_vector
-        elif op == 3:
-            return not self.c_vector == other.c_vector
-        else:
-            raise NotImplementedError("Unsupported comparison")
+    def __eq__(self, Vector other):
+        return self.c_vector == other.c_vector
+
+    def __hash__(self):
+        return c_calculate_hash(self.c_vector)
 
     def mul(self, double operand):
         return Vector.from_c_vector(self.c_vector * operand)

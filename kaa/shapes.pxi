@@ -2,6 +2,7 @@ from libcpp.vector cimport vector
 
 from .kaacore.vectors cimport CVector
 from .kaacore.shapes cimport CShape, CShapeType
+from .kaacore.hashing cimport c_calculate_hash
 
 
 cdef class ShapeBase:
@@ -23,6 +24,12 @@ cdef class ShapeBase:
         return get_shape_wrapper(
             self.c_shape_ptr[0].transform(transformation.c_transformation)
         )
+
+    def __eq__(self, ShapeBase other):
+        return self.c_shape_ptr[0] == other.c_shape_ptr[0]
+
+    def __hash__(self):
+        return c_calculate_hash[CShape](self.c_shape_ptr[0])
 
 
 cdef class Segment(ShapeBase):

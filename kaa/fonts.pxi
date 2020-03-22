@@ -1,5 +1,6 @@
 from .kaacore.nodes cimport CNodeType
 from .kaacore.fonts cimport CFont, CTextNode
+from .kaacore.hashing cimport c_calculate_hash
 
 
 cdef class Font:
@@ -10,6 +11,12 @@ cdef class Font:
 
     def __init__(self, str font_filepath):
         self._attach_c_font(CFont.load(font_filepath.encode()))
+
+    def __eq__(self, Font other):
+        return self.c_font == other.c_font
+
+    def __hash__(self):
+        return c_calculate_hash[CFont](self.c_font)
 
 
 cdef Font get_font_wrapper(const CFont& c_font):

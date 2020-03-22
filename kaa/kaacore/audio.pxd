@@ -18,6 +18,8 @@ cdef extern from "kaacore/audio.h" nogil:
         CSound load(const char* path, double volume) \
             except +raise_py_error
 
+        bool operator==(const CSound&)
+
         void play(double volume) \
             except +raise_py_error
 
@@ -53,6 +55,8 @@ cdef extern from "kaacore/audio.h" nogil:
         @staticmethod
         CMusic get_current() \
             except +raise_py_error
+
+        bool operator==(const CMusic&)
 
         double volume() except +raise_py_error
 

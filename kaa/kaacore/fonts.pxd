@@ -1,4 +1,5 @@
 from libcpp.string cimport string
+from libcpp cimport bool
 
 from .exceptions cimport raise_py_error
 
@@ -8,6 +9,8 @@ cdef extern from "kaacore/fonts.h" nogil:
         @staticmethod
         CFont load(const string& font_filepath) \
             except +raise_py_error
+
+        bool operator==(const CFont&)
 
     cdef cppclass CTextNode "kaacore::TextNode":
         string content() \

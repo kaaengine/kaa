@@ -1,4 +1,5 @@
 from libcpp.vector cimport vector
+from libcpp cimport bool
 
 from .vectors cimport CVector
 from .geometry cimport CTransformation
@@ -19,6 +20,8 @@ cdef extern from "kaacore/shapes.h" nogil:
         double radius
 
         CShape()
+
+        bool operator==(const CShape&)
 
         @staticmethod
         CShape Segment(const CVector a, const CVector b) \
