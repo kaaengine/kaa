@@ -242,7 +242,7 @@ cdef class NodeBase:
     @property
     def sprite(self):
         if self._get_c_node().sprite().has_texture():
-            return get_sprite_wrapper(self._get_c_node().sprite())
+            return Sprite.create(self._get_c_node().sprite())
 
     @sprite.setter
     def sprite(self, Sprite sprite):
