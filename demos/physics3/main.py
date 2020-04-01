@@ -1,6 +1,7 @@
 import random
 import itertools
 import math
+import enum
 
 from kaa.engine import Engine, Scene
 from kaa.geometry import Vector, Segment, Circle, Polygon
@@ -34,6 +35,11 @@ POINTER_SHAPES = [
 ]
 
 
+class QueryMask(enum.IntFlag):
+    clickable = enum.auto()
+    not_clickable = enum.auto()
+
+
 class FallingPiece(BodyNode):
     def __init__(self, position):
         super().__init__(
@@ -46,10 +52,16 @@ class FallingPiece(BodyNode):
             lifetime=60000.,  # 60 seconds
         )
 
-        self.add_child(HitboxNode(
+        self.hitbox = self.add_child(HitboxNode(
             shape=random.choice(PIECE_SHAPES),
-            color=Color(0, 1.0, 0.0, 1.),
         ))
+
+        if random.randint(0, 1):
+            self.hitbox.color = Color(0.0, 1.0, 0.0, 1.)
+            self.hitbox.mask = QueryMask.clickable
+        else:
+            self.hitbox.color = Color(1.0, 1.0, 0.0, 1.)
+            self.hitbox.mask = QueryMask.not_clickable
 
 
 class DemoScene(Scene):
@@ -82,7 +94,8 @@ class DemoScene(Scene):
 
     def _perform_query(self):
         results = self.space.query_shape_overlaps(
-            self.pointer.shape, self.pointer.position
+            self.pointer.shape, self.pointer.position,
+            collision_mask=QueryMask.clickable,
         )
         print("Results count: {}".format(len(results)))
         for r in results:
