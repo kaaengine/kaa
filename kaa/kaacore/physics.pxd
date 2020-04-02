@@ -10,10 +10,15 @@ from .nodes cimport CNode, CNodePtr
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/nodes.h" nogil:
+cdef extern from "kaacore/physics.h" nogil:
     ctypedef size_t CollisionTriggerId "kaacore::CollisionTriggerId"
     ctypedef size_t CollisionGroup "kaacore::CollisionGroup"
     ctypedef size_t CollisionBitmask "kaacore::CollisionBitmask"
+
+    cdef:
+        CollisionGroup collision_group_none
+        CollisionBitmask collision_bitmask_none
+        CollisionBitmask collision_bitmask_all
 
     cdef enum CCollisionPhase "kaacore::CollisionPhase":
         begin "kaacore::CollisionPhase::begin",
@@ -68,7 +73,10 @@ cdef extern from "kaacore/nodes.h" nogil:
             CCollisionHandlerFunc handler,
             uint8_t phases_mask, bint only_non_deleted_nodes
         ) except +raise_py_error
-        vector[CShapeQueryResult] query_shape_overlaps(const CShape& shape, const CVector& position) \
+        vector[CShapeQueryResult] query_shape_overlaps(
+            const CShape& shape, const CVector& position, const CollisionBitmask mask,
+            const CollisionBitmask collision_mask, const CollisionGroup group,
+        ) \
             except +raise_py_error
 
     cdef cppclass CBodyNode "kaacore::BodyNode":
