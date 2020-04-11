@@ -119,9 +119,19 @@ Instance methods:
     function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the
     collision handler function stops being called.
 
-.. method:: SpaceNode.query_shape_overlaps(shape, position)
+.. method:: SpaceNode.query_shape_overlaps(shape, position=Vector(0,0), mask=None, collision_mask=None, group=None)
 
-    TODO
+    Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and its position on the scene and returns
+    hitboxes which overlap with that shape (either partially or entirely) as well as body nodes which own those
+    hitboxes.
+
+    When running the query, the shape you pass is treated like a hitbox node, therefore parameters such as mask,
+    collision_mask and group behave identically as in :class:`HitboxNode`. Refer to :ref:`mask <HitboxNode.mask>`,
+    :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
+
+    The query returns a list of :class:`ShapeQueryResult` objects. Each :class:`ShapeQueryResult` represents a
+    'collision' of the shape with one hitbox. It holds a reference to hitbox' parent (body node) and other metadata
+    such as intersection points.
 
 :class:`BodyNode` reference
 ---------------------------
@@ -290,6 +300,7 @@ Instance properties:
 
     Gets or sets the shape of the hitbox. It can be either :class:`geometry.Polygon` or :class:`geometry.Circle`.
 
+.. _HitboxNode.group:
 .. attribute:: HitboxNode.group
 
     Gets or sets the group of the hitbox, as integer. Hitboxes with the same group won't collide with each other.
@@ -298,6 +309,7 @@ Instance properties:
     Another method of telling the engine which hitbox collisions it should ignore is to set :code:`mask` and
     :code:`collision_mask` on a HitboxNode.
 
+.. _HitboxNode.mask:
 .. attribute:: HitboxNode.mask
 
     Gets or sets the category of this hitbox node, as a bit mask. Other nodes will collide with this node if they
@@ -308,6 +320,7 @@ Instance properties:
     collisions between each pair of hitboxes on the scene.
 
     In the example below we give the engine the following hints:
+
     * player hitbox will collide only with enemy hitbox, enemy bullet hitbox and wall hitbox
     * player bullet hitbox will collide only with the enemy hitbox
     * enemy hitbox will collide only with other enemy hitboxes, player, player bullet and wall hitbox
@@ -347,15 +360,15 @@ Instance properties:
     In that case, those collisions won't occur. The collision masks need to match symmetrically from both sides for
     collision to be detected.
 
-    What if there is a proper symmetry in collision mask definitions but both hitboxes have the same group? In that
-    case the group value takes precedence and collisions won't occur.
+    What if there is a proper symmetry in collision mask definitions but both hitboxes have the same
+    :ref:`group <HitboxNode.group>`? In that case the group value takes precedence and collisions won't occur.
 
+.. _HitboxNode.collision_mask:
 .. attribute:: HitboxNode.collision_mask
 
     Gets or sets the categories of other hitboxes that you want this hitbox to collide with.
 
-
-    See the full example in the :code:`mask` section above for more information.
+    See the full example in the :ref:`mask <HitboxNode.mask>` section above for more information.
 
 .. attribute:: HitboxNode.trigger_id
 
