@@ -160,7 +160,7 @@ class MyScene(Scene):
 
         for event in self.input.events():
             if event.keyboard_key :
-                if event.keyboard_key.is_key_down(Keycode.q):
+                if event.keyboard_key.is_key_down and event.keyboard_key.key == Keycode.q:
                     self.engine.quit()
 
             if event.controller_device:
