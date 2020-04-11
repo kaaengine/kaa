@@ -119,7 +119,7 @@ Instance methods:
     function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the
     collision handler function stops being called.
 
-.. method:: SpaceNode.query_shape_overlaps(shape, position=Vector(0,0), mask=None, collision_mask=None, group=None)
+.. method:: SpaceNode.query_shape_overlaps(shape, position=Vector(0,0), mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
 
     Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and its position on the scene and returns
     hitboxes which overlap with that shape (either partially or entirely) as well as body nodes which own those
@@ -276,7 +276,7 @@ Instance properties:
 :class:`HitboxNode` reference
 -----------------------------
 
-.. class:: HitboxNode(shape, group=None, mask=None, collision_mask=None, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
+.. class:: HitboxNode(shape, group=kaa.physics.COLLISION_GROUP_NONE, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
 
     HitboxNode extends the :class:`Node` class and introduces collision detection features.
 
@@ -289,9 +289,9 @@ Instance properties:
     Hitbox node has its own specific params:
 
     * :code:`shape` - can be either :class:`geometry.Polygon` or :class:`geometry.Circle`
-    * :code:`group` - an integer.
-    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant
-    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant
+    * :code:`group` - an integer, default value is a kaa constant meaning "no group"
+    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
+    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
     * :code:`trigger_id` - your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
 
 Instance properties:
@@ -304,7 +304,8 @@ Instance properties:
 .. attribute:: HitboxNode.group
 
     Gets or sets the group of the hitbox, as integer. Hitboxes with the same group won't collide with each other.
-    It's basically a performance hint for the physics engine. Default value is None, meaning no group.
+    It's basically a performance hint for the physics engine. Default value is kaa.physics.COLLISION_GROUP_NONE,
+    meaning no group is used.
 
     Another method of telling the engine which hitbox collisions it should ignore is to set :code:`mask` and
     :code:`collision_mask` on a HitboxNode.
@@ -316,10 +317,10 @@ Instance properties:
     match on collision_mask. Otherwise collisions will be ignored. Use mask and collision_mask as performance
     hints for the engine.
 
-    By default mask and hitbox_mask are null which means the engine will try to detect
-    collisions between each pair of hitboxes on the scene.
+    By default mask and hitbox_mask are kaa.physics.COLLISION_BITMASK_ALL which meaning the engine will not apply
+    any filtering when detecting collisions - hitbox with those values will collide with any other hitbox.
 
-    In the example below we give the engine the following hints:
+    An example below shows how to set mask and collision_mask values to apply the following logic:
 
     * player hitbox will collide only with enemy hitbox, enemy bullet hitbox and wall hitbox
     * player bullet hitbox will collide only with the enemy hitbox
