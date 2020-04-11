@@ -26,9 +26,13 @@ Read more about :doc:`the nodes concept in general </reference/nodes>`.
     prevents you from adding more. If you decide to use multiple SpaceNodes on a Scene, be aware that they will be
     isolated (BodyNodes under SpaceNode A won't be able to interact with BodyNodes under SpaceNode B).
 
-    Space node is also place where you can register collision handles (see :meth:`SpaceNode.set_collision_handler`).
+    Space node is also place where you can register collision handlers (see :meth:`SpaceNode.set_collision_handler`).
     Collision handlers are your custom functions which will be called when a collision between a pair of defined
     hitbox nodes occurs.
+
+    Another feature of the SpaceNode is running spatial queries. You can give the space node a
+    custom shape (:class:`geometry.Circle`, :class:`geometry.Polygon` or :class:`geometry.Segment`) and ask
+    which hitboxes on the scene collide with that shape. See :meth:`SpaceNode.query_shape_overlaps`.
 
     Constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
     new parameters:
@@ -114,6 +118,10 @@ Instance methods:
     then they either overlap or touch each other for some time and finally - they separate. The collision handler
     function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the
     collision handler function stops being called.
+
+.. method:: SpaceNode.query_shape_overlaps(shape, position)
+
+    TODO
 
 :class:`BodyNode` reference
 ---------------------------
@@ -354,6 +362,26 @@ Instance properties:
     Gets or sets the trigger id value. It can be any value of your choice. It's a
     'tag' value which you need to pass when :ref:`registering your custom collision
     handler function <SpaceNode.set_collision_handler>`
+
+:class:`ShapeQueryResult` reference
+-----------------------------------
+
+    ShapeQueryResult object is returned by the :meth:`SpaceNode.query_shape_overlaps()` method. A single query can
+    return multiple ShapeQueryResult objects. A ShapeQueryResult has the following properties:
+
+    * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
+    * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
+    * :code:`contact_points` - a list of :class:`CollisionContactPoint` objects which contain information about collision points
+
+:class:`CollisionContactPoint` reference
+----------------------------------------
+
+    A CollisionContactPoint instance represents an actual point where collision between two shapes occurred. It has
+    the following properties:
+
+    * :code:`point_a`
+    * :code:`point_b`
+    * :code:`distance`
 
 
 :class:`Arbiter` reference
