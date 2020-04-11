@@ -39,7 +39,7 @@ Constructor:
             engine.run(scene)
 
 
-    To run the game in a fullscreen Full HD sized window, using 800x600 frame buffer:
+    To run the game in a fullscreen Full HD sized window, using 800x600 resolution:
 
     .. code-block:: python
 
@@ -49,8 +49,8 @@ Constructor:
             engine.window.fullscreen = True
             engine.run(scene)
 
-    To run the game in a 1200x1000 window, using 800x600 frame buffer size, without stretching the frame buffer to
-    fit the whole window size, giving window a title, and setting fame buffer clear color to green:
+    To run the game in a 1200x1000 window, using 800x600 resolution, without stretching the drawable area to
+    fit the whole window size, giving window a title, and setting the clear color to green:
 
     .. code-block:: python
 
@@ -94,7 +94,7 @@ Instance properties:
     That's where virtual resolution concept comes in. You declare a virtual resolution for your game just
     once, when initializing the engine, and the engine will always use exactly this resolution when you draw stuff in
     your game. If you run the game in a window larger than the declared virtual resolution, the engine will stretch the
-    game's frame buffer (actual draw area). If you run it in a window smaller than declared virtual resolution, the
+    game's actual draw area. If you run it in a window smaller than declared virtual resolution, the
     engine will shrink it.
 
     There are different policies available for stretching and shrinking the area. You can control it by setting the
@@ -550,9 +550,9 @@ Instance properties:
 
 .. attribute:: Renderer.clear_color
 
-Gets or sets the clear color (:class:`colors.Color`) for the drawable area (the frame buffer).
+Gets or sets the clear color (:class:`colors.Color`) for the viewport.
 
-An example of 800x600 frame buffer colored in green, running in the 1200x1000 window using :code:`no_stretch` mode:
+An example of 800x600 viewport, colored in green, running in the 1200x1000 window using :code:`no_stretch` mode:
 
     .. code-block:: python
 
