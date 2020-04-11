@@ -299,8 +299,9 @@ Constructor:
 
     * Use the :ref:`camera <Scene.camera>` property to control the camera
 
-    The Scene constructor does not take any parameters. As stated above, you should never instantiate a Scene directly
-    but write your own scene class that inherit from it. Use the Scene's constructor to add initial objects to the scene
+    The Scene constructor does not take any parameters. As stated above, you should never instantiate a
+    :class:`Scene` directly but write your own scene class that inherit from it. Use the Scene's constructor to add
+    initial objects to the scene
 
     .. code-block:: python
 
