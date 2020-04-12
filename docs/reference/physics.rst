@@ -80,13 +80,13 @@ Instance methods:
 .. method:: SpaceNode.set_collision_handler(trigger_a, trigger_b, handler_callable)
 
     Registers a custom collision handler function between two :class:`HitboxNode` instances, tagged with
-    trigger_a and trigger_b respectively.
+    trigger_a and trigger_b respectively. The function will get called when collision between hitboxes occur.
 
-    Collisions occur between HitboxNodes (not between BodyNodes!). The :code:`trigger_a` and :code:`trigger_b` params
-    are your own values which you use to tag :class:`HitboxNode`. They can be any type, using simple types such as
-    numbers or strings is recommended.
+    Note, that collisions occur between HitboxNodes (not between BodyNodes!). The :code:`trigger_a`
+    and :code:`trigger_b` params are your own values which you use to tag :class:`HitboxNode`. They should be
+    of integer type.
 
-    :code:`handler_callable` is your own callable which accepts the following three parameters:
+    :code:`handler_callable` is your own callable, it takes the following three parameters:
 
     * :code:`arbiter` - an :class:`Arbiter` object that holds additional information about collision.
     * :code:`collision_pair_a`- a :class:`CollisionPair` object that allows identifying which BodyNode and which HitboxNoded collided. Corresponds with HitboxNode identified by trigger_a.
@@ -292,7 +292,7 @@ Instance properties:
     * :code:`group` - an integer, default value is a kaa constant meaning "no group"
     * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
     * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
-    * :code:`trigger_id` - your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
+    * :code:`trigger_id` - an integer, your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
 
 Instance properties:
 

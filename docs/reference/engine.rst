@@ -392,24 +392,18 @@ Instance properties:
         def MyScene(Scene):
 
             def __init__(self):
-                super().__init()
+                super().__init__()
                 self.arrow_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png'))
                 self.arrow_node = Node(sprite=self.arrow_sprite, position=Vector(200, 200))
                 self.root.add_child(self.arrow_node)
-
-
-.. _Scene.time:
-.. attribute:: Scene.time
-
-    Returns a lifetime of a Scene, in miliseconds. The counter is being incremented only if the Scene is active.
 
 
 Instance methods:
 
 .. method:: Scene.update(dt)
 
-    An update method is called every frame. The dt parameter is a previous frame duration, in miliseconds.
-    Most of your game logic will live inside the update method.
+    An update method is called every frame. The dt parameter is a time elapsed since previous update call,
+    in miliseconds. Most of your game logic will live inside the update method.
 
     .. code-block:: python
 
@@ -420,7 +414,7 @@ Instance methods:
         def MyScene(Scene):
 
             def __init__(self):
-                super().__init()
+                super().__init__()
                 self.arrow_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png'))
                 self.arrow_node = Node(sprite=self.arrow_sprite, position=Vector(200, 200))
                 self.root.add_child(self.arrow_node)
@@ -447,7 +441,7 @@ Instance methods:
 
 Window object exposes properties and methods for the game window. Changing the :code:`fullscreen` flag will make the
 game run in a fullscreen or windowed mode. If you run the game in the windowed mode, you can resize or reposition the
-window using properties such as :code:`position`, :code:`size` or methods such as :code:`center`.
+window using properties such as :code:`position`, :code:`size` or methods such as :meth:`Window.center()`.
 
 Instance properties:
 

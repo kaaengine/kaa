@@ -55,8 +55,8 @@ Instance Properties:
 .. _Node.scene:
 .. attribute:: Node.scene
 
-    Returns a :class:`Scene` instance to which this Node belongs. Will be None if the node wasn't added to any Scene yet.
-    Use :meth:`Node.add_child` method to add nodes. Each Scene has a root node to which you can add nodes.
+    Returns a :class:`Scene` instance to which this Node belongs. Will be None if the node has not been added to any
+    Scene yet. Use :meth:`Node.add_child` method to add nodes. Each Scene has a root node to which you can add nodes.
 
 .. _Node.position:
 .. attribute:: Node.position
