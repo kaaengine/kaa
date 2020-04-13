@@ -52,6 +52,11 @@ the Node class (or BodyNode if you want the object to utilize :doc:`kaaengine's 
 
 Instance Properties:
 
+.. _Node.children:
+.. attribute:: Node.children
+
+    Returns a list of child nodes of this Node.
+
 .. _Node.scene:
 .. attribute:: Node.scene
 
