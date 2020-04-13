@@ -44,37 +44,6 @@ Then add :code:`__init__()` method to :code:`MyScene` and load our image there:
 Kaa engine loads images to objects called Sprites. With the image loaded, we can create the first few in-game objects
 (which will use the same Sprite).
 
-.. note::
-
-    Do not try to create Sprites (or any other kaa objects) outside engine context. To illustrate this,
-    create the new file, named :code:`bad_main.py`:
-
-    .. code-block:: python
-
-        from kaa.engine import Engine, Scene
-        from kaa.geometry import Vector
-        from kaa.sprites import Sprite
-        import os
-
-        # creating objects outside engine's 'with' context like this will throw an exception
-        loose_sprite = Sprite(os.path.join('assets', 'gfx', 'arrow.png'))
-
-
-        # everything else below is good!
-        class MyScene(Scene):
-
-            def update(self, dt):
-                for event in self.input.events():
-                    if event.system and event.system.quit:
-                        self.engine.quit()
-
-
-        with Engine(virtual_resolution=Vector(800, 600)) as engine:
-            my_scene = MyScene()
-            engine.run(my_scene)
-
-    Try running it. Kaaengine will thrown an exception because of that Sprite creation outside the engine context.
-
 Drawing objects on the screen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -179,7 +148,6 @@ will shrink it 50%, etc.
 
 .. code-block:: python
 
-    import math
     self.arrow1.scale = Vector(0.5, 1)  # note: default is Vector(1,1)
 
 Re-run the game and see how X axis of the arrow was scaled down.

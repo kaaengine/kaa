@@ -26,7 +26,7 @@ To install kaaengine:
 
 .. code-block:: none
 
-    pip install kaaengine==0.6
+    pip install kaaengine
 
 **NOTE** Kaaengine requires python 3.X. The tutorial assumes you're using python 3.6.X or newer.
 
@@ -48,10 +48,10 @@ the following code inside main.py:
         def update(self, dt):  # this method is your game loop
             pass  # your game code will live here!
 
-
-    with Engine(virtual_resolution=Vector(800, 600)) as engine:
-        my_scene = MyScene()  # create the scene
-        engine.run(my_scene)  # run the scene
+    if __name__ == "__main__":
+        with Engine(virtual_resolution=Vector(800, 600)) as engine:
+            my_scene = MyScene()  # create the scene
+            engine.run(my_scene)  # run the scene
 
 
 Start the game by running:
