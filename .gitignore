@@ -10,3 +10,5 @@ kaa/_kaa.cpp
 *.pyc
 .vscode
 *.egg-info
+.idea
+/docs/_build

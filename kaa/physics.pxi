@@ -12,7 +12,8 @@ from .kaacore.physics cimport (
     CollisionTriggerId, CCollisionPhase, CArbiter, CCollisionPair,
     CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
     bind_cython_collision_handler, CBodyNodeType,
-    CCollisionContactPoint, CShapeQueryResult
+    CCollisionContactPoint, CShapeQueryResult,
+    collision_bitmask_all, collision_group_none
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
@@ -263,9 +264,14 @@ cdef class SpaceNode(NodeBase):
             only_non_deleted_nodes=only_non_deleted_nodes
         )
 
-    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=Vector(0., 0.)):
+    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=Vector(0., 0.),
+                             *, CollisionBitmask mask=collision_bitmask_all,
+                             CollisionBitmask collision_mask=collision_bitmask_all,
+                             CollisionGroup group=collision_group_none):
         return ShapeQueryResult.create_list(
-            self._get_c_node().space.query_shape_overlaps(shape.c_shape_ptr[0], position.c_vector)
+            self._get_c_node().space.query_shape_overlaps(
+                shape.c_shape_ptr[0], position.c_vector, mask, collision_mask, group
+            )
         )
 
 cdef class BodyNode(NodeBase):
