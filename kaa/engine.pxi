@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
 
-from .kaacore.vectors cimport CUVec2
+from .kaacore.vectors cimport CUVector
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport (
     CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
@@ -29,12 +29,10 @@ class VirtualResolutionMode(IntEnum):
 cdef class _Engine:
     cdef:
          _Window _window
-         _Renderer _renderer
          _AudioManager _audio_manager
 
     def __cinit__(self):
         self._window = _Window()
-        self._renderer = _Renderer()
         self._audio_manager = _AudioManager()
 
     @property
@@ -42,10 +40,10 @@ cdef class _Engine:
         return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
 
     def change_scene(self, Scene scene not None):
-        get_c_engine().change_scene(scene.c_scene)
+        get_c_engine().change_scene(scene._c_scene.get())
 
     def run(self, Scene scene not None):
-        get_c_engine().run(<CScene*>scene.c_scene)
+        get_c_engine().run(<CScene*>scene._c_scene.get())
 
     def quit(self):
         get_c_engine().quit()
@@ -61,14 +59,14 @@ cdef class _Engine:
 
     @property
     def virtual_resolution(self):
-        cdef CUVec2 c_virtual_resolution = get_c_engine().virtual_resolution()
+        cdef CUVector c_virtual_resolution = get_c_engine().virtual_resolution()
         return Vector(c_virtual_resolution.x,
                       c_virtual_resolution.y)
 
     @virtual_resolution.setter
     def virtual_resolution(self, Vector new_resolution):
         get_c_engine().virtual_resolution(
-            CUVec2(new_resolution.x, new_resolution.y)
+            CUVector(new_resolution.x, new_resolution.y)
         )
 
     @property
@@ -92,10 +90,6 @@ cdef class _Engine:
     @property
     def window(self):
         return self._window
-
-    @property
-    def renderer(self):
-        return self._renderer
 
     @property
     def audio(self):
@@ -123,7 +117,7 @@ def Engine(Vector virtual_resolution,
     if is_c_engine_initialized():
         raise ValueError('Engine is already started.')
 
-    cdef CUVec2 c_virtual_resolution = CUVec2(
+    cdef CUVector c_virtual_resolution = CUVector(
         virtual_resolution.x, virtual_resolution.y
     )
     cdef CEngine* c_engine_ptr = NULL

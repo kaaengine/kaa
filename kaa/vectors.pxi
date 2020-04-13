@@ -2,8 +2,8 @@ import cython
 from numbers import Number
 
 from .kaacore.vectors cimport (
-    CVector, CVector_dot, CVector_distance, CVector_length, CVector_normalize,
-    CVector_rotate_angle, CVector_oriented_angle
+    CVector, c_vector_dot, c_vector_distance, c_vector_length, c_vector_normalize,
+    c_vector_rotate_angle, c_vector_oriented_angle
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.hashing cimport c_calculate_hash
@@ -80,40 +80,40 @@ cdef class Vector:
         return Vector(-self.x, -self.y)
 
     def rotate_angle(self, double angle_rad):
-        return Vector.from_c_vector(CVector_rotate_angle(self.c_vector, angle_rad))
+        return Vector.from_c_vector(c_vector_rotate_angle(self.c_vector, angle_rad))
 
     def rotate_angle_degrees(self, double angle_deg):
         return self.rotate_angle(radians(angle_deg))
 
     @classmethod
     def from_angle(cls, double angle_rad):
-        return Vector.from_c_vector(CVector_rotate_angle(CVector(1., 0.), angle_rad))
+        return Vector.from_c_vector(c_vector_rotate_angle(CVector(1., 0.), angle_rad))
 
     @classmethod
     def from_angle_degrees(cls, double angle_deg):
         return cls.from_angle(radians(angle_deg))
 
     def to_angle(self):
-        return CVector_oriented_angle(
-            CVector(1., 0.), CVector_normalize(self.c_vector)
+        return c_vector_oriented_angle(
+            CVector(1., 0.), c_vector_normalize(self.c_vector)
         )
 
     def to_angle_degrees(self):
         return degrees(self.to_angle())
 
     def dot(self, Vector other_vec):
-        return CVector_dot(self.c_vector, other_vec.c_vector)
+        return c_vector_dot(self.c_vector, other_vec.c_vector)
 
     def distance(self, Vector other_vec):
-        return CVector_distance(self.c_vector, other_vec.c_vector)
+        return c_vector_distance(self.c_vector, other_vec.c_vector)
 
     def normalize(self):
         return Vector.from_c_vector(
-            CVector_normalize(self.c_vector)
+            c_vector_normalize(self.c_vector)
         )
 
     def length(self):
-        return CVector_length(self.c_vector)
+        return c_vector_length(self.c_vector)
 
     def transform(self, Transformation transformation not None):
         return transformation._mul_vector(self)

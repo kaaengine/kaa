@@ -1,4 +1,5 @@
 from libc.stdint cimport uint32_t
+from libcpp.memory cimport unique_ptr
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
 
@@ -13,14 +14,14 @@ cdef cppclass CPyScene(CScene):
 
     __init__(object py_scene):
         c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
-                    "Created CPyScene")
+                    'Created CPyScene')
         this.py_scene_weakref = PyWeakref_NewRef(py_scene, None)
 
     object get_py_scene():
         cdef object py_scene = this.py_scene_weakref()
         if py_scene is None:
             raise RuntimeError(
-                "Tried to retrieve scene which was already destroyed."
+                'Tried to retrieve scene which was already destroyed.'
             )
         return py_scene
 
@@ -54,60 +55,14 @@ cdef cppclass CPyScene(CScene):
             Py_DECREF(this.get_py_scene())
 
 
-cdef class _SceneCamera:
-    cdef CPyScene* c_scene
-
-    @staticmethod
-    cdef _SceneCamera create(CPyScene* c_scene):
-        cdef _SceneCamera camera = _SceneCamera.__new__(_SceneCamera)
-        camera.c_scene = c_scene
-        return camera
-
-    @property
-    def position(self):
-        return Vector.from_c_vector(self.c_scene.camera.position)
-
-    @position.setter
-    def position(self, Vector vec):
-        self.c_scene.camera.position = vec.c_vector
-
-    @property
-    def rotation(self):
-        return self.c_scene.camera.rotation.rotation
-
-    @rotation.setter
-    def rotation(self, double value):
-        self.c_scene.camera.rotation = value
-
-    @property
-    def rotation_degrees(self):
-        return degrees(self.c_scene.camera.rotation)
-
-    @rotation_degrees.setter
-    def rotation_degrees(self, double value):
-        self.c_scene.camera.rotation = radians(value)
-
-    @property
-    def scale(self):
-        return Vector.from_c_vector(self.c_scene.camera.scale)
-
-    @scale.setter
-    def scale(self, Vector vec):
-        self.c_scene.camera.scale = vec.c_vector
-
-    def unproject_position(self, Vector pos):
-        return Vector.from_c_vector(
-            self.c_scene.camera.unproject_position(pos.c_vector)
-        )
-
-
 cdef class Scene:
     cdef:
         object __weakref__
-        CPyScene* c_scene
+        unique_ptr[CPyScene] _c_scene
+        # CPyScene* c_scene
         Node py_root_node_wrapper
-        readonly InputManager input_manager
-        readonly _SceneCamera camera
+        InputManager input_
+        readonly ViewsManager views
 
     def __cinit__(self):
         if not is_c_engine_initialized():
@@ -118,15 +73,17 @@ cdef class Scene:
         c_log_dynamic(
             CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
         )
-        self.c_scene = new CPyScene(self)
-        assert self.c_scene != NULL
+        cdef CPyScene* c_scene = new CPyScene(self)
+        assert c_scene != NULL
+        self._c_scene = unique_ptr[CPyScene](c_scene)
 
-        self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self.c_scene.root_node))
-        self.input_manager = InputManager()
-        self.camera = _SceneCamera.create(self.c_scene)
+        self.views = ViewsManager.create(&self._c_scene.get().views)
+        self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self._c_scene.get().root_node))
+        self.input_ = InputManager()
 
     def __dealloc__(self):
-        del self.c_scene
+        self.views._mark_invalid()
+        # del self.c_scene
 
     def on_enter(self):
         pass
@@ -140,10 +97,22 @@ cdef class Scene:
     @property
     def engine(self):
         return get_engine()
+    
+    @property
+    def camera(self):
+        return self.views[0].camera
+    
+    @property
+    def clear_color(self):
+        return self.views[0].clear_color
+
+    @clear_color.setter
+    def clear_color(self, Color color):
+        self.views[0].clear_color = color
 
     @property
     def input(self):
-        return self.input_manager
+        return self.input_
 
     @property
     def root(self):

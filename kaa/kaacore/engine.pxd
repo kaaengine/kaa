@@ -7,10 +7,9 @@ from .display cimport CDisplay
 from .scenes cimport CScene
 from .window cimport CWindow
 from .audio cimport CAudioManager
-from .renderer cimport CRenderer
 from .input cimport CInputManager
 from .exceptions cimport raise_py_error
-from .vectors cimport CUVec2
+from .vectors cimport CUVector
 
 
 cdef extern from "kaacore/engine.h" nogil:
@@ -21,13 +20,11 @@ cdef extern from "kaacore/engine.h" nogil:
 
     cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CWindow] window
-        unique_ptr[CRenderer] renderer
         unique_ptr[CInputManager] input_manager
         unique_ptr[CAudioManager] audio_manager
-        uint64_t time
 
-        CEngine(CUVec2 virtual_resolution)
-        CEngine(CUVec2 virtual_resolution,
+        CEngine(CUVector virtual_resolution)
+        CEngine(CUVector virtual_resolution,
                 CVirtualResolutionMode virtual_resolution_mode)
 
         vector[CDisplay] get_displays()
@@ -36,8 +33,8 @@ cdef extern from "kaacore/engine.h" nogil:
         void quit() except +raise_py_error
 
         CScene* current_scene()
-        CUVec2 virtual_resolution()
-        void virtual_resolution(CUVec2 resolution)
+        CUVector virtual_resolution()
+        void virtual_resolution(CUVector resolution)
 
         CVirtualResolutionMode virtual_resolution_mode()
         void virtual_resolution_mode(CVirtualResolutionMode vr_mode)

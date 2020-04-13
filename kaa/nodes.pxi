@@ -123,10 +123,6 @@ cdef class NodeBase:
 
         return self
 
-    def update(self, **options):
-        # backwards compatibility name
-        return self.setup(**options)
-
     @property
     def children(self):
         cdef:
