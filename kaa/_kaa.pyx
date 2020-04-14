@@ -1,6 +1,5 @@
 # distutils: language=c++
 
-include "defines.pxi"
 include "exceptions.pxi"
 include "log.pxi"
 include "vectors.pxi"

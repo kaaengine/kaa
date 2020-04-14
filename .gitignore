@@ -3,6 +3,7 @@
 /kaa/libSDL2*.so*
 /kaa/libSDL2*.dll
 build/
+dist/
 cmake_build/
 _skbuild/
 wheelhouse/
