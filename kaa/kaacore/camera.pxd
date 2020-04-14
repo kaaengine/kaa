@@ -1,4 +1,3 @@
-
 from .vectors cimport CVector
 from .exceptions cimport raise_py_error
 

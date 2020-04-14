@@ -1,8 +1,9 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
-from libc.stdint cimport uint32_t
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
+from libc.stdint cimport int16_t, uint32_t
+from libcpp.unordered_set cimport unordered_set
 
 from cymove cimport cymove as cmove
 
@@ -115,6 +116,8 @@ cdef class NodeBase:
             self.width = options.pop('width')
         if 'height' in options:
             self.height = options.pop('height')
+        if 'views' in options:
+            self.views = options.pop('views')
 
         if options:
             raise ValueError('Passed unknown options to {}: {}'.format(
@@ -146,6 +149,27 @@ cdef class NodeBase:
     def parent(self):
         if self._get_c_node().parent():
             return get_node_wrapper(self._get_c_node().parent())
+    
+    @property
+    def views(self):
+        cdef:
+            int16_t z_index
+            set result = set()
+            vector[int16_t] c_z_indices = self._get_c_node().views()
+        
+        for z_index in range(c_z_indices.size()):
+            result.add(z_index)
+        return result
+    
+    @views.setter
+    def views(self, set z_indices):
+        cdef:
+            int16_t z_index
+            unordered_set[int16_t] c_z_indices
+
+        for z_index in z_indices:
+            c_z_indices.insert(z_index)
+        self._get_c_node().views(c_z_indices)
 
     @property
     def position(self):

@@ -59,7 +59,6 @@ cdef class Scene:
     cdef:
         object __weakref__
         unique_ptr[CPyScene] _c_scene
-        # CPyScene* c_scene
         Node py_root_node_wrapper
         InputManager input_
         readonly ViewsManager views
@@ -83,7 +82,6 @@ cdef class Scene:
 
     def __dealloc__(self):
         self.views._mark_invalid()
-        # del self.c_scene
 
     def on_enter(self):
         pass

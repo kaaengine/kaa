@@ -30,7 +30,7 @@ cdef class _ExternalResourceReference:
     
     cdef int32_t _check_valid(self) except -1:
         if not self._c_is_valid:
-            raise RuntimeError(f'Accessing already deleted resource ({self}).')
+            raise RuntimeError(f'Accessing already deleted resource ({self.__class__}).')
     
 
 @cython.final
@@ -164,7 +164,7 @@ cdef class Camera(_ExternalResourceReference):
         return Vector.from_c_vector(self._c_camera.position())
 
     @position.setter
-    def position(self, Vector vector):
+    def position(self, Vector vector not None):
         self._c_camera.position(vector.c_vector)
 
     @property
@@ -188,10 +188,10 @@ cdef class Camera(_ExternalResourceReference):
         return Vector.from_c_vector(self._c_camera.scale())
 
     @scale.setter
-    def scale(self, Vector vector):
+    def scale(self, Vector vector not None):
         self._c_camera.scale(vector.c_vector)
 
-    def unproject_position(self, Vector position):
+    def unproject_position(self, Vector position not None):
         return Vector.from_c_vector(
             self._c_camera.unproject_position(position.c_vector)
         )

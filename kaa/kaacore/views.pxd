@@ -7,7 +7,6 @@ from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/views.h" nogil:
-
     cdef cppclass CView "kaacore::View":
         CCamera camera
 

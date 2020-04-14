@@ -1,7 +1,8 @@
-from libcpp.memory cimport unique_ptr
-from libcpp.vector cimport vector
-from libcpp cimport bool
 from libc.stdint cimport int16_t, uint32_t
+from libcpp cimport bool
+from libcpp.vector cimport vector
+from libcpp.memory cimport unique_ptr
+from libcpp.unordered_set cimport unordered_set
 
 from .vectors cimport CVector, CColor
 from .geometry cimport CAlignment, CTransformation
@@ -99,6 +100,9 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CScene* scene() except +raise_py_error
         CNodePtr parent() except +raise_py_error
+
+        void views(const unordered_set[int16_t]& z_indices) except +raise_py_error
+        const vector[int16_t] views() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
