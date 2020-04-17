@@ -4,7 +4,7 @@ import cython
 from libcpp.vector cimport vector
 from cymove cimport cymove as cmove
 
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport CDVec2
 from .kaacore.sprites cimport CSprite
 from .kaacore.transitions cimport (
     CNodeTransitionHandle, CTransitionWarping,

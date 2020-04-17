@@ -2,36 +2,36 @@ from libc.stdint cimport int32_t, uint32_t
 
 
 cdef extern from "glm/glm.hpp" nogil:
-    cdef cppclass CVector "glm::dvec2":
+    cdef cppclass CDVec2 "glm::dvec2":
         double x
         double y
 
-        CVector()
-        CVector(double x, double y)
-        bint operator==(CVector, CVector)
-        CVector operator*(CVector, double)
-        CVector operator+(CVector, CVector)
-        CVector operator-(CVector, CVector)
+        CDVec2()
+        CDVec2(double x, double y)
+        bint operator==(CDVec2, CDVec2)
+        CDVec2 operator*(CDVec2, double)
+        CDVec2 operator+(CDVec2, CDVec2)
+        CDVec2 operator-(CDVec2, CDVec2)
         double& operator[](size_t)
 
-    CVector c_vector_normalize "glm::normalize" (CVector& v)
-    double c_vector_dot "glm::dot" (CVector& v1, CVector& v2)
-    double c_vector_distance "glm::distance" (CVector& v1, CVector& v2)
-    double c_vector_length "glm::length" (CVector& v)
+    CDVec2 c_vector_normalize "glm::normalize" (CDVec2& v)
+    double c_vector_dot "glm::dot" (CDVec2& v1, CDVec2& v2)
+    double c_vector_distance "glm::distance" (CDVec2& v1, CDVec2& v2)
+    double c_vector_length "glm::length" (CDVec2& v)
 
-    cdef cppclass CIVector "glm::ivec2":
+    cdef cppclass CIVec2 "glm::ivec2":
         int32_t x
         int32_t y
 
-        CIVector()
-        CIVector(int32_t x, int32_t y)
+        CIVec2()
+        CIVec2(int32_t x, int32_t y)
 
-    cdef cppclass CUVector "glm::uvec2":
+    cdef cppclass CUVec2 "glm::uvec2":
         uint32_t x
         uint32_t y
 
-        CUVector()
-        CUVector(uint32_t x, uint32_t y)
+        CUVec2()
+        CUVec2(uint32_t x, uint32_t y)
 
     cdef cppclass CColor "glm::dvec4":
         double r
@@ -45,8 +45,8 @@ cdef extern from "glm/glm.hpp" nogil:
 
 
 cdef extern from "glm/gtx/rotate_vector.hpp" nogil:
-    CVector c_vector_rotate_angle "glm::rotate" (CVector& v, double angle)
+    CDVec2 c_vector_rotate_angle "glm::rotate" (CDVec2& v, double angle)
 
 
 cdef extern from "glm/gtx/vector_angle.hpp" nogil:
-    double c_vector_oriented_angle "glm::orientedAngle" (CVector& v1, CVector& c2)
+    double c_vector_oriented_angle "glm::orientedAngle" (CDVec2& v1, CDVec2& c2)

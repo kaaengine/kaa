@@ -2,7 +2,7 @@ from libc.stdint cimport int16_t, uint16_t
 
 from .nodes cimport CNode
 from .camera cimport CCamera
-from .vectors cimport CColor, CIVector, CUVector
+from .vectors cimport CColor, CIVec2, CUVec2
 from .exceptions cimport raise_py_error
 
 
@@ -12,10 +12,10 @@ cdef extern from "kaacore/views.h" nogil:
 
         uint16_t index()
         int16_t z_index()
-        CIVector origin()
-        void origin(const CIVector& origin)
-        CUVector dimensions()
-        void dimensions(const CUVector& dimensions)
+        CIVec2 origin()
+        void origin(const CIVec2& origin)
+        CUVec2 dimensions()
+        void dimensions(const CUVec2& dimensions)
         CColor clear_color()
         void clear_color(const CColor& color)
         void reset_clear_color()

@@ -6,7 +6,7 @@ from libc.stdint cimport int32_t
 
 from .kaacore.engine cimport get_c_engine
 from .kaacore.window cimport CWindow
-from .kaacore.vectors cimport CVector, CUVector
+from .kaacore.vectors cimport CDVec2, CUVec2
 
 
 @cython.final
@@ -38,12 +38,12 @@ cdef class _Window:
 
     @property
     def size(self):
-        cdef CUVector vec = self._get_c_window().size()
+        cdef CUVec2 vec = self._get_c_window().size()
         return Vector(vec.x, vec.y)
 
     @size.setter
     def size(self, Vector new_size):
-        cdef CUVector vec = CUVector(new_size.x, new_size.y)
+        cdef CUVec2 vec = CUVec2(new_size.x, new_size.y)
         self._get_c_window().size(vec)
 
     def maximize(self):
@@ -57,12 +57,12 @@ cdef class _Window:
 
     @property
     def position(self):
-        cdef CUVector vec = self._get_c_window().position()
+        cdef CUVec2 vec = self._get_c_window().position()
         return Vector(vec.x, vec.y)
 
     @position.setter
     def position(self, Vector new_position):
-        cdef CUVector vec = CUVector(new_position.x, new_position.y)
+        cdef CUVec2 vec = CUVec2(new_position.x, new_position.y)
         self._get_c_window().position(vec)
 
     def center(self):

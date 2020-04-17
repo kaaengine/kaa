@@ -5,7 +5,7 @@ from cpython.weakref cimport PyWeakref_NewRef
 
 from .kaacore.camera cimport CCamera
 from .kaacore.views cimport CView, CViewsManager
-from .kaacore.vectors cimport CVector, CIVector, CUVector
+from .kaacore.vectors cimport CDVec2, CIVec2, CUVec2
 
 
 cdef class _SceneResource:
@@ -119,19 +119,19 @@ cdef class View(_SceneResource):
     @property
     def origin(self):
         return Vector.from_c_vector(
-            <CVector>self._get_c_view().origin()
+            <CDVec2>self._get_c_view().origin()
         )
 
     @origin.setter
     def origin(self, Vector origin not None):
         self._get_c_view().origin(
-            <CIVector>origin.c_vector
+            <CIVec2>origin.c_vector
         )
 
     @property
     def dimensions(self):
         return Vector.from_c_vector(
-            <CVector>self._get_c_view().dimensions()
+            <CDVec2>self._get_c_view().dimensions()
         )
 
     @dimensions.setter
@@ -140,7 +140,7 @@ cdef class View(_SceneResource):
         assert dimensions.c_vector.y > 0
 
         self._get_c_view().dimensions(
-            <CUVector>dimensions.c_vector
+            <CUVec2>dimensions.c_vector
         )
     
 

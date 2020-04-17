@@ -2,7 +2,7 @@ import cython
 from numbers import Number
 
 from .kaacore.vectors cimport (
-    CVector, c_vector_dot, c_vector_distance, c_vector_length, c_vector_normalize,
+    CDVec2, c_vector_dot, c_vector_distance, c_vector_length, c_vector_normalize,
     c_vector_rotate_angle, c_vector_oriented_angle
 )
 from .kaacore.math cimport radians, degrees
@@ -15,16 +15,16 @@ DEF VECTOR_FREELIST_SIZE = 32
 @cython.final
 @cython.freelist(VECTOR_FREELIST_SIZE)
 cdef class Vector:
-    cdef CVector c_vector
+    cdef CDVec2 c_vector
 
     def __cinit__(self, x not None, y not None):
         assert isinstance(x, Number) and isinstance(y, Number), \
             'Unsupported type.'
 
-        self.c_vector = CVector(x, y)
+        self.c_vector = CDVec2(x, y)
 
     @staticmethod
-    cdef Vector from_c_vector(CVector c_vector):
+    cdef Vector from_c_vector(CDVec2 c_vector):
         return Vector.__new__(Vector, c_vector.x, c_vector.y)
 
     @staticmethod
@@ -44,7 +44,7 @@ cdef class Vector:
         return not self.is_zero()
 
     def is_zero(self):
-        return self.c_vector == CVector(0., 0.)
+        return self.c_vector == CDVec2(0., 0.)
 
     def __repr__(self):
         return "V[{x}, {y}]".format(x=self.x, y=self.y)
@@ -87,7 +87,7 @@ cdef class Vector:
 
     @classmethod
     def from_angle(cls, double angle_rad):
-        return Vector.from_c_vector(c_vector_rotate_angle(CVector(1., 0.), angle_rad))
+        return Vector.from_c_vector(c_vector_rotate_angle(CDVec2(1., 0.), angle_rad))
 
     @classmethod
     def from_angle_degrees(cls, double angle_deg):
@@ -95,7 +95,7 @@ cdef class Vector:
 
     def to_angle(self):
         return c_vector_oriented_angle(
-            CVector(1., 0.), c_vector_normalize(self.c_vector)
+            CDVec2(1., 0.), c_vector_normalize(self.c_vector)
         )
 
     def to_angle_degrees(self):

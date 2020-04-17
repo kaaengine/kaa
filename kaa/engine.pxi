@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
 
-from .kaacore.vectors cimport CUVector
+from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport (
     CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
@@ -59,14 +59,14 @@ cdef class _Engine:
 
     @property
     def virtual_resolution(self):
-        cdef CUVector c_virtual_resolution = get_c_engine().virtual_resolution()
+        cdef CUVec2 c_virtual_resolution = get_c_engine().virtual_resolution()
         return Vector(c_virtual_resolution.x,
                       c_virtual_resolution.y)
 
     @virtual_resolution.setter
     def virtual_resolution(self, Vector new_resolution):
         get_c_engine().virtual_resolution(
-            CUVector(new_resolution.x, new_resolution.y)
+            CUVec2(new_resolution.x, new_resolution.y)
         )
 
     @property
@@ -117,7 +117,7 @@ def Engine(Vector virtual_resolution,
     if is_c_engine_initialized():
         raise ValueError('Engine is already started.')
 
-    cdef CUVector c_virtual_resolution = CUVector(
+    cdef CUVec2 c_virtual_resolution = CUVec2(
         virtual_resolution.x, virtual_resolution.y
     )
     cdef CEngine* c_engine_ptr = NULL
