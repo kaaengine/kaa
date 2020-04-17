@@ -20,9 +20,7 @@ cdef cppclass CPyScene(CScene):
     object get_py_scene():
         cdef object py_scene = this.py_scene_weakref()
         if py_scene is None:
-            raise RuntimeError(
-                'Tried to retrieve scene which was already destroyed.'
-            )
+            raise RuntimeError('Accessing already deleted scene.')
         return py_scene
 
     void on_attach() nogil:
