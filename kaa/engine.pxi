@@ -1,3 +1,4 @@
+import atexit
 from enum import IntEnum
 from contextlib import contextmanager
 
@@ -13,6 +14,13 @@ from .kaacore.display cimport CDisplay
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 
 from . import __version__
+
+
+def _clean_up():
+    # force _c_engine_instance deletion,
+    # so we are sure that kaacore dies before the python process
+    _c_engine_instance.reset()
+atexit.register(_clean_up)
 
 
 cdef unique_ptr[CEngine] _c_engine_instance

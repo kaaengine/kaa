@@ -165,6 +165,26 @@ cdef class NodeSpriteTransition(NodeTransitionBase):
         )
 
 
+cdef dict SPECIALIZED_TRANSITIONS = {
+        Node.position: NodePositionTransition,
+        Node.rotation: NodeRotationTransition,
+        Node.scale: NodeScaleTransition,
+        Node.color: NodeColorTransition,
+        Node.sprite: NodeSpriteTransition,
+        BodyNode.velocity: BodyNodeVelocityTransition,
+        BodyNode.angular_velocity: BodyNodeAngularVelocityTransition
+    }
+
+
+def NodeTransition(attribute, *args, **kwargs):
+    try:
+        return SPECIALIZED_TRANSITIONS[attribute](*args, **kwargs)
+    except KeyError as e:
+        raise ValueError(
+            f'Transition for {attribute} attribute is not supported!'
+        ) from e
+
+
 @cython.final
 cdef class NodeTransitionDelay(NodeTransitionBase):
     def __init__(self, double duration):

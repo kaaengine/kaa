@@ -13,11 +13,16 @@ from .kaacore.physics cimport (
     CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
     bind_cython_collision_handler, CBodyNodeType,
     CCollisionContactPoint, CShapeQueryResult,
-    collision_bitmask_all, collision_group_none
+    collision_bitmask_all, collision_bitmask_none, collision_group_none
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
 from .kaacore.exceptions cimport c_wrap_python_exception
+
+
+COLLISION_BITMASK_ALL = collision_bitmask_all
+COLLISION_BITMASK_NONE = collision_bitmask_none
+COLLISION_GROUP_NONE = collision_group_none
 
 
 cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,

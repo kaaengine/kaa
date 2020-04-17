@@ -72,6 +72,9 @@ cdef extern from "kaacore/nodes.h" nogil:
         CTransformation absolute_transformation() except +raise_py_error
         CTransformation get_relative_transformation(const CNode* const ancestor) except +raise_py_error
 
+        CTransformation transformation() except +raise_py_error
+        void transformation(const CTransformation& transformation) except +raise_py_error
+
         int16_t z_index() except +raise_py_error
         void z_index(const int16_t& z_index) except +raise_py_error
 

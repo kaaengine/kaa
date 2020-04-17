@@ -5,14 +5,16 @@ cimport cython
 from libc.stdint cimport uint32_t
 from libcpp.vector cimport vector
 
-from .kaacore.math cimport radians
+from .kaacore.math cimport radians, degrees
 from .kaacore.vectors cimport CDVec2
 from .kaacore.geometry cimport (
-    CPolygonType, CAlignment, CTransformation, c_classify_polygon
+    CPolygonType, CAlignment, CTransformation, CDecomposedTransformation,
+    c_classify_polygon
 )
 
 
 DEF TRANSFORMATION_FREELIST_SIZE = 32
+DEF DECOMPOSED_TRANSFORMATION_FREELIST_SIZE = 32
 
 
 class PolygonType(IntEnum):
@@ -37,6 +39,29 @@ class Alignment(IntEnum):
 @cython.freelist(TRANSFORMATION_FREELIST_SIZE)
 cdef class Transformation:
     cdef CTransformation c_transformation
+
+    def __init__(self, translate=None, rotate=None, rotate_degrees=None, scale=None):
+        assert sum([translate is not None, rotate is not None,
+                    rotate_degrees is not None, scale is not None]) <= 1, \
+            "Only one of constructor arguments might be used."
+        if translate is not None:
+            assert isinstance(translate, Vector)
+            self.c_transformation = CTransformation.translate(
+                (<Vector>translate).c_vector
+            )
+        elif rotate is not None:
+            self.c_transformation = CTransformation.rotate(
+                <double>rotate
+            )
+        elif rotate_degrees is not None:
+            self.c_transformation = CTransformation.rotate(
+                radians(<double>rotate_degrees)
+            )
+        elif scale is not None:
+            assert isinstance(scale, Vector)
+            self.c_transformation = CTransformation.scale(
+                (<Vector>scale).c_vector
+            )
 
     @staticmethod
     cdef Transformation create(const CTransformation& c_transformation):
@@ -71,6 +96,9 @@ cdef class Transformation:
     def inverse(self):
         return Transformation.create(self.c_transformation.inverse())
 
+    def decompose(self):
+        return DecomposedTransformation.create(self.c_transformation.decompose())
+
     cpdef Transformation _combine_with_transformation(self, Transformation operand):
         return Transformation.create(
              operand.c_transformation | self.c_transformation
@@ -96,6 +124,47 @@ cdef class Transformation:
             elif isinstance(left, Vector):
                 return right._combine_with_vector(left)
         return NotImplemented
+
+
+@cython.freelist(DECOMPOSED_TRANSFORMATION_FREELIST_SIZE)
+cdef class DecomposedTransformation:
+    cdef CDecomposedTransformation c_decomposed_transformation
+
+    def __init__(self):
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
+
+    @staticmethod
+    cdef create(const CDecomposedTransformation& c_decomposed_transformation):
+        cdef DecomposedTransformation py_inst = \
+                DecomposedTransformation.__new__(DecomposedTransformation)
+        py_inst.c_decomposed_transformation = c_decomposed_transformation
+        return py_inst
+
+    def __repr__(self):
+        return "<{} translation={!r}, rotation={!r}, scale={!r}]>".format(
+            self.__class__.__name__,
+            self.translation, self.rotation, self.scale,
+        )
+
+    @property
+    def translation(self):
+        return Vector.from_c_vector(
+            self.c_decomposed_transformation.translation
+        )
+
+    @property
+    def rotation(self):
+        return self.c_decomposed_transformation.rotation
+
+    @property
+    def rotation(self):
+        return degrees(self.c_decomposed_transformation.rotation)
+
+    @property
+    def scale(self):
+        return Vector.from_c_vector(
+            self.c_decomposed_transformation.scale
+        )
 
 
 def classify_polygon(points):
