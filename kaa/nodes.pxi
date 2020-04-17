@@ -91,16 +91,12 @@ cdef class NodeBase:
             self.rotation_degrees = options.pop('rotation_degrees')
         if 'scale' in options:
             self.scale = options.pop('scale')
-        if 'offset' in options:
-            self.offset = options.pop('offset')
-        if 'transformation_offset' in options:
-            self.transformation_offset = options.pop('transformation_offset')
+        if 'transformation' in options:
+            self.transformation = options.pop('transformation')
         if 'visible' in options:
             self.visible = options.pop('visible')
         if 'color' in options:
             self.color = options.pop('color')
-        if 'track_position' in options:
-            self.track_position = options.pop('track_position')
         if 'sprite' in options:
             self.sprite = options.pop('sprite')
         if 'shape' in options:
@@ -111,10 +107,6 @@ cdef class NodeBase:
             self.lifetime = options.pop('lifetime')
         if 'transition' in options:
             self.transition = options.pop('transition')
-        if 'width' in options:
-            self.width = options.pop('width')
-        if 'height' in options:
-            self.height = options.pop('height')
 
         if options:
             raise ValueError('Passed unknown options to {}: {}'.format(
@@ -211,6 +203,14 @@ cdef class NodeBase:
     @scale.setter
     def scale(self, Vector vec):
         self._get_c_node().scale(vec.c_vector)
+
+    @property
+    def transformation(self):
+        return Transformation.create(self._get_c_node().transformation())
+
+    @transformation.setter
+    def transformation(self, Transformation transformation not None):
+        self._get_c_node().transformation(transformation.c_transformation)
 
     @property
     def absolute_transformation(self):

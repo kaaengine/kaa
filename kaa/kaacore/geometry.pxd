@@ -22,6 +22,11 @@ cdef extern from "kaacore/geometry.h" nogil:
         bottom_right "kaacore::Alignment::bottom_right"
         center "kaacore::Alignment::center"
 
+    cdef cppclass CDecomposedTransformation "kaacore::DecomposedTransformation<double>":
+        CVector translation
+        double rotation
+        CVector scale
+
     cdef cppclass CTransformation "kaacore::Transformation":
         CTransformation()
 
@@ -37,6 +42,7 @@ cdef extern from "kaacore/geometry.h" nogil:
         CTransformation inverse() except +raise_py_error
 
         double at(const size_t col, const size_t row) except +raise_py_error
+        CDecomposedTransformation decompose() except +raise_py_error
 
     CTransformation operator|(const CTransformation&, const CTransformation&) except +raise_py_error
     CVector operator|(const CVector&, const CTransformation&) except +raise_py_error

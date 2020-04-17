@@ -5,7 +5,7 @@ from kaa.colors import Color
 from kaa.input import Keycode, MouseButton
 from kaa.sprites import Sprite
 from kaa.engine import Engine, Scene
-from kaa.geometry import Vector, Segment, Circle
+from kaa.geometry import Vector, Segment, Circle, Transformation
 from kaa.physics import BodyNodeType, CollisionPhase
 from kaa.nodes import SpaceNode, BodyNode, HitboxNode
 
@@ -119,6 +119,14 @@ class MyScene(Scene):
                         print("Collision spawning enabled (for one collision)")
                 elif event.keyboard_key.key == Keycode.s:
                     self.observed_ball.velocity *= 1.5
+                elif event.keyboard_key.key == Keycode.t:
+                    print(self.observed_ball.transformation)
+                    print(self.observed_ball.transformation.decompose())
+                    self.observed_ball.transformation = \
+                        (
+                            Transformation(scale=Vector(2., 2.))
+                            | Transformation(translate=Vector(100., 100.))
+                        )
                 elif event.keyboard_key.key == Keycode.l:
                     all_balls = [
                         n for n in self.space.children if isinstance(n, FlyingBall)
