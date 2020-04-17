@@ -59,7 +59,7 @@ cdef class Scene:
     cdef:
         object __weakref__
         unique_ptr[CPyScene] _c_scene
-        Node py_root_node_wrapper
+        Node _root_node_wrapper
         InputManager input_
         readonly ViewsManager views
 
@@ -76,12 +76,11 @@ cdef class Scene:
         assert c_scene != NULL
         self._c_scene = unique_ptr[CPyScene](c_scene)
 
-        self.views = ViewsManager.create(&self._c_scene.get().views)
-        self.py_root_node_wrapper = get_node_wrapper(CNodePtr(&self._c_scene.get().root_node))
+        self.views = ViewsManager.create(self)
+        self._root_node_wrapper = get_node_wrapper(
+            CNodePtr(&self._c_scene.get().root_node)
+        )
         self.input_ = InputManager()
-
-    def __dealloc__(self):
-        self.views._mark_invalid()
 
     def on_enter(self):
         pass
@@ -114,4 +113,4 @@ cdef class Scene:
 
     @property
     def root(self):
-        return self.py_root_node_wrapper
+        return self._root_node_wrapper
