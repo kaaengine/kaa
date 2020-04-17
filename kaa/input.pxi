@@ -371,22 +371,22 @@ class CompoundControllerAxis(IntEnum):
 
 cdef class _TypedReadOnlyProperty:
     cdef:
-        object get_fun
-        object event_type
+        object type_
+        object getter
 
-    def __init__(self, event_type, get_fun):
-        self.event_type = event_type
-        self.get_fun = get_fun
+    def __init__(self, type_, getter):
+        self.type_ = type_
+        self.getter = getter
 
     def __get__(self, obj, klass):
         if obj is None:
-            return self.event_type
-        return self.get_fun(obj)
+            return self.type_
+        return self.getter(obj)
 
 
-cdef typed_property(object event_type):
+cdef typed_property(object type_):
     def decorator(fun):
-        return _TypedReadOnlyProperty(event_type, fun)
+        return _TypedReadOnlyProperty(type_, fun)
     return decorator
 
 

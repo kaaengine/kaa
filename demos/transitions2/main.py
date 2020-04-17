@@ -6,13 +6,10 @@ from kaa.input import Keycode
 from kaa.geometry import Vector, Circle
 from kaa.sprites import Sprite
 from kaa.nodes import Node
-from kaa.physics import SpaceNode, BodyNode
 from kaa.colors import Color
 from kaa.transitions import (
-    NodeTransitionsSequence, NodeTransitionsParallel, AttributeTransitionMethod,
-    NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
-    NodeColorTransition, NodeCustomTransition, BodyNodeVelocityTransition,
-    NodeTransitionDelay, NodeTransitionCallback,
+    NodeTransition, NodeTransitionsSequence, AttributeTransitionMethod,
+    NodeTransitionDelay, NodeTransitionCallback
 )
 
 
@@ -36,16 +33,16 @@ class DemoTransitionsScene(Scene):
 
         self.obj.transitions_manager.set(
             'movement',
-            NodePositionTransition(
-                Vector(100, 30), 3000.,
+            NodeTransition(
+                Node.position, Vector(100, 30), 3000.,
                 advance_method=AttributeTransitionMethod.add,
                 loops=0, back_and_forth=True,
             )
         )
 
     def _randomize_color_transition(self):
-        return NodeColorTransition(
-            random_color(), 2000.,
+        return NodeTransition(
+            Node.color, random_color(), 2000.,
             loops=0, back_and_forth=True,
         )
 
