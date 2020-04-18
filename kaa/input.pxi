@@ -498,6 +498,10 @@ cdef class KeyboardKeyEvent(_BaseEvent):
     def key(self):
         return Keycode(<uint32_t>(self.c_event.keyboard_key().key()))
     
+    @property
+    def is_repeat(self):
+        return self.c_event.keyboard_key().is_repeat()
+
     @typed_property(EventType.key_up)
     def is_key_up(self):
         return self.c_event.keyboard_key().is_key_up()
@@ -505,6 +509,11 @@ cdef class KeyboardKeyEvent(_BaseEvent):
     @typed_property(EventType.key_down)
     def is_key_down(self):
         return self.c_event.keyboard_key().is_key_down()
+
+    @property
+    def key_down(self):
+        if self.is_key_down:
+            return self.key
 
 
 @cython.final

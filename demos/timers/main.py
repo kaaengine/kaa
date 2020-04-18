@@ -47,10 +47,10 @@ class MainScene(Scene):
 
     def update(self, dt):
         for event in self.input.events():
-            if event.keyboard_key and event.keyboard_key.is_key_down:
-                if event.keyboard_key.key == Keycode.q:
+            if event.keyboard_key:
+                if event.keyboard_key.key_down == Keycode.q:
                     self.engine.quit()
-                elif event.keyboard_key.key == Keycode.s:
+                elif event.keyboard_key.key_down == Keycode.s:
                     if self.timer.is_running:
                         self.timer.stop()
                     else:
