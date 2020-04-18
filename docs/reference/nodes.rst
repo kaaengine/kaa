@@ -368,6 +368,16 @@ Instance Properties:
 
     Gets the absolute transformation of the Node, in form of a :class:`geometry.Transformation` instance.
 
+
+.. _Node.transformation:
+.. attribute:: Node.transformation
+
+    Gets or sets the transformation of the Node, in form of a :class:`geometry.Transformation` instance.
+    Applying a transformation to the node is an equivalent of changing its :ref:`position <Node.position>`
+    (translate Transformation), :ref:`rotation <Node.rotation>` (rotating Transformation) or
+    :ref:`scale <Node.scale>` (scaling Transtofmation). Refer to :class:`geometry.Transformation` for more
+    details on how to work with transformation objects.
+
 Instance Methods:
 
 .. method:: Node.add_child(child_node)
