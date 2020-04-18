@@ -7,6 +7,7 @@ from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
+from .kaacore.views cimport KAACORE_VIEWS_DEFAULT_Z_INDEX
 
 
 cdef cppclass CPyScene(CScene):
@@ -95,15 +96,15 @@ cdef class Scene:
     
     @property
     def camera(self):
-        return self.views[0].camera
+        return self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].camera
     
     @property
     def clear_color(self):
-        return self.views[0].clear_color
+        return self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].clear_color
 
     @clear_color.setter
     def clear_color(self, Color color):
-        self.views[0].clear_color = color
+        self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].clear_color = color
 
     @property
     def input(self):
