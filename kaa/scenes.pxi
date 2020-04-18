@@ -60,7 +60,7 @@ cdef class Scene:
         unique_ptr[CPyScene] _c_scene
         Node _root_node_wrapper
         InputManager input_
-        readonly ViewsManager views
+        readonly _ViewsManager views
 
     def __cinit__(self):
         if not is_c_engine_initialized():
@@ -75,7 +75,7 @@ cdef class Scene:
         assert c_scene != NULL
         self._c_scene = unique_ptr[CPyScene](c_scene)
 
-        self.views = ViewsManager.create(self)
+        self.views = _ViewsManager.create(self)
         self._root_node_wrapper = get_node_wrapper(
             CNodePtr(&self._c_scene.get().root_node)
         )

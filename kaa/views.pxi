@@ -36,15 +36,15 @@ cdef class _SceneResource:
     
 
 @cython.final
-cdef class ViewsManager(_SceneResource):
+cdef class _ViewsManager(_SceneResource):
     cdef:
         dict _cache
         object _scene_weakref
         CViewsManager* _c_views
 
     @staticmethod
-    cdef ViewsManager create(Scene scene):
-        cdef ViewsManager views_manager = ViewsManager.__new__(ViewsManager, scene)
+    cdef _ViewsManager create(Scene scene):
+        cdef _ViewsManager views_manager = _ViewsManager.__new__(_ViewsManager, scene)
         views_manager._scene_weakref = PyWeakref_NewRef(scene, None)
         views_manager._c_views = &scene._c_scene.get().views
         views_manager._cache = {}
@@ -62,7 +62,7 @@ cdef class ViewsManager(_SceneResource):
         
         cdef:
             CView* c_view = self._get_c_views().get(z_index)
-            View view = View.create(c_view, self._scene_weakref())
+            _View view = _View.create(c_view, self._scene_weakref())
 
         self._cache[z_index] = view
         return view
@@ -82,19 +82,19 @@ cdef class ViewsManager(_SceneResource):
 
 
 @cython.final
-cdef class View(_SceneResource):
+cdef class _View(_SceneResource):
     cdef:
         CView* _c_view
-        readonly Camera camera
+        readonly _Camera camera
     
     def __str__(self):
         return f'View[{self.z_index}]'
     
     @staticmethod
-    cdef View create(CView* c_view, Scene scene):
-        cdef View view = View.__new__(View, scene)
+    cdef _View create(CView* c_view, Scene scene):
+        cdef _View view = _View.__new__(_View, scene)
         view._c_view = c_view
-        view.camera = Camera.create(&c_view.camera, scene)
+        view.camera = _Camera.create(&c_view.camera, scene)
         return view
     
     cdef CView* _get_c_view(self) except NULL:
@@ -145,12 +145,12 @@ cdef class View(_SceneResource):
     
 
 @cython.final
-cdef class Camera(_SceneResource):
+cdef class _Camera(_SceneResource):
     cdef CCamera* _c_camera
 
     @staticmethod
-    cdef Camera create(CCamera* c_camera, Scene scene):
-        cdef Camera camera = Camera.__new__(Camera, scene)
+    cdef _Camera create(CCamera* c_camera, Scene scene):
+        cdef _Camera camera = _Camera.__new__(_Camera, scene)
         camera._c_camera = c_camera
         return camera
     
