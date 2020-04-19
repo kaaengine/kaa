@@ -2,14 +2,14 @@ from libc.stdint cimport uint16_t, uint32_t, uint64_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
 
-from .vectors cimport CVector
+from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/sprites.h" nogil:
     cdef cppclass CSprite "kaacore::Sprite":
-        CVector origin
-        CVector dimensions
+        CDVec2 origin
+        CDVec2 dimensions
 
         CSprite()
 
@@ -19,15 +19,15 @@ cdef extern from "kaacore/sprites.h" nogil:
 
         bool operator==(const CSprite&)
 
-        CSprite crop(CVector new_origin, CVector new_dimensions) \
+        CSprite crop(CDVec2 new_origin, CDVec2 new_dimensions) \
             except +raise_py_error
         bint has_texture() \
             except +raise_py_error
-        CVector get_size() \
+        CDVec2 get_size() \
             except +raise_py_error
 
     vector[CSprite] c_split_spritesheet "kaacore::split_spritesheet"(
-        const CSprite& spritesheet, const CVector frame_dimensions,
+        const CSprite& spritesheet, const CDVec2 frame_dimensions,
         const size_t frames_offset, const size_t frames_count,
-        const CVector frame_padding
+        const CDVec2 frame_padding
     ) except +raise_py_error

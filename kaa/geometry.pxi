@@ -6,7 +6,7 @@ from libc.stdint cimport uint32_t
 from libcpp.vector cimport vector
 
 from .kaacore.math cimport radians, degrees
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport CDVec2
 from .kaacore.geometry cimport (
     CPolygonType, CAlignment, CTransformation, CDecomposedTransformation,
     c_classify_polygon
@@ -168,7 +168,7 @@ cdef class DecomposedTransformation:
 
 
 def classify_polygon(points):
-    cdef vector[CVector] c_points
+    cdef vector[CDVec2] c_points
     c_points.reserve(len(points))
     for pt in points:
         c_points.push_back((<Vector>pt).c_vector)

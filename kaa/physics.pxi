@@ -76,7 +76,7 @@ cdef class CollisionPair:
         self._hitbox_node_wrapper = None
 
     def __init__(self):
-        raise ValueError("Do not initialize manually!")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
     @property
     def body(self):
@@ -105,7 +105,7 @@ cdef class CollisionContactPoint:
         return collision_contact_point
 
     def __init__(self):
-        raise ValueError("Do not initialize manually!")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
     @property
     def point_a(self):
@@ -147,7 +147,7 @@ cdef class ShapeQueryResult:
         ]
 
     def __init__(self):
-        raise ValueError("Do not initialize manually!")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
     @property
     def body(self):
@@ -178,7 +178,7 @@ cdef class Arbiter:
     cdef CArbiter* c_arbiter
 
     def __init__(self):
-        raise ValueError("Do not initialize manually!")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
     @property
     def phase(self):

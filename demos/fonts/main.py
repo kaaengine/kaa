@@ -17,7 +17,7 @@ class FontDemoScene(Scene):
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
         self.root.add_child(self.text_node)
         self.text_buffer = []
-        self.input_manager.register_callback(Event.keyboard_key, handle_quit)
+        self.input.register_callback(Event.keyboard_key, handle_quit)
 
     def update(self, dt):
         for event in self.input.events():
