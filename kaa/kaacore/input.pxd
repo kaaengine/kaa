@@ -365,6 +365,7 @@ cdef extern from "kaacore/input.h" nogil:
         CKeycode key() except +raise_py_error
         bint is_key_down() except +raise_py_error
         bint is_key_up() except +raise_py_error
+        bint repeat() except +raise_py_error
 
     cdef cppclass CKeyboardTextEvent "kaacore::KeyboardTextEvent":
         string text() except +raise_py_error
