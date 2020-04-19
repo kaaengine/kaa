@@ -23,7 +23,8 @@ setup(
     long_description=readme_content,
     long_description_content_type='text/markdown',
     url="https://github.com/kaaengine/kaa",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
