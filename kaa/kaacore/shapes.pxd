@@ -1,7 +1,7 @@
 from libcpp.vector cimport vector
 from libcpp cimport bool
 
-from .vectors cimport CVector
+from .vectors cimport CDVec2
 from .geometry cimport CTransformation
 from .exceptions cimport raise_py_error
 
@@ -16,7 +16,7 @@ cdef extern from "kaacore/shapes.h" nogil:
 
     cdef cppclass CShape "kaacore::Shape":
         CShapeType type
-        vector[CVector] points
+        vector[CDVec2] points
         double radius
 
         CShape()
@@ -24,19 +24,19 @@ cdef extern from "kaacore/shapes.h" nogil:
         bool operator==(const CShape&)
 
         @staticmethod
-        CShape Segment(const CVector a, const CVector b) \
+        CShape Segment(const CDVec2 a, const CDVec2 b) \
             except +raise_py_error
 
         @staticmethod
-        CShape Circle(const double radius, const CVector center) \
+        CShape Circle(const double radius, const CDVec2 center) \
             except +raise_py_error
 
         @staticmethod
-        CShape Box(const CVector size) \
+        CShape Box(const CDVec2 size) \
             except +raise_py_error
 
         @staticmethod
-        CShape Polygon(const vector[CVector]& points) \
+        CShape Polygon(const vector[CDVec2]& points) \
             except +raise_py_error
 
         CShape transform(const CTransformation& transformation) \

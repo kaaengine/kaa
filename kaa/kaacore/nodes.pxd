@@ -1,9 +1,10 @@
-from libcpp.memory cimport unique_ptr
-from libcpp.vector cimport vector
-from libcpp cimport bool
 from libc.stdint cimport int16_t, uint32_t
+from libcpp cimport bool
+from libcpp.vector cimport vector
+from libcpp.memory cimport unique_ptr
+from libcpp.unordered_set cimport unordered_set
 
-from .vectors cimport CVector, CColor
+from .vectors cimport CDVec2, CColor
 from .geometry cimport CAlignment, CTransformation
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
@@ -54,19 +55,19 @@ cdef extern from "kaacore/nodes.h" nogil:
         void add_child(CNodeOwnerPtr child_node) except +raise_py_error
         const CNodeType type() except +raise_py_error
 
-        CVector position() except +raise_py_error
-        CVector absolute_position() except +raise_py_error
+        CDVec2 position() except +raise_py_error
+        CDVec2 absolute_position() except +raise_py_error
 
-        CVector get_relative_position(const CNode* const ancestor) except +raise_py_error
-        void position(const CVector& position) except +raise_py_error
+        CDVec2 get_relative_position(const CNode* const ancestor) except +raise_py_error
+        void position(const CDVec2& position) except +raise_py_error
 
         double rotation() except +raise_py_error
         double absolute_rotation() except +raise_py_error
         void rotation(const double& rotation) except +raise_py_error
 
-        CVector scale() except +raise_py_error
-        CVector absolute_scale() except +raise_py_error
-        void scale(const CVector& scale) except +raise_py_error
+        CDVec2 scale() except +raise_py_error
+        CDVec2 absolute_scale() except +raise_py_error
+        void scale(const CDVec2& scale) except +raise_py_error
 
         CTransformation absolute_transformation() except +raise_py_error
         CTransformation get_relative_transformation(const CNode* const ancestor) except +raise_py_error
@@ -102,6 +103,9 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         CScene* scene() except +raise_py_error
         CNodePtr parent() except +raise_py_error
+
+        void views(const unordered_set[int16_t]& z_indices) except +raise_py_error
+        const vector[int16_t] views() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error

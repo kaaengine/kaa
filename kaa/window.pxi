@@ -6,7 +6,7 @@ from libc.stdint cimport int32_t
 
 from .kaacore.engine cimport get_c_engine
 from .kaacore.window cimport CWindow
-from .kaacore.vectors cimport CVector, CUVec2
+from .kaacore.vectors cimport CDVec2, CUVec2
 
 
 @cython.final

@@ -37,12 +37,10 @@ class VirtualResolutionMode(IntEnum):
 cdef class _Engine:
     cdef:
          _Window _window
-         _Renderer _renderer
          _AudioManager _audio_manager
 
     def __cinit__(self):
         self._window = _Window()
-        self._renderer = _Renderer()
         self._audio_manager = _AudioManager()
 
     @property
@@ -50,10 +48,10 @@ cdef class _Engine:
         return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
 
     def change_scene(self, Scene scene not None):
-        get_c_engine().change_scene(scene.c_scene)
+        get_c_engine().change_scene(scene._c_scene.get())
 
     def run(self, Scene scene not None):
-        get_c_engine().run(<CScene*>scene.c_scene)
+        get_c_engine().run(<CScene*>scene._c_scene.get())
 
     def quit(self):
         get_c_engine().quit()
@@ -100,10 +98,6 @@ cdef class _Engine:
     @property
     def window(self):
         return self._window
-
-    @property
-    def renderer(self):
-        return self._renderer
 
     @property
     def audio(self):

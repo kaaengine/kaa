@@ -28,7 +28,7 @@ class MainScene(Scene):
 
     def on_enter(self):
         print(f'{self.__class__.__name__} on_enter')
-        self.engine.renderer.clear_color=Color(0.5, 0.75, 0.25, 1)
+        self.clear_color = Color(0.5, 0.75, 0.25, 1)
 
     def update(self, dt):
         for event in self.input.events():
@@ -56,7 +56,7 @@ class SecondScene(Scene):
 
     def on_enter(self):
         print(f'{self.__class__.__name__} on_enter')
-        self.engine.renderer.clear_color=Color(0.5, 0.25, 0.75, 1)
+        self.clear_color = Color(0.5, 0.25, 0.75, 1)
 
     def update(self, dt):
         for event in self.input.events():

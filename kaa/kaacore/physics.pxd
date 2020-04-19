@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 from .glue cimport CPythonicCallbackWrapper
-from .vectors cimport CVector
+from .vectors cimport CDVec2
 from .shapes cimport CShape
 from .nodes cimport CNode, CNodePtr
 from .exceptions cimport raise_py_error
@@ -44,8 +44,8 @@ cdef extern from "kaacore/physics.h" nogil:
         static "kaacore::BodyNodeType::static_",
 
     cdef cppclass CCollisionContactPoint "kaacore::CollisionContactPoint":
-        CVector point_a
-        CVector point_b
+        CDVec2 point_a
+        CDVec2 point_b
         double distance
 
     cdef cppclass CShapeQueryResult "kaacore::ShapeQueryResult":
@@ -54,9 +54,9 @@ cdef extern from "kaacore/physics.h" nogil:
         vector[CCollisionContactPoint] contact_points
 
     cdef cppclass CSpaceNode "kaacore::SpaceNode":
-        void gravity(const CVector& gravity) \
+        void gravity(const CDVec2& gravity) \
             except +raise_py_error
-        CVector gravity() \
+        CDVec2 gravity() \
             except +raise_py_error
         void damping(const double& damping) \
             except +raise_py_error
@@ -74,7 +74,7 @@ cdef extern from "kaacore/physics.h" nogil:
             uint8_t phases_mask, bint only_non_deleted_nodes
         ) except +raise_py_error
         vector[CShapeQueryResult] query_shape_overlaps(
-            const CShape& shape, const CVector& position, const CollisionBitmask mask,
+            const CShape& shape, const CDVec2& position, const CollisionBitmask mask,
             const CollisionBitmask collision_mask, const CollisionGroup group,
         ) \
             except +raise_py_error
@@ -95,14 +95,14 @@ cdef extern from "kaacore/physics.h" nogil:
         double moment() \
             except +raise_py_error
 
-        void velocity(const CVector& velocity) \
+        void velocity(const CDVec2& velocity) \
             except +raise_py_error
-        CVector velocity() \
+        CDVec2 velocity() \
             except +raise_py_error
 
-        void force(const CVector& force) \
+        void force(const CDVec2& force) \
             except +raise_py_error
-        CVector force() \
+        CDVec2 force() \
             except +raise_py_error
 
         void torque(const double& torque) \

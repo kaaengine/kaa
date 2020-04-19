@@ -1,8 +1,9 @@
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
-from libc.stdint cimport uint32_t
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
+from libc.stdint cimport int16_t, uint32_t
+from libcpp.unordered_set cimport unordered_set
 
 from cymove cimport cymove as cmove
 
@@ -107,6 +108,8 @@ cdef class NodeBase:
             self.lifetime = options.pop('lifetime')
         if 'transition' in options:
             self.transition = options.pop('transition')
+        if 'views' in options:
+            self.views = options.pop('views')
 
         if options:
             raise ValueError('Passed unknown options to {}: {}'.format(
@@ -114,10 +117,6 @@ cdef class NodeBase:
             ))
 
         return self
-
-    def update(self, **options):
-        # backwards compatibility name
-        return self.setup(**options)
 
     @property
     def children(self):
@@ -142,6 +141,27 @@ cdef class NodeBase:
     def parent(self):
         if self._get_c_node().parent():
             return get_node_wrapper(self._get_c_node().parent())
+    
+    @property
+    def views(self):
+        cdef:
+            int16_t c_z_index
+            set result = set()
+            size_t c_num_of_indices = self._get_c_node().views().size()
+        
+        for c_z_index in range(c_num_of_indices):
+            result.add(c_z_index)
+        return result
+    
+    @views.setter
+    def views(self, set z_indices):
+        cdef:
+            int16_t z_index
+            unordered_set[int16_t] c_z_indices
+
+        for z_index in z_indices:
+            c_z_indices.insert(z_index)
+        self._get_c_node().views(c_z_indices)
 
     @property
     def position(self):

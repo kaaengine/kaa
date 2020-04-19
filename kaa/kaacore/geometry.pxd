@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-from .vectors cimport CVector
+from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
 
 
@@ -23,18 +23,18 @@ cdef extern from "kaacore/geometry.h" nogil:
         center "kaacore::Alignment::center"
 
     cdef cppclass CDecomposedTransformation "kaacore::DecomposedTransformation<double>":
-        CVector translation
+        CDVec2 translation
         double rotation
-        CVector scale
+        CDVec2 scale
 
     cdef cppclass CTransformation "kaacore::Transformation":
         CTransformation()
 
         @staticmethod
-        CTransformation translate(const CVector&) except +raise_py_error
+        CTransformation translate(const CDVec2&) except +raise_py_error
 
         @staticmethod
-        CTransformation scale(const CVector&) except +raise_py_error
+        CTransformation scale(const CDVec2&) except +raise_py_error
 
         @staticmethod
         CTransformation rotate(const double&) except +raise_py_error
@@ -45,7 +45,7 @@ cdef extern from "kaacore/geometry.h" nogil:
         CDecomposedTransformation decompose() except +raise_py_error
 
     CTransformation operator|(const CTransformation&, const CTransformation&) except +raise_py_error
-    CVector operator|(const CVector&, const CTransformation&) except +raise_py_error
+    CDVec2 operator|(const CDVec2&, const CTransformation&) except +raise_py_error
 
-    CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CVector]& points) \
+    CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CDVec2]& points) \
         except +raise_py_error

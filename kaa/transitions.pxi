@@ -4,7 +4,7 @@ import cython
 from libcpp.vector cimport vector
 from cymove cimport cymove as cmove
 
-from .kaacore.vectors cimport CVector
+from .kaacore.vectors cimport CDVec2
 from .kaacore.sprites cimport CSprite
 from .kaacore.transitions cimport (
     CNodeTransitionHandle, CTransitionWarping,
@@ -46,7 +46,7 @@ cdef class NodeTransitionBase:
 
 cdef class UnknownTransition(NodeTransitionBase):
     def __init__(self):
-        raise NotImplementedError("Initialization of this transition type is forbidden")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
 
 @cython.final
@@ -247,7 +247,7 @@ cdef class _NodeTransitionsManager:
     cdef CNodePtr c_node
 
     def __init__(self):
-        raise ValueError("This class shouldn't be initialized manually!")
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
 
     @staticmethod
     cdef create(CNodePtr c_node):
