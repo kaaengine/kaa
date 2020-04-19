@@ -83,9 +83,9 @@ target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
 
 set_target_properties(_kaa PROPERTIES INSTALL_RPATH "$ORIGIN")
 
-install(TARGETS _kaa LIBRARY DESTINATION kaa)
+install(TARGETS _kaa LIBRARY DESTINATION src/kaa)
 
 if (KAA_BUNDLE_SDL)
-    install(TARGETS SDL2 LIBRARY DESTINATION kaa
-                         RUNTIME DESTINATION kaa)
+    install(TARGETS SDL2 LIBRARY DESTINATION src/kaa
+                         RUNTIME DESTINATION src/kaa)
 endif()
