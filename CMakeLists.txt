@@ -25,4 +25,4 @@ set_target_properties(
     INTERFACE_LINK_LIBRARIES "${SDL2_LINK_LIBRARIES}"
 )
 
-add_subdirectory(kaa)
+add_subdirectory(src/kaa)
