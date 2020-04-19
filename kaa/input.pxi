@@ -499,8 +499,8 @@ cdef class KeyboardKeyEvent(_BaseEvent):
         return Keycode(<uint32_t>(self.c_event.keyboard_key().key()))
     
     @property
-    def is_repeat(self):
-        return self.c_event.keyboard_key().is_repeat()
+    def repeat(self):
+        return self.c_event.keyboard_key().repeat()
 
     @typed_property(EventType.key_up)
     def is_key_up(self):
