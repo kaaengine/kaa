@@ -9,7 +9,6 @@ from kaa.geometry import Vector, Segment, Circle, Polygon
 from kaa.physics import SpaceNode, BodyNode, HitboxNode, BodyNodeType
 
 
-# BOX_IMAGE_PATH = os.path.join('demos', 'assets', 'box.png')
 PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
 
 

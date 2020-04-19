@@ -7,7 +7,6 @@ from .display cimport CDisplay
 from .scenes cimport CScene
 from .window cimport CWindow
 from .audio cimport CAudioManager
-from .renderer cimport CRenderer
 from .input cimport CInputManager
 from .exceptions cimport raise_py_error
 from .vectors cimport CUVec2
@@ -21,10 +20,8 @@ cdef extern from "kaacore/engine.h" nogil:
 
     cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CWindow] window
-        unique_ptr[CRenderer] renderer
         unique_ptr[CInputManager] input_manager
         unique_ptr[CAudioManager] audio_manager
-        uint64_t time
 
         CEngine(CUVec2 virtual_resolution)
         CEngine(CUVec2 virtual_resolution,
