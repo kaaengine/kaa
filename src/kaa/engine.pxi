@@ -120,8 +120,7 @@ cdef class _Engine:
 cdef _Engine _engine_wrapper = _Engine()
 
 
-def Engine(Vector virtual_resolution,
-           virtual_resolution_mode=None, show_window=True):
+def Engine(Vector virtual_resolution, virtual_resolution_mode=None):
     if is_c_engine_initialized():
         raise ValueError('Engine is already started.')
 
@@ -146,9 +145,6 @@ def Engine(Vector virtual_resolution,
         CLogLevel.info, CLogCategory.engine, 'Engine initialized.'
     )
     _print_hello_message()
-
-    if show_window is True:
-        _engine_wrapper.window.show()
 
     return _engine_wrapper
 
