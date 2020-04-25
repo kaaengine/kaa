@@ -319,15 +319,25 @@ cdef class BodyNode(NodeBase):
         return Vector.from_c_vector(self._get_c_node().body.force())
 
     @force.setter
-    def force(self, Vector vec):
+    def force(self, Vector vec not None):
         self._get_c_node().body.force(vec.c_vector)
+
+    def apply_force_at(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_force_at(
+            force.c_vector, at.c_vector
+        )
+
+    def apply_impulse_at(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_impulse_at(
+            force.c_vector, at.c_vector
+        )
 
     @property
     def velocity(self):
         return Vector.from_c_vector(self._get_c_node().body.velocity())
 
     @velocity.setter
-    def velocity(self, Vector vec):
+    def velocity(self, Vector vec not None):
         self._get_c_node().body.velocity(vec.c_vector)
 
     @property

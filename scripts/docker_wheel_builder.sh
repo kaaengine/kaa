@@ -45,11 +45,11 @@ yum install -y libXrandr-devel libXcursor-devel  # SDL video dependencies
 pip install -r /host/requirements-dev.txt
 
 # simulate out-of-source build
-cp -r /host/kaa -v .
+cp -r /host/src -v .
 cp /host/setup.py /host/setup.cfg /host/versioneer.py /host/README.md .
 
 # use pregenerated version file
-cp /host/_build_version.py ./kaa/_version.py
+cp /host/_build_version.py ./src/kaa/_version.py
 
 KAA_SETUP_CMAKE_SOURCE='/host/' python setup.py --force-cmake \
     bdist_wheel -d /wheels/ \

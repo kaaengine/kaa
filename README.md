@@ -29,4 +29,4 @@ python setup.py install --build-type Debug
 
 ## Documentation
 
-COMING SOON!
+https://kaa.readthedocs.io/

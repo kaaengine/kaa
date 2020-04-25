@@ -80,6 +80,9 @@ cdef class _ViewsManager(_SceneResource):
         for z_index in range(begin, end):
             yield self[z_index]
 
+    def __len__(self):
+        return self._get_c_views().size()
+
 
 @cython.final
 cdef class _View(_SceneResource):

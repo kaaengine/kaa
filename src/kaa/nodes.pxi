@@ -145,12 +145,12 @@ cdef class NodeBase:
     @property
     def views(self):
         cdef:
-            int16_t c_z_index
+            int16_t c_index
             set result = set()
-            size_t c_num_of_indices = self._get_c_node().views().size()
+            vector[int16_t] c_indices = self._get_c_node().views()
         
-        for c_z_index in range(c_num_of_indices):
-            result.add(c_z_index)
+        for c_index in range(c_indices.size()):
+            result.add(c_indices[c_index])
         return result
     
     @views.setter
