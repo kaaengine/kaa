@@ -8,7 +8,7 @@
 
 Constructor:
 
-.. class:: Engine(virtual_resolution, virtual_resolution_mode=None, show_window=True)
+.. class:: Engine(virtual_resolution, virtual_resolution_mode=VirtualResolutionMode.adaptive_stretch, show_window=True)
 
     Engine instance is the first object you need to create to run the game.
 
@@ -39,13 +39,12 @@ Constructor:
             engine.run(scene)
 
 
-    To run the game in a fullscreen Full HD sized window, using 800x600 resolution:
+    To run the game in a fullscreen window, using 800x600 virtual resolution:
 
     .. code-block:: python
 
         with Engine(virtual_resolution=Vector(800, 600)) as engine:
             scene = MyScene()
-            engine.window.size = Vector(1920, 1080)
             engine.window.fullscreen = True
             engine.run(scene)
 
@@ -65,7 +64,7 @@ Constructor:
             engine.window.size = Vector(1200, 1000)
             engine.window.fullscreen = False
             engine.window.title = "Welcome to the wonderful world of kaa engine"
-            engine.renderer.clear_color = Color(0, 1.0, 0, 1) # RGBA format
+            scene.clear_color = Color(0, 1.0, 0, 1) # RGBA format
             engine.run(scene)
 
     Be sure to check out the :ref:`virtual_resolution <Engine.virtual_resolution>` documentation for more information on
@@ -86,7 +85,7 @@ Instance properties:
     Gets or sets the virtual resolution size. Expects :class:`geometry.Vector` as a value, representing
     resolution's width and height.
 
-    When writing a game you would like to have a consistent way of referencing coordinates, independent from the screen
+    When writing a game you would like to have a consistent way of referencing coordinates, independent from the display
     resolution the game is running on. So for example when you draw some image on position (100, 200) you would like it
     to always be the same (100, 200) position on the 1366x768 laptop screen, 1920x1060 full HD monitor or any other
     of `dozens display resolutions out there. <https://en.wikipedia.org/wiki/Display_resolution#/media/File:Vector_Video_Standards8.svg>`_
@@ -139,20 +138,6 @@ Instance properties:
         engine.window.title = "Hello world"
         engine.window.fullscreen = False
         engine.window.size = Vector(1920, 1080)
-
-.. _Engine.renderer:
-.. attribute:: Engine.renderer
-
-    A get accessor to the :class:`Renderer` object which exposes kaa renderer properties such as
-    frame buffer clear color. Check out the :class:`Renderer` documentation for a list of all available properties.
-
-    .. code-block:: python
-
-        from kaa.engine import get_engine
-        from kaa.colors import Color
-
-        engine = get_engine()
-        engine.renderer.clear_color = Color(1, 0, 0, 1) #set the clear color to red (dunno why we'd do that but we can!)
 
 .. _Engine.audio:
 .. attribute:: Engine.audio
@@ -298,6 +283,7 @@ Constructor:
       * includes an events list which occurred during the current frame (mouse, keyboard, controllers, music, etc.)
 
     * Use the :ref:`camera <Scene.camera>` property to control the camera
+    * Use the :ref:`views <Scene.views>` property to access views. Read more how :class:`View` objects work.
 
     The Scene constructor does not take any parameters. As stated above, you should never instantiate a
     :class:`Scene` directly but write your own scene class that inherit from it. Use the Scene's constructor to add
@@ -327,8 +313,9 @@ Instance properties:
 .. _Scene.camera:
 .. attribute:: Scene.camera
 
-    A get accessor to the :class:`Camera` object which contains properties and methods for manipulating the camera
-    (moving, rotating, etc.). See the :class:`Camera` documentation for a full list of available properties and methods.
+    A get accessor to the :class:`Camera` object of the default view (:ref:`read more about views here <Scene.views>`).
+    Camera object includes properties and methods for manipulating the camera (moving, rotating, etc.).
+    See the :class:`Camera` documentation for a full list of available properties and methods.
 
     .. code-block:: python
 
@@ -347,6 +334,23 @@ Instance properties:
 .. attribute:: Scene.engine
 
     Returns :class:`Engine` instance.
+
+
+.. _Scene.views:
+.. attribute:: Scene.views
+
+    Allows for accessing views by index. Each Scene has 32 views. Check out :class:`View` reference for more information
+    on how views work.
+
+    .. code-block:: python
+
+        def MyScene(Scene):
+
+            def how_to_access_views(self)
+                print(len(self.views))  # 32 views
+                the_default_view = self.views[0] # view with 0 index is the default view.
+                some_view = self.views[17]
+
 
 .. _Scene.input:
 .. attribute:: Scene.input
@@ -398,6 +402,34 @@ Instance properties:
                 self.root.add_child(self.arrow_node)
 
 
+.. attribute:: Scene.clear_color
+
+Gets or sets the clear color (:class:`colors.Color`) for the default view. Check out :class:`View` documentation for
+more information on views.
+
+An example of 800x600 viewport, colored in green, running in the 1200x1000 window using :code:`no_stretch` mode:
+
+    .. code-block:: python
+
+        from kaa.engine import Engine, Scene, VirtualResolutionMode
+        from kaa.colors import Color
+        from kaa.geometry import Vector
+
+        class MyScene(Scene):
+
+            def update(self, dt):
+                pass
+
+
+        with Engine(virtual_resolution=Vector(800, 600),
+                    virtual_resolution_mode=VirtualResolutionMode.no_stretch) as engine:
+
+            scene = MyScene()
+            scene.clear_color = Color(0, 1, 0, 1) # RGBA format
+            engine.window.size = Vector(1200, 1000)
+            engine.run(scene)
+
+
 Instance methods:
 
 .. method:: Scene.update(dt)
@@ -432,6 +464,71 @@ Instance methods:
 
     Same as :meth:`Scene.on_enter` but is called just before the scene gets deactivated via the
     :meth:`Engine.change_scene`.
+
+
+:class:`View` reference
+-----------------------
+
+.. class:: View
+
+    Views allow you to fine-tune how the scene is being redenred on the screen. Each scene has 32 views which you
+    can configure independently. You can configure a view to be displayed at given position on the screen, give it
+    specific width/height and then use the view's camera to show the scene normally inside the view's box.
+    Important caveat: **the view will render only Nodes which were explicitly assigned to it.**. It means
+    you need to use the :ref:`views property on a Node <Node.views>` to explicitly assign a Node to a specific view.
+
+    Each view has its own z_index property. It is used to manage the 'layering' of all 32 views. Node's z_index values are
+    used to manage 'layering' of nodes **within a view**.
+
+    An example below configures a 400x400 view at position (100, 200) and inside that box it displays
+    a fragment of the scene using view's camera:
+
+    .. code-block:: python
+
+        def MyScene(Scene):
+
+            def see_what_views_have_to_offer(self):
+                some_view = self.views[1]  # Note: there are 32 views available
+                some_view.origin = Vector(100, 200)  # The view will be positioned at (100, 200), in relation to display
+                some_view.dimensions = Vector(400, 400) # view 'box' size will be 400x400
+                # The view has its own camera which you can manage normally to show the scene inside the box:
+                some_view.camera.position = Vector(300, 500)
+                some_view.camera.scale = Vector(3, 3)
+                some_view.clear_color = Color(1, 0, 0, 1)  # we can set the clear color for the view as well
+                some_view.z_index = 100 # the view will be rendered on top of views with smaller z_index
+
+                # we may add nodes to views independently.
+                self.root.add_child(Node())  # will be rendered in the default view only (0)
+                self.root.add_child(Node(views={0, 1, 2, 17}))  # the node will be rendered in views 0, 1, 2, 17
+
+    Few typical use cases for views:
+
+    * Build a UI layer (panels, buttons, menus etc.) - add all those nodes to a separate view
+    * Split screen feature - render scene in multiple views each covering part of the screen, cameras focused on different players
+    * Makes parallax scrolling effect easier to implement - render each layer using separate view.
+
+Instance properties:
+
+.. attribute:: View.origin
+
+    Gets or sets the origin of a view, as :class:`geometry.Vector`. The origin points to the top-left position of the
+    view on the screen.
+
+.. attribute:: View.dimensions
+
+    Gets or sets the dimensions of a view, as :class:`geometry.Vector`, x being width and y being height.
+
+.. attribute:: View.clear_color
+
+    Gets or sets a clear color for a view as :class:`colors.Color`. Default color is black.
+
+.. attribute:: View.camera
+
+    Returns a :class:`Camera` associated with this view.
+
+.. attribute:: View.z_index
+
+    Gets or sets z_index of a view.
 
 
 :class:`Window` reference
@@ -533,41 +630,6 @@ Instance methods:
     Restores the window from the maximized/minimized state to the default state. Makes most sense if using windowed
     mode (:code:`window.fullscreen=False`)
 
-
-:class:`Renderer` reference
----------------------------
-
-.. class:: Renderer
-
-Renderer object can be accessed via :ref:`Engine.renderer <Engine.renderer>` property. It exposes renderer properties.
-
-Instance properties:
-
-.. attribute:: Renderer.clear_color
-
-Gets or sets the clear color (:class:`colors.Color`) for the viewport.
-
-An example of 800x600 viewport, colored in green, running in the 1200x1000 window using :code:`no_stretch` mode:
-
-    .. code-block:: python
-
-        from kaa.engine import Engine, Scene, VirtualResolutionMode
-        from kaa.colors import Color
-        from kaa.geometry import Vector
-
-        class MyScene(Scene):
-
-            def update(self, dt):
-                pass
-
-
-        with Engine(virtual_resolution=Vector(800, 600),
-                    virtual_resolution_mode=VirtualResolutionMode.no_stretch) as engine:
-
-            scene = MyScene()
-            engine.window.size = Vector(1200, 1000)
-            engine.renderer.clear_color = Color(0, 1.0, 0, 1) # RGBA format
-            engine.run(scene)
 
 .. _engine.AudioManager:
 
@@ -674,8 +736,8 @@ properties.
 
 .. note::
 
-    There isn't a "global" camera - each Scene has its own. Since only
-    one scene can run at a time, only active Scene's camera is being used to project the image.
+    There isn't a "global" camera - each :class:`View` has its own camera allowing to display fragments of scene
+    in different viewports.
 
 Instance properties:
 

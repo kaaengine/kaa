@@ -65,7 +65,7 @@ You should see a 800x600 window with a black background. Congratulations, you go
 Understanding virtual resolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's now explain what virtual resolution is and how it's different from window size. When writing a game you would
+Let's now explain what virtual resolution is and how it's different from a monitor screen resolution. When writing a game you would
 like to have a consistent way of referencing coordinates, independent from the screen resolution the game is running on.
 So for example when you draw some image on position (100, 200) you would like it to always be the same (100, 200) position
 on 1366x768 laptop screen, 1920x1060 full HD monitor or any other of `dozens display resolutions out there. <https://en.wikipedia.org/wiki/Display_resolution#/media/File:Vector_Video_Standards8.svg>`_
@@ -92,17 +92,16 @@ Then modify the block where the engine is initialized:
         # set window properties
         engine.window.size = Vector(1000, 600)
         engine.window.title = "My first kaa game!"
-        # set renderer's properties
-        engine.renderer.clear_color = Color(0.1, 0.1, 0.1, 1)  # using RGBA with values between 0 and 1
-        # create the scene and run it
+        # create a scene
         my_scene = MyScene()
+        my_scene.clear_color = Color(0.1, 0.1, 0.1, 1)  # using RGBA with values between 0 and 1
+        # run the scene:
         engine.run(my_scene)
 
 
 Run the game again. This time you will see a 1000x600 window with a 800x600 area colored in light gray. The 800x600 area
-is the frame buffer, or in other words: the area accessible for the engine to draw your game contents. The engine won't be able
-to draw anything outside the frame buffer area. The size of the area is 800x600 because that's the virtual_resolution
-we set when initializing the engine.
+is accessible for the engine to draw your game contents. The engine won't be able to draw anything outside that area.
+The size of the area is 800x600 because that's the virtual_resolution we set when initializing the engine.
 
 Try resizing the game window and see how the engine shrinks or stretches out the frame buffer area. As you may expect, anything your game
 will draw inside the area will shrink or stretch accordingly.
