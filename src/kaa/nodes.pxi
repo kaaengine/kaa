@@ -182,7 +182,7 @@ cdef class NodeBase:
 
     @property
     def z_index(self):
-        self._get_c_node().z_index()
+        return self._get_c_node().z_index()
 
     @z_index.setter
     def z_index(self, int value):
