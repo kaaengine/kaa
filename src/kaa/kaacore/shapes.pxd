@@ -22,6 +22,7 @@ cdef extern from "kaacore/shapes.h" nogil:
         CShape()
 
         bool operator==(const CShape&)
+        bool operator bool()
 
         @staticmethod
         CShape Segment(const CDVec2 a, const CDVec2 b) \

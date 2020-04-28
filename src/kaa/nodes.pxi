@@ -273,7 +273,8 @@ cdef class NodeBase:
 
     @property
     def shape(self):
-        return get_shape_wrapper(self._get_c_node().shape())
+        if self._get_c_node().shape():
+            return get_shape_wrapper(self._get_c_node().shape())
 
     @shape.setter
     def shape(self, ShapeBase new_shape):
