@@ -9,7 +9,7 @@ from .kaacore.timers cimport bind_cython_timer_callback, CTimerCallback, CTimer
 DEF TIMER_FREELIST_SIZE = 10
 
 
-cdef void cython_timer_callback(CPythonicCallbackWrapper c_wrapper):
+cdef void cython_timer_callback(CPythonicCallbackWrapper c_wrapper) with gil:
     cdef object callback = <object>c_wrapper.py_callback
     try:
         callback()

@@ -28,7 +28,7 @@ COLLISION_GROUP_NONE = collision_group_none
 cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
                                      CArbiter c_arbiter,
                                      CCollisionPair c_pair_a,
-                                     CCollisionPair c_pair_b):
+                                     CCollisionPair c_pair_b) with gil:
     cdef object callback
     if c_wrapper.is_weakref:
         callback = (<object>c_wrapper.py_callback)()

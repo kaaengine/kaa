@@ -870,7 +870,7 @@ cdef class ControllerManager(_BaseInputManager):
 
 
 cdef int32_t c_event_handler(const CPythonicCallbackWrapper& c_wrapper,
-                             const CEvent& c_event):
+                             const CEvent& c_event) with gil:
 
     cdef:
         Event event = Event.create(c_event)
