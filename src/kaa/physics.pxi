@@ -6,6 +6,7 @@ import cython
 from cpython.ref cimport PyObject
 from libc.stdint cimport uint8_t
 from libcpp.vector cimport vector
+from cymove cimport cymove as cmove
 
 from .kaacore.nodes cimport CNode, CNodeType
 from .kaacore.physics cimport (
@@ -25,7 +26,7 @@ COLLISION_BITMASK_NONE = collision_bitmask_none
 COLLISION_GROUP_NONE = collision_group_none
 
 
-cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
+cdef int collision_handler_displatch(const CPythonicCallbackWrapper& c_wrapper,
                                      CArbiter c_arbiter,
                                      CCollisionPair c_pair_a,
                                      CCollisionPair c_pair_b):
@@ -265,7 +266,7 @@ cdef class SpaceNode(NodeBase):
         )
         self._get_c_node().space.set_collision_handler(
             trigger_a, trigger_b,
-            bound_handler, phases_mask=phases_mask,
+            cmove(bound_handler), phases_mask=phases_mask,
             only_non_deleted_nodes=only_non_deleted_nodes
         )
 

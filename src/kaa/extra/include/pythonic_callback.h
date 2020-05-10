@@ -91,47 +91,47 @@ struct PythonicCallbackWrapper {
 };
 
 
-typedef int (*CythonCollisionHandler)(PythonicCallbackWrapper, Arbiter,
+typedef int (*CythonCollisionHandler)(const PythonicCallbackWrapper&, Arbiter,
                                       CollisionPair, CollisionPair);
 
 
 CollisionHandlerFunc bind_cython_collision_handler(
-    const CythonCollisionHandler cy_handler, const PythonicCallbackWrapper callback
+    const CythonCollisionHandler cy_handler, PythonicCallbackWrapper callback
 )
 {
     using namespace std::placeholders;
 
-    return std::bind(cy_handler, callback, _1, _2, _3);
+    return std::bind(cy_handler, std::move(callback), _1, _2, _3);
 }
 
-typedef void (*CythonTimerCallback)(PythonicCallbackWrapper);
+typedef void (*CythonTimerCallback)(const PythonicCallbackWrapper&);
 
 TimerCallback bind_cython_timer_callback(
-    const CythonTimerCallback cy_handler, const PythonicCallbackWrapper callback
+    const CythonTimerCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
-    return std::bind(cy_handler, callback);
+    return std::bind(cy_handler, std::move(callback));
 }
 
 
-typedef void (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper, NodePtr);
+typedef void (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper&, NodePtr);
 
 NodeTransitionCallbackFunc bind_cython_transition_callback(
-    const CythonNodeTransitionCallback cy_handler, const PythonicCallbackWrapper& callback
+    const CythonNodeTransitionCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     using namespace std::placeholders;
 
-    return std::bind(cy_handler, callback, _1);
+    return std::bind(cy_handler, std::move(callback), _1);
 }
 
 typedef int32_t (*CythonEventCallback)(const PythonicCallbackWrapper&, const Event&);
 
 EventCallback bind_cython_event_callback(
-    const CythonEventCallback cy_handler, const PythonicCallbackWrapper callback
+    const CythonEventCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     using namespace std::placeholders;
 
-    return std::bind(cy_handler, callback, _1);
+    return std::bind(cy_handler, std::move(callback), _1);
 }

@@ -13,7 +13,7 @@ from .kaacore.custom_transitions cimport (
 
 
 cdef void node_transition_callback_dispatch(
-    const CPythonicCallbackWrapper c_wrapper, CNodePtr c_node_ptr
+    const CPythonicCallbackWrapper& c_wrapper, CNodePtr c_node_ptr
 ):
     # TODO weak-ptr detection
     (<object>c_wrapper.py_callback)(get_node_wrapper(c_node_ptr))

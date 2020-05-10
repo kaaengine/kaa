@@ -1,6 +1,7 @@
 import cython
 from libcpp cimport bool
 from libc.stdint cimport uint32_t
+from cymove cimport cymove as cmove
 
 from .kaacore.glue cimport CPythonicCallbackWrapper
 from .kaacore.exceptions cimport c_wrap_python_exception
@@ -9,7 +10,7 @@ from .kaacore.timers cimport bind_cython_timer_callback, CTimerCallback, CTimer
 DEF TIMER_FREELIST_SIZE = 10
 
 
-cdef void cython_timer_callback(CPythonicCallbackWrapper c_wrapper):
+cdef void cython_timer_callback(const CPythonicCallbackWrapper& c_wrapper):
     cdef object callback = <object>c_wrapper.py_callback
     try:
         callback()
@@ -28,7 +29,7 @@ cdef class Timer:
         cdef CTimerCallback bound_callback = bind_cython_timer_callback(
             cython_timer_callback, CPythonicCallbackWrapper(<PyObject*>callback),
         )
-        self._c_timer = CTimer(interval, bound_callback, single_shot)
+        self._c_timer = CTimer(interval, cmove(bound_callback), single_shot)
 
     @property
     def is_running(self):
