@@ -19,7 +19,7 @@ cdef void cython_timer_callback(CPythonicCallbackWrapper c_wrapper):
 
 @cython.freelist(TIMER_FREELIST_SIZE)
 cdef class Timer:
-    cdef CTimer c_timer
+    cdef CTimer _c_timer
 
     def __cinit__(
         self, uint32_t interval, object callback not None,
@@ -28,14 +28,14 @@ cdef class Timer:
         cdef CTimerCallback bound_callback = bind_cython_timer_callback(
             cython_timer_callback, CPythonicCallbackWrapper(<PyObject*>callback),
         )
-        self.c_timer = CTimer(interval, bound_callback, single_shot)
+        self._c_timer = CTimer(interval, bound_callback, single_shot)
 
     @property
     def is_running(self):
-        return self.c_timer.is_running()
+        return self._c_timer.is_running()
 
     def start(self):
-        self.c_timer.start()
+        self._c_timer.start()
 
     def stop(self):
-        self.c_timer.stop()
+        self._c_timer.stop()
