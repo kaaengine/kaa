@@ -8,6 +8,9 @@ from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
 from .kaacore.views cimport KAACORE_VIEWS_DEFAULT_Z_INDEX
+from .kaacore.exceptions cimport (
+    CPythonException, c_throw_wrapped_python_exception
+)
 
 
 cdef cppclass CPyScene(CScene):
@@ -29,29 +32,41 @@ cdef cppclass CPyScene(CScene):
             Py_INCREF(this.get_py_scene())
 
     void on_enter() nogil:
-        with gil:
-            try:
-                this.get_py_scene().on_enter()
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        cdef CPythonException c_python_exception
+        this._call_py_on_enter(c_python_exception)
+        c_throw_wrapped_python_exception(c_python_exception)
 
     void update(uint32_t dt) nogil:
-        with gil:
-            try:
-                this.get_py_scene().update(dt)
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        cdef CPythonException c_python_exception
+        this._call_py_update(c_python_exception, dt)
+        c_throw_wrapped_python_exception(c_python_exception)
 
     void on_exit() nogil:
-        with gil:
-            try:
-                this.get_py_scene().on_exit()
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        cdef CPythonException c_python_exception
+        this._call_py_on_exit(c_python_exception)
+        c_throw_wrapped_python_exception(c_python_exception)
 
     void on_detach() nogil:
         with gil:
             Py_DECREF(this.get_py_scene())
+
+    void _call_py_update(CPythonException& c_python_exception, uint32_t dt) with gil:
+        try:
+            this.get_py_scene().update(dt)
+        except BaseException as exc:
+            c_python_exception.setup(<PyObject*>exc)
+
+    void _call_py_on_enter(CPythonException& c_python_exception) with gil:
+        try:
+            this.get_py_scene().on_enter()
+        except BaseException as exc:
+            c_python_exception.setup(<PyObject*>exc)
+
+    void _call_py_on_exit(CPythonException& c_python_exception) with gil:
+        try:
+            this.get_py_scene().on_exit()
+        except BaseException as exc:
+            c_python_exception.setup(<PyObject*>exc)
 
 
 cdef class Scene:

@@ -17,7 +17,7 @@ from .kaacore.physics cimport (
 )
 from .kaacore.math cimport radians, degrees
 from .kaacore.glue cimport CPythonicCallbackWrapper
-from .kaacore.exceptions cimport c_wrap_python_exception
+from .kaacore.exceptions cimport CPythonException
 
 
 COLLISION_BITMASK_ALL = collision_bitmask_all
@@ -25,10 +25,11 @@ COLLISION_BITMASK_NONE = collision_bitmask_none
 COLLISION_GROUP_NONE = collision_group_none
 
 
-cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
-                                     CArbiter c_arbiter,
-                                     CCollisionPair c_pair_a,
-                                     CCollisionPair c_pair_b) with gil:
+cdef int collision_handler_dispatch(
+    CPythonException& c_python_exception,
+    const CPythonicCallbackWrapper& c_wrapper,
+    CArbiter c_arbiter, CCollisionPair c_pair_a, CCollisionPair c_pair_b
+) with gil:
     cdef object callback
     if c_wrapper.is_weakref:
         callback = (<object>c_wrapper.py_callback)()
@@ -45,7 +46,7 @@ cdef int collision_handler_displatch(CPythonicCallbackWrapper c_wrapper,
     try:
         ret = callback(arbiter, pair_a, pair_b)
     except Exception as py_exc:
-        c_wrap_python_exception(<PyObject*>py_exc)
+        c_python_exception.setup(<PyObject*>py_exc)
     else:
         return ret if ret is not None else 1
 
@@ -259,7 +260,7 @@ cdef class SpaceNode(NodeBase):
             final_handler_is_weakref = False
 
         cdef CCollisionHandlerFunc bound_handler = bind_cython_collision_handler(
-            collision_handler_displatch,
+            collision_handler_dispatch,
             CPythonicCallbackWrapper(<PyObject*>final_handler,
                                      final_handler_is_weakref),
         )

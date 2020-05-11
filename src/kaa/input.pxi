@@ -11,7 +11,7 @@ from cymove cimport cymove as cmove
 
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.glue cimport CPythonicCallbackWrapper
-from .kaacore.exceptions cimport c_wrap_python_exception
+from .kaacore.exceptions cimport CPythonException
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
     CCompoundControllerAxis, CEventType, CSystemEvent, CWindowEvent,
@@ -869,8 +869,11 @@ cdef class ControllerManager(_BaseInputManager):
         )
 
 
-cdef int32_t c_event_handler(const CPythonicCallbackWrapper& c_wrapper,
-                             const CEvent& c_event) with gil:
+cdef int32_t c_event_handler(
+    CPythonException& c_python_exception,
+    const CPythonicCallbackWrapper& c_wrapper,
+    const CEvent& c_event
+) with gil:
 
     cdef:
         Event event = Event.create(c_event)
@@ -878,7 +881,7 @@ cdef int32_t c_event_handler(const CPythonicCallbackWrapper& c_wrapper,
     try:
         return 1 if callback(event) is True else 0
     except Exception as py_exc:
-        c_wrap_python_exception(<PyObject*>py_exc)
+        c_python_exception.setup(<PyObject*>py_exc)
         return 0
 
 

@@ -7,7 +7,7 @@ from .glue cimport CPythonicCallbackWrapper
 from .vectors cimport CDVec2
 from .shapes cimport CShape
 from .nodes cimport CNode, CNodePtr
-from .exceptions cimport raise_py_error
+from .exceptions cimport CPythonException, raise_py_error
 
 
 cdef extern from "kaacore/physics.h" nogil:
@@ -113,7 +113,8 @@ cdef extern from "kaacore/physics.h" nogil:
 
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef int (*CythonCollisionHandler)(CPythonicCallbackWrapper,
+    ctypedef int (*CythonCollisionHandler)(CPythonException&,
+                                           const CPythonicCallbackWrapper&,
                                            CArbiter,
                                            CCollisionPair, CCollisionPair)
     CCollisionHandlerFunc bind_cython_collision_handler(
