@@ -135,3 +135,26 @@ EventCallback bind_cython_event_callback(
 
     return std::bind(cy_handler, callback, _1);
 }
+
+typedef void (*CythonVelocityUpdateCallback)(const PythonicCallbackWrapper&,
+    Node*, glm::dvec2, double, double);
+
+VelocityUpdateCallback bind_cython_update_velocity_callback(
+    const CythonVelocityUpdateCallback cy_handler, PythonicCallbackWrapper callback
+)
+{
+    using namespace std::placeholders;
+
+    return std::bind(cy_handler, std::move(callback), _1, _2, _3, _4);
+}
+
+typedef void (*CythonPositionUpdateCallback)(const PythonicCallbackWrapper&, Node*, double);
+
+PositionUpdateCallback bind_cython_update_position_callback(
+    const CythonPositionUpdateCallback cy_handler, PythonicCallbackWrapper callback
+)
+{
+    using namespace std::placeholders;
+
+    return std::bind(cy_handler, std::move(callback), _1, _2);
+}
