@@ -58,8 +58,10 @@ cdef class Vector:
     def mul(self, double operand):
         return Vector.from_c_vector(self.c_vector * operand)
 
-    def __mul__(self, double operand):
-        return self.mul(operand)
+    def __mul__(left, right):
+        if isinstance(left, Vector):
+            return left.mul(right)
+        return right.mul(left)
 
     def __truediv__(self, double operand):
         return self.mul(1. / operand)

@@ -38,6 +38,10 @@ setup(
         "Topic :: Games/Entertainment",
         "Topic :: Software Development",
     ],
+    project_urls={
+        "Documentation": 'https://kaa.readthedocs.io/en/latest/',
+        "Source Code": 'https://github.com/kaaengine/kaa/',
+    },
     include_package_data=False,
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
     cmake_args=[
