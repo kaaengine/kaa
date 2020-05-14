@@ -69,7 +69,9 @@ cdef class _ViewsManager(_SceneResource):
 
     def __setitem__(self, z_index, value):
         raise NotImplementedError
-    
+
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     def __iter__(self):
         cdef:
             int32_t z_index
