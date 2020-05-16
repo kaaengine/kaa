@@ -378,6 +378,7 @@ cdef extern from "kaacore/input.h" nogil:
 
     cdef cppclass CMouseMotionEvent "kaacore::MouseMotionEvent":
         CDVec2 position() except +raise_py_error
+        CDVec2 motion() except +raise_py_error
 
     cdef cppclass CMouseWheelEvent "kaacore::MouseWheelEvent":
         CDVec2 scroll() except +raise_py_error
@@ -428,6 +429,9 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_pressed(CMouseButton mb) except +raise_py_error
         bint is_released(CMouseButton mb) except +raise_py_error
         CDVec2 get_position() except +raise_py_error
+
+        bint relative_motion()
+        void relative_motion(const bint rel)
 
     cdef cppclass CControllerManager "kaacore::InputManager::ControllerManager":
         bint is_connected(int32_t id_) except +raise_py_error
