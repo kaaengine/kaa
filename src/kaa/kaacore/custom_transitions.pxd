@@ -3,8 +3,8 @@ from libcpp.functional cimport function
 
 from .nodes cimport CNodePtr
 from .transitions cimport CTransitionStateBase, CTransitionWarping
-from .glue cimport CPythonicCallbackWrapper
-from .exceptions cimport CPythonException, raise_py_error
+from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
+from .exceptions cimport raise_py_error
 
 
 cdef extern from "kaacore/transitions.h":
@@ -25,8 +25,8 @@ cdef extern from "kaacore/transitions.h":
 
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef void (*CythonNodeTransitionCallback)(
-        CPythonException&, const CPythonicCallbackWrapper&, CNodePtr
+    ctypedef CPythonicCallbackResult[void] (*CythonNodeTransitionCallback)(
+        const CPythonicCallbackWrapper&, CNodePtr
     )
     CNodeTransitionCallbackFunc bind_cython_transition_callback(
         const CythonNodeTransitionCallback cy_handler,

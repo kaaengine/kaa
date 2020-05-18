@@ -13,8 +13,11 @@ PyObject* _py_kaacore_exception;
 struct PythonException : std::exception {
     PyObject* py_exception;
 
-    PythonException() : py_exception(nullptr)
+    PythonException(PyObject* py_exception)
     {
+        KAACORE_ASSERT(PyGILState_Check());
+        this->py_exception = py_exception;
+        Py_INCREF(this->py_exception);
     }
 
     ~PythonException()
@@ -24,12 +27,6 @@ struct PythonException : std::exception {
             Py_DECREF(this->py_exception);
             PyGILState_Release(gstate);
         }
-    }
-
-    PythonException(PythonException&& exc)
-    {
-        this->py_exception = exc.py_exception;
-        exc.py_exception = nullptr;
     }
 
     PythonException(const PythonException& exc)
@@ -42,16 +39,38 @@ struct PythonException : std::exception {
         }
     }
 
-    void setup(PyObject* py_exception)
+    PythonException(PythonException&& exc)
     {
-        KAACORE_ASSERT(PyGILState_Check());
-        this->py_exception = py_exception;
-        Py_INCREF(this->py_exception);
+        this->py_exception = exc.py_exception;
+        exc.py_exception = nullptr;
     }
 
-    operator bool() const
+    PythonException& operator=(const PythonException& other)
     {
-        return this->py_exception != nullptr;
+        if (this->py_exception) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
+            Py_DECREF(this->py_exception);
+            PyGILState_Release(gstate);
+        }
+
+        this->py_exception = other.py_exception;
+        if (this->py_exception) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
+            Py_INCREF(this->py_exception);
+            PyGILState_Release(gstate);
+        }
+    }
+
+    PythonException& operator=(PythonException&& other)
+    {
+        if (this->py_exception) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
+            Py_DECREF(this->py_exception);
+            PyGILState_Release(gstate);
+        }
+
+        this->py_exception = other.py_exception;
+        other.py_exception = nullptr;
     }
 
     const char* what() const noexcept
@@ -59,14 +78,6 @@ struct PythonException : std::exception {
         return "PythonException";
     }
 };
-
-
-void throw_wrapped_python_exception(PythonException& py_exception)
-{
-    if (py_exception) {
-        throw py_exception;
-    }
-}
 
 
 void setup_kaacore_error_class(PyObject* py_kaacore_exception)

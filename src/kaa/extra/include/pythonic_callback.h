@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <variant>
 
 #include <Python.h>
 
@@ -109,9 +110,45 @@ struct PythonicCallbackWrapper {
 };
 
 
+template <typename T>
+class PythonicCallbackResult {
+    // std::variant won't accept void as type, so we use std::monostate as "safe" type
+    typedef std::conditional_t<std::is_void_v<T>, std::monostate, T> T_safe;
 
-typedef int (*CythonCollisionHandler)(PythonException&, const PythonicCallbackWrapper&, Arbiter,
-                                      CollisionPair, CollisionPair);
+    public:
+    PythonicCallbackResult()
+    : _result()
+    {
+    }
+
+    // disable constructor if T is void
+    PythonicCallbackResult(T res, typename std::enable_if_t<not std::is_void_v<T>>* = 0)
+    : _result(res)
+    {
+    }
+
+    PythonicCallbackResult(PyObject* exc_object)
+    : _result(PythonException(exc_object))
+    {
+    }
+
+    T unwrap_result() const
+    {
+        if (std::holds_alternative<PythonException>(this->_result)) {
+            throw std::get<PythonException>(this->_result);
+        }
+        if constexpr (not std::is_void_v<T>) {
+            return std::get<T>(this->_result);
+        }
+    }
+
+    private:
+    std::variant<T_safe, PythonException> _result;
+};
+
+
+typedef PythonicCallbackResult<int> (*CythonCollisionHandler)(const PythonicCallbackWrapper&, Arbiter,
+                                     CollisionPair, CollisionPair);
 
 
 CollisionHandlerFunc bind_cython_collision_handler(
@@ -120,50 +157,42 @@ CollisionHandlerFunc bind_cython_collision_handler(
 {
     return [cy_handler, callback{std::move(callback)}]
             (Arbiter arbiter, CollisionPair cp1, CollisionPair cp2) -> int {
-        PythonException python_exception;
-        auto ret = cy_handler(python_exception, callback, arbiter, cp1, cp2);
-        throw_wrapped_python_exception(python_exception);
-        return ret;
+        return cy_handler(callback, arbiter, cp1, cp2).unwrap_result();
     };
 }
 
-typedef void (*CythonTimerCallback)(PythonException&, const PythonicCallbackWrapper&);
+
+typedef PythonicCallbackResult<void> (*CythonTimerCallback)(const PythonicCallbackWrapper&);
 
 TimerCallback bind_cython_timer_callback(
     const CythonTimerCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}]() {
-        PythonException python_exception;
-        cy_handler(python_exception, callback);
-        throw_wrapped_python_exception(python_exception);
+        std::move(cy_handler(callback)).unwrap_result();
     };
 }
 
 
-typedef void (*CythonNodeTransitionCallback)(PythonException&, const PythonicCallbackWrapper&, NodePtr);
+typedef PythonicCallbackResult<void> (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper&, NodePtr);
 
 NodeTransitionCallbackFunc bind_cython_transition_callback(
     const CythonNodeTransitionCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}](NodePtr node_ptr) {
-        PythonException python_exception;
-        cy_handler(python_exception, callback, node_ptr);
-        throw_wrapped_python_exception(python_exception);
+        cy_handler(callback, node_ptr).unwrap_result();
     };
 }
 
-typedef int32_t (*CythonEventCallback)(PythonException&, const PythonicCallbackWrapper&, const Event&);
+
+typedef PythonicCallbackResult<int32_t> (*CythonEventCallback)(const PythonicCallbackWrapper&, const Event&);
 
 EventCallback bind_cython_event_callback(
     const CythonEventCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}](const Event& event) -> int32_t {
-        PythonException python_exception;
-        auto ret = cy_handler(python_exception, callback, event);
-        throw_wrapped_python_exception(python_exception);
-        return ret;
+        return cy_handler(callback, event).unwrap_result();
     };
 }

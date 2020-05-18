@@ -2,8 +2,8 @@ from libcpp cimport bool
 from libc.stdint cimport uint32_t
 from libcpp.functional cimport function
 
-from .exceptions cimport CPythonException, raise_py_error
-from .glue cimport CPythonicCallbackWrapper
+from .exceptions cimport raise_py_error
+from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
 cdef extern from "kaacore/timers.h" nogil:
@@ -20,7 +20,7 @@ cdef extern from "kaacore/timers.h" nogil:
         void stop()
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef void (*CythonTimerCallback)(CPythonException&, const CPythonicCallbackWrapper&)
+    ctypedef CPythonicCallbackResult[void] (*CythonTimerCallback)(const CPythonicCallbackWrapper&)
     CythonTimerCallback bind_cython_timer_callback(
         const CythonTimerCallback cy_handler,
         const CPythonicCallbackWrapper callback

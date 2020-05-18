@@ -16,8 +16,7 @@ from .kaacore.physics cimport (
     collision_bitmask_all, collision_bitmask_none, collision_group_none
 )
 from .kaacore.math cimport radians, degrees
-from .kaacore.glue cimport CPythonicCallbackWrapper
-from .kaacore.exceptions cimport CPythonException
+from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
 COLLISION_BITMASK_ALL = collision_bitmask_all
@@ -25,8 +24,7 @@ COLLISION_BITMASK_NONE = collision_bitmask_none
 COLLISION_GROUP_NONE = collision_group_none
 
 
-cdef int collision_handler_dispatch(
-    CPythonException& c_python_exception,
+cdef CPythonicCallbackResult[int] collision_handler_dispatch(
     const CPythonicCallbackWrapper& c_wrapper,
     CArbiter c_arbiter, CCollisionPair c_pair_a, CCollisionPair c_pair_b
 ) with gil:
@@ -46,9 +44,9 @@ cdef int collision_handler_dispatch(
     try:
         ret = callback(arbiter, pair_a, pair_b)
     except Exception as py_exc:
-        c_python_exception.setup(<PyObject*>py_exc)
+        return CPythonicCallbackResult[int](<PyObject*>py_exc)
     else:
-        return ret if ret is not None else 1
+        return CPythonicCallbackResult[int](<int>(ret if ret is not None else 1))
 
 
 class CollisionPhase(IntEnum):
