@@ -574,6 +574,12 @@ cdef class MouseMotionEvent(_BaseEvent):
         return Vector.from_c_vector(
             self.c_event.mouse_motion().position()
         )
+    
+    @property
+    def motion(self):
+        return Vector.from_c_vector(
+            self.c_event.mouse_motion().motion()
+        )
 
 
 @cython.final
@@ -803,6 +809,15 @@ cdef class KeyboardManager(_BaseInputManager):
 
 @cython.final
 cdef class MouseManager(_BaseInputManager):
+    @property
+    def relative_mode(self):
+        return self._get_c_input_manager().mouse.relative_mode()
+
+    @relative_mode.setter
+    def relative_mode(self, bint rel):
+        self._get_c_input_manager().mouse.relative_mode(rel)
+
+
     def is_pressed(self, mc not None):
         return self._get_c_input_manager().mouse.is_pressed(
             <CMouseButton>(<uint32_t>(mc.value))
