@@ -5,7 +5,7 @@ from libc.stdint cimport int32_t, uint32_t
 
 from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
-from .glue cimport CPythonicCallbackWrapper
+from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
 cdef extern from "kaacore/input.h" nogil:
@@ -454,7 +454,9 @@ cdef extern from "kaacore/input.h" nogil:
 
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef int32_t (*CythonEventCallback)(CPythonicCallbackWrapper, const CEvent&)
+    ctypedef CPythonicCallbackResult[int32_t] (*CythonEventCallback)(
+        const CPythonicCallbackWrapper&, const CEvent&
+    )
     CythonEventCallback bind_cython_event_callback(
         const CythonEventCallback cy_handler,
         const CPythonicCallbackWrapper callback
