@@ -15,6 +15,7 @@ struct PythonException : std::exception {
 
     PythonException(PyObject* py_exception)
     {
+        KAACORE_ASSERT(py_exception != nullptr);
         KAACORE_ASSERT(PyGILState_Check());
         this->py_exception = py_exception;
         Py_INCREF(this->py_exception);
@@ -22,21 +23,17 @@ struct PythonException : std::exception {
 
     ~PythonException()
     {
-        if (this->py_exception != nullptr) {
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            Py_DECREF(this->py_exception);
-            PyGILState_Release(gstate);
-        }
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        Py_DECREF(this->py_exception);
+        PyGILState_Release(gstate);
     }
 
     PythonException(const PythonException& exc)
     {
         this->py_exception = exc.py_exception;
-        if (this->py_exception) {
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            Py_INCREF(this->py_exception);
-            PyGILState_Release(gstate);
-        }
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        Py_INCREF(this->py_exception);
+        PyGILState_Release(gstate);
     }
 
     PythonException(PythonException&& exc)
@@ -47,30 +44,23 @@ struct PythonException : std::exception {
 
     PythonException& operator=(const PythonException& other)
     {
-        if (this->py_exception) {
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            Py_DECREF(this->py_exception);
-            PyGILState_Release(gstate);
-        }
-
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        Py_DECREF(this->py_exception);
         this->py_exception = other.py_exception;
-        if (this->py_exception) {
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            Py_INCREF(this->py_exception);
-            PyGILState_Release(gstate);
-        }
+        Py_INCREF(this->py_exception);
+        PyGILState_Release(gstate);
+        return *this;
     }
 
     PythonException& operator=(PythonException&& other)
     {
-        if (this->py_exception) {
-            PyGILState_STATE gstate = PyGILState_Ensure();
-            Py_DECREF(this->py_exception);
-            PyGILState_Release(gstate);
-        }
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        Py_DECREF(this->py_exception);
+        PyGILState_Release(gstate);
 
         this->py_exception = other.py_exception;
         other.py_exception = nullptr;
+        return *this;
     }
 
     const char* what() const noexcept

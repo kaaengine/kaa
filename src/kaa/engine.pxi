@@ -51,8 +51,9 @@ cdef class _Engine:
         get_c_engine().change_scene(scene._c_scene.get())
 
     def run(self, Scene scene not None):
-        cdef CScene* c_scene = scene._c_scene.get()
-        cdef CEngine* c_engine = get_c_engine()
+        cdef:
+            CScene* c_scene = scene._c_scene.get()
+            CEngine* c_engine = get_c_engine()
         with nogil:
             c_engine.run(c_scene)
 

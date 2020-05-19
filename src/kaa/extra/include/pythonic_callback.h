@@ -122,7 +122,9 @@ class PythonicCallbackResult {
     }
 
     // disable constructor if T is void
-    PythonicCallbackResult(T res, typename std::enable_if_t<not std::is_void_v<T>>* = 0)
+    template <typename T_ = T,
+              typename std::enable_if_t<not std::is_void_v<T_>, std::nullptr_t> = nullptr>
+    PythonicCallbackResult(T_ res)
     : _result(res)
     {
     }
