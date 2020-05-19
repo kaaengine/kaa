@@ -22,7 +22,7 @@ class MyScene(Scene):
                     str(event.mouse_button.button), event.mouse_button.is_button_down, event.mouse_button.is_button_up))
             elif event.keyboard_key:
                 if event.keyboard_key.key_down == Keycode.c:
-                    self.input.mouse.relative_motion = not self.input.mouse.relative_motion
+                    self.input.mouse.relative_mode = not self.input.mouse.relative_mode
 
             if event.system and event.system.quit:
                 self.engine.quit()

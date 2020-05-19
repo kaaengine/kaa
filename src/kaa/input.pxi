@@ -811,12 +811,12 @@ cdef class KeyboardManager(_BaseInputManager):
 @cython.final
 cdef class MouseManager(_BaseInputManager):
     @property
-    def relative_motion(self):
-        return self._get_c_input_manager().mouse.relative_motion()
+    def relative_mode(self):
+        return self._get_c_input_manager().mouse.relative_mode()
 
-    @relative_motion.setter
-    def relative_motion(self, bint rel):
-        self._get_c_input_manager().mouse.relative_motion(rel)
+    @relative_mode.setter
+    def relative_mode(self, bint rel):
+        self._get_c_input_manager().mouse.relative_mode(rel)
 
 
     def is_pressed(self, mc not None):
