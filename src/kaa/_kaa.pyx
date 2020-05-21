@@ -1,5 +1,9 @@
 # distutils: language=c++
 
+# This line enables support for non-python threads,
+# it's required by kaacore multithreaded rendering.
+cimport cython.parallel
+
 include "exceptions.pxi"
 include "log.pxi"
 include "vectors.pxi"

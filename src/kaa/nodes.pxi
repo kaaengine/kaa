@@ -22,11 +22,11 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
     bool added_to_parent
 
-    __init__(PyObject* py_wrapper):
+    __init__(PyObject* py_wrapper) with gil:
         this.py_wrapper = py_wrapper
         this.added_to_parent = False
 
-    __dealloc__():
+    __dealloc__() with gil:
         if this.added_to_parent:
             Py_XDECREF(this.py_wrapper)
         this.py_wrapper = NULL
