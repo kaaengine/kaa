@@ -34,7 +34,7 @@ a collection of other specialized Nodes (they all inherit from the :class:`Node`
 For your game's actual objects such as Player, Enemy, Bullet, etc. we recommend writing classes that inherit from
 the Node class (or BodyNode if you want the object to utilize :doc:`kaaengine's physics features </reference/physics>`).
 
-.. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
+.. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True, views={0})
 
     A basic example how to create a new Node (with a sprite) and add it to the Scene:
 
@@ -303,7 +303,7 @@ Instance Properties:
     :doc:`physics module documentation </reference/physics>`).
 
     If you set a Sprite for a Node, its shape will be automatically set to a rectangular polygon corresponding with the
-    size of the sprite. If Sprite is animated (has many frames) node's shape dimensions will be of a single frame.
+    size of the sprite.
 
     Overriding sprite node's shape is usually not necessary, but you can always do that. For example, you can set
     a 100x200 px sprite for a node and then set a custom shape e.g. a non-rectangular polygon or a circle.
@@ -367,6 +367,28 @@ Instance Properties:
 .. attribute:: Node.absolute_transformation
 
     Gets the absolute transformation of the Node, in form of a :class:`geometry.Transformation` instance.
+
+
+.. _Node.transformation:
+.. attribute:: Node.transformation
+
+    Gets or sets the transformation of the Node, in form of a :class:`geometry.Transformation` instance.
+    Applying a transformation to the node is an equivalent of changing its :ref:`position <Node.position>`
+    (translate Transformation), :ref:`rotation <Node.rotation>` (rotating Transformation) or
+    :ref:`scale <Node.scale>` (scaling Transtofmation). Refer to :class:`geometry.Transformation` for more
+    details on how to work with transformation objects.
+
+.. _Node.views:
+.. attribute:: Node.views
+
+    Gets or sets indexes of views (as a set object) in which this node shall be rendered. Each scene has 32 views.
+    Default value is {0} mening the node will be redered in the default view only. Read more about views
+    in :class:`engine.View` reference.
+
+    .. code-block:: python
+
+        self.root.add_child(Node(position=Vector(32,45), sprite=some_sprite))  # will be rendered in the default view
+        self.root.add_child(Node(position=Vector(-432,-445), sprite=some_sprite, views={0, 1, 15}))  # will be rendered in views 0, 1 and 15
 
 Instance Methods:
 
