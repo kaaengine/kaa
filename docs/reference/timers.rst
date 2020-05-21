@@ -14,7 +14,8 @@
 
     If :code:`single_shot` is set to :code:`False` the timer will call the callback func in regular intervals.
 
-    Timer starts the countdown when you call the :meth:`start()` method.
+    Timer starts the countdown when you call the :meth:`start()` method. Calling :meth:`start()` on a running timer
+    resets it.
 
     Calling :meth:`stop()` stops the timer.
 
@@ -36,7 +37,8 @@ Instance methods:
 
 .. method:: Timer.start()
 
-    Starts the timer.
+    Starts the timer. Calling :meth:`start()` resets the timer - calling it on a running timer will make the timer
+    count down from the start.
 
 .. method:: Timer.stop()
 
