@@ -29,6 +29,7 @@ cdef extern from "kaacore/geometry.h" nogil:
 
     cdef cppclass CTransformation "kaacore::Transformation":
         CTransformation()
+        bint operator==(const CTransformation&)
 
         @staticmethod
         CTransformation translate(const CDVec2&) except +raise_py_error
