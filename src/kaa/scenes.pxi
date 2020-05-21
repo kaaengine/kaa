@@ -3,6 +3,7 @@ from libcpp.memory cimport unique_ptr
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
 
+from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport is_c_engine_initialized
@@ -29,29 +30,38 @@ cdef cppclass CPyScene(CScene):
             Py_INCREF(this.get_py_scene())
 
     void on_enter() nogil:
-        with gil:
-            try:
-                this.get_py_scene().on_enter()
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        this._call_py_on_enter().unwrap_result()
 
     void update(uint32_t dt) nogil:
-        with gil:
-            try:
-                this.get_py_scene().update(dt)
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        this._call_py_update(dt).unwrap_result()
 
     void on_exit() nogil:
-        with gil:
-            try:
-                this.get_py_scene().on_exit()
-            except BaseException as py_exc:
-                c_wrap_python_exception(<PyObject*>py_exc)
+        this._call_py_on_exit().unwrap_result()
 
     void on_detach() nogil:
         with gil:
             Py_DECREF(this.get_py_scene())
+
+    CPythonicCallbackResult[void] _call_py_update(uint32_t dt) with gil:
+        try:
+            this.get_py_scene().update(dt)
+        except BaseException as exc:
+            return CPythonicCallbackResult[void](<PyObject*>exc)
+        return CPythonicCallbackResult[void]()
+
+    CPythonicCallbackResult[void] _call_py_on_enter() with gil:
+        try:
+            this.get_py_scene().on_enter()
+        except BaseException as exc:
+            return CPythonicCallbackResult[void](<PyObject*>exc)
+        return CPythonicCallbackResult[void]()
+
+    CPythonicCallbackResult[void] _call_py_on_exit() with gil:
+        try:
+            this.get_py_scene().on_exit()
+        except BaseException as exc:
+            return CPythonicCallbackResult[void](<PyObject*>exc)
+        return CPythonicCallbackResult[void]()
 
 
 cdef class Scene:

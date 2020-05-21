@@ -1,8 +1,9 @@
 import cython
 from libcpp.memory cimport unique_ptr
+from cpython.ref cimport PyObject
 
 from .kaacore.nodes cimport CNode
-from .kaacore.glue cimport CPythonicCallbackWrapper
+from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .kaacore.transitions cimport (
     CTransitionWarping, CTransitionStateBase, make_node_transition,
     CNodeTransitionCallback,
@@ -12,11 +13,15 @@ from .kaacore.custom_transitions cimport (
 )
 
 
-cdef void node_transition_callback_dispatch(
-    const CPythonicCallbackWrapper c_wrapper, CNodePtr c_node_ptr
-):
+cdef CPythonicCallbackResult[void] node_transition_callback_dispatch(
+    const CPythonicCallbackWrapper& c_wrapper, CNodePtr c_node_ptr
+) with gil:
     # TODO weak-ptr detection
-    (<object>c_wrapper.py_callback)(get_node_wrapper(c_node_ptr))
+    try:
+        (<object>c_wrapper.py_callback)(get_node_wrapper(c_node_ptr))
+    except Exception as exc:
+        return CPythonicCallbackResult[void](<PyObject*>exc)
+    return CPythonicCallbackResult[void]()
 
 
 @cython.final

@@ -2,19 +2,21 @@ import cython
 from libcpp cimport bool
 from libc.stdint cimport uint32_t
 
-from .kaacore.glue cimport CPythonicCallbackWrapper
-from .kaacore.exceptions cimport c_wrap_python_exception
+from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .kaacore.timers cimport bind_cython_timer_callback, CTimerCallback, CTimer
 
 DEF TIMER_FREELIST_SIZE = 10
 
 
-cdef void cython_timer_callback(CPythonicCallbackWrapper c_wrapper):
+cdef CPythonicCallbackResult[void] cython_timer_callback(
+    const CPythonicCallbackWrapper& c_wrapper
+) with gil:
     cdef object callback = <object>c_wrapper.py_callback
     try:
         callback()
     except Exception as py_exc:
-        c_wrap_python_exception(<PyObject*>py_exc)
+        return CPythonicCallbackResult[void](<PyObject*>py_exc)
+    return CPythonicCallbackResult[void]()
 
 
 @cython.freelist(TIMER_FREELIST_SIZE)

@@ -3,7 +3,7 @@ from libcpp.functional cimport function
 from libcpp.vector cimport vector
 from libcpp cimport bool
 
-from .glue cimport CPythonicCallbackWrapper
+from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .vectors cimport CDVec2
 from .shapes cimport CShape
 from .nodes cimport CNode, CNodePtr
@@ -113,9 +113,10 @@ cdef extern from "kaacore/physics.h" nogil:
 
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef int (*CythonCollisionHandler)(CPythonicCallbackWrapper,
-                                           CArbiter,
-                                           CCollisionPair, CCollisionPair)
+    ctypedef CPythonicCallbackResult[int] (*CythonCollisionHandler)(
+        const CPythonicCallbackWrapper&, CArbiter,
+        CCollisionPair, CCollisionPair
+    )
     CCollisionHandlerFunc bind_cython_collision_handler(
         const CythonCollisionHandler cy_handler,
         const CPythonicCallbackWrapper callback

@@ -5,7 +5,7 @@ from libc.stdint cimport int32_t, uint32_t
 
 from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
-from .glue cimport CPythonicCallbackWrapper
+from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
 cdef extern from "kaacore/input.h" nogil:
@@ -378,6 +378,7 @@ cdef extern from "kaacore/input.h" nogil:
 
     cdef cppclass CMouseMotionEvent "kaacore::MouseMotionEvent":
         CDVec2 position() except +raise_py_error
+        CDVec2 motion() except +raise_py_error
 
     cdef cppclass CMouseWheelEvent "kaacore::MouseWheelEvent":
         CDVec2 scroll() except +raise_py_error
@@ -429,6 +430,9 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_released(CMouseButton mb) except +raise_py_error
         CDVec2 get_position() except +raise_py_error
 
+        bint relative_mode()
+        void relative_mode(const bint rel)
+
     cdef cppclass CControllerManager "kaacore::InputManager::ControllerManager":
         bint is_connected(int32_t id_) except +raise_py_error
         bint is_pressed(CControllerButton cb, CControllerID id_) except +raise_py_error
@@ -454,7 +458,9 @@ cdef extern from "kaacore/input.h" nogil:
 
 
 cdef extern from "extra/include/pythonic_callback.h":
-    ctypedef int32_t (*CythonEventCallback)(CPythonicCallbackWrapper, const CEvent&)
+    ctypedef CPythonicCallbackResult[int32_t] (*CythonEventCallback)(
+        const CPythonicCallbackWrapper&, const CEvent&
+    )
     CythonEventCallback bind_cython_event_callback(
         const CythonEventCallback cy_handler,
         const CPythonicCallbackWrapper callback
