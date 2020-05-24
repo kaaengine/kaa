@@ -15,7 +15,8 @@ class TtlNode(BodyNode):
 
     def __init__(self, **kwargs):
         ttl = kwargs.pop('ttl')
-        Timer(ttl, self.delete).start()
+        self.ttl_timer = Timer(ttl, self.delete)
+        self.ttl_timer.start()
         super().__init__(**kwargs)
 
 

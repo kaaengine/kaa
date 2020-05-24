@@ -380,6 +380,8 @@ Instance properties:
 :class:`ShapeQueryResult` reference
 -----------------------------------
 
+.. class:: ShapeQueryResult
+
     ShapeQueryResult object is returned by the :meth:`SpaceNode.query_shape_overlaps()` method. A single query can
     return multiple ShapeQueryResult objects. A ShapeQueryResult has the following properties:
 
@@ -389,6 +391,8 @@ Instance properties:
 
 :class:`CollisionContactPoint` reference
 ----------------------------------------
+
+.. class:: CollisionContactPoint
 
     A CollisionContactPoint instance represents an actual point where collision between two shapes occurred. It has
     the following properties:

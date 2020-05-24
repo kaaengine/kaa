@@ -10,8 +10,7 @@ from libcpp.vector cimport vector
 from cymove cimport cymove as cmove
 
 from .kaacore.engine cimport CEngine, get_c_engine
-from .kaacore.glue cimport CPythonicCallbackWrapper
-from .kaacore.exceptions cimport c_wrap_python_exception
+from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .kaacore.input cimport (
     CKeycode, CMouseButton, CControllerButton, CControllerAxis,
     CCompoundControllerAxis, CEventType, CSystemEvent, CWindowEvent,
@@ -575,6 +574,12 @@ cdef class MouseMotionEvent(_BaseEvent):
         return Vector.from_c_vector(
             self.c_event.mouse_motion().position()
         )
+    
+    @property
+    def motion(self):
+        return Vector.from_c_vector(
+            self.c_event.mouse_motion().motion()
+        )
 
 
 @cython.final
@@ -804,6 +809,15 @@ cdef class KeyboardManager(_BaseInputManager):
 
 @cython.final
 cdef class MouseManager(_BaseInputManager):
+    @property
+    def relative_mode(self):
+        return self._get_c_input_manager().mouse.relative_mode()
+
+    @relative_mode.setter
+    def relative_mode(self, bint rel):
+        self._get_c_input_manager().mouse.relative_mode(rel)
+
+
     def is_pressed(self, mc not None):
         return self._get_c_input_manager().mouse.is_pressed(
             <CMouseButton>(<uint32_t>(mc.value))
@@ -869,18 +883,20 @@ cdef class ControllerManager(_BaseInputManager):
         )
 
 
-cdef int32_t cython_event_callback(
+cdef CPythonicCallbackResult[int32_t] cython_event_callback(
     const CPythonicCallbackWrapper& c_wrapper,
     const CEvent& c_event
-):
+) with gil:
+
     cdef:
         Event event = Event.create(c_event)
         object callback = <object>c_wrapper.py_callback
     try:
-        return 1 if callback(event) is True else 0
+        return CPythonicCallbackResult[int32_t](
+            1 if callback(event) is True else 0
+        )
     except Exception as py_exc:
-        c_wrap_python_exception(<PyObject*>py_exc)
-        return 0
+        return CPythonicCallbackResult[int32_t](<PyObject*>py_exc)
 
 
 @cython.final

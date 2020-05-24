@@ -103,6 +103,14 @@ cdef class Vector:
     def to_angle_degrees(self):
         return degrees(self.to_angle())
 
+    def angle_between(self, Vector other_vec):
+        return c_vector_oriented_angle(
+            self.c_vector, other_vec.c_vector
+        )
+
+    def angle_between_degrees(self, Vector other_vec):
+        return degrees(self.angle_between(other_vec))
+
     def dot(self, Vector other_vec):
         return c_vector_dot(self.c_vector, other_vec.c_vector)
 
