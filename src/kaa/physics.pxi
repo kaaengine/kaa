@@ -380,14 +380,14 @@ cdef class BodyNode(NodeBase):
     def force(self, Vector vec not None):
         self._get_c_node().body.force(vec.c_vector)
 
-    def apply_force_at(self, Vector force not None, Vector at not None):
+    def apply_force_at(self, Vector force not None, Vector at not None, bint local=True):
         self._get_c_node().body.apply_force_at(
-            force.c_vector, at.c_vector
+            force.c_vector, at.c_vector, local
         )
 
-    def apply_impulse_at(self, Vector force not None, Vector at not None):
+    def apply_impulse_at(self, Vector force not None, Vector at not None, bint local=True):
         self._get_c_node().body.apply_impulse_at(
-            force.c_vector, at.c_vector
+            force.c_vector, at.c_vector, local
         )
 
     @property
