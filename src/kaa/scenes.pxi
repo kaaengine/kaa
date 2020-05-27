@@ -32,7 +32,7 @@ cdef cppclass CPyScene(CScene):
     void on_enter() nogil:
         this._call_py_on_enter().unwrap_result()
 
-    void update(uint32_t dt) nogil:
+    void update(double dt) nogil:
         this._call_py_update(dt).unwrap_result()
 
     void on_exit() nogil:
@@ -42,7 +42,7 @@ cdef cppclass CPyScene(CScene):
         with gil:
             Py_DECREF(this.get_py_scene())
 
-    CPythonicCallbackResult[void] _call_py_update(uint32_t dt) with gil:
+    CPythonicCallbackResult[void] _call_py_update(double dt) with gil:
         try:
             this.get_py_scene().update(dt)
         except BaseException as exc:

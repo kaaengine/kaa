@@ -12,10 +12,10 @@ cdef extern from "kaacore/scenes.h" nogil:
         CViewsManager views
 
         CCamera& camera()
-        void process_frame(uint32_t dt)
+        void process_frame(double dt)
         void on_attach()
         void on_enter()
-        void update(uint32_t dt)
+        void update(double dt)
         void on_exit()
         void on_detach()
-        void process_nodes(uint32_t dt)
+        void process_nodes(double dt)
