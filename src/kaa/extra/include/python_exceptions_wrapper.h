@@ -23,9 +23,11 @@ struct PythonException : std::exception {
 
     ~PythonException()
     {
-        PyGILState_STATE gstate = PyGILState_Ensure();
-        Py_DECREF(this->py_exception);
-        PyGILState_Release(gstate);
+        if (this->py_exception != nullptr) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
+            Py_DECREF(this->py_exception);
+            PyGILState_Release(gstate);
+        }
     }
 
     PythonException(const PythonException& exc)
