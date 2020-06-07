@@ -159,6 +159,17 @@ Mouse manager can be accessed via the :ref:`InputManager.mouse <InputManager.mou
 The manager allows to check for the mouse buttons state (pressed/released). It also
 allows to get the mouse pointer position.
 
+Instance properties:
+
+.. attribute:: MouseManager.relative_mode
+
+    Gets or sets relative mode (as bool). Default is :code:`False`. Enabling relative mode has two effects: it
+    hides the mouse pointer and it makes mouse motion events (:class:`MouseMotionEvent`) be published all the time
+    (by default those events are published only if mouse moves within game's window). Disabling the relative mode
+    shows the mouse pointer and makes mouse motion events be published only if mouse movement occurs within the
+    window.
+
+
 Instance methods:
 
 .. method:: MouseManager.is_pressed(mousebutton)
@@ -572,7 +583,10 @@ Instance properties:
 
 .. class:: MouseMotionEvent
 
-Represents a mouse motion event (changing mouse pointer position)
+Represents a mouse motion event (changing mouse pointer position). By default those events are published when
+mouse pointer is within the window. You can enable the :code:`relative_mode` on the :class:`MouseManager` - it hides the
+mouse pointer and makes mouse motion events be published whenever the pointer is moved (inside or outside of the
+window).
 
     .. code-block:: python
 
@@ -587,13 +601,17 @@ Instance properties:
 
     Returns mouse pointer position as :class:`geometry.Vector`.
 
+.. attribute:: MouseButtonEvent.motion
+
+    Returns mouse pointer motion (difference between the current and previous position) as :class:`geometry.Vector`.
+
 
 :class:`MouseWheelEvent` reference
 -----------------------------------
 
 .. class:: MouseWheelEvent
 
-Represents a mouse wheel related event
+Represents a mouse wheel related event.
 
 Instance properties:
 
