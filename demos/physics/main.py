@@ -107,6 +107,7 @@ class MyScene(Scene):
             collision_mask=HitboxMask.all,
             shape=self.obj3.shape,
             visible=False,
+            elasticity=0.3,
         ))
         self.obj4 = self.space.add_child(BodyNode(
             position=Vector(0, -2),
@@ -119,6 +120,7 @@ class MyScene(Scene):
             collision_mask=HitboxMask.all,
             shape=self.obj4.shape,
             visible=False,
+            elasticity=0.6,
         ))
 
         self.space.set_collision_handler(CollisionTrigger.obj,

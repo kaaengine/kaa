@@ -413,6 +413,14 @@ cdef class HitboxNode(NodeBase):
             self.collision_mask = options.pop('collision_mask')
         if 'trigger_id' in options:
             self.trigger_id = options.pop('trigger_id')
+        if 'sensor' in options:
+            self.sensor = options.pop('sensor')
+        if 'elasticity' in options:
+            self.elasticity = options.pop('elasticity')
+        if 'friction' in options:
+            self.friction = options.pop('friction')
+        if 'surface_velocity' in options:
+            self.surface_velocity = options.pop('surface_velocity')
 
         return super().setup(**options)
 
@@ -447,3 +455,35 @@ cdef class HitboxNode(NodeBase):
     @trigger_id.setter
     def trigger_id(self, CollisionTriggerId id):
         self._get_c_node().hitbox.trigger_id(id)
+
+    @property
+    def sensor(self):
+        return self._get_c_node().hitbox.sensor()
+
+    @sensor.setter
+    def sensor(self, bool sensor_flag):
+        self._get_c_node().hitbox.sensor(sensor_flag)
+
+    @property
+    def elasticity(self):
+        return self._get_c_node().hitbox.elasticity()
+
+    @elasticity.setter
+    def elasticity(self, double value):
+        self._get_c_node().hitbox.elasticity(value)
+
+    @property
+    def friction(self):
+        return self._get_c_node().hitbox.friction()
+
+    @friction.setter
+    def friction(self, double value):
+        self._get_c_node().hitbox.friction(value)
+
+    @property
+    def surface_velocity(self):
+        return Vector.from_c_vector(self._get_c_node().hitbox.surface_velocity())
+
+    @surface_velocity.setter
+    def surface_velocity(self, Vector vec not None):
+        self._get_c_node().hitbox.surface_velocity(vec.c_vector)
