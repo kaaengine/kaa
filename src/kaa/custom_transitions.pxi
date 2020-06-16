@@ -1,4 +1,5 @@
 import cython
+from libc.stdint cimport uintptr_t
 from libcpp.memory cimport unique_ptr
 from cpython.ref cimport PyObject
 
@@ -57,19 +58,43 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
         this.internal_duration = duration
         this.warping = warping
 
-    unique_ptr[CTransitionStateBase] prepare_state(CNodePtr c_node_ptr) const:
-        cdef object state_object = (<object>this.prepare_func.py_callback)(get_node_wrapper(c_node_ptr))
+    unique_ptr[CTransitionStateBase] prepare_state(CNodePtr c_node_ptr) nogil const:
+        cdef CPyNodeCustomTransitionState* state_ptr = \
+                <CPyNodeCustomTransitionState*>this._py_prepare_state(c_node_ptr).unwrap_result()
+
         return <unique_ptr[CTransitionStateBase]> \
             unique_ptr[CPyNodeCustomTransitionState](
+                state_ptr
+            )
+
+    CPythonicCallbackResult[uintptr_t] _py_prepare_state(CNodePtr c_node_ptr) with gil const:
+        cdef object state_object
+        try:
+            state_object = (<object>this.prepare_func.py_callback)(get_node_wrapper(c_node_ptr))
+        except BaseException as exc:
+            return CPythonicCallbackResult[uintptr_t](<PyObject*>exc)
+        else:
+            return CPythonicCallbackResult[uintptr_t](
+                <uintptr_t>
                 new CPyNodeCustomTransitionState(state_object)
             )
 
-    void evaluate(CTransitionStateBase* state, CNodePtr c_node_ptr, const double t) const:
+    void evaluate(CTransitionStateBase* state, CNodePtr c_node_ptr, const double t) nogil const:
+        this._py_evaluate(state, c_node_ptr, t).unwrap_result()
+
+    CPythonicCallbackResult[void] _py_evaluate(
+        CTransitionStateBase* state, CNodePtr c_node_ptr, const double t
+    ) with gil const:
         cdef CPyNodeCustomTransitionState* custom_state = \
             <CPyNodeCustomTransitionState*>state
 
-        (<object>this.evaluate_func.py_callback)(custom_state.state_object,
-                                                 get_node_wrapper(c_node_ptr), t)
+        try:
+            (<object>this.evaluate_func.py_callback)(custom_state.state_object,
+                                                     get_node_wrapper(c_node_ptr), t)
+        except BaseException as exc:
+            return CPythonicCallbackResult[void](<PyObject*>exc)
+        else:
+            return CPythonicCallbackResult[void]()
 
 
 @cython.final
