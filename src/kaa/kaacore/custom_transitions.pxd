@@ -18,8 +18,8 @@ cdef extern from "kaacore/transitions.h":
         CNodeTransitionCustomizable(const double duration, const CTransitionWarping& warping) \
             except +raise_py_error
 
-        unique_ptr[CTransitionStateBase] prepare_state(CNodePtr node) const
-        void evaluate(CTransitionStateBase* state, CNodePtr node, const double t) const
+        unique_ptr[CTransitionStateBase] prepare_state(CNodePtr node) nogil const
+        void evaluate(CTransitionStateBase* state, CNodePtr node, const double t) nogil const
 
     ctypedef function[void(CNodePtr)] CNodeTransitionCallbackFunc "kaacore::NodeTransitionCallbackFunc";
 

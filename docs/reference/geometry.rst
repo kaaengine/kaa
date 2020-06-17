@@ -125,6 +125,16 @@ Instance Methods:
     Returns a distance from (x,y) to (other_vector.x, other_vector.y), in other words: distance between two points.
     other_vector parameter must be :class:`geometry.Vector`
 
+.. method:: Vector.angle_between(other_vector)
+
+    Returns angle between this vector and :code:`other_vector`, in radians. The other_vector parameter must
+    be :class:`geometry.Vector`
+
+.. method:: Vector.angle_between_degrees(other_vector)
+
+    Returns angle between this vector and :code:`other_vector`, in degrees. The other_vector parameter must
+    be :class:`geometry.Vector`
+
 .. method:: Vector.normalize()
 
     Returns a new vector, normalized (i.e. unit vector)

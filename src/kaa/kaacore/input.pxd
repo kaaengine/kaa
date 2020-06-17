@@ -430,8 +430,8 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_released(CMouseButton mb) except +raise_py_error
         CDVec2 get_position() except +raise_py_error
 
-        bint relative_mode()
-        void relative_mode(const bint rel)
+        bint relative_mode() except +raise_py_error
+        void relative_mode(const bint rel) except +raise_py_error
 
     cdef cppclass CControllerManager "kaacore::InputManager::ControllerManager":
         bint is_connected(int32_t id_) except +raise_py_error

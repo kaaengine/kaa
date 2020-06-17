@@ -63,6 +63,43 @@ cdef class Transformation:
                 (<Vector>scale).c_vector
             )
 
+    def __repr__(self):
+        return "<{}[{} {}, {} {}, {} {}]>".format(
+            self.__class__.__name__,
+            self.c_transformation.at(0, 0), self.c_transformation.at(0, 1),
+            self.c_transformation.at(1, 0), self.c_transformation.at(1, 1),
+            self.c_transformation.at(3, 0), self.c_transformation.at(3, 1),
+        )
+
+    def __eq__(self, Transformation other):
+        return self.c_transformation == other.c_transformation
+
+    def __or__(left, right):
+        """
+        Operator for joining transformations, which in fact is
+        a "reversed" matrix multiplication,
+        useful for a more user-friendly order of transformations.
+        `tmn1 | tmn2 | tmn3` is equivalent to `tmn3 @ tmn2 @ tmn1`
+        and `vec | tmn` is equivalent to `tmn @ vec`.
+        """
+
+        if not isinstance(right, Transformation):
+            return NotImplemented
+
+        if isinstance(left, Transformation):
+            return right._combine_with_transformation(left)
+        elif isinstance(left, Vector):
+            return right._combine_with_vector(left)
+
+    def __matmul__(left, right):
+        if not isinstance(left, Transformation):
+            return NotImplemented
+
+        if isinstance(right, Transformation):
+            return left._combine_with_transformation(right)
+        elif isinstance(right, Vector):
+            return left._combine_with_vector(right)
+
     @staticmethod
     cdef Transformation create(const CTransformation& c_transformation):
         cdef Transformation transformation = Transformation.__new__(Transformation)
@@ -80,14 +117,6 @@ cdef class Transformation:
     @staticmethod
     def rotate(double r):
         return Transformation.create(CTransformation.rotate(r))
-
-    def __repr__(self):
-        return "<{}[{} {}, {} {}, {} {}]>".format(
-            self.__class__.__name__,
-            self.c_transformation.at(0, 0), self.c_transformation.at(0, 1),
-            self.c_transformation.at(1, 0), self.c_transformation.at(1, 1),
-            self.c_transformation.at(3, 0), self.c_transformation.at(3, 1),
-        )
 
     @staticmethod
     def rotate_degrees(double r_deg):
@@ -108,23 +137,6 @@ cdef class Transformation:
         return Vector.from_c_vector(
             operand.c_vector | self.c_transformation
         )
-
-    def __or__(left, right):
-        """
-        Operator for joining transformations, which in fact is
-        a "reversed" matrix multiplication,
-        useful for a more user-friendly order of transformations.
-        `tmn1 | tmn2 | tmn3` is equivalent to `tmn3 @ tmn2 @ tmn1`
-        and `vec | tmn` is equivalent to `tmn @ vec`.
-        """
-
-        if isinstance(right, Transformation):
-            if isinstance(left, Transformation):
-                return right._combine_with_transformation(left)
-            elif isinstance(left, Vector):
-                return right._combine_with_vector(left)
-        return NotImplemented
-
 
 @cython.freelist(DECOMPOSED_TRANSFORMATION_FREELIST_SIZE)
 cdef class DecomposedTransformation:
