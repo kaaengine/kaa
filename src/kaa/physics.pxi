@@ -343,6 +343,8 @@ cdef class BodyNode(NodeBase):
             self.body_type = options.pop('body_type')
         if 'force' in options:
             self.force = options.pop('force')
+        if 'local_force' in options:
+            self.local_force = options.pop('local_force')
         if 'velocity' in options:
             self.velocity = options.pop('velocity')
         if 'torque' in options:
@@ -373,6 +375,14 @@ cdef class BodyNode(NodeBase):
         self._get_c_node().body.body_type(<CBodyNodeType>(<uint8_t>body_t.value))
 
     @property
+    def local_force(self):
+        return Vector.from_c_vector(self._get_c_node().body.local_force())
+
+    @local_force.setter
+    def local_force(self, Vector vec not None):
+        self._get_c_node().body.local_force(vec.c_vector)
+
+    @property
     def force(self):
         return Vector.from_c_vector(self._get_c_node().body.force())
 
@@ -380,14 +390,25 @@ cdef class BodyNode(NodeBase):
     def force(self, Vector vec not None):
         self._get_c_node().body.force(vec.c_vector)
 
-    def apply_force_at(self, Vector force not None, Vector at not None, bint local=True):
-        self._get_c_node().body.apply_force_at(
-            force.c_vector, at.c_vector, local
+    def apply_force_at_local(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_force_at_local(
+            force.c_vector, at.c_vector
         )
 
-    def apply_impulse_at(self, Vector force not None, Vector at not None, bint local=True):
+    def apply_impulse_at_local(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_impulse_at_local(
+            force.c_vector, at.c_vector
+        )
+
+
+    def apply_force_at(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_force_at(
+            force.c_vector, at.c_vector
+        )
+
+    def apply_impulse_at(self, Vector force not None, Vector at not None):
         self._get_c_node().body.apply_impulse_at(
-            force.c_vector, at.c_vector, local
+            force.c_vector, at.c_vector
         )
 
     @property

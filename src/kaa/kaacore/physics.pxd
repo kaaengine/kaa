@@ -96,10 +96,14 @@ cdef extern from "kaacore/physics.h" nogil:
         void velocity(const CDVec2& velocity) except +raise_py_error
         CDVec2 velocity() except +raise_py_error
 
+        void local_force(const CDVec2& force) except +raise_py_error
+        CDVec2 local_force() except +raise_py_error
         void force(const CDVec2& force) except +raise_py_error
         CDVec2 force() except +raise_py_error
-        void apply_force_at(const CDVec2& force, const CDVec2& at, bint local) except +raise_py_error
-        void apply_impulse_at(const CDVec2& force, const CDVec2& at, bint local) except +raise_py_error
+        void apply_force_at_local(const CDVec2& force, const CDVec2& at) except +raise_py_error
+        void apply_impulse_at_local(const CDVec2& impulse, const CDVec2& at) except +raise_py_error
+        void apply_force_at(const CDVec2& force, const CDVec2& at) except +raise_py_error
+        void apply_impulse_at(const CDVec2& impulse, const CDVec2& at) except +raise_py_error
 
         void torque(const double torque) except +raise_py_error
         double torque() except +raise_py_error
