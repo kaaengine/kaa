@@ -208,7 +208,7 @@ VelocityUpdateCallback bind_cython_update_velocity_callback(
 {
     return [cy_handler, callback{std::move(callback)}]
         (Node* node, glm::dvec2 gravity, double damping, double dt) -> void {
-            return cy_handler(callback, node, gravity, damping, dt).unwrap_result();
+            cy_handler(callback, node, gravity, damping, dt).unwrap_result();
     };
 }
 
@@ -219,6 +219,6 @@ PositionUpdateCallback bind_cython_update_position_callback(
 )
 {
     return [cy_handler, callback{std::move(callback)}](Node* node, double dt) -> void {
-        return cy_handler(callback, node, dt).unwrap_result();
+        cy_handler(callback, node, dt).unwrap_result();
     };
 }
