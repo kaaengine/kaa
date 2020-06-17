@@ -111,6 +111,18 @@ cdef extern from "kaacore/physics.h" nogil:
         void collision_mask(const CollisionBitmask& mask) except +raise_py_error
         CollisionBitmask collision_mask() except +raise_py_error
 
+        void sensor(const bool sensor) except +raise_py_error
+        bool sensor() except +raise_py_error
+
+        void elasticity(const double elasticity) except +raise_py_error
+        double elasticity() except +raise_py_error
+
+        void friction(const double friction) except +raise_py_error
+        double friction() except +raise_py_error
+
+        void surface_velocity(const CDVec2 surface_velocity) except +raise_py_error
+        CDVec2 surface_velocity() except +raise_py_error
+
 
 cdef extern from "extra/include/pythonic_callback.h":
     ctypedef CPythonicCallbackResult[int] (*CythonCollisionHandler)(
