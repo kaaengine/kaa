@@ -36,6 +36,22 @@ cdef class Timer:
     def is_running(self):
         return self._c_timer.is_running()
 
+    @property
+    def interval(self):
+        return self._c_timer.interval()
+
+    @interval.setter
+    def interval(self, uint32_t value):
+        self._c_timer.interval(value)
+
+    @property
+    def single_shot(self):
+        return self._c_timer.single_shot()
+
+    @single_shot.setter
+    def single_shot(self, bint value):
+        self._c_timer.single_shot(value)
+
     def start(self):
         self._c_timer.start()
 
