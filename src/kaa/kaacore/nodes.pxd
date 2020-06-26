@@ -110,4 +110,7 @@ cdef extern from "kaacore/nodes.h" nogil:
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
 
+        bool indexable() except +raise_py_error
+        void indexable(const bool indexable) except +raise_py_error
+
     CNodeOwnerPtr c_make_node "kaacore::make_node" (CNodeType) except +raise_py_error
