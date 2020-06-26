@@ -11,8 +11,8 @@ cdef extern from "kaacore/timers.h" nogil:
 
     cdef cppclass CTimer "kaacore::Timer":
         CTimer()
-        CTimer(const uint32_t interval,
-            const CTimerCallback callback, const bool single_shot
+        CTimer(const CTimerCallback callback, const uint32_t interval,
+            const bool single_shot
         )
 
         void start() except +raise_py_error

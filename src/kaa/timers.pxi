@@ -24,13 +24,13 @@ cdef class Timer:
     cdef CTimer _c_timer
 
     def __cinit__(
-        self, uint32_t interval, object callback not None,
-        bool single_shot=True
+        self, object callback not None, uint32_t interval=0,
+        bint single_shot=True
     ):
         cdef CTimerCallback bound_callback = bind_cython_timer_callback(
             cython_timer_callback, CPythonicCallbackWrapper(<PyObject*>callback),
         )
-        self._c_timer = CTimer(interval, bound_callback, single_shot)
+        self._c_timer = CTimer(bound_callback, interval, single_shot)
 
     @property
     def is_running(self):
