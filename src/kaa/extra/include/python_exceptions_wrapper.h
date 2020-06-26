@@ -15,8 +15,10 @@ struct PythonException : std::exception {
 
     PythonException(PyObject* py_exception)
     {
-        KAACORE_ASSERT(py_exception != nullptr);
-        KAACORE_ASSERT(PyGILState_Check());
+        KAACORE_ASSERT(
+            py_exception != nullptr,
+            "Invalid exception object.");
+        KAACORE_ASSERT(PyGILState_Check(), "GIL not held.");
         this->py_exception = py_exception;
         Py_INCREF(this->py_exception);
     }
