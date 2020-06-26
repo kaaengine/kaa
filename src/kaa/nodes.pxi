@@ -110,6 +110,8 @@ cdef class NodeBase:
             self.transition = options.pop('transition')
         if 'views' in options:
             self.views = options.pop('views')
+        if 'indexable' in options:
+            self.indexable = options.pop('indexable')
 
         if options:
             raise ValueError('Passed unknown options to {}: {}'.format(
@@ -320,6 +322,14 @@ cdef class NodeBase:
     @property
     def transitions_manager(self):
         return _NodeTransitionsManager.create(self._c_node_ptr)
+
+    @property
+    def indexable(self):
+        return self._get_c_node().indexable()
+
+    @indexable.setter
+    def indexable(self, bool value):
+        self._get_c_node().indexable(value)
 
 
 cdef class Node(NodeBase):
