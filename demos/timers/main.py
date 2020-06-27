@@ -15,7 +15,7 @@ class TtlNode(BodyNode):
 
     def __init__(self, **kwargs):
         ttl = kwargs.pop('ttl')
-        self.ttl_timer = Timer(ttl, self.delete)
+        self.ttl_timer = Timer(self.delete, ttl)
         self.ttl_timer.start()
         super().__init__(**kwargs)
 
@@ -28,7 +28,7 @@ class MainScene(Scene):
             SpaceNode(position=Vector(0, 0))
         )
         self.python_image = Sprite(PYTHON_IMAGE_PATH)
-        self.timer = Timer(200, self.spawn, single_shot=False)
+        self.timer = Timer(self.spawn, 200, single_shot=False)
         self.timer.start()
         self.spawn()
 

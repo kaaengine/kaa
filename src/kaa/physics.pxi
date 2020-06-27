@@ -400,7 +400,6 @@ cdef class BodyNode(NodeBase):
             force.c_vector, at.c_vector
         )
 
-
     def apply_force_at(self, Vector force not None, Vector at not None):
         self._get_c_node().body.apply_force_at(
             force.c_vector, at.c_vector
