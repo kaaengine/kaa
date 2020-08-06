@@ -35,10 +35,11 @@ cdef class NodeTransitionBase:
 
     cdef void _validate_options(self, dict options, bool can_use_easings) except *:
         for k in options:
-            assert (
-                k in ('loops', 'back_and_forth')
+            if not (
+                k in {'loops', 'back_and_forth'}
                 or (can_use_easings and k == 'easing')
-            ), "Unrecognized transition option: {}".format(k)
+            ):
+                raise TypeError("Unrecognized transition option: {}".format(k))
 
     cdef CTransitionWarping _prepare_warping(self, dict options) except *:
         return CTransitionWarping(
