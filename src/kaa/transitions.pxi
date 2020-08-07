@@ -18,6 +18,7 @@ from .kaacore.transitions cimport (
     make_node_transitions_parallel
 )
 from .kaacore.nodes cimport CNodePtr
+from .kaacore.easings cimport CEasing
 
 
 class AttributeTransitionMethod(IntEnum):
@@ -32,16 +33,22 @@ cdef class NodeTransitionBase:
     cdef void _setup_handle(self, const CNodeTransitionHandle& handle):
         self.c_handle = handle
 
-    cdef CTransitionWarping _prepare_warping(self, dict warping_options) except *:
-        for k in warping_options:
-            assert k in ('loops', 'back_and_forth'), \
-                "Unrecognized transition option: {}".format(k)
+    cdef void _validate_options(self, dict options, bool can_use_easings) except *:
+        for k in options:
+            if not (
+                k in {'loops', 'back_and_forth'}
+                or (can_use_easings and k == 'easing')
+            ):
+                raise TypeError("Unrecognized transition option: {}".format(k))
 
+    cdef CTransitionWarping _prepare_warping(self, dict options) except *:
         return CTransitionWarping(
-            warping_options.get('loops', 1),
-            warping_options.get('back_and_forth', False),
-            # TODO easing
+            options.get('loops', 1),
+            options.get('back_and_forth', False),
         )
+
+    cdef CEasing _prepare_easing(self, dict options) except *:
+        return <CEasing>(<uint8_t>options.get('easing', Easing.none))
 
 
 cdef class UnknownTransition(NodeTransitionBase):
@@ -53,14 +60,16 @@ cdef class UnknownTransition(NodeTransitionBase):
 cdef class NodePositionTransition(NodeTransitionBase):
     def __init__(self, Vector value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CNodePositionTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -69,14 +78,16 @@ cdef class NodePositionTransition(NodeTransitionBase):
 cdef class NodeRotationTransition(NodeTransitionBase):
     def __init__(self, double value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CNodeRotationTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -85,14 +96,16 @@ cdef class NodeRotationTransition(NodeTransitionBase):
 cdef class NodeScaleTransition(NodeTransitionBase):
     def __init__(self, Vector value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CNodeScaleTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -101,14 +114,16 @@ cdef class NodeScaleTransition(NodeTransitionBase):
 cdef class NodeColorTransition(NodeTransitionBase):
     def __init__(self, Color value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CNodeColorTransition](
                 value_advance.c_color,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -117,14 +132,16 @@ cdef class NodeColorTransition(NodeTransitionBase):
 cdef class BodyNodeVelocityTransition(NodeTransitionBase):
     def __init__(self, Vector value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CBodyNodeVelocityTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -133,14 +150,16 @@ cdef class BodyNodeVelocityTransition(NodeTransitionBase):
 cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
     def __init__(self, double value_advance, double duration, *,
                  advance_method=AttributeTransitionMethod.set,
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CBodyNodeAngularVelocityTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -148,7 +167,7 @@ cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
 @cython.final
 cdef class NodeSpriteTransition(NodeTransitionBase):
     def __init__(self, list sprites, double duration, *,
-                 **warping_options,
+                 **options,
     ):
         cdef vector[CSprite] c_sprites_vector
         cdef Sprite sprite
@@ -156,11 +175,13 @@ cdef class NodeSpriteTransition(NodeTransitionBase):
         for sprite in sprites:
             c_sprites_vector.push_back(sprite.c_sprite)
 
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CNodeSpriteTransition](
                 cmove(c_sprites_vector),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )
 
@@ -196,7 +217,7 @@ cdef class NodeTransitionDelay(NodeTransitionBase):
 @cython.final
 cdef class NodeTransitionsSequence(NodeTransitionBase):
     def __init__(self, list sub_transitions,
-                 **warping_options,
+                 **options,
     ):
         cdef vector[CNodeTransitionHandle] c_sub_transitions
         c_sub_transitions.reserve(len(sub_transitions))
@@ -205,10 +226,11 @@ cdef class NodeTransitionsSequence(NodeTransitionBase):
         for sub_tr in sub_transitions:
             c_sub_transitions.push_back(sub_tr.c_handle)
 
+        self._validate_options(options, can_use_easings=False)
         self._setup_handle(
             make_node_transitions_sequence(
                 c_sub_transitions,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
             )
         )
 
@@ -216,7 +238,7 @@ cdef class NodeTransitionsSequence(NodeTransitionBase):
 @cython.final
 cdef class NodeTransitionsParallel(NodeTransitionBase):
     def __init__(self, list sub_transitions,
-                 **warping_options,
+                 **options,
     ):
         cdef vector[CNodeTransitionHandle] c_sub_transitions
         c_sub_transitions.reserve(len(sub_transitions))
@@ -225,10 +247,11 @@ cdef class NodeTransitionsParallel(NodeTransitionBase):
         for sub_tr in sub_transitions:
             c_sub_transitions.push_back(sub_tr.c_handle)
 
+        self._validate_options(options, can_use_easings=False)
         self._setup_handle(
             make_node_transitions_parallel(
                 c_sub_transitions,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
             )
         )
 

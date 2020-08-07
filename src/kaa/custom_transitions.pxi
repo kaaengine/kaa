@@ -51,12 +51,14 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
 
     __init__(const CPythonicCallbackWrapper& prepare_func,
              const CPythonicCallbackWrapper& evaluate_func,
-             const double duration, const CTransitionWarping& warping):
+             const double duration, const CTransitionWarping& warping,
+             const CEasing easing):
         this.prepare_func = prepare_func
         this.evaluate_func = evaluate_func
         this.duration = duration * warping.duration_factor()
         this.internal_duration = duration
         this.warping = warping
+        this._easing = easing
 
     unique_ptr[CTransitionStateBase] prepare_state(CNodePtr c_node_ptr) nogil const:
         cdef CPyNodeCustomTransitionState* state_ptr = \
@@ -100,14 +102,16 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
 @cython.final
 cdef class NodeCustomTransition(NodeTransitionBase):
     def __init__(self, prepare_func, evaluate_func, double duration
-                 **warping_options,
+                 **options,
      ):
+        self._validate_options(options, can_use_easings=True)
         self._setup_handle(
             make_node_transition[CPyNodeCustomTransition](
                 # TODO smart weak-ptr wrapping of callbacks
                 CPythonicCallbackWrapper(<PyObject*>prepare_func),
                 CPythonicCallbackWrapper(<PyObject*>evaluate_func),
                 duration,
-                self._prepare_warping(warping_options),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
             )
         )

@@ -7,6 +7,7 @@ cimport cython.parallel
 include "exceptions.pxi"
 include "log.pxi"
 include "vectors.pxi"
+include "easings.pxi"
 include "colors.pxi"
 include "geometry.pxi"
 include "input.pxi"
