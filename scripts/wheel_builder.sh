@@ -25,7 +25,7 @@ python -c 'import versioneer; versioneer.write_to_version_file("_build_version.p
 
 for PY_VERSION in ${TARGETS}
 do
-    sudo docker run -i -t -v `pwd`:/host "${DOCKER_IMAGE}" \
+    sudo docker run --rm -it -v `pwd`:/host "${DOCKER_IMAGE}" \
         /bin/bash /host/scripts/docker_wheel_builder.sh ${PY_VERSION}
 done
 
