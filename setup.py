@@ -1,4 +1,5 @@
 import os
+import re
 import setuptools
 
 import versioneer
@@ -14,9 +15,10 @@ KAA_SETUP_CMAKE_SOURCE = os.environ.get('KAA_SETUP_CMAKE_SOURCE', '')
 
 
 def _filter_cmake_manifest(cmake_manifest):
+    pattern = r'^_skbuild/.+(/src/kaa/.+)|(/bin/shaderc)$'
     return [
         path for path in cmake_manifest
-        if path.endswith('/bin/shaderc')
+        if re.match(pattern, path)
     ]
 
 setup(
