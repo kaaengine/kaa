@@ -12,6 +12,13 @@ with open(readme_path, 'rb') as fh:
 
 KAA_SETUP_CMAKE_SOURCE = os.environ.get('KAA_SETUP_CMAKE_SOURCE', '')
 
+
+def _filter_cmake_manifest(cmake_manifest):
+    return [
+        path for path in cmake_manifest
+        if path.endswith('/bin/shaderc')
+    ]
+
 setup(
     name="kaaengine",
     author="labuzm, maniek2332",
@@ -42,9 +49,6 @@ setup(
         "Documentation": 'https://kaa.readthedocs.io/en/latest/',
         "Source Code": 'https://github.com/kaaengine/kaa/',
     },
-    include_package_data=False,
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
-    cmake_args=[
-        '-DKAA_INSTALL_KAACORE:BOOL=OFF',
-    ],
+    cmake_process_manifest_hook=_filter_cmake_manifest
 )
