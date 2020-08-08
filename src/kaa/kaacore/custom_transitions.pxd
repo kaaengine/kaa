@@ -3,6 +3,7 @@ from libcpp.functional cimport function
 
 from .nodes cimport CNodePtr
 from .transitions cimport CTransitionStateBase, CTransitionWarping
+from .easings cimport CEasing
 from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .exceptions cimport raise_py_error
 
@@ -12,6 +13,7 @@ cdef extern from "kaacore/transitions.h":
         double duration
         double internal_duration
         CTransitionWarping warping
+        CEasing _easing
 
         CNodeTransitionCustomizable() \
             except +raise_py_error

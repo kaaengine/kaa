@@ -14,6 +14,7 @@ from kaa.transitions import (
     NodeColorTransition, NodeCustomTransition, BodyNodeVelocityTransition,
     NodeTransitionDelay, NodeTransitionCallback, NodeSpriteTransition,
 )
+from kaa.easings import Easing
 
 
 PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
@@ -28,9 +29,11 @@ class DemoTransitionsScene(Scene):
         self.transition = NodeTransitionsSequence([
             NodePositionTransition(Vector(-100., -100.), 3000.,
                                    advance_method=AttributeTransitionMethod.add,
-                                   loops=3),
+                                   loops=3,
+                                   easing=Easing.elastic_in_out),
             NodePositionTransition(Vector(100., 0.), 3000.,
-                                   advance_method=AttributeTransitionMethod.add),
+                                   advance_method=AttributeTransitionMethod.add,
+                                   easing=Easing.back_in_out),
             NodeTransitionDelay(1500.),
             NodeTransitionCallback(
                 lambda node: setattr(node, 'sprite', None)
@@ -62,6 +65,7 @@ class DemoTransitionsScene(Scene):
         )
         self.sprite_transition = NodeSpriteTransition(
             spritesheet_frames, 1000., loops=0, back_and_forth=True,
+            easing=Easing.quartic_out,
         )
 
         self.space = self.root.add_child(
