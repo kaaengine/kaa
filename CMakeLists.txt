@@ -25,4 +25,12 @@ set_target_properties(
     INTERFACE_LINK_LIBRARIES "${SDL2_LINK_LIBRARIES}"
 )
 
+# apply stripping to shaderc binary to reduce it's size
+if (
+    CMAKE_CXX_COMPILER_ID MATCHES "Clang"
+    OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
+)
+    target_link_options(shaderc PRIVATE -s)
+endif()
+
 add_subdirectory(src/kaa)

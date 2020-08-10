@@ -1,5 +1,4 @@
 import os
-import re
 import setuptools
 
 import versioneer
@@ -12,14 +11,6 @@ with open(readme_path, 'rb') as fh:
 
 
 KAA_SETUP_CMAKE_SOURCE = os.environ.get('KAA_SETUP_CMAKE_SOURCE', '')
-
-
-def _filter_cmake_manifest(cmake_manifest):
-    pattern = r'^_skbuild/.+(?:(/src/kaa/.+)|(/bin/shaderc))$'
-    return [
-        path for path in cmake_manifest
-        if re.match(pattern, path)
-    ]
 
 setup(
     name="kaaengine",
@@ -52,5 +43,8 @@ setup(
         "Source Code": 'https://github.com/kaaengine/kaa/',
     },
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
-    cmake_process_manifest_hook=_filter_cmake_manifest
+    include_package_data=True,
+    cmake_args=[
+        '-DKAA_INSTALL_KAACORE:BOOL=OFF',
+    ],
 )

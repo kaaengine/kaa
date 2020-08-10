@@ -81,6 +81,8 @@ target_include_directories(
 )
 
 target_link_libraries(_kaa kaacore)
+add_dependencies(_kaa shaderc)
+
 target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
 
 set_target_properties(_kaa PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -91,3 +93,6 @@ if (KAA_BUNDLE_SDL)
     install(TARGETS SDL2 LIBRARY DESTINATION src/kaa
                          RUNTIME DESTINATION src/kaa)
 endif()
+
+install(TARGETS shaderc LIBRARY DESTINATION bin
+                        RUNTIME DESTINATION bin)
