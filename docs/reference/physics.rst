@@ -103,7 +103,7 @@ Instance methods:
         enemy_hitbox = HitboxNode(shape=Circle(radius=10), trigger_id=456, ...... )  # 456 is our own value we give to all enemy hitboxes
 
         # collision handler function:
-        def on_collision_bullet_enemy(self, arbiter, bullet_pair, enemy_pair):
+        def on_collision_bullet_enemy(arbiter, bullet_pair, enemy_pair):
             print("Detected a collision between a bullet object's {} hitbox {} and Enemy's object {} hitbox {}".format(
                 bullet_pair.body, bullet_pair.hitbox, enemy_pair.body, enemy_pair.hitbox))
             # ... write code to handle the collision effects ....
