@@ -19,6 +19,7 @@ cdef CPythonicCallbackResult[void] cython_timer_callback(
     return CPythonicCallbackResult[void]()
 
 
+@cython.final
 @cython.freelist(TIMER_FREELIST_SIZE)
 cdef class Timer:
     cdef CTimer _c_timer
