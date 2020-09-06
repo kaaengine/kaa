@@ -5,7 +5,7 @@ from libcpp.memory cimport unique_ptr
 from libcpp.unordered_set cimport unordered_set
 
 from .vectors cimport CDVec2, CColor
-from .geometry cimport CAlignment, CTransformation
+from .geometry cimport CAlignment, CTransformation, CBoundingBox
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
@@ -112,5 +112,7 @@ cdef extern from "kaacore/nodes.h" nogil:
 
         bool indexable() except +raise_py_error
         void indexable(const bool indexable) except +raise_py_error
+
+        CBoundingBox bounding_box() except +raise_py_error
 
     CNodeOwnerPtr c_make_node "kaacore::make_node" (CNodeType) except +raise_py_error

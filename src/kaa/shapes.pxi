@@ -25,6 +25,10 @@ cdef class ShapeBase:
             self.c_shape_ptr[0].transform(transformation.c_transformation)
         )
 
+    @property
+    def bounding_box(self):
+        return BoundingBox.create(self.c_shape_ptr[0].bounding_box())
+
     def __eq__(self, ShapeBase other):
         return self.c_shape_ptr[0] == other.c_shape_ptr[0]
 
