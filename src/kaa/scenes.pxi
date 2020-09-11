@@ -71,6 +71,7 @@ cdef class Scene:
         Node _root_node_wrapper
         InputManager input_
         readonly _ViewsManager views
+        readonly _SpatialIndexManager spatial_index
 
     def __cinit__(self):
         if not is_c_engine_initialized():
@@ -86,6 +87,7 @@ cdef class Scene:
         self._c_scene = unique_ptr[CPyScene](c_scene)
 
         self.views = _ViewsManager.create(self)
+        self.spatial_index = _SpatialIndexManager.create(self)
         self._root_node_wrapper = get_node_wrapper(
             CNodePtr(&self._c_scene.get().root_node)
         )
