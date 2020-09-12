@@ -9,12 +9,14 @@ from .kaacore.math cimport radians, degrees
 from .kaacore.vectors cimport CDVec2
 from .kaacore.geometry cimport (
     CPolygonType, CAlignment, CTransformation, CDecomposedTransformation,
-    c_classify_polygon
+    CBoundingBox, c_classify_polygon
 )
+from .kaacore.hashing cimport c_calculate_hash
 
 
 DEF TRANSFORMATION_FREELIST_SIZE = 32
 DEF DECOMPOSED_TRANSFORMATION_FREELIST_SIZE = 32
+DEF BOUNDING_BOX_FREELIST_SIZE = 32
 
 
 class PolygonType(IntEnum):
@@ -185,3 +187,99 @@ def classify_polygon(points):
     for pt in points:
         c_points.push_back((<Vector>pt).c_vector)
     return PolygonType(<uint32_t>c_classify_polygon(c_points))
+
+
+@cython.freelist(BOUNDING_BOX_FREELIST_SIZE)
+cdef class BoundingBox:
+    cdef CBoundingBox c_bounding_box
+
+    def __init__(self, double min_x, double min_y, double max_x, double max_y):
+        self.c_bounding_box = CBoundingBox(min_x, min_y, max_x, max_y)
+
+    @staticmethod
+    cdef BoundingBox create(const CBoundingBox& c_bounding_box):
+        cdef BoundingBox bounding_box = BoundingBox.__new__(BoundingBox)
+        bounding_box.c_bounding_box = c_bounding_box
+        return bounding_box
+
+    def __repr__(self):
+        return (
+            "BoundingBox(min_x={min_x}, min_y={min_y}, "
+            "max_x={max_x}, max_y={max_y})"
+        ).format(
+            min_x=self.min_x, min_y=self.min_y,
+            max_x=self.max_x, max_y=self.max_y,
+        )
+
+    def __eq__(self, BoundingBox other):
+        return self.c_bounding_box == other.c_bounding_box
+
+    def __hash__(self):
+        return c_calculate_hash[CBoundingBox](self.c_bounding_box)
+
+    @staticmethod
+    def single_point(Vector point not None):
+        return BoundingBox.create(
+            CBoundingBox.single_point(point.c_vector)
+        )
+
+    @staticmethod
+    def from_points(list points):
+        cdef vector[CDVec2] c_points
+        c_points.reserve(len(points))
+        for v in points:
+            c_points.push_back((<Vector>v).c_vector)
+        return BoundingBox.create(
+            CBoundingBox.from_points(c_points)
+        )
+
+    @property
+    def min_x(self):
+        return self.c_bounding_box.min_x
+
+    @property
+    def max_x(self):
+        return self.c_bounding_box.max_x
+
+    @property
+    def min_y(self):
+        return self.c_bounding_box.min_y
+
+    @property
+    def max_y(self):
+        return self.c_bounding_box.max_y
+
+    @property
+    def is_nan(self):
+        return <bool>(self.c_bounding_box.is_nan())
+
+    def merge(self, BoundingBox bounding_box not None):
+        return BoundingBox.create(
+            self.c_bounding_box.merge(bounding_box.c_bounding_box)
+        )
+
+    def contains(self, Vector point not None):
+        return self.c_bounding_box.contains(point.c_vector)
+
+    def contains(self, BoundingBox bounding_box not None):
+        return self.c_bounding_box.contains(bounding_box.c_bounding_box)
+
+    def intersects(self, BoundingBox bounding_box not None):
+        return self.c_bounding_box.intersects(bounding_box.c_bounding_box)
+
+    def grow(self, Vector vector not None):
+        return BoundingBox.create(
+            self.c_bounding_box.grow(vector.c_vector)
+        )
+
+    @property
+    def center(self):
+        return Vector.from_c_vector(
+            self.c_bounding_box.center()
+        )
+
+    @property
+    def dimensions(self):
+        return Vector.from_c_vector(
+            self.c_bounding_box.dimensions()
+        )

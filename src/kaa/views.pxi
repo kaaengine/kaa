@@ -201,3 +201,7 @@ cdef class _Camera(_SceneResource):
         return Vector.from_c_vector(
             self._get_c_camera().unproject_position(position.c_vector)
         )
+
+    @property
+    def visible_area_bounding_box(self):
+        return BoundingBox.create(self._get_c_camera().visible_area_bounding_box())

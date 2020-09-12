@@ -9,6 +9,7 @@ set(CYTHON_FILES
     nodes.pxi
     physics.pxi
     scenes.pxi
+    views.pxi
     vectors.pxi
     colors.pxi
     shapes.pxi

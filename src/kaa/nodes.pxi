@@ -331,6 +331,10 @@ cdef class NodeBase:
     def indexable(self, bool value):
         self._get_c_node().indexable(value)
 
+    @property
+    def bounding_box(self):
+        return BoundingBox.create(self._get_c_node().bounding_box())
+
 
 cdef class Node(NodeBase):
     def __init__(self, **options):
