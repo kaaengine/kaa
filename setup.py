@@ -42,8 +42,8 @@ setup(
         "Documentation": 'https://kaa.readthedocs.io/en/latest/',
         "Source Code": 'https://github.com/kaaengine/kaa/',
     },
-    include_package_data=False,
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
+    include_package_data=True,
     cmake_args=[
         '-DKAA_INSTALL_KAACORE:BOOL=OFF',
     ],

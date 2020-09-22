@@ -1,4 +1,5 @@
 from libcpp.vector cimport vector
+from libcpp cimport bool
 
 from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
@@ -29,6 +30,7 @@ cdef extern from "kaacore/geometry.h" nogil:
 
     cdef cppclass CTransformation "kaacore::Transformation":
         CTransformation()
+        bint operator==(const CTransformation&)
 
         @staticmethod
         CTransformation translate(const CDVec2&) except +raise_py_error
@@ -49,3 +51,29 @@ cdef extern from "kaacore/geometry.h" nogil:
 
     CPolygonType c_classify_polygon "kaacore::classify_polygon"(const vector[CDVec2]& points) \
         except +raise_py_error
+
+    cdef cppclass CBoundingBox "kaacore::BoundingBox<double>":
+        double min_x
+        double min_y
+        double max_x
+        double max_y
+
+        CBoundingBox()
+        CBoundingBox(double min_x, double min_y, double max_x, double max_y)
+
+        bool operator==(const CBoundingBox&)
+
+        bool is_nan()
+        CBoundingBox merge(const CBoundingBox& other)
+        bool contains(const CDVec2 vector)
+        bool contains(const CBoundingBox& bbox)
+        bool intersects(const CBoundingBox& bbox)
+        CBoundingBox grow(const CDVec2 vector)
+        CDVec2 center()
+        CDVec2 dimensions()
+
+        @staticmethod
+        CBoundingBox single_point(const CDVec2 point)
+
+        @staticmethod
+        CBoundingBox from_points(const vector[CDVec2]& points)

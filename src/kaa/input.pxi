@@ -883,7 +883,7 @@ cdef class ControllerManager(_BaseInputManager):
         )
 
 
-cdef CPythonicCallbackResult[int32_t] c_event_handler(
+cdef CPythonicCallbackResult[int32_t] cython_event_callback(
     const CPythonicCallbackWrapper& c_wrapper,
     const CEvent& c_event
 ) with gil:
@@ -944,7 +944,7 @@ cdef class InputManager(_BaseInputManager):
             )
 
         cdef CEventCallback bound_callback = bind_cython_event_callback(
-            c_event_handler,
+            cython_event_callback,
             CPythonicCallbackWrapper(<PyObject*>callback)
         )
         self._get_c_input_manager().register_callback(

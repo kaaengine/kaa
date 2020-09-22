@@ -198,3 +198,27 @@ EventCallback bind_cython_event_callback(
         return cy_handler(callback, event).unwrap_result();
     };
 }
+
+typedef PythonicCallbackResult<void> (*CythonVelocityUpdateCallback)(const PythonicCallbackWrapper&,
+    Node*, glm::dvec2, double, double);
+
+VelocityUpdateCallback bind_cython_update_velocity_callback(
+    const CythonVelocityUpdateCallback cy_handler, PythonicCallbackWrapper callback
+)
+{
+    return [cy_handler, callback{std::move(callback)}]
+        (Node* node, glm::dvec2 gravity, double damping, double dt) -> void {
+            cy_handler(callback, node, gravity, damping, dt).unwrap_result();
+    };
+}
+
+typedef PythonicCallbackResult<void> (*CythonPositionUpdateCallback)(const PythonicCallbackWrapper&, Node*, double);
+
+PositionUpdateCallback bind_cython_update_position_callback(
+    const CythonPositionUpdateCallback cy_handler, PythonicCallbackWrapper callback
+)
+{
+    return [cy_handler, callback{std::move(callback)}](Node* node, double dt) -> void {
+        cy_handler(callback, node, dt).unwrap_result();
+    };
+}

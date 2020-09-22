@@ -2,7 +2,7 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 from .vectors cimport CDVec2
-from .geometry cimport CTransformation
+from .geometry cimport CTransformation, CBoundingBox
 from .exceptions cimport raise_py_error
 
 
@@ -42,3 +42,5 @@ cdef extern from "kaacore/shapes.h" nogil:
 
         CShape transform(const CTransformation& transformation) \
             except +raise_py_error
+
+        CBoundingBox bounding_box() except +raise_py_error

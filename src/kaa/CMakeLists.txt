@@ -9,6 +9,7 @@ set(CYTHON_FILES
     nodes.pxi
     physics.pxi
     scenes.pxi
+    views.pxi
     vectors.pxi
     colors.pxi
     shapes.pxi
@@ -24,6 +25,7 @@ set(CYTHON_FILES
     transitions.pxi
     custom_transitions.pxi
     log.pxi
+    easings.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -47,6 +49,7 @@ set(CYTHON_FILES
     kaacore/custom_transitions.pxd
     kaacore/log.pxd
     kaacore/hashing.pxd
+    kaacore/easings.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
@@ -79,6 +82,8 @@ target_include_directories(
 )
 
 target_link_libraries(_kaa kaacore)
+add_dependencies(_kaa shaderc)
+
 target_compile_definitions(_kaa PUBLIC GLM_ENABLE_EXPERIMENTAL)
 
 set_target_properties(_kaa PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -89,3 +94,6 @@ if (KAA_BUNDLE_SDL)
     install(TARGETS SDL2 LIBRARY DESTINATION src/kaa
                          RUNTIME DESTINATION src/kaa)
 endif()
+
+install(TARGETS shaderc LIBRARY DESTINATION bin
+                        RUNTIME DESTINATION bin)

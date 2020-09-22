@@ -12,7 +12,6 @@ cdef extern from "kaacore/views.h" nogil:
     cdef cppclass CView "kaacore::View":
         CCamera camera
 
-        uint16_t index()
         int16_t z_index()
         CIVec2 origin()
         void origin(const CIVec2& origin)

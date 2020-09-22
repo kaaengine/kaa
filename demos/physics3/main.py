@@ -79,7 +79,7 @@ class DemoScene(Scene):
             z_index=10,
         ))
 
-        self.spawn_timer = Timer(20, self._spawn_heartbeat,
+        self.spawn_timer = Timer(self._spawn_heartbeat, 20,
                                  single_shot=False)
         self.spawn_timer.start()
 

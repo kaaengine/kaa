@@ -10,12 +10,13 @@ from libcpp.vector cimport vector
 from .kaacore.nodes cimport CNode, CNodeType
 from .kaacore.physics cimport (
     CollisionTriggerId, CCollisionPhase, CArbiter, CCollisionPair,
-    CollisionGroup, CollisionBitmask, CCollisionHandlerFunc,
-    bind_cython_collision_handler, CBodyNodeType,
-    CCollisionContactPoint, CShapeQueryResult,
-    collision_bitmask_all, collision_bitmask_none, collision_group_none
+    CollisionGroup, CollisionBitmask, CCollisionHandlerFunc, CVelocityUpdateCallback,
+    CPositionUpdateCallback, bind_cython_collision_handler, bind_cython_update_velocity_callback,
+    bind_cython_update_position_callback, CBodyNodeType, CCollisionContactPoint,
+    CShapeQueryResult, collision_bitmask_all, collision_bitmask_none, collision_group_none
 )
 from .kaacore.math cimport radians, degrees
+from .extra.optional cimport optional, nullopt
 from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
@@ -278,6 +279,60 @@ cdef class SpaceNode(NodeBase):
             )
         )
 
+
+cdef CPythonicCallbackResult[void] cython_update_velocity_callback(
+    const CPythonicCallbackWrapper& c_wrapper,
+    CNode* c_node,
+    CDVec2 c_gravity,
+    double damping,
+    double dt
+) with gil:
+
+    cdef:
+        BodyNode node = get_node_wrapper(CNodePtr(c_node))
+        object callback = <object>c_wrapper.py_callback
+        Vector gravity = Vector.from_c_vector(c_gravity)
+
+    if c_wrapper.is_weakref:
+        callback = callback()
+        if not callback:
+            raise RuntimeError(
+                "An attempt to call destroyed callback object "
+                "registered as a velocity update callback."
+            )
+
+    try:
+        callback(node, gravity, damping, dt)
+    except Exception as py_exc:
+        return CPythonicCallbackResult[void](<PyObject*>py_exc)
+    return CPythonicCallbackResult[void]()
+
+
+cdef CPythonicCallbackResult[void] cython_update_position_callback(
+    const CPythonicCallbackWrapper& c_wrapper,
+    CNode* c_node,
+    double dt
+) with gil:
+
+    cdef:
+        BodyNode node = get_node_wrapper(CNodePtr(c_node))
+        object callback = <object>c_wrapper.py_callback
+
+    if c_wrapper.is_weakref:
+        callback = callback()
+        if not callback:
+            raise RuntimeError(
+                "An attempt to call destroyed callback object "
+                "registered as a position update callback."
+            )
+
+    try:
+        callback(node, dt)
+    except Exception as py_exc:
+        return CPythonicCallbackResult[void](<PyObject*>py_exc)
+    return CPythonicCallbackResult[void]()
+
+
 cdef class BodyNode(NodeBase):
     def __init__(self, **options):
         self._make_c_node(CNodeType.body)
@@ -288,6 +343,8 @@ cdef class BodyNode(NodeBase):
             self.body_type = options.pop('body_type')
         if 'force' in options:
             self.force = options.pop('force')
+        if 'local_force' in options:
+            self.local_force = options.pop('local_force')
         if 'velocity' in options:
             self.velocity = options.pop('velocity')
         if 'torque' in options:
@@ -302,6 +359,10 @@ cdef class BodyNode(NodeBase):
             self.mass = options.pop('mass')
         if 'moment' in options:
             self.moment = options.pop('moment')
+        if 'damping' in options:
+            self.damping = options.pop('damping')
+        if 'gravity' in options:
+            self.gravity = options.pop('gravity')
 
         return super().setup(**options)
 
@@ -314,12 +375,30 @@ cdef class BodyNode(NodeBase):
         self._get_c_node().body.body_type(<CBodyNodeType>(<uint8_t>body_t.value))
 
     @property
+    def local_force(self):
+        return Vector.from_c_vector(self._get_c_node().body.local_force())
+
+    @local_force.setter
+    def local_force(self, Vector vec not None):
+        self._get_c_node().body.local_force(vec.c_vector)
+
+    @property
     def force(self):
         return Vector.from_c_vector(self._get_c_node().body.force())
 
     @force.setter
     def force(self, Vector vec not None):
         self._get_c_node().body.force(vec.c_vector)
+
+    def apply_force_at_local(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_force_at_local(
+            force.c_vector, at.c_vector
+        )
+
+    def apply_impulse_at_local(self, Vector force not None, Vector at not None):
+        self._get_c_node().body.apply_impulse_at_local(
+            force.c_vector, at.c_vector
+        )
 
     def apply_force_at(self, Vector force not None, Vector at not None):
         self._get_c_node().body.apply_force_at(
@@ -375,6 +454,10 @@ cdef class BodyNode(NodeBase):
     def mass(self):
         return self._get_c_node().body.mass()
 
+    @property
+    def mass_inverse(self):
+        return self._get_c_node().body.mass_inverse()
+
     @mass.setter
     def mass(self, double value):
         self._get_c_node().body.mass(value)
@@ -383,9 +466,48 @@ cdef class BodyNode(NodeBase):
     def moment(self):
         return self._get_c_node().body.moment()
 
+    @property
+    def moment_inverse(self):
+        return self._get_c_node().body.moment_inverse()
+
     @moment.setter
     def moment(self, double value):
         self._get_c_node().body.moment(value)
+    
+    @property
+    def center_of_gravity(self):
+        return Vector.from_c_vector(self._get_c_node().body.center_of_gravity())
+
+    @center_of_gravity.setter
+    def center_of_gravity(self, Vector cog not None):
+        self._get_c_node().body.center_of_gravity(cog.c_vector)
+
+    @property
+    def damping(self):
+        cdef optional[double] c_damping = self._get_c_node().body.damping()
+        if c_damping:
+            return <double>(c_damping.value())
+
+    @damping.setter
+    def damping(self, damping):
+        if damping is None:
+            self._get_c_node().body.damping(optional[double](nullopt))
+        else:
+            assert isinstance(damping, (int, float))
+            self._get_c_node().body.damping(optional[double](<double>(damping)))
+
+    @property
+    def gravity(self):
+        cdef optional[CDVec2] c_gravity = self._get_c_node().body.gravity()
+        if c_gravity:
+            return Vector.from_c_vector(c_gravity.value())
+
+    @gravity.setter
+    def gravity(self, Vector gravity):
+        if gravity is None:
+            self._get_c_node().body.gravity(optional[CDVec2](nullopt))
+        else:
+            self._get_c_node().body.gravity(optional[CDVec2](gravity.c_vector))
 
     @property
     def sleeping(self):
@@ -394,6 +516,44 @@ cdef class BodyNode(NodeBase):
     @sleeping.setter
     def sleeping(self, bool sleeping):
         self._get_c_node().body.sleeping(sleeping)
+
+    @property
+    def _velocity_bias(self):
+        return Vector.from_c_vector(self._get_c_node().body._velocity_bias())
+    
+    @_velocity_bias.setter
+    def _velocity_bias(self, Vector velocity not None):
+        self._get_c_node().body._velocity_bias(velocity.c_vector)
+
+    @property
+    def _angular_velocity_bias(self):
+        return self._get_c_node().body._angular_velocity_bias()
+    
+    @_angular_velocity_bias.setter
+    def _angular_velocity_bias(self, double torque):
+        self._get_c_node().body._angular_velocity_bias(torque)
+
+    def set_velocity_update_callback(self, object callback not None):
+        cdef bint is_weakref = inspect.ismethod(callback)
+        if is_weakref:
+            callback = weakref.WeakMethod(callback)
+
+        cdef CVelocityUpdateCallback bound_handler = bind_cython_update_velocity_callback(
+            cython_update_velocity_callback,
+            CPythonicCallbackWrapper(<PyObject*>callback, is_weakref),
+        )
+        self._get_c_node().body.set_velocity_update_callback(cmove(bound_handler))
+
+    def set_position_update_callback(self, object callback not None):
+        cdef bint is_weakref = inspect.ismethod(callback)
+        if is_weakref:
+            callback = weakref.WeakMethod(callback)
+
+        cdef CPositionUpdateCallback bound_handler = bind_cython_update_position_callback(
+            cython_update_position_callback,
+            CPythonicCallbackWrapper(<PyObject*>callback, is_weakref),
+        )
+        self._get_c_node().body.set_position_update_callback(cmove(bound_handler))
 
 
 cdef class HitboxNode(NodeBase):
@@ -413,6 +573,14 @@ cdef class HitboxNode(NodeBase):
             self.collision_mask = options.pop('collision_mask')
         if 'trigger_id' in options:
             self.trigger_id = options.pop('trigger_id')
+        if 'sensor' in options:
+            self.sensor = options.pop('sensor')
+        if 'elasticity' in options:
+            self.elasticity = options.pop('elasticity')
+        if 'friction' in options:
+            self.friction = options.pop('friction')
+        if 'surface_velocity' in options:
+            self.surface_velocity = options.pop('surface_velocity')
 
         return super().setup(**options)
 
@@ -447,3 +615,35 @@ cdef class HitboxNode(NodeBase):
     @trigger_id.setter
     def trigger_id(self, CollisionTriggerId id):
         self._get_c_node().hitbox.trigger_id(id)
+
+    @property
+    def sensor(self):
+        return self._get_c_node().hitbox.sensor()
+
+    @sensor.setter
+    def sensor(self, bool sensor_flag):
+        self._get_c_node().hitbox.sensor(sensor_flag)
+
+    @property
+    def elasticity(self):
+        return self._get_c_node().hitbox.elasticity()
+
+    @elasticity.setter
+    def elasticity(self, double value):
+        self._get_c_node().hitbox.elasticity(value)
+
+    @property
+    def friction(self):
+        return self._get_c_node().hitbox.friction()
+
+    @friction.setter
+    def friction(self, double value):
+        self._get_c_node().hitbox.friction(value)
+
+    @property
+    def surface_velocity(self):
+        return Vector.from_c_vector(self._get_c_node().hitbox.surface_velocity())
+
+    @surface_velocity.setter
+    def surface_velocity(self, Vector vec not None):
+        self._get_c_node().hitbox.surface_velocity(vec.c_vector)

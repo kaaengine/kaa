@@ -5,7 +5,6 @@ set -x -e
 cd `dirname $0`/..
 
 DOCKER_IMAGE="quay.io/pypa/manylinux2010_x86_64"
-DOCKER_IMAGE_REF="@sha256:d41631c7360a0028876755aebb7036db639c24e7dcdaf3a9e6dcc0e74a681541"
 
 if [ -n "$1" ]
 then
@@ -26,7 +25,7 @@ python -c 'import versioneer; versioneer.write_to_version_file("_build_version.p
 
 for PY_VERSION in ${TARGETS}
 do
-    sudo docker run -i -t -v `pwd`:/host "${DOCKER_IMAGE}${DOCKER_IMAGE_REF}" \
+    sudo docker run --rm -it -v `pwd`:/host "${DOCKER_IMAGE}" \
         /bin/bash /host/scripts/docker_wheel_builder.sh ${PY_VERSION}
 done
 
