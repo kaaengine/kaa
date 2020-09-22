@@ -355,7 +355,7 @@ Change sprite of a node, creating an animation effect:
     parameter - a node. It can return any value, which will later be used as input to :code:`evaluate_func`
 
     :code:`evaluate_func` must be a callable. It will be called on each frame and it's the place where you should
-    implement the transition logic. It will receive three parameters: code:`state`, :code:`node` and :code:`t`.
+    implement the transition logic. It will receive three parameters: :code:`state`, :code:`node` and :code:`t`.
     The :code:`state` is a value you have returned in the :code:`prepare_func` callable. The :code:`node` is a
     node which is transitioning. The :code:`t` parameter is a value between 0 and 1 which indicates
     transition time duration progress.
