@@ -4,21 +4,16 @@ import math
 import enum
 
 from kaa.engine import Engine, Scene
-from kaa.geometry import Vector, Segment, Circle, Polygon
+from kaa.geometry import Vector, Segment, Circle, Polygon, BoundingBox
 from kaa.nodes import Node
 from kaa.physics import SpaceNode, BodyNode, HitboxNode
 from kaa.timers import Timer
 from kaa.input import Keycode, MouseButton
 from kaa.colors import Color
-from kaa.log import (
-    set_core_logging_level, CoreLogLevel, CoreLogCategory
-)
 
 
 POINTER_COLOR_NORMAL = Color(1., 1., 1., 0.3)
 POINTER_COLOR_ACTIVE = Color(1., 1., 1., 0.7)
-
-set_core_logging_level(CoreLogCategory.physics, CoreLogLevel.debug)
 
 PIECE_SHAPES = [
     Polygon.from_box(Vector(10, 10)),
@@ -128,6 +123,11 @@ class DemoScene(Scene):
                     self._perform_query()
                 else:
                     self.pointer.color = POINTER_COLOR_NORMAL
+
+        print("Visible nodes: ",
+              len(self.spatial_index.query_bounding_box(
+                  BoundingBox(0, 0, 300, 300),
+              )))
 
 
 if __name__ == '__main__':
