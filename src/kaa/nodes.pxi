@@ -7,6 +7,8 @@ from libcpp.unordered_set cimport unordered_set
 
 from cymove cimport cymove as cmove
 
+from .extra.optional cimport optional, nullopt
+
 from .kaacore.shapes cimport CShape
 from .kaacore.sprites cimport CSprite
 from .kaacore.nodes cimport (
@@ -149,11 +151,12 @@ cdef class NodeBase:
         cdef:
             int16_t c_index
             set result = set()
-            vector[int16_t] c_indices = self._get_c_node().views()
+            optional[vector[int16_t]] c_indices = self._get_c_node().views()
         
-        for c_index in range(c_indices.size()):
-            result.add(c_indices[c_index])
-        return result
+        if c_indices.has_value():
+            for c_index in range(c_indices.value().size()):
+                result.add(c_indices.value()[c_index])
+            return result
     
     @views.setter
     def views(self, set z_indices):
@@ -161,9 +164,12 @@ cdef class NodeBase:
             int16_t z_index
             unordered_set[int16_t] c_z_indices
 
-        for z_index in z_indices:
-            c_z_indices.insert(z_index)
-        self._get_c_node().views(c_z_indices)
+        if z_indices is not None:
+            for z_index in z_indices:
+                c_z_indices.insert(z_index)
+            self._get_c_node().views(optional[unordered_set[int16_t]](c_z_indices))
+        else:
+            self._get_c_node().views(optional[unordered_set[int16_t]](nullopt))
 
     @property
     def position(self):
