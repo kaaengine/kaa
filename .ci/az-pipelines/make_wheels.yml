@@ -5,7 +5,11 @@ name: 'Make wheels'
 trigger:
   tags:
     include:
-    - v*  # trigger on version releases
+      - v*  # trigger on version releases, also uploads wheels
+  branches:
+    include:
+      - master  # trigger building wheel for every master commit, don't upload wheel
+pr: none
 
 jobs:
 - job: build_linux
@@ -47,7 +51,7 @@ jobs:
 - job: build_windows
   displayName: "Build Windows wheel"
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
   strategy:
     matrix:
       Python36:
@@ -65,7 +69,7 @@ jobs:
   - template: templates/common_checkout_repository.yml
   - template: templates/common_prepare_python.yml
   - script: |
-      python setup.py bdist_wheel -d wheelhouse -G "Visual Studio 15 2017 Win64"
+      python setup.py bdist_wheel -d wheelhouse -- -G "Visual Studio 16 2019" -A "x64"
     displayName: 'Build wheel'
   - template: templates/common_store_wheel.yml
   - template: templates/common_test_wheel.yml
@@ -87,7 +91,7 @@ jobs:
         python.version_tag: 'py38'
   variables:
     platform.name: 'macos'
-    platform.tag: 'macosx-10.9-x86_64'
+    platform.tag: 'macosx-10.14-x86_64'
   steps:
   - template: templates/common_checkout_repository.yml
   - template: templates/common_prepare_python.yml
@@ -143,4 +147,4 @@ jobs:
       python -m twine upload --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
     # populated from TWINE_* env variables
     displayName: 'Twine Upload'
-    condition: eq(variables['kaa_version.local'], 'False')
+    condition: and(eq(variables['kaa_version.local'], 'False'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
