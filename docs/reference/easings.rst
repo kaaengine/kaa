@@ -15,7 +15,7 @@
     * TODO ....
 
 :meth:`ease` reference
-----------------------------
+----------------------
 
 .. function:: ease(easing, progress)
 
@@ -23,7 +23,7 @@
 
 
 :meth:`ease_between` reference
-----------------------------
+------------------------------
 
 .. function:: ease_between(easing, progress, a, b)
 

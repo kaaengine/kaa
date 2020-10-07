@@ -201,7 +201,7 @@ Instance properties:
     Force has an effect only on :ref:`dynamic body nodes <BodyNode.body_type>`. Static and kinematic body nodes will
     not be affected.
 
-.. _BodyNode.local_force
+.. _BodyNode.local_force:
 .. attribute:: BodyNode.local_force
 
     TODO

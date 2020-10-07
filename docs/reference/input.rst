@@ -597,11 +597,11 @@ window).
 
 Instance properties:
 
-.. attribute:: MouseButtonEvent.position
+.. attribute:: MouseMotionEvent.position
 
     Returns mouse pointer position as :class:`geometry.Vector`.
 
-.. attribute:: MouseButtonEvent.motion
+.. attribute:: MouseMotionEvent.motion
 
     Returns mouse pointer motion (difference between the current and previous position) as :class:`geometry.Vector`.
 

@@ -391,7 +391,9 @@ Instance Properties:
         self.root.add_child(Node(position=Vector(32,45), sprite=some_sprite))  # will be rendered in the default view
         self.root.add_child(Node(position=Vector(-432,-445), sprite=some_sprite, views={0, 1, 15}))  # will be rendered in views 0, 1 and 15
 
+
     .. code-block:: python
+
         node = Node(views={13})  # node will be rendered in view 13
         child = Node()
         node.add_child(child)  # the child will also be rendered in view 13
