@@ -382,13 +382,30 @@ Instance Properties:
 .. attribute:: Node.views
 
     Gets or sets indexes of views (as a set object) in which this node shall be rendered. Each scene has 32 views.
-    Default value is {0} mening the node will be redered in the default view only. Read more about views
-    in :class:`engine.View` reference.
+    Default value is None meaning the node will inherit the view from its parent. Note that the :ref:`root node
+    of the scene <Scene.root>` has a view set to {0} (a set with just one element: zero) by default. Read more
+    about views in :class:`engine.View` reference.
 
     .. code-block:: python
 
         self.root.add_child(Node(position=Vector(32,45), sprite=some_sprite))  # will be rendered in the default view
         self.root.add_child(Node(position=Vector(-432,-445), sprite=some_sprite, views={0, 1, 15}))  # will be rendered in views 0, 1 and 15
+
+    .. code-block:: python
+        node = Node(views={13})  # node will be rendered in view 13
+        child = Node()
+        node.add_child(child)  # the child will also be rendered in view 13
+
+.. _Node.indexable:
+.. attribute:: Node.indexable
+
+    TODO (get/set)
+
+.. _Node.bounding_box:
+.. attribute:: Node.bounding_box
+
+    Returns node's bounding box as :class:`geometry.BoundingBox`. Bounding box is X/Y axis - aligned rectangle that
+    contains :ref:`Node's shape <Node.shape>`.
 
 Instance Methods:
 

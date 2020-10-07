@@ -7,7 +7,7 @@
 :class:`Timer` reference
 ------------------------
 
-.. class:: Timer(interval, callback_func, single_shot=True)
+.. class:: Timer(callback_func, interval, single_shot=True)
 
     Timer will call the :code:`callback_func` after time specified by the :code:`interval` parameter has passed. The
     interval value is in miliseconds.
@@ -32,6 +32,15 @@ Instance properties:
 .. attribute:: Timer.is_running
 
     Returns :code:`True` if the timer is running.
+
+.. attribute:: Timer.interval
+
+    Gets or sets the timer interval, as int (miliseconds)
+
+.. attribute:: Timer.single_shot
+
+    Gets or sets the single shot flag, as bool
+
 
 Instance methods:
 

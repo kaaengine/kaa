@@ -34,6 +34,7 @@ To create a Transition you'll typically need to pass the following parameters:
     * :code:`AttributeTransitionMethod.multiply` - node's property will be changed by multiplying the advance_value over time
 * :code:`loops` - how many times the transition should "play". Set to 0 to play infinite number of times. Default is 1.
 * :code:`back_and_forth` - if set to :code:`True`, the transition will be played back and forth. Default is False.
+* :code:`easing` - an enum value of :class:`easings.Easing` TODO - description
 
 **Note:** the :code:`duration` parameter always refers to one loop, one direction. So for example, transition
 with the following set of parameters: :code:`duration=1000, loops=3, back_and_forth=True` will take 6000 miliseconds.
@@ -165,7 +166,7 @@ Change sprite of a node, creating an animation effect:
 :class:`NodePositionTransition` reference
 -----------------------------------------
 
-.. class:: NodePositionTransition(advance_value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: NodePositionTransition(advance_value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change Node's position gradually over time, towards given advance_value or by given advance_value.
 
@@ -178,7 +179,7 @@ Change sprite of a node, creating an animation effect:
 -----------------------------------------
 
 
-.. class:: NodeRotationTransition(advance_value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: NodeRotationTransition(advance_value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change Node's rotation gradually over time, towards given advance_value or by given advance_value.
 
@@ -190,7 +191,7 @@ Change sprite of a node, creating an animation effect:
 :class:`NodeScaleTransition` reference
 --------------------------------------
 
-.. class:: NodeScaleTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: NodeScaleTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change Node's scale gradually over time, towards given advance_value or by given advance_value.
 
@@ -203,7 +204,7 @@ Change sprite of a node, creating an animation effect:
 --------------------------------------
 
 
-.. class:: NodeColorTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: NodeColorTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change Node's scale gradually over time, towards given advance_value or by given advance_value.
 
@@ -219,7 +220,7 @@ Change sprite of a node, creating an animation effect:
 :class:`BodyNodeVelocityTransition` reference
 ---------------------------------------------
 
-.. class:: BodyNodeVelocityTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: BodyNodeVelocityTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change BodyNode's velocity gradually over time, towards given advance_value or by given advance_value.
 
@@ -231,7 +232,7 @@ Change sprite of a node, creating an animation effect:
 :class:`BodyNodeAngularVelocityTransition` reference
 ----------------------------------------------------
 
-.. class:: BodyNodeAngularVelocityTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False)
+.. class:: BodyNodeAngularVelocityTransition(value, duration, advance_method=AttributeTransitionMethod.set, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to change BodyNode's angular velocity gradually over time, towards given advance_value or by
     given advance_value.
@@ -247,7 +248,7 @@ Change sprite of a node, creating an animation effect:
 :class:`NodeSpriteTransition` reference
 ----------------------------------------------------
 
-.. class:: NodeSpriteTransition(sprites, duration, loops=1, back_and_forth=False)
+.. class:: NodeSpriteTransition(sprites, duration, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this transition to create animations. The transition will change Node's sprite over time specified by
     the :code:`duration` parameter, iterating through sprites list specified by the :code:`sprites` parameter.
@@ -347,7 +348,7 @@ Change sprite of a node, creating an animation effect:
 :class:`NodeCustomTransition` reference
 ---------------------------------------
 
-.. class:: NodeCustomTransition(prepare_func, evaluate_func, duration, loops=1, back_and_forth=False)
+.. class:: NodeCustomTransition(prepare_func, evaluate_func, duration, loops=1, back_and_forth=False, easing=Easing.none)
 
     Use this class to write your own transition.
 

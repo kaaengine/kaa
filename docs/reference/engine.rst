@@ -429,6 +429,9 @@ An example of 800x600 viewport, colored in green, running in the 1200x1000 windo
             engine.window.size = Vector(1200, 1000)
             engine.run(scene)
 
+.. attribute:: Scene.spatial_index
+
+    TODO get accessor to :class:`SpatialIndexManager`
 
 Instance methods:
 
@@ -464,6 +467,23 @@ Instance methods:
 
     Same as :meth:`Scene.on_enter` but is called just before the scene gets deactivated via the
     :meth:`Engine.change_scene`.
+
+:class:`SpatialIndexManager` reference
+--------------------------------------
+
+.. class:: SpatialIndexManager
+
+    TODO
+
+Instance methods:
+
+.. method:: SpatialIndexManager.query_bounding_box(bounding_box, include_shapeless=True)
+
+    TODO, returns list of nodes
+
+.. method:: SpatialIndexManager.query_point(point)
+
+    TODO, returns list of nodes
 
 
 :class:`View` reference
@@ -791,6 +811,9 @@ Instance properties:
         # somewhere inside Scene:
         self.camera.scale= Vector(1.5, 1.5) # 50% zoom-in
 
+.. attribute:: Camera.visible_area_bounding_box
+
+    Returns camera's visible area as :class:`geometry.BoundingBox`.
 
 Instance methods:
 

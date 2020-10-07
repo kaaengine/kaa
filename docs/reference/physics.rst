@@ -201,6 +201,10 @@ Instance properties:
     Force has an effect only on :ref:`dynamic body nodes <BodyNode.body_type>`. Static and kinematic body nodes will
     not be affected.
 
+.. _BodyNode.local_force
+.. attribute:: BodyNode.local_force
+
+    TODO
 
 .. _BodyNode.velocity:
 .. attribute:: BodyNode.velocity
@@ -271,6 +275,24 @@ Instance properties:
     on a moving or rotating nodes.
 
     See also: :ref:`SpaceNode.sleeping_threshold <SpaceNode.sleeping_threshold>`.
+
+Instance methods:
+
+.. method:: BodyNode.apply_force_at_local(force, at)
+
+    TODO
+
+.. method:: BodyNode.apply_impulse_at_local(force, at)
+
+    TODO
+
+.. method:: BodyNode.apply_force_at(force, at)
+
+    TODO
+
+.. method:: BodyNode.apply_impulse_at(force, at)
+
+    TODO
 
 
 :class:`HitboxNode` reference
@@ -376,6 +398,23 @@ Instance properties:
     Gets or sets the trigger id value. It can be any value of your choice. It's a
     'tag' value which you need to pass when :ref:`registering your custom collision
     handler function <SpaceNode.set_collision_handler>`
+
+.. attribute:: HitboxNode.sensor
+
+    TODO (get/set)
+
+.. attribute:: HitboxNode.elasticity
+
+    TODO (get/set)
+
+.. attribute:: HitboxNode.friction
+
+    TODO (get/set)
+
+.. attribute:: HitboxNode.surface_velocity
+
+    TODO (get/set)
+
 
 :class:`ShapeQueryResult` reference
 -----------------------------------

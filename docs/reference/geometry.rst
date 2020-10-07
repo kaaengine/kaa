@@ -167,6 +167,10 @@ Instance properties:
 
     Read only. Returns point B of the segment
 
+.. attribute:: Segment.bounding_box
+
+    Read only. Returns segment's bounding box as :class:`geometry.BoundingBox`.
+
 Instance methods:
 
 .. method:: Segment.transform(transformation)
@@ -198,6 +202,11 @@ Instance properties:
 .. attribute:: Circle.center
 
     Read only. Returns circle center.
+
+.. attribute:: Circle.bounding_box
+
+    Read only. Returns circle bounding box as :class:`geometry.BoundingBox`.
+
 
 Instance methods:
 
@@ -253,6 +262,11 @@ Instance properties:
 .. attribute:: Polygon.points
 
     Read only. Returns a list of points constituting the Polygon.
+
+.. attribute:: Polygon.bounding_box
+
+    Read only. Returns polygon's bounding box as :class:`geometry.BoundingBox`.
+
 
 Instance methods:
 
@@ -330,6 +344,13 @@ Instance methods:
         square_4 = square.transform(t4 | t2)
         print(square_4.points)  # [V[5.656, -7.071], V[7.071, -8.485], V[8.485, -7.071], V[7.0710, -5.656]]
 
+    Using the @ operator you can chain transformation in the matrix-style order:
+
+    .. code-block:: python
+
+       rotate_than_move = t2 | t4
+       move_than_rotate = t2 @ t4
+
     Finally, you can use the :meth:`inverse()` method on the Transformation instance to get the inversed transformation:
 
     .. code-block:: python
@@ -362,6 +383,73 @@ Instance methods:
 .. method:: Transformation.inverse()
 
     Returns a new Transformation, being an inversed version of this Transformation.
+
+:class:`BoundingBox` reference
+---------------------------------
+
+.. class:: BoundingBox(min_x, min_y, max_x, max_y)
+
+    TODO
+
+Class methods:
+
+.. classmethod:: BoundingBox.single_point(point)
+
+    TODO
+
+.. classmethod:: BoundingBox.from_points(points)
+
+    TODO
+
+Instance properties:
+
+.. attribute:: BoundingBox.min_x
+
+    TODO
+
+.. attribute:: BoundingBox.min_y
+
+    TODO
+
+.. attribute:: BoundingBox.max_x
+
+    TODO
+
+.. attribute:: BoundingBox.max_y
+
+    TODO
+
+.. attribute:: BoundingBox.is_nan
+
+    TODO
+
+.. attribute:: BoundingBox.center
+
+    TODO
+
+.. attribute:: BoundingBox.dimensions
+
+    TODO
+
+Instance methods:
+
+.. method:: BoundingBox.merge(other_bounding_box)
+
+    TODO
+
+.. method:: BoundingBox.contains(other)
+
+    TODO (other can be :class:`BoundingBox` or :class:`geometry.Vector`)
+
+.. method:: BoundingBox.intersects(other_bounding_box)
+
+    TODO
+
+.. method:: BoundingBox.grow(vector)
+
+    TODO
+
+
 
 :class:`Alignment` reference
 ----------------------------
