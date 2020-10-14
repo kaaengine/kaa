@@ -346,10 +346,10 @@ Instance methods:
 
     Using the @ operator you can chain transformation in the matrix-style order:
 
-    .. code-block:: python
+    .. code-block::
 
-       rotate_than_move = t2 | t4
-       move_than_rotate = t2 @ t4
+        rotate_than_move = t2 | t4
+        move_than_rotate = t2 @ t4
 
     Finally, you can use the :meth:`inverse()` method on the Transformation instance to get the inversed transformation:
 
@@ -383,6 +383,42 @@ Instance methods:
 .. method:: Transformation.inverse()
 
     Returns a new Transformation, being an inversed version of this Transformation.
+
+.. method:: Transformation.decompose()
+
+    Returns a :class:`DecomposedTransformation` object which allows reading position, rotation and scale
+
+    .. code-block:: python
+
+        combined_transformation = t1 | t2 | t3 | t4
+        result = combined_transformation.decompose()
+        print(result.position, result.rotation, result.rotation_degrees, result.scale)
+
+:class:`DecomposedTransformation` reference
+-------------------------------------------
+
+.. class:: DecomposedTransformation
+
+Object returned by :meth:`Transformation.decompose()`. It wraps transformation properties in form of accessible properties
+
+Instance properties:
+
+.. attribute:: DecomposedTransformation.position
+
+    Returns position as :class:`geometry.Vector`
+
+.. attribute:: DecomposedTransformation.rotation
+
+    Returns rotation as float, in radians
+
+.. attribute:: DecomposedTransformation.rotation_degrees
+
+    Returns rotation as float, in degrees
+
+.. attribute:: DecomposedTransformation.scale
+
+    Returns scale, as :class:`geometry.Vector`
+
 
 :class:`BoundingBox` reference
 ---------------------------------
