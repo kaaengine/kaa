@@ -171,7 +171,7 @@ cdef class DecomposedTransformation:
         return self.c_decomposed_transformation.rotation
 
     @property
-    def rotation(self):
+    def rotation_degrees(self):
         return degrees(self.c_decomposed_transformation.rotation)
 
     @property
