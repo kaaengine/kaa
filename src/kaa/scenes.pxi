@@ -7,7 +7,7 @@ from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport is_c_engine_initialized
-from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
+from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
 from .kaacore.views cimport views_default_z_index
 
 
@@ -15,7 +15,7 @@ cdef cppclass CPyScene(CScene):
     object py_scene_weakref
 
     __init__(object py_scene):
-        c_log_dynamic(CLogLevel.debug, CLogCategory.engine,
+        c_emit_log_dynamic(CLogLevel.debug, _log_category_wrapper,
                     'Created CPyScene')
         this.py_scene_weakref = PyWeakref_NewRef(py_scene, None)
 
@@ -79,8 +79,8 @@ cdef class Scene:
                 'Cannot create scene since engine is not initialized yet.'
             )
 
-        c_log_dynamic(
-            CLogLevel.debug, CLogCategory.engine, 'Initializing Scene'
+        c_emit_log_dynamic(
+            CLogLevel.debug, _log_category_wrapper, 'Initializing Scene'
         )
         cdef CPyScene* c_scene = new CPyScene(self)
         assert c_scene != NULL

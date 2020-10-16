@@ -25,13 +25,14 @@ struct PythonicCallbackWrapper {
     PythonicCallbackWrapper()
         : py_callback(nullptr), is_weakref(false)
     {
-        log<LogLevel::debug>("Creating empty PythonicCallbackWrapper.");
+        KAACORE_LOG_DEBUG("Creating empty PythonicCallbackWrapper.");
     }
 
     PythonicCallbackWrapper(PyObject* py_callback, bool is_weakref=false)
         : py_callback(py_callback), is_weakref(is_weakref)
     {
-        log<LogLevel::debug>("Creating PythonicCallbackWrapper: %p.", py_callback);
+        KAACORE_LOG_DEBUG("Creating PythonicCallbackWrapper: {}.",
+            fmt::ptr(py_callback));
         PyGILState_STATE gstate = PyGILState_Ensure();
         Py_INCREF(this->py_callback);
         PyGILState_Release(gstate);
@@ -42,7 +43,8 @@ struct PythonicCallbackWrapper {
         PyGILState_STATE gstate = PyGILState_Ensure();
         this->py_callback = other.py_callback;
         this->is_weakref = other.is_weakref;
-        log<LogLevel::debug>("Copying PythonicCallbackWrapper: %p.", this->py_callback);
+        KAACORE_LOG_DEBUG("Copying PythonicCallbackWrapper: {}.",
+            fmt::ptr(this->py_callback));
         Py_INCREF(this->py_callback);
         PyGILState_Release(gstate);
     }
@@ -52,7 +54,8 @@ struct PythonicCallbackWrapper {
     {
         other.py_callback = nullptr;
         other.is_weakref = false;
-        log<LogLevel::debug>("Moving PythonicCallbackWrapper: %p.", this->py_callback);
+        KAACORE_LOG_DEBUG("Moving PythonicCallbackWrapper: {}.",
+            fmt::ptr(this->py_callback));
     }
 
     ~PythonicCallbackWrapper()
@@ -60,8 +63,9 @@ struct PythonicCallbackWrapper {
         if (this->py_callback != nullptr) {
             PyGILState_STATE gstate = PyGILState_Ensure();
             Py_DECREF(this->py_callback);
-            log<LogLevel::debug>(
-                "Destroying PythonicCallbackWrapper: %p.", this->py_callback
+            KAACORE_LOG_DEBUG(
+                "Destroying PythonicCallbackWrapper: {}.",
+                fmt::ptr(this->py_callback)
             );
             PyGILState_Release(gstate);
         }
