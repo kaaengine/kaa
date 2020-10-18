@@ -11,6 +11,11 @@ trigger:
       - master  # trigger building wheel for every master commit, don't upload wheel
 pr: none
 
+variables:
+  is_version_build: $[startswith(variables['Build.SourceBranch'], 'refs/tags/v')]
+  is_master_build: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+  is_main_repo: $[eq(variables['Build.DefinitionName'], 'kaaengine.kaa')]
+
 jobs:
 - job: build_linux
   displayName: "Build Linux wheel"
@@ -147,4 +152,9 @@ jobs:
       python -m twine upload --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
     # populated from TWINE_* env variables
     displayName: 'Twine Upload'
-    condition: and(eq(variables['kaa_version.local'], 'False'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: |
+      and(
+        eq(variables['kaa_version.local'], 'False'),
+        eq(variables['is_version_build'], true),
+        eq(variables['is_main_repo'], true)
+      )
