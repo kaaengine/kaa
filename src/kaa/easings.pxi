@@ -40,6 +40,14 @@ def ease(object easing, double progress):
 
 
 def ease_between(object easing, double progress, a, b):
+    if isinstance(a, (int, float)):
+        assert isinstance(b, (int, float)), \
+            "`a` is a number, `b` must have the same type."
+        return c_ease_between[double](
+            <CEasing>(<uint8_t>easing.value),
+            progress, a, b
+        )
+
     if isinstance(a, Vector):
         assert isinstance(b, Vector), \
             "`a` is a Vector, `b` must have the same type."
@@ -47,5 +55,7 @@ def ease_between(object easing, double progress, a, b):
             <CEasing>(<uint8_t>easing.value),
             progress,
             (<Vector>a).c_vector,
-            (<Vector>b).c_vector,
+            (<Vector>b).c_vector
         ))
+    
+    raise Exception('Unsupported type of parameters.')

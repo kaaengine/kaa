@@ -24,7 +24,7 @@ class MainScene(Scene):
             BodyNode(
                 shape=Circle(50),
                 body_type=BodyNodeType.static,
-                color = Color.from_int(196, 196, 196, 255)
+                color=Color.from_int(196, 196, 196, 255)
             )
         )
         self.attractor.add_child(HitboxNode(shape=self.attractor.shape))
@@ -36,20 +36,19 @@ class MainScene(Scene):
                 sprite=image,
                 angular_velocity=5,
                 velocity=Vector(30, 15),
-                position = Vector(-512, -384) + offset,
+                position=Vector(-512, -384) + offset,
                 shape=Polygon.from_box(Vector(10, 10)),
             )
             node.add_child(HitboxNode(shape=node.shape))
             self.space.add_child(node)
             self.nodes.append(node)
 
-        
     def update(self, dt):
         for event in self.input.events():
             if event.keyboard_key:
                 if event.keyboard_key.key_down == Keycode.q:
                     self.engine.quit()
-        
+
         for node in self.nodes:
             distance_vector = self.attractor.position - node.position
             distance = distance_vector.length()
@@ -62,3 +61,4 @@ class MainScene(Scene):
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(1024, 768)) as engine:
         engine.run(MainScene())
+

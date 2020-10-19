@@ -8,7 +8,7 @@ from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
-from .kaacore.views cimport KAACORE_VIEWS_DEFAULT_Z_INDEX
+from .kaacore.views cimport views_default_z_index
 
 
 cdef cppclass CPyScene(CScene):
@@ -71,6 +71,7 @@ cdef class Scene:
         Node _root_node_wrapper
         InputManager input_
         readonly _ViewsManager views
+        readonly _SpatialIndexManager spatial_index
 
     def __cinit__(self):
         if not is_c_engine_initialized():
@@ -86,6 +87,7 @@ cdef class Scene:
         self._c_scene = unique_ptr[CPyScene](c_scene)
 
         self.views = _ViewsManager.create(self)
+        self.spatial_index = _SpatialIndexManager.create(self)
         self._root_node_wrapper = get_node_wrapper(
             CNodePtr(&self._c_scene.get().root_node)
         )
@@ -106,15 +108,15 @@ cdef class Scene:
     
     @property
     def camera(self):
-        return self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].camera
+        return self.views[views_default_z_index].camera
     
     @property
     def clear_color(self):
-        return self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].clear_color
+        return self.views[views_default_z_index].clear_color
 
     @clear_color.setter
     def clear_color(self, Color color):
-        self.views[KAACORE_VIEWS_DEFAULT_Z_INDEX].clear_color = color
+        self.views[views_default_z_index].clear_color = color
 
     @property
     def input(self):
