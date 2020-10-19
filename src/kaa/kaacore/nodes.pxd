@@ -77,8 +77,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         CTransformation transformation() except +raise_py_error
         void transformation(const CTransformation& transformation) except +raise_py_error
 
-        int16_t z_index() except +raise_py_error
-        void z_index(const int16_t& z_index) except +raise_py_error
+        optional[int16_t] z_index() except +raise_py_error
+        void z_index(const optional[int16_t] z_index) except +raise_py_error
 
         CShape shape() except +raise_py_error
         void shape(const CShape& shape) except +raise_py_error

@@ -190,11 +190,16 @@ cdef class NodeBase:
 
     @property
     def z_index(self):
-        return self._get_c_node().z_index()
+        cdef optional[int16_t] optional_z_index = self._get_c_node().z_index()
+        if optional_z_index.has_value():
+            return optional_z_index.value()
 
     @z_index.setter
-    def z_index(self, int value):
-        self._get_c_node().z_index(value)
+    def z_index(self, value):
+        if value is not None:
+            self._get_c_node().z_index(optional[int16_t](<int>value))
+        else:
+            self._get_c_node().z_index(optional[int16_t](nullopt))
 
     @property
     def rotation(self):
