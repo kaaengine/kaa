@@ -307,7 +307,7 @@ Instance Properties:
 
     Overriding sprite node's shape is usually not necessary, but you can always do that. For example, you can set
     a 100x200 px sprite for a node and then set a custom shape e.g. a non-rectangular polygon or a circle.
-    The drawn image will be fit inside a defined shape.
+    The drawn image will be fit inside the defined shape.
 
 .. _Node.origin_alignment:
 .. attribute:: Node.origin_alignment
@@ -401,7 +401,10 @@ Instance Properties:
 .. _Node.indexable:
 .. attribute:: Node.indexable
 
-    TODO (get/set)
+    Gets or sets whether the node is indexable (as :code:`bool`). Default is :code:`True`. If set to `True`, this Node
+    will be queryable by the :class:`engine.SpatialIndexManager`.
+
+    Setting this value to False yields a slight performance boost.
 
 .. _Node.bounding_box:
 .. attribute:: Node.bounding_box

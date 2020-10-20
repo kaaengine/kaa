@@ -425,66 +425,73 @@ Instance properties:
 
 .. class:: BoundingBox(min_x, min_y, max_x, max_y)
 
-    TODO
+    Represents a rectangular bounding box. Bounding box is always aligned with bot x and y axis. Bounding boxes
+    are being used when querying for nodes on scene. Constructor accepts four parameters, which determine the
+    bounding box x and y limits. You can also construct the BoundingBox using helper methods
+    :meth:`BoundingBox.single_point` and :meth:`BoundingBox.from_points`
 
 Class methods:
 
 .. classmethod:: BoundingBox.single_point(point)
 
-    TODO
+    Creates a BoundingBox from a single point. The :code:`point` parameter must be a :class:`geometry.Vector`
+    representing point coordinates. A single point BoundingBox has no width/height.
 
 .. classmethod:: BoundingBox.from_points(points)
 
-    TODO
+    Creates a BoundingBox from two points. The :code:`points` must be a list of two :class:`geometry.Vector`
+    instances. The first point in the list will become BoundingBox's min_x and min_y while the second one will become
+    max_x and max_y
 
 Instance properties:
 
 .. attribute:: BoundingBox.min_x
 
-    TODO
+    Gets min_x of the bounding box.
 
 .. attribute:: BoundingBox.min_y
 
-    TODO
+    Gets min_y of the bounding box.
 
 .. attribute:: BoundingBox.max_x
 
-    TODO
+    Gets max_x of the bounding box.
 
 .. attribute:: BoundingBox.max_y
 
-    TODO
+    Gets max_y of the bounding box.
 
 .. attribute:: BoundingBox.is_nan
 
-    TODO
+    Gets "not a number" status of the bounding box, as :code:`bool`
 
 .. attribute:: BoundingBox.center
 
-    TODO
+    Gets the central point of the bounding box, as :class:`geometry.Vector`.
 
 .. attribute:: BoundingBox.dimensions
 
-    TODO
+    Gets dimensions of the bounding box, as :class:`geometry.Vector`, x being width and y being height.
 
 Instance methods:
 
 .. method:: BoundingBox.merge(other_bounding_box)
 
-    TODO
+    Merges the bounding box with other and returns a new bounding box.
 
 .. method:: BoundingBox.contains(other)
 
-    TODO (other can be :class:`BoundingBox` or :class:`geometry.Vector`)
+    Other can be :class:`BoundingBox` or :class:`geometry.Vector`. Returns :code:`True` if bounding box contains
+    other bounding box or point.
 
 .. method:: BoundingBox.intersects(other_bounding_box)
 
-    TODO
+    Returns :code:`True` if bounding box intersects with other :class:`geometry.BoundingBox`, otherwise returns
+    :code:`False`
 
 .. method:: BoundingBox.grow(vector)
 
-    TODO
-
+    Scales the bounding box by given vector. The :code:`vector` param must be :class:`geometry.Vector`
 
 
 :class:`Alignment` reference

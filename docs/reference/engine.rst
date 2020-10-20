@@ -429,9 +429,11 @@ An example of 800x600 viewport, colored in green, running in the 1200x1000 windo
             engine.window.size = Vector(1200, 1000)
             engine.run(scene)
 
+.. _Scene.spatial_index:
 .. attribute:: Scene.spatial_index
 
-    TODO get accessor to :class:`SpatialIndexManager`
+    A get accessor to the :class:`SpatialIndexManager`, which offers methods to query for nodes at specific
+    position or inside a specific :class:`geometry.BoundingBox`
 
 Instance methods:
 
@@ -473,17 +475,44 @@ Instance methods:
 
 .. class:: SpatialIndexManager
 
-    TODO
+    Input manager object can be accessed via :ref:`Scene.spatial_index <Scene.spatial_index>` property. It has two main features:
+
+    * Find Nodes on the Scene, at given position (x,y)
+    * Find Nodes on the Scene inside a specific `geometry.BoundingBox`.
+
+    Note that only nodes whose :code:`indexable` property is set to True will be queried.
 
 Instance methods:
 
 .. method:: SpatialIndexManager.query_bounding_box(bounding_box, include_shapeless=True)
 
-    TODO, returns list of nodes
+    Returns a list of Nodes inside specified bounding box. It also includes those which only intersect the bounding box.
+    The :code:`bounding_box` must be an instance of `geometry.BoundingBox`.
+
+    The :code:`include_shapeless` param determines whether the query will also include nodes which do not have a :ref:`shape <Node.shape>`.
+
+    .. note:: Only the nodes with indexable property set to True will be queried. The indexable property is True by default.
+
+    .. code-block:: python
+
+        from kaa.geometry import BoundingBox
+
+        nodes = scene.spatial_index.query_bounding_box(BoundingBox(100, 150, 500, 600))
+        print("found {} nodes inside or intersecting that bounding box!".format(len(nodes)))
 
 .. method:: SpatialIndexManager.query_point(point)
 
-    TODO, returns list of nodes
+    Returns a list of Nodes that contain the specified point. The :code:`point` must be a
+    `geometry.Vector`.
+
+    .. note:: Only the nodes with indexable property set to True will be queried. The indexable property is True by default.
+
+    .. code-block:: python
+
+        from kaa.geometry import Vector
+
+        nodes = scene.spatial_index.query_point(Vector(100, 150))
+        print("found {} nodes which contain that point!".format(len(nodes)))
 
 
 :class:`View` reference
