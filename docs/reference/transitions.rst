@@ -29,12 +29,12 @@ To create a Transition you'll typically need to pass the following parameters:
 * :code:`advance_value` - advance value for given transition type (e.g. target position for :class:`NodePositionTransition`).
 * :code:`duration` - transition duration time, in miliseconds
 * :code:`advance_method` - an enum value of :class:`AttributeTransitionMethod` type which determines how the :code:`advance_value` will be applied to modify the appropriate node property.
-    * :code:`AttributeTransitionMethod.set` - node's property will be changed towards the target advance_value over time
-    * :code:`AttributeTransitionMethod.add` - node's property will be changed by adding the advance_value over time
-    * :code:`AttributeTransitionMethod.multiply` - node's property will be changed by multiplying the advance_value over time
-* :code:`loops` - how many times the transition should "play". Set to 0 to play infinite number of times. Default is 1.
-* :code:`back_and_forth` - if set to :code:`True`, the transition will be played back and forth. Default is False.
-* :code:`easing` - an enum value of :class:`easings.Easing` TODO - description
+    * :code:`AttributeTransitionMethod.set` - node's property will be changed towards the advance_value over time
+    * :code:`AttributeTransitionMethod.add` - node's property will be changed towards the current value + advance_value over time
+    * :code:`AttributeTransitionMethod.multiply` - node's property will be changed towards the current value * advance_value over time
+* :code:`loops` - Optional. How many times the transition should "play". Set to 0 to play infinite number of times. Default is 1.
+* :code:`back_and_forth` - Optional. If set to :code:`True`, the transition will be played back and forth. Default is False.
+* :code:`easing` - Optional. An enum value of :class:`easings.Easing` - specifies the rate of change of a value over time. Default is Easing.none which really means a linear easing.
 
 **Note:** the :code:`duration` parameter always refers to one loop, one direction. So for example, transition
 with the following set of parameters: :code:`duration=1000, loops=3, back_and_forth=True` will take 6000 miliseconds.
