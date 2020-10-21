@@ -12,7 +12,7 @@
     Enum type used for referencing easing types to work with transitions. :doc:`Read more about Transitions here </reference/transitions>`.
     It has the following values:
 
-    * :code:`Easing.none`
+    * :code:`Easing.none` - default easing, representing a linear progress
     * :code:`Easing.back_in`
     * :code:`Easing.back_in_out`
     * :code:`Easing.back_out`
@@ -49,14 +49,39 @@
 :meth:`ease` reference
 ----------------------
 
-.. function:: ease(easing, progress)
+.. function:: ease(easing, t)
 
-    TODO
+    Calculates the rate of change at time t for specific easing. The :code:`t` parameter should be a float with a
+    value between 0 (start of transition) and 1 (end of transition). The :code:`easing` must be an
+    :class:`easings.Easing` value.
+
+    Returned value is a float.
+
+    .. code-block:: python
+
+        print("Half into transition time, the rate value with the default easing is {}".format(ease(Easing.none, 0.5)))
+        print("Half into transition time, the rate value with exponential easing is {}".format(ease(Easing.exponential_in, 0.5)))
 
 
 :meth:`ease_between` reference
 ------------------------------
 
-.. function:: ease_between(easing, progress, a, b)
+.. function:: ease_between(easing, t, a, b)
 
-    TODO
+    Calculates the actual value transitioning from :code:`a` to :code:`b` at time :code:`t` using given :code:`easing`.
+
+    The a and b parameters must be either floats of vectors (:class:`geometry.Vector`).
+
+    The t must be a float between 0 (start of transition) and 1 (end of transition)
+
+    The :code:`easing` must be an :class:`easings.Easing` value.
+
+    .. code-block:: python
+
+        a = 50
+        b = 100
+        t = 0.5
+        easing = Easing.none
+        result = ease_between(a, b, t, easing)
+        print('At time t={}, the value transitioning from a={} to b={} with easing {} will be {}'.format(t, a, b, str(easing), result))
+        #  At time t=0.5, the value transitioning from a=50.0 to b=100.0 with easing Easing.none will be 75.0
