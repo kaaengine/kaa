@@ -849,7 +849,8 @@ Instance methods:
 .. method:: Camera.unproject_position(position)
 
 Takes a position (`geometry.Vector`), applies all camera transformations (position, scale, rotation) to that position
-and returns the result. Usfule when you have applied some transformations to the camera and want to know the actual
+and returns the result. Usfule when you want to convert position in the screen frame reference (as returned by
+MouseEventButton.position) or when you have applied some transformations to the camera and want to know the actual
 position of given point (e.g. mouse position)
 
 Full example:

@@ -305,16 +305,23 @@ Instance methods:
     In the nodes tree, HitboxNode must be a direct child of a :class:`BodyNode`. A :class:`BodyNode` can have many
     HitboxNodes.
 
-    HitboxNode inherits all :class:`Node` properties and methods, some of which may be particularly usful for
+    HitboxNode inherits all :class:`Node` properties and methods, some of which may be particularly useful for
     debugging. For example, by setting a color and z_index of on a HitboxNode you can make the hitbox visible.
 
-    Hitbox node has its own specific params:
+    Hitbox node has its own specific params, related with collision handling:
 
     * :code:`shape` - can be either :class:`geometry.Polygon` or :class:`geometry.Circle`
-    * :code:`group` - an integer, default value is a kaa constant meaning "no group"
-    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
-    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
-    * :code:`trigger_id` - an integer, your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
+    * :code:`group` - an integer, default value is a kaa constant meaning "no group". Hitboxes within the same group will never collide with each other.
+    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks". Defines a category of this hitbox.
+    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks". Defines with which categories this hitbox should collide.
+    * :code:`trigger_id` - an integer, your own value used with the :meth:`SpaceNode.set_collision_handler()` method. Used in custom collision handling.
+
+    The hitbox node also has a few properties affecting its physical behaviour:
+
+    * :code:`sensor`
+    * :code:`elasticity`
+    * :code:`friction`
+    * :code:`surface_velocity`
 
 Instance properties:
 
