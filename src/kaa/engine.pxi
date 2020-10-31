@@ -11,7 +11,7 @@ from .kaacore.engine cimport (
     CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
 )
 from .kaacore.display cimport CDisplay
-from .kaacore.log cimport c_log_dynamic, CLogCategory, CLogLevel
+from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
 
 from . import __version__
 
@@ -145,8 +145,8 @@ def Engine(Vector virtual_resolution, virtual_resolution_mode=None):
     global _c_engine_instance
     _c_engine_instance = unique_ptr[CEngine](c_engine_ptr)
 
-    c_log_dynamic(
-        CLogLevel.info, CLogCategory.engine, 'Engine initialized.'
+    c_emit_log_dynamic(
+        CLogLevel.info, _log_category_wrapper, 'Engine initialized.'
     )
     _print_hello_message()
 
@@ -178,4 +178,4 @@ _    \        /    /
     """.lstrip('\n').rstrip().format(version=__version__)
 
     for line in kaa_ascii_logo.split('\n'):
-        c_log_dynamic(CLogLevel.info, CLogCategory.engine, line.encode())
+        c_emit_log_dynamic(CLogLevel.info, _log_category_wrapper, line.encode())
