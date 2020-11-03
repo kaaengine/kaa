@@ -83,24 +83,21 @@ cdef class Transformation:
         useful for a more user-friendly order of transformations.
         `tmn1 | tmn2 | tmn3` is equivalent to `tmn3 @ tmn2 @ tmn1`
         and `vec | tmn` is equivalent to `tmn @ vec`.
+
+        Operator can also be used to transform a shape:
+        `shape | tmn`, or `tmn @ shape`.
         """
 
         if not isinstance(right, Transformation):
             return NotImplemented
-
-        if isinstance(left, Transformation):
-            return right._combine_with_transformation(left)
-        elif isinstance(left, Vector):
-            return right._combine_with_vector(left)
+        return Transformation._combine(transformation=right,
+                                       other=left)
 
     def __matmul__(left, right):
         if not isinstance(left, Transformation):
             return NotImplemented
-
-        if isinstance(right, Transformation):
-            return left._combine_with_transformation(right)
-        elif isinstance(right, Vector):
-            return left._combine_with_vector(right)
+        return Transformation._combine(transformation=left,
+                                       other=right)
 
     @staticmethod
     cdef Transformation create(const CTransformation& c_transformation):
@@ -130,15 +127,22 @@ cdef class Transformation:
     def decompose(self):
         return DecomposedTransformation.create(self.c_transformation.decompose())
 
-    cpdef Transformation _combine_with_transformation(self, Transformation operand):
-        return Transformation.create(
-             operand.c_transformation | self.c_transformation
-        )
+    @staticmethod
+    cdef object _combine(Transformation transformation, object other):
+        if isinstance(other, Transformation):
+            return Transformation.create(
+                 transformation.c_transformation
+                | (<Transformation>other).c_transformation
+            )
+        elif isinstance(other, Vector):
+            return Vector.from_c_vector(
+                (<Vector>other).c_vector
+                | transformation.c_transformation
+            )
+        elif isinstance(other, ShapeBase):
+            return (<ShapeBase>other).transform(transformation)
+        return NotImplemented
 
-    cpdef Vector _combine_with_vector(self, Vector operand):
-        return Vector.from_c_vector(
-            operand.c_vector | self.c_transformation
-        )
 
 @cython.freelist(DECOMPOSED_TRANSFORMATION_FREELIST_SIZE)
 cdef class DecomposedTransformation:
