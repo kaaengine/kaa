@@ -1,10 +1,12 @@
 import inspect
 import weakref
+import warnings
 from enum import IntEnum
 
 import cython
 from cpython.ref cimport PyObject
 from libc.stdint cimport uint8_t
+from libcpp cimport nullptr
 from libcpp.vector cimport vector
 
 from .kaacore.nodes cimport CNode, CNodeType
@@ -13,7 +15,8 @@ from .kaacore.physics cimport (
     CollisionGroup, CollisionBitmask, CCollisionHandlerFunc, CVelocityUpdateCallback,
     CPositionUpdateCallback, bind_cython_collision_handler, bind_cython_update_velocity_callback,
     bind_cython_update_position_callback, CBodyNodeType, CCollisionContactPoint,
-    CShapeQueryResult, collision_bitmask_all, collision_bitmask_none, collision_group_none
+    CShapeQueryResult, CRayQueryResult, CPointQueryResult,
+    collision_bitmask_all, collision_bitmask_none, collision_group_none
 )
 from .kaacore.math cimport radians, degrees
 from .extra.optional cimport optional, nullopt
@@ -121,23 +124,46 @@ cdef class CollisionContactPoint:
 
 
 @cython.freelist(32)
-cdef class ShapeQueryResult:
-    cdef CShapeQueryResult c_shape_query_result
-
+cdef class SpatialQueryResultBase:
+    cdef CNodePtr c_body
+    cdef CNodePtr c_hitbox
     cdef NodeBase _body_node_wrapper
     cdef NodeBase _hitbox_node_wrapper
-    cdef list _contact_points_list
 
     def __cinit__(self):
         self._body_node_wrapper = None
         self._hitbox_node_wrapper = None
-        self._contact_points_list = None
+
+    def __init__(self):
+        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
+
+    @property
+    def body(self):
+        if self.c_body:
+            if self._body_node_wrapper is None:
+                self._body_node_wrapper = get_node_wrapper(self.c_body)
+            return self._body_node_wrapper
+
+    @property
+    def hitbox(self):
+        if self.c_hitbox:
+            if self._hitbox_node_wrapper is None:
+                self._hitbox_node_wrapper = get_node_wrapper(self.c_hitbox)
+            return self._hitbox_node_wrapper
+
+
+@cython.final
+cdef class ShapeQueryResult(SpatialQueryResultBase):
+    cdef CShapeQueryResult c_shape_query_result
+    cdef list _contact_points_list
 
     @staticmethod
     cdef ShapeQueryResult create(CShapeQueryResult& c_shape_query_result):
         cdef ShapeQueryResult shape_query_result = \
             ShapeQueryResult.__new__(ShapeQueryResult)
         shape_query_result.c_shape_query_result = c_shape_query_result
+        shape_query_result.c_body = c_shape_query_result.body_node
+        shape_query_result.c_hitbox = c_shape_query_result.hitbox_node
         return shape_query_result
 
     @staticmethod
@@ -145,23 +171,6 @@ cdef class ShapeQueryResult:
         return [
             ShapeQueryResult.create(c_res) for c_res in c_shape_query_results_vector
         ]
-
-    def __init__(self):
-        raise RuntimeError(f'{self.__class__} must not be instantiated manually!')
-
-    @property
-    def body(self):
-        if self.c_shape_query_result.body_node:
-            if self._body_node_wrapper is None:
-                self._body_node_wrapper = get_node_wrapper(self.c_shape_query_result.body_node)
-            return self._body_node_wrapper
-
-    @property
-    def hitbox(self):
-        if self.c_shape_query_result.hitbox_node:
-            if self._hitbox_node_wrapper is None:
-                self._hitbox_node_wrapper = get_node_wrapper(self.c_shape_query_result.hitbox_node)
-            return self._hitbox_node_wrapper
 
     @property
     def contact_points(self):
@@ -171,6 +180,66 @@ cdef class ShapeQueryResult:
                 for c_ccp in self.c_shape_query_result.contact_points
             ]
         return self._contact_points_list.copy()
+
+
+@cython.final
+cdef class RayQueryResult(SpatialQueryResultBase):
+    cdef CRayQueryResult c_ray_query_result
+
+    @staticmethod
+    cdef RayQueryResult create(CRayQueryResult& c_ray_query_result):
+        cdef RayQueryResult ray_query_result = \
+            RayQueryResult.__new__(RayQueryResult)
+        ray_query_result.c_ray_query_result = c_ray_query_result
+        ray_query_result.c_body = c_ray_query_result.body_node
+        ray_query_result.c_hitbox = c_ray_query_result.hitbox_node
+        return ray_query_result
+
+    @staticmethod
+    cdef list create_list(vector[CRayQueryResult]& c_ray_results_vector):
+        return [
+            RayQueryResult.create(c_res) for c_res in c_ray_results_vector
+        ]
+
+    @property
+    def point(self):
+        return Vector.from_c_vector(self.c_ray_query_result.point)
+
+    @property
+    def normal(self):
+        return Vector.from_c_vector(self.c_ray_query_result.normal)
+
+    @property
+    def alpha(self):
+        return self.c_ray_query_result.alpha
+
+
+@cython.final
+cdef class PointQueryResult(SpatialQueryResultBase):
+    cdef CPointQueryResult c_point_query_result
+
+    @staticmethod
+    cdef PointQueryResult create(CPointQueryResult& c_point_query_result):
+        cdef PointQueryResult point_query_result = \
+            PointQueryResult.__new__(PointQueryResult)
+        point_query_result.c_point_query_result = c_point_query_result
+        point_query_result.c_body = c_point_query_result.body_node
+        point_query_result.c_hitbox = c_point_query_result.hitbox_node
+        return point_query_result
+
+    @staticmethod
+    cdef list create_list(vector[CPointQueryResult]& c_point_results_vector):
+        return [
+            PointQueryResult.create(c_res) for c_res in c_point_results_vector
+        ]
+
+    @property
+    def point(self):
+        return Vector.from_c_vector(self.c_point_query_result.point)
+
+    @property
+    def distance(self):
+        return self.c_point_query_result.distance
 
 
 @cython.freelist(1)
@@ -269,13 +338,43 @@ cdef class SpaceNode(NodeBase):
             only_non_deleted_nodes=only_non_deleted_nodes
         )
 
-    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=Vector(0., 0.),
+    def query_shape_overlaps(self, ShapeBase shape not None, Vector position=None,
                              *, CollisionBitmask mask=collision_bitmask_all,
                              CollisionBitmask collision_mask=collision_bitmask_all,
                              CollisionGroup group=collision_group_none):
+        if position is not None:
+            warnings.warn(
+                "`position` parameter in SpaceNode.query_shape_overlaps"
+                " is deprecated, use shape transformation instead",
+                DeprecationWarning, stacklevel=2,
+            )
+            shape |= Transformation(translate=position)
         return ShapeQueryResult.create_list(
             self._get_c_node().space.query_shape_overlaps(
-                shape.c_shape_ptr[0], position.c_vector, mask, collision_mask, group
+                shape.c_shape_ptr[0], mask, collision_mask, group
+            )
+        )
+
+    def query_ray(self, Vector ray_start not None, Vector ray_end not None,
+                  double radius=0.,
+                  *, CollisionBitmask mask=collision_bitmask_all,
+                  CollisionBitmask collision_mask=collision_bitmask_all,
+                  CollisionGroup group=collision_group_none):
+        return RayQueryResult.create_list(
+            self._get_c_node().space.query_ray(
+                ray_start.c_vector, ray_end.c_vector, radius,
+                mask, collision_mask, group,
+            )
+        )
+
+    def query_point_neighbors(self, Vector point not None, double max_distance,
+                  *, CollisionBitmask mask=collision_bitmask_all,
+                  CollisionBitmask collision_mask=collision_bitmask_all,
+                  CollisionGroup group=collision_group_none):
+        return PointQueryResult.create_list(
+            self._get_c_node().space.query_point_neighbors(
+                point.c_vector, max_distance,
+                mask, collision_mask, group,
             )
         )
 
