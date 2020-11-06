@@ -204,7 +204,15 @@ Instance properties:
 .. _BodyNode.local_force:
 .. attribute:: BodyNode.local_force
 
-    TODO
+    Same as :ref:`BodyNode.force <BodyNode.force>` but uses strictly local frame of reference.
+
+    .. code-block:: python
+
+        node.rotation_degrees = 0
+        node.force = Vector(1, 0)  # force will drag the object in direction V(1, 0), regardless to node rotation
+
+        other_node.rotation_degrees = 45
+        other_node.local_force = Vector(1, 0)  # force direction will be calculated AFTER applying the rotation!
 
 .. _BodyNode.velocity:
 .. attribute:: BodyNode.velocity
