@@ -280,25 +280,42 @@ Instance methods:
 
 .. method:: BodyNode.apply_force_at_local(force, at)
 
-    TODO
+    Applies :code:`force` (:class:`geometry.Vector`) to this body node at position :code:`at` (:class:`geometry.Vector`).
+    The :code:`at` parameter is in a relative frame of reference. For example, if :code:`at` is :code:`Vector(0, 0)`
+    then the force will be applied at the center of the body node.
 
-.. method:: BodyNode.apply_impulse_at_local(force, at)
+    .. note::
 
-    TODO
+        Applied force will be automatically reset to zero each frame, so if you want to apply force constantly
+        you should do that on each frame.
+
+.. method:: BodyNode.apply_impulse_at_local(impulse, at)
+
+    Applies :code:`impulse` (:class:`geometry.Vector`) to this body node at position :code:`at` (:class:`geometry.Vector`).
+    The :code:`at` parameter is in a relative frame of reference. For example, if :code:`at` is :code:`Vector(0, 0)`
+    then the impulse will be applied at the center of the body node.
+
+    .. note::
+        Use impulses when you need to apply a very large force applied over a very short period of time. Some
+        examples are a ball hitting a wall or cannon firing.
 
 .. method:: BodyNode.apply_force_at(force, at)
 
-    TODO
+    Same as :meth:`BodyNode.apply_force_at_local` but :code:`at` is in an absolute frame of reference. For instance,
+    if body node's :ref:`absolute position <Node.absolute_position>` is Vector(110, 34) and you want to apply the
+    force at the center of the body, you need to pass :code:`at=Vector(110, 34)`.
 
-.. method:: BodyNode.apply_impulse_at(force, at)
+.. method:: BodyNode.apply_impulse_at(impulse, at)
 
-    TODO
+    Same as :meth:`BodyNode.apply_impulse_at_local` but :code:`at` is in an absolute frame of reference. For instance,
+    if body node's :ref:`absolute position <Node.absolute_position>` is Vector(110, 34) and you want to apply the
+    impulse at the center of the body, you need to pass :code:`at=Vector(110, 34)`.
 
 
 :class:`HitboxNode` reference
 -----------------------------
 
-.. class:: HitboxNode(shape, group=kaa.physics.COLLISION_GROUP_NONE, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
+.. class:: HitboxNode(shape, group=kaa.physics.COLLISION_GROUP_NONE, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, sensor=False, elasticity=0.95, friction=0, surface_velocity=Vector(0, 0), origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True))
 
     HitboxNode extends the :class:`Node` class and introduces collision detection features.
 
@@ -408,19 +425,29 @@ Instance properties:
 
 .. attribute:: HitboxNode.sensor
 
-    TODO (get/set)
+    Gets or sets the sensor flag (bool). Default is :code:`False`. If set to :code:`True`, the hitbox will not
+    cause any physical collision effects (i.e. will not interact with other colliding objects) but will still trigger
+    its collision handler function (check out :ref:`SpaceNode.set_collision_handler <SpaceNode.set_collision_handler>`
+    method for more info on how to register a collision handlers for hitboxes).
 
 .. attribute:: HitboxNode.elasticity
 
-    TODO (get/set)
+    Gets or sets hitbox elasticity, as :code:`float`. This is a percentage of kinetic energy transferred during collision
+    and should be between 0 and 1. A value of 0.0 gives no bounce, while a value of 1.0 will give a "perfect" bounce.
+    Default elasticity is 0.95. The elasticity for a collision is found by multiplying the elasticity of the
+    interacting hitboxes together.
 
 .. attribute:: HitboxNode.friction
 
-    TODO (get/set)
+    Gets or sets hitbox friction coefficient, as :code:`float`. Physics engine uses the Coulomb friction model, a
+    value of 0.0 is frictionless. The friction for a collision is found by multiplying the friction of
+    the interacting hitboxes together. Default is 0.
 
 .. attribute:: HitboxNode.surface_velocity
 
-    TODO (get/set)
+    Gets or sets hitbox surface velocity, as :class:`geometry.Vector`. Useful for creating conveyor belts or players
+    that move around. This value is only used when calculating friction, not resolving the collision. Default is
+    :code:`Vector(0, 0)` (no surface velocity)
 
 
 :class:`ShapeQueryResult` reference
