@@ -425,7 +425,7 @@ Instance properties:
 
 .. class:: BoundingBox(min_x, min_y, max_x, max_y)
 
-    Represents a rectangular bounding box. Bounding box is always aligned with bot x and y axis. Bounding boxes
+    Represents a rectangular bounding box. Bounding box is always aligned with x and y axis. Bounding boxes
     are being used when querying for nodes on scene. Constructor accepts four parameters, which determine the
     bounding box x and y limits. You can also construct the BoundingBox using helper methods
     :meth:`BoundingBox.single_point` and :meth:`BoundingBox.from_points`
