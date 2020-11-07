@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 import cython
+from libc.stdint cimport int16_t
 from libcpp.vector cimport vector
 from cymove cimport cymove as cmove
 
@@ -13,12 +14,13 @@ from .kaacore.transitions cimport (
     CNodeRotationTransition, CNodeScaleTransition,
     CNodeColorTransition, CBodyNodeVelocityTransition,
     CBodyNodeAngularVelocityTransition, CNodeTransitionDelay,
-    CNodeSpriteTransition,
+    CNodeSpriteTransition, CNodeZIndexSteppingTransition,
     make_node_transition, make_node_transitions_sequence,
     make_node_transitions_parallel
 )
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.easings cimport CEasing
+from .extra.optional cimport optional, nullopt
 
 
 class AttributeTransitionMethod(IntEnum):
@@ -186,6 +188,30 @@ cdef class NodeSpriteTransition(NodeTransitionBase):
         )
 
 
+@cython.final
+cdef class NodeZIndexSteppingTransition(NodeTransitionBase):
+    def __init__(self, list z_indices, double duration, *,
+                 **options,
+    ):
+        cdef vector[optional[int16_t]] c_indices_vector
+        c_indices_vector.reserve(len(z_indices))
+        for z_index in z_indices:
+            if z_index is not None:
+                c_indices_vector.push_back(optional[int16_t](<int16_t>z_index))
+            else:
+                c_indices_vector.push_back(optional[int16_t](nullopt))
+
+        self._validate_options(options, can_use_easings=True)
+        self._setup_handle(
+            make_node_transition[CNodeZIndexSteppingTransition](
+                cmove(c_indices_vector),
+                duration,
+                self._prepare_warping(options),
+                self._prepare_easing(options),
+            )
+        )
+
+
 cdef dict SPECIALIZED_TRANSITIONS = {
         Node.position: NodePositionTransition,
         Node.rotation: NodeRotationTransition,
@@ -193,7 +219,8 @@ cdef dict SPECIALIZED_TRANSITIONS = {
         Node.color: NodeColorTransition,
         Node.sprite: NodeSpriteTransition,
         BodyNode.velocity: BodyNodeVelocityTransition,
-        BodyNode.angular_velocity: BodyNodeAngularVelocityTransition
+        BodyNode.angular_velocity: BodyNodeAngularVelocityTransition,
+        Node.z_index: NodeZIndexSteppingTransition,
     }
 
 

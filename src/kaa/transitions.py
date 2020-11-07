@@ -4,5 +4,6 @@ from ._kaa import (
     NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
     NodeColorTransition, BodyNodeVelocityTransition,
     BodyNodeAngularVelocityTransition, NodeTransitionDelay,
-    NodeTransitionCallback, NodeSpriteTransition
+    NodeTransitionCallback, NodeSpriteTransition,
+    NodeZIndexSteppingTransition,
 )

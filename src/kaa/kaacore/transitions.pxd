@@ -64,3 +64,6 @@ cdef extern from "kaacore/node_transitions.h" nogil:
 
     cdef cppclass CBodyNodeAngularVelocityTransition "kaacore::BodyNodeAngularVelocityTransition":
         pass
+
+    cdef cppclass CNodeZIndexSteppingTransition "kaacore::NodeZIndexSteppingTransition":
+        pass
