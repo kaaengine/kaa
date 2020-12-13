@@ -68,6 +68,7 @@ cdef extern from "kaacore/geometry.h" nogil:
         bool contains(const CDVec2 vector)
         bool contains(const CBoundingBox& bbox)
         bool intersects(const CBoundingBox& bbox)
+        CBoundingBox intersection(const CBoundingBox& bbox)
         CBoundingBox grow(const CDVec2 vector)
         CDVec2 center()
         CDVec2 dimensions()
