@@ -271,6 +271,11 @@ cdef class BoundingBox:
     def intersects(self, BoundingBox bounding_box not None):
         return self.c_bounding_box.intersects(bounding_box.c_bounding_box)
 
+    def intersection(self, BoundingBox bounding_box not None):
+        return BoundingBox.create(
+            self.c_bounding_box.intersection(bounding_box.c_bounding_box)
+        )
+
     def grow(self, Vector vector not None):
         return BoundingBox.create(
             self.c_bounding_box.grow(vector.c_vector)
