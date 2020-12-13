@@ -11,6 +11,7 @@ from .geometry cimport CAlignment, CTransformation, CBoundingBox
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
+from .clock cimport CSeconds
 from .sprites cimport CSprite
 from .scenes cimport CScene
 from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
@@ -95,8 +96,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         CAlignment origin_alignment() except +raise_py_error
         void origin_alignment(const CAlignment& alignment) except +raise_py_error
 
-        uint32_t lifetime() except +raise_py_error
-        void lifetime(const uint32_t& lifetime) except +raise_py_error
+        CSeconds lifetime() except +raise_py_error
+        void lifetime(const CSeconds& lifetime) except +raise_py_error
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error

@@ -19,6 +19,7 @@ from .kaacore.transitions cimport (
     make_node_transitions_parallel
 )
 from .kaacore.nodes cimport CNodePtr
+from .kaacore.timers cimport CSeconds
 from .kaacore.easings cimport CEasing
 from .extra.optional cimport optional, nullopt
 
@@ -69,7 +70,7 @@ cdef class NodePositionTransition(NodeTransitionBase):
             make_node_transition[CNodePositionTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -87,7 +88,7 @@ cdef class NodeRotationTransition(NodeTransitionBase):
             make_node_transition[CNodeRotationTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -105,7 +106,7 @@ cdef class NodeScaleTransition(NodeTransitionBase):
             make_node_transition[CNodeScaleTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -123,7 +124,7 @@ cdef class NodeColorTransition(NodeTransitionBase):
             make_node_transition[CNodeColorTransition](
                 value_advance.c_color,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -141,7 +142,7 @@ cdef class BodyNodeVelocityTransition(NodeTransitionBase):
             make_node_transition[CBodyNodeVelocityTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -159,7 +160,7 @@ cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
             make_node_transition[CBodyNodeAngularVelocityTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -181,7 +182,7 @@ cdef class NodeSpriteTransition(NodeTransitionBase):
         self._setup_handle(
             make_node_transition[CNodeSpriteTransition](
                 cmove(c_sprites_vector),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -205,7 +206,7 @@ cdef class NodeZIndexSteppingTransition(NodeTransitionBase):
         self._setup_handle(
             make_node_transition[CNodeZIndexSteppingTransition](
                 cmove(c_indices_vector),
-                duration,
+                CSeconds(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -237,7 +238,7 @@ def NodeTransition(attribute, *args, **kwargs):
 cdef class NodeTransitionDelay(NodeTransitionBase):
     def __init__(self, double duration):
         self._setup_handle(
-            make_node_transition[CNodeTransitionDelay](duration)
+            make_node_transition[CNodeTransitionDelay](CSeconds(duration))
         )
 
 

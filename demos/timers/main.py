@@ -15,8 +15,8 @@ class TtlNode(BodyNode):
 
     def __init__(self, **kwargs):
         ttl = kwargs.pop('ttl')
-        self.ttl_timer = Timer(self.delete, ttl)
-        self.ttl_timer.start()
+        self.ttl_timer = Timer(lambda c: self.delete())
+        self.ttl_timer.start_global(ttl)
         super().__init__(**kwargs)
 
 
@@ -28,11 +28,11 @@ class MainScene(Scene):
             SpaceNode(position=Vector(0, 0))
         )
         self.python_image = Sprite(PYTHON_IMAGE_PATH)
-        self.timer = Timer(self.spawn, 200, single_shot=False)
-        self.timer.start()
+        self.timer = Timer(self.spawn)
+        self.timer.start(0.2, self)
         self.spawn()
 
-    def spawn(self):
+    def spawn(self, context=None):
         angles = list(range(0, 360, 10))
         for angle in angles:
             self.space.add_child(
@@ -40,11 +40,13 @@ class MainScene(Scene):
                     mass=1e10,
                     sprite=self.python_image,
                     angular_velocity=1,
-                    ttl=random.randrange(3000, 6000),
+                    ttl=random.uniform(2, 6),
                     shape=Polygon.from_box(Vector(20, 20)),
                     velocity=Vector.from_angle_degrees(angle) * 50
                 )
             )
+        if context:
+            return context.interval
 
     def update(self, dt):
         for event in self.input.events():
@@ -55,7 +57,7 @@ class MainScene(Scene):
                     if self.timer.is_running:
                         self.timer.stop()
                     else:
-                        self.timer.start()
+                        self.timer.start(0.2, self)
 
 
 if __name__ == '__main__':

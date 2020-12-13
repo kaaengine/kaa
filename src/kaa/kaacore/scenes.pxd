@@ -1,6 +1,5 @@
-from libc.stdint cimport uint32_t
-
 from .nodes cimport CNode
+from .clock cimport CSeconds
 from .camera cimport CCamera
 from .views cimport CViewsManager
 from .spatial_index cimport CSpatialIndex
@@ -14,10 +13,8 @@ cdef extern from "kaacore/scenes.h" nogil:
         CSpatialIndex spatial_index
 
         CCamera& camera()
-        void process_frame(uint32_t dt)
         void on_attach()
         void on_enter()
-        void update(uint32_t dt)
+        void update(CSeconds dt)
         void on_exit()
         void on_detach()
-        void process_nodes(uint32_t dt)

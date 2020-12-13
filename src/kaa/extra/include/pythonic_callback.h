@@ -156,7 +156,6 @@ class PythonicCallbackResult {
 typedef PythonicCallbackResult<int> (*CythonCollisionHandler)(const PythonicCallbackWrapper&, Arbiter,
                                      CollisionPair, CollisionPair);
 
-
 CollisionHandlerFunc bind_cython_collision_handler(
     const CythonCollisionHandler cy_handler, PythonicCallbackWrapper callback
 )
@@ -168,14 +167,14 @@ CollisionHandlerFunc bind_cython_collision_handler(
 }
 
 
-typedef PythonicCallbackResult<void> (*CythonTimerCallback)(const PythonicCallbackWrapper&);
+typedef PythonicCallbackResult<Seconds> (*CythonTimerCallback)(const PythonicCallbackWrapper&, TimerContext);
 
 TimerCallback bind_cython_timer_callback(
-    const CythonTimerCallback cy_handler, PythonicCallbackWrapper callback
+    const CythonTimerCallback cy_handler, const PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}]() {
-        std::move(cy_handler(callback)).unwrap_result();
+    return [cy_handler, callback{std::move(callback)}](TimerContext context) -> Seconds {
+        return cy_handler(callback, context).unwrap_result();
     };
 }
 
