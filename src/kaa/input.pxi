@@ -810,6 +810,14 @@ cdef class KeyboardManager(_BaseInputManager):
 @cython.final
 cdef class MouseManager(_BaseInputManager):
     @property
+    def cursor_shown(self):
+        return self._get_c_input_manager().mouse.cursor_shown()
+
+    @cursor_shown.setter
+    def cursor_shown(self, bint shown):
+        self._get_c_input_manager().mouse.cursor_shown(shown)
+
+    @property
     def relative_mode(self):
         return self._get_c_input_manager().mouse.relative_mode()
 

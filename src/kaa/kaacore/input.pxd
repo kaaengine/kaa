@@ -430,6 +430,8 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_released(CMouseButton mb) except +raise_py_error
         CDVec2 get_position() except +raise_py_error
 
+        bint cursor_shown() except +raise_py_error
+        void cursor_shown(const bint shown) except +raise_py_error
         bint relative_mode() except +raise_py_error
         void relative_mode(const bint rel) except +raise_py_error
 
