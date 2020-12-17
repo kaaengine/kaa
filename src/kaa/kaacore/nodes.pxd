@@ -31,7 +31,6 @@ cdef extern from "kaacore/node_ptr.h" nogil:
         bool operator==(const CNode*)
         bool operator bool()
         CNode* get() except +raise_py_error
-        CNodePtr release() except +raise_py_error
         void destroy() except +raise_py_error
 
 

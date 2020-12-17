@@ -57,8 +57,6 @@ cdef class NodeBase:
         self.setup(**options)
 
     cdef void _on_internal_delete(self):
-        if self._c_node_owner_ptr:
-            self._c_node_owner_ptr.release()
         self._c_node_ptr = CNodePtr()
 
     cdef inline CNode* _get_c_node(self) except NULL:
