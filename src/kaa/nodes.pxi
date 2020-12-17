@@ -38,6 +38,10 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
             Py_XINCREF(py_wrapper)
             this.added_to_parent = True
 
+    void on_internal_delete() nogil:
+        with gil:
+            (<NodeBase>this.py_wrapper)._on_internal_delete()
+
 
 cdef class NodeBase:
     cdef:
@@ -52,10 +56,15 @@ cdef class NodeBase:
     def __init__(self, **options):
         self.setup(**options)
 
+    cdef void _on_internal_delete(self):
+        if self._c_node_owner_ptr:
+            self._c_node_owner_ptr.release()
+        self._c_node_ptr = CNodePtr()
+
     cdef inline CNode* _get_c_node(self) except NULL:
         cdef CNode* c_node = self._c_node_ptr.get()
         assert c_node != NULL, \
-            'Operation on uninitialized or deleted Node. Aborting.'
+            'Operation on uninitialized or deleted Node.'
         return c_node
 
     cdef void _make_c_node(self, CNodeType type):
