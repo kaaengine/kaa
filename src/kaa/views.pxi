@@ -183,7 +183,7 @@ cdef class _Camera(_SceneResource):
 
     @property
     def rotation_degrees(self):
-        return degrees(self._ger_c_camera().rotation())
+        return degrees(self._get_c_camera().rotation())
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
