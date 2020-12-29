@@ -1,4 +1,6 @@
 import os
+import math
+import time
 import random
 
 from kaa.timers import Timer
@@ -33,16 +35,17 @@ class MainScene(Scene):
         self.spawn()
 
     def spawn(self, context=None):
-        angles = list(range(0, 360, 10))
+        start = int(math.degrees(math.sin(time.time())))
+        angles = list(range(start, start + 360, 20))
         for angle in angles:
             self.space.add_child(
                 TtlNode(
                     mass=1e10,
                     sprite=self.python_image,
-                    angular_velocity=1,
+                    angular_velocity=2,
                     ttl=random.uniform(2, 6),
                     shape=Polygon.from_box(Vector(20, 20)),
-                    velocity=Vector.from_angle_degrees(angle) * 50
+                    velocity=Vector.from_angle_degrees(angle) * 60
                 )
             )
         if context:
