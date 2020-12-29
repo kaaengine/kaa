@@ -44,7 +44,8 @@ cdef extern from "kaacore/nodes.h" nogil:
 
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         void on_add_to_parent()
-        void on_internal_delete()
+        void on_attach()
+        void on_detach()
 
     cdef cppclass CNode "kaacore::Node":
         # UNION!
