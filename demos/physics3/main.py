@@ -46,7 +46,7 @@ class FallingPiece(BodyNode):
             scale=Vector(0.2, 0.2) + Vector.xy(
                 math.fabs(random.gauss(0.0, 1.0)),
             ),
-            lifetime=60000.,  # 60 seconds
+            lifetime=60.,
         )
 
         self.hitbox = self.add_child(HitboxNode(
@@ -76,11 +76,10 @@ class DemoScene(Scene):
             z_index=10,
         ))
 
-        self.spawn_timer = Timer(self._spawn_heartbeat, 20,
-                                 single_shot=False)
-        self.spawn_timer.start()
+        self.spawn_timer = Timer(self._spawn_heartbeat)
+        self.spawn_timer.start(0.02, self)
 
-    def _spawn_heartbeat(self):
+    def _spawn_heartbeat(self, context):
         if random.random() > 0.8:
             initial_position = Vector(
                 random.uniform(0, 300), -20.
@@ -88,6 +87,7 @@ class DemoScene(Scene):
             self.space.add_child(
                 FallingPiece(initial_position)
             )
+        return context.interval
 
     def _perform_shape_query(self):
         results = self.space.query_shape_overlaps(
@@ -103,7 +103,7 @@ class DemoScene(Scene):
                     position=cp.point_b,
                     shape=Circle(0.5),
                     color=Color(1., 0., 0., 1.),
-                    lifetime=200,
+                    lifetime=0.2,
                     z_index=3,
                 ))
 
@@ -117,7 +117,7 @@ class DemoScene(Scene):
                 position=r.point,
                 shape=Circle(0.5),
                 color=Color(1., 1., 0., 1.),
-                lifetime=200,
+                lifetime=0.2,
                 z_index=3,
             ))
 
@@ -130,7 +130,7 @@ class DemoScene(Scene):
                 position=r.point,
                 shape=Circle(0.5),
                 color=Color(1., 0., 1., 1.),
-                lifetime=200,
+                lifetime=0.2,
                 z_index=3,
             ))
 

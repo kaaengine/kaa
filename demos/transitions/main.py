@@ -27,23 +27,23 @@ class DemoTransitionsScene(Scene):
         self.python_img = Sprite(PYTHON_IMAGE_PATH)
 
         self.transition = NodeTransitionsSequence([
-            NodePositionTransition(Vector(-100., -100.), 3000.,
+            NodePositionTransition(Vector(-100., -100.), 3.,
                                    advance_method=AttributeTransitionMethod.add,
                                    loops=3,
                                    easing=Easing.elastic_in_out),
-            NodePositionTransition(Vector(100., 0.), 3000.,
+            NodePositionTransition(Vector(100., 0.), 3.,
                                    advance_method=AttributeTransitionMethod.add,
                                    easing=Easing.back_in_out),
-            NodeTransitionDelay(1500.),
+            NodeTransitionDelay(1.5),
             NodeTransitionCallback(
                 lambda node: setattr(node, 'sprite', None)
             ),
             NodeTransitionsParallel([
-                NodePositionTransition(Vector(-50., 100.), 3000.,
+                NodePositionTransition(Vector(-50., 100.), 3.,
                                        advance_method=AttributeTransitionMethod.add),
-                NodeRotationTransition(1., 5000.),
-                NodeScaleTransition(Vector(2., 2.), 3000.),
-                NodeColorTransition(Color(0., 1., 0., 0.5), 4000.),
+                NodeRotationTransition(1., 5.),
+                NodeScaleTransition(Vector(2., 2.), 3.),
+                NodeColorTransition(Color(0., 1., 0., 0.5), 4.),
             ], back_and_forth=True),
         ])
 
@@ -64,7 +64,7 @@ class DemoTransitionsScene(Scene):
             Sprite(EXPLOSION_IMAGE_PATH), Vector(64, 64),
         )
         self.sprite_transition = NodeSpriteTransition(
-            spritesheet_frames, 1000., loops=0, back_and_forth=True,
+            spritesheet_frames, 1., loops=0, back_and_forth=True,
             easing=Easing.quartic_out,
         )
 
@@ -94,7 +94,7 @@ class DemoTransitionsScene(Scene):
                 position=Vector(-50., 50.),
                 sprite=self.python_img,
                 velocity=Vector(0., 30.),
-                transition=BodyNodeVelocityTransition(Vector(0., -30.), 10000.),
+                transition=BodyNodeVelocityTransition(Vector(0., -30.), 10.),
             )
         )
 

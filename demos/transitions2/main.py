@@ -34,7 +34,7 @@ class DemoTransitionsScene(Scene):
         self.obj.transitions_manager.set(
             'movement',
             NodeTransition(
-                Node.position, Vector(100, 30), 3000.,
+                Node.position, Vector(100, 30), 3.,
                 advance_method=AttributeTransitionMethod.add,
                 loops=0, back_and_forth=True,
             )
@@ -42,7 +42,7 @@ class DemoTransitionsScene(Scene):
 
     def _randomize_color_transition(self):
         return NodeTransition(
-            Node.color, random_color(), 2000.,
+            Node.color, random_color(), 2.,
             loops=0, back_and_forth=True,
         )
 
@@ -60,7 +60,7 @@ class DemoTransitionsScene(Scene):
                     self.obj.transitions_manager.set(
                         'pseudo_timer',
                         NodeTransitionsSequence([
-                            NodeTransitionDelay(1000.),
+                            NodeTransitionDelay(1.),
                             NodeTransitionCallback(
                                 lambda node: node.transitions_manager.set(
                                     'color', self._randomize_color_transition(),
