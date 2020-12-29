@@ -47,28 +47,6 @@ cdef class _Engine:
     def current_scene(self):
         return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
 
-    def change_scene(self, Scene scene not None):
-        get_c_engine().change_scene(scene._c_scene.get())
-
-    def run(self, Scene scene not None):
-        cdef:
-            CScene* c_scene = scene._c_scene.get()
-            CEngine* c_engine = get_c_engine()
-        with nogil:
-            c_engine.run(c_scene)
-
-    def quit(self):
-        get_c_engine().quit()
-
-    def get_displays(self):
-        cdef vector[CDisplay] c_displays = get_c_engine().get_displays()
-        cdef CDisplay c_disp
-        displays_list = []
-
-        for c_disp in c_displays:
-            displays_list.append(Display._wrap_c_display(c_disp))
-        return displays_list
-
     @property
     def virtual_resolution(self):
         cdef CUVec2 c_virtual_resolution = get_c_engine().virtual_resolution()
@@ -79,12 +57,6 @@ cdef class _Engine:
     def virtual_resolution(self, Vector new_resolution):
         get_c_engine().virtual_resolution(
             CUVec2(new_resolution.x, new_resolution.y)
-        )
-
-    @property
-    def virtual_resolution_mode(self):
-        return VirtualResolutionMode(
-            <uint32_t>get_c_engine().virtual_resolution_mode()
         )
 
     @property
@@ -106,6 +78,31 @@ cdef class _Engine:
     @property
     def audio(self):
         return self._audio_manager
+
+    def get_fps(self):
+        return get_c_engine().get_fps()
+
+    def change_scene(self, Scene scene not None):
+        get_c_engine().change_scene(scene._c_scene.get())
+
+    def run(self, Scene scene not None):
+        cdef:
+            CScene* c_scene = scene._c_scene.get()
+            CEngine* c_engine = get_c_engine()
+        with nogil:
+            c_engine.run(c_scene)
+
+    def quit(self):
+        get_c_engine().quit()
+
+    def get_displays(self):
+        cdef vector[CDisplay] c_displays = get_c_engine().get_displays()
+        cdef CDisplay c_disp
+        displays_list = []
+
+        for c_disp in c_displays:
+            displays_list.append(Display._wrap_c_display(c_disp))
+        return displays_list
 
     def stop(self):
         if not is_c_engine_initialized():

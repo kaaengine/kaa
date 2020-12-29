@@ -94,23 +94,22 @@ cdef class Scene:
             CNodePtr(&self._c_scene.get().root_node)
         )
 
-    def on_enter(self):
-        pass
-
-    def update(self, dt):
-        raise NotImplementedError
-
-    def on_exit(self):
-        pass
-
     @property
     def engine(self):
         return get_engine()
-    
+
+    @property
+    def root(self):
+        return self._root_node_wrapper
+
     @property
     def camera(self):
         return self.views[views_default_z_index].camera
-    
+
+    @property
+    def input(self):
+        return self.input_
+
     @property
     def clear_color(self):
         return self.views[views_default_z_index].clear_color
@@ -120,9 +119,18 @@ cdef class Scene:
         self.views[views_default_z_index].clear_color = color
 
     @property
-    def input(self):
-        return self.input_
+    def time_scale(self):
+        return self._c_scene.get().get_time_scale()
 
-    @property
-    def root(self):
-        return self._root_node_wrapper
+    @time_scale.setter
+    def time_scale(self, double scale):
+        self._c_scene.get().set_time_scale(scale)
+
+    def on_enter(self):
+        pass
+
+    def update(self, dt):
+        raise NotImplementedError
+
+    def on_exit(self):
+        pass

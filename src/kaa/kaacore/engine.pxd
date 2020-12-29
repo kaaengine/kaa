@@ -23,21 +23,22 @@ cdef extern from "kaacore/engine.h" nogil:
         unique_ptr[CInputManager] input_manager
         unique_ptr[CAudioManager] audio_manager
 
-        CEngine(CUVec2 virtual_resolution)
-        CEngine(CUVec2 virtual_resolution,
-                CVirtualResolutionMode virtual_resolution_mode)
-
-        vector[CDisplay] get_displays()
-        void run(CScene* c_scene) except +raise_py_error
-        void change_scene(CScene* c_scene) except +raise_py_error
-        void quit() except +raise_py_error
-
         CScene* current_scene()
         CUVec2 virtual_resolution()
         void virtual_resolution(CUVec2 resolution)
 
         CVirtualResolutionMode virtual_resolution_mode()
         void virtual_resolution_mode(CVirtualResolutionMode vr_mode)
+
+        CEngine(CUVec2 virtual_resolution)
+        CEngine(CUVec2 virtual_resolution,
+                CVirtualResolutionMode virtual_resolution_mode)
+
+        double get_fps()
+        vector[CDisplay] get_displays()
+        void run(CScene* c_scene) except +raise_py_error
+        void change_scene(CScene* c_scene) except +raise_py_error
+        void quit() except +raise_py_error
 
     bint is_c_engine_initialized "kaacore::is_engine_initialized"()
     CEngine* get_c_engine "kaacore::get_engine"() except +raise_py_error

@@ -13,6 +13,13 @@ cdef extern from "kaacore/scenes.h" nogil:
         CSpatialIndex spatial_index
 
         CCamera& camera()
+        # for some reason in this case Cython
+        # doesn't recognize overloaded functions,
+        # maybe this has something to do CScene being
+        # subclassed from Cython?
+        double get_time_scale "time_scale"()
+        void set_time_scale "time_scale"(const double scale)
+
         void on_attach()
         void on_enter()
         void update(CSeconds dt)
