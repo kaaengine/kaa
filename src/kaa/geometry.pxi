@@ -129,10 +129,15 @@ cdef class Transformation:
 
     @staticmethod
     cdef object _combine(Transformation transformation, object other):
+        """
+        Combine transformation with other object (Transformation/Vector/Shape)
+        in a `transformation @ other` fashion.
+        """
+
         if isinstance(other, Transformation):
             return Transformation.create(
-                 transformation.c_transformation
-                | (<Transformation>other).c_transformation
+                (<Transformation>other).c_transformation
+                | transformation.c_transformation
             )
         elif isinstance(other, Vector):
             return Vector.from_c_vector(
