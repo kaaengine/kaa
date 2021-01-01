@@ -17,8 +17,8 @@ cdef extern from "kaacore/scenes.h" nogil:
         # doesn't recognize overloaded functions,
         # maybe this has something to do CScene being
         # subclassed from Cython?
-        double get_time_scale "time_scale"()
-        void set_time_scale "time_scale"(const double scale)
+        double get_time_scale "time_scale"() except +raise_py_error
+        void set_time_scale "time_scale"(const double scale) except +raise_py_error
 
         void on_attach()
         void on_enter()
