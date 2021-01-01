@@ -167,13 +167,13 @@ CollisionHandlerFunc bind_cython_collision_handler(
 }
 
 
-typedef PythonicCallbackResult<Seconds> (*CythonTimerCallback)(const PythonicCallbackWrapper&, TimerContext);
+typedef PythonicCallbackResult<Duration> (*CythonTimerCallback)(const PythonicCallbackWrapper&, TimerContext);
 
 TimerCallback bind_cython_timer_callback(
     const CythonTimerCallback cy_handler, const PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}](TimerContext context) -> Seconds {
+    return [cy_handler, callback{std::move(callback)}](TimerContext context) -> Duration {
         return cy_handler(callback, context).unwrap_result();
     };
 }

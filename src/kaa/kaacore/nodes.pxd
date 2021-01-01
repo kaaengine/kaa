@@ -11,7 +11,7 @@ from .geometry cimport CAlignment, CTransformation, CBoundingBox
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
-from .clock cimport CSeconds
+from .clock cimport CDuration
 from .sprites cimport CSprite
 from .scenes cimport CScene
 from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
@@ -45,6 +45,8 @@ cdef extern from "kaacore/nodes.h" nogil:
 
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         void on_add_to_parent()
+        void on_attach()
+        void on_detach()
 
     cdef cppclass CNode "kaacore::Node":
         # UNION!
@@ -96,8 +98,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         CAlignment origin_alignment() except +raise_py_error
         void origin_alignment(const CAlignment& alignment) except +raise_py_error
 
-        CSeconds lifetime() except +raise_py_error
-        void lifetime(const CSeconds& lifetime) except +raise_py_error
+        CDuration lifetime() except +raise_py_error
+        void lifetime(const CDuration& lifetime) except +raise_py_error
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error

@@ -4,7 +4,7 @@ from cpython.weakref cimport PyWeakref_NewRef
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 
 from .kaacore.scenes cimport CScene
-from .kaacore.clock cimport CSeconds
+from .kaacore.clock cimport CDuration
 from .kaacore.nodes cimport CNodePtr
 from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.engine cimport is_c_engine_initialized
@@ -33,7 +33,7 @@ cdef cppclass CPyScene(CScene):
     void on_enter() nogil:
         this._call_py_on_enter().unwrap_result()
 
-    void update(CSeconds dt) nogil:
+    void update(CDuration dt) nogil:
         this._call_py_update(dt).unwrap_result()
 
     void on_exit() nogil:
@@ -43,7 +43,7 @@ cdef cppclass CPyScene(CScene):
         with gil:
             Py_DECREF(this.get_py_scene())
 
-    CPythonicCallbackResult[void] _call_py_update(CSeconds dt) with gil:
+    CPythonicCallbackResult[void] _call_py_update(CDuration dt) with gil:
         try:
             this.get_py_scene().update(dt.count())
         except BaseException as exc:

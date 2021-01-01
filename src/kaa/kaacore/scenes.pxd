@@ -1,5 +1,5 @@
 from .nodes cimport CNode
-from .clock cimport CSeconds
+from .clock cimport CDuration
 from .camera cimport CCamera
 from .views cimport CViewsManager
 from .spatial_index cimport CSpatialIndex
@@ -22,6 +22,6 @@ cdef extern from "kaacore/scenes.h" nogil:
 
         void on_attach()
         void on_enter()
-        void update(CSeconds dt)
+        void update(CDuration dt)
         void on_exit()
         void on_detach()

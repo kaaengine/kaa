@@ -2,7 +2,7 @@ from libcpp.memory cimport unique_ptr
 from libcpp.functional cimport function
 
 from .nodes cimport CNodePtr
-from .clock cimport CSeconds
+from .clock cimport CDuration
 from .transitions cimport CTransitionStateBase, CTransitionWarping
 from .easings cimport CEasing
 from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
@@ -11,14 +11,14 @@ from .exceptions cimport raise_py_error
 
 cdef extern from "kaacore/transitions.h":
     cdef cppclass CNodeTransitionCustomizable "kaacore::NodeTransitionCustomizable":
-        CSeconds duration
-        CSeconds internal_duration
+        CDuration duration
+        CDuration internal_duration
         CTransitionWarping warping
         CEasing _easing
 
         CNodeTransitionCustomizable() \
             except +raise_py_error
-        CNodeTransitionCustomizable(const CSeconds duration, const CTransitionWarping& warping) \
+        CNodeTransitionCustomizable(const CDuration duration, const CTransitionWarping& warping) \
             except +raise_py_error
 
         unique_ptr[CTransitionStateBase] prepare_state(CNodePtr node) nogil const

@@ -7,4 +7,4 @@ cdef extern from "<chrono>" namespace "std::chrono" nogil:
 
 
 cdef extern from "kaacore/clock.h" nogil:
-    ctypedef duration[long double] CSeconds "kaacore::Seconds"
+    ctypedef duration[long double] CDuration "kaacore::Duration"

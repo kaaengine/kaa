@@ -2,7 +2,7 @@ cimport cython
 
 from libcpp.cast cimport dynamic_cast
 
-from .kaacore.clock cimport CSeconds
+from .kaacore.clock cimport CDuration
 from .kaacore.timers cimport (
     bind_cython_timer_callback, CTimerCallback, CTimerContext, CTimer
 )
@@ -38,7 +38,7 @@ cdef class TimerContext:
         return self.c_context.interval.count()
 
 
-cdef CPythonicCallbackResult[CSeconds] cython_timer_callback(
+cdef CPythonicCallbackResult[CDuration] cython_timer_callback(
     const CPythonicCallbackWrapper& c_wrapper, CTimerContext c_context
 ) with gil:
     cdef:
@@ -51,8 +51,8 @@ cdef CPythonicCallbackResult[CSeconds] cython_timer_callback(
         if result is not None:
             new_interval = result
     except Exception as py_exc:
-        return CPythonicCallbackResult[CSeconds](<PyObject*>py_exc)
-    return CPythonicCallbackResult[CSeconds](CSeconds(new_interval))
+        return CPythonicCallbackResult[CDuration](<PyObject*>py_exc)
+    return CPythonicCallbackResult[CDuration](CDuration(new_interval))
 
 
 @cython.final
@@ -72,10 +72,10 @@ cdef class Timer:
         return self.c_timer.is_running()
 
     def start(self, double interval, Scene scene not None):
-        self.c_timer.start(CSeconds(interval), scene._c_scene.get())
+        self.c_timer.start(CDuration(interval), scene._c_scene.get())
 
     def start_global(self, double interval):
-        self.c_timer.start_global(CSeconds(interval))
+        self.c_timer.start_global(CDuration(interval))
 
     def stop(self):
         self.c_timer.stop()
