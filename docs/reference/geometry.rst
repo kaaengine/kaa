@@ -386,26 +386,27 @@ Instance methods:
 
 .. method:: Transformation.decompose()
 
-    Returns a :class:`DecomposedTransformation` object which allows reading position, rotation and scale
+    Returns a :class:`DecomposedTransformation` object which allows reading transformation's translation, rotation
+    and scale.
 
     .. code-block:: python
 
         combined_transformation = t1 | t2 | t3 | t4
         result = combined_transformation.decompose()
-        print(result.position, result.rotation, result.rotation_degrees, result.scale)
+        print(result.translation, result.rotation, result.rotation_degrees, result.scale)
 
 :class:`DecomposedTransformation` reference
 -------------------------------------------
 
 .. class:: DecomposedTransformation
 
-Object returned by :meth:`Transformation.decompose()`. It wraps transformation properties in form of accessible properties
+Object returned by :meth:`Transformation.decompose()`. It surfaces transformation properties.
 
 Instance properties:
 
-.. attribute:: DecomposedTransformation.position
+.. attribute:: DecomposedTransformation.translation
 
-    Returns position as :class:`geometry.Vector`
+    Returns translation as :class:`geometry.Vector`
 
 .. attribute:: DecomposedTransformation.rotation
 
