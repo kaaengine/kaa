@@ -55,8 +55,8 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
              const CEasing easing):
         this.prepare_func = prepare_func
         this.evaluate_func = evaluate_func
-        this.duration = duration * warping.duration_factor()
-        this.internal_duration = duration
+        this.duration = CDuration(duration * warping.duration_factor())
+        this.internal_duration = CDuration(duration)
         this.warping = warping
         this._easing = easing
 

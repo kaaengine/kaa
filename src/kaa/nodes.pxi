@@ -10,6 +10,7 @@ from cymove cimport cymove as cmove
 from .extra.optional cimport optional, nullopt
 
 from .kaacore.shapes cimport CShape
+from .kaacore.clock cimport CDuration
 from .kaacore.sprites cimport CSprite
 from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.nodes cimport (
@@ -351,11 +352,11 @@ cdef class NodeBase:
 
     @property
     def lifetime(self):
-        return self._get_c_node().lifetime()
+        return self._get_c_node().lifetime().count()
 
     @lifetime.setter
-    def lifetime(self, uint32_t new_lifetime):
-        self._get_c_node().lifetime(new_lifetime)
+    def lifetime(self, double new_lifetime):
+        self._get_c_node().lifetime(CDuration(new_lifetime))
 
     @property
     def transition(self):

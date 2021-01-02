@@ -1,60 +1,81 @@
-import cython
-from libcpp cimport bool
-from libc.stdint cimport uint32_t
+cimport cython
 
+from libcpp.cast cimport dynamic_cast
+
+from .kaacore.clock cimport CDuration
+from .kaacore.timers cimport (
+    bind_cython_timer_callback, CTimerCallback, CTimerContext, CTimer
+)
 from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
-from .kaacore.timers cimport bind_cython_timer_callback, CTimerCallback, CTimer
 
 DEF TIMER_FREELIST_SIZE = 10
+DEF TIMER_CONTEXT_FREELIST_SIZE = 2
+ctypedef CPyScene* _CPyScenePtr 
 
 
-cdef CPythonicCallbackResult[void] cython_timer_callback(
-    const CPythonicCallbackWrapper& c_wrapper
+@cython.final
+@cython.freelist(TIMER_CONTEXT_FREELIST_SIZE)
+cdef class TimerContext:
+    cdef CTimerContext c_context
+
+    @staticmethod
+    cdef TimerContext create(CTimerContext c_context):
+        cdef TimerContext result = TimerContext.__new__(TimerContext)
+        result.c_context = c_context
+        return result
+
+    @property
+    def scene(self):
+        if self.c_context.scene == NULL:
+            return
+
+        return dynamic_cast[_CPyScenePtr](
+            self.c_context.scene
+        ).py_scene_weakref()
+
+    @property
+    def interval(self):
+        return self.c_context.interval.count()
+
+
+cdef CPythonicCallbackResult[CDuration] cython_timer_callback(
+    const CPythonicCallbackWrapper& c_wrapper, CTimerContext c_context
 ) with gil:
-    cdef object callback = <object>c_wrapper.py_callback
+    cdef:
+        object result
+        double new_interval = 0
+        object callback = <object>c_wrapper.py_callback
+        TimerContext context = TimerContext.create(c_context)
     try:
-        callback()
+        result = callback(context)
+        if result is not None:
+            new_interval = result
     except Exception as py_exc:
-        return CPythonicCallbackResult[void](<PyObject*>py_exc)
-    return CPythonicCallbackResult[void]()
+        return CPythonicCallbackResult[CDuration](<PyObject*>py_exc)
+    return CPythonicCallbackResult[CDuration](CDuration(new_interval))
 
 
 @cython.final
 @cython.freelist(TIMER_FREELIST_SIZE)
 cdef class Timer:
-    cdef CTimer _c_timer
+    cdef CTimer c_timer
 
     def __cinit__(
-        self, object callback not None, uint32_t interval=0,
-        bint single_shot=True
-    ):
+        self, object callback not None):
         cdef CTimerCallback bound_callback = bind_cython_timer_callback(
             cython_timer_callback, CPythonicCallbackWrapper(<PyObject*>callback),
         )
-        self._c_timer = CTimer(bound_callback, interval, single_shot)
+        self.c_timer = CTimer(bound_callback)
 
     @property
     def is_running(self):
-        return self._c_timer.is_running()
+        return self.c_timer.is_running()
 
-    @property
-    def interval(self):
-        return self._c_timer.interval()
+    def start(self, double interval, Scene scene not None):
+        self.c_timer.start(CDuration(interval), scene._c_scene.get())
 
-    @interval.setter
-    def interval(self, uint32_t value):
-        self._c_timer.interval(value)
-
-    @property
-    def single_shot(self):
-        return self._c_timer.single_shot()
-
-    @single_shot.setter
-    def single_shot(self, bint value):
-        self._c_timer.single_shot(value)
-
-    def start(self):
-        self._c_timer.start()
+    def start_global(self, double interval):
+        self.c_timer.start_global(CDuration(interval))
 
     def stop(self):
-        self._c_timer.stop()
+        self.c_timer.stop()

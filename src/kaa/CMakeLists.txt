@@ -52,6 +52,7 @@ set(CYTHON_FILES
     kaacore/hashing.pxd
     kaacore/easings.pxd
     kaacore/spatial_index.pxd
+    kaacore/clock.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h

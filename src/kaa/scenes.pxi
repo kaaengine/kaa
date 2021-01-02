@@ -1,11 +1,12 @@
 from libc.stdint cimport uint32_t
 from libcpp.memory cimport unique_ptr
-from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.weakref cimport PyWeakref_NewRef
+from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 
-from .kaacore.glue cimport CPythonicCallbackResult
-from .kaacore.nodes cimport CNodePtr
 from .kaacore.scenes cimport CScene
+from .kaacore.clock cimport CDuration
+from .kaacore.nodes cimport CNodePtr
+from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.engine cimport is_c_engine_initialized
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
 from .kaacore.views cimport views_default_z_index
@@ -32,7 +33,7 @@ cdef cppclass CPyScene(CScene):
     void on_enter() nogil:
         this._call_py_on_enter().unwrap_result()
 
-    void update(uint32_t dt) nogil:
+    void update(CDuration dt) nogil:
         this._call_py_update(dt).unwrap_result()
 
     void on_exit() nogil:
@@ -42,9 +43,9 @@ cdef cppclass CPyScene(CScene):
         with gil:
             Py_DECREF(this.get_py_scene())
 
-    CPythonicCallbackResult[void] _call_py_update(uint32_t dt) with gil:
+    CPythonicCallbackResult[void] _call_py_update(CDuration dt) with gil:
         try:
-            this.get_py_scene().update(dt)
+            this.get_py_scene().update(dt.count())
         except BaseException as exc:
             return CPythonicCallbackResult[void](<PyObject*>exc)
         return CPythonicCallbackResult[void]()
@@ -86,30 +87,29 @@ cdef class Scene:
         assert c_scene != NULL
         self._c_scene = unique_ptr[CPyScene](c_scene)
 
+        self.input_ = InputManager()
         self.views = _ViewsManager.create(self)
         self.spatial_index = _SpatialIndexManager.create(self)
         self._root_node_wrapper = get_node_wrapper(
             CNodePtr(&self._c_scene.get().root_node)
         )
-        self.input_ = InputManager()
-
-    def on_enter(self):
-        pass
-
-    def update(self, dt):
-        raise NotImplementedError
-
-    def on_exit(self):
-        pass
 
     @property
     def engine(self):
         return get_engine()
-    
+
+    @property
+    def root(self):
+        return self._root_node_wrapper
+
     @property
     def camera(self):
         return self.views[views_default_z_index].camera
-    
+
+    @property
+    def input(self):
+        return self.input_
+
     @property
     def clear_color(self):
         return self.views[views_default_z_index].clear_color
@@ -119,9 +119,18 @@ cdef class Scene:
         self.views[views_default_z_index].clear_color = color
 
     @property
-    def input(self):
-        return self.input_
+    def time_scale(self):
+        return self._c_scene.get().get_time_scale()
 
-    @property
-    def root(self):
-        return self._root_node_wrapper
+    @time_scale.setter
+    def time_scale(self, double scale):
+        self._c_scene.get().set_time_scale(scale)
+
+    def on_enter(self):
+        pass
+
+    def update(self, dt):
+        raise NotImplementedError
+
+    def on_exit(self):
+        pass
