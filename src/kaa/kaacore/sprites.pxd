@@ -6,7 +6,7 @@ from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/sprites.h" nogil:
+cdef extern from "kaacore/sprites.h" namespace "kaacore" nogil:
     cdef cppclass CSprite "kaacore::Sprite":
         CDVec2 origin
         CDVec2 dimensions

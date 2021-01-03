@@ -12,7 +12,7 @@ from .exceptions cimport raise_py_error
 from .vectors cimport CUVec2
 
 
-cdef extern from "kaacore/engine.h" nogil:
+cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
     cdef enum CVirtualResolutionMode "kaacore::VirtualResolutionMode":
         adaptive_stretch "kaacore::VirtualResolutionMode::adaptive_stretch"
         aggresive_stretch "kaacore::VirtualResolutionMode::aggresive_stretch"

@@ -8,7 +8,7 @@ from .exceptions cimport raise_py_error
 from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
-cdef extern from "kaacore/input.h" nogil:
+cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
     ctypedef int32_t CControllerID "kaacore::ControllerID"
 
     cdef enum CKeycode "kaacore::Keycode":

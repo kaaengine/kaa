@@ -7,7 +7,7 @@ from .exceptions cimport raise_py_error
 from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
-cdef extern from "kaacore/timers.h" nogil:
+cdef extern from "kaacore/timers.h" namespace "kaacore" nogil:
     cdef cppclass CTimerContext "kaacore::TimerContext":
         CDuration interval
         CScene* scene

@@ -6,7 +6,7 @@ from .geometry cimport CTransformation, CBoundingBox
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/shapes.h" nogil:
+cdef extern from "kaacore/shapes.h" namespace "kaacore" nogil:
     cdef enum CShapeType "kaacore::ShapeType":
         none "kaacore::ShapeType::none",
         segment "kaacore::ShapeType::segment",

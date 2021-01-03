@@ -9,7 +9,7 @@ from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/transitions.h":
+cdef extern from "kaacore/transitions.h" namespace "kaacore":
     cdef cppclass CNodeTransitionCustomizable "kaacore::NodeTransitionCustomizable":
         CDuration duration
         CDuration internal_duration

@@ -4,7 +4,7 @@ from libcpp.string cimport string
 from .vectors cimport CUVec2
 
 
-cdef extern from "kaacore/display.h" nogil:
+cdef extern from "kaacore/display.h" namespace "kaacore" nogil:
     cdef cppclass CDisplay "kaacore::Display":
         uint32_t index
         string name

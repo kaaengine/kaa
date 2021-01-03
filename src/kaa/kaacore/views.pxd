@@ -6,7 +6,7 @@ from .vectors cimport CColor, CIVec2, CUVec2
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/views.h" nogil:
+cdef extern from "kaacore/views.h" namespace "kaacore" nogil:
     int16_t views_default_z_index
 
     cdef cppclass CView "kaacore::View":

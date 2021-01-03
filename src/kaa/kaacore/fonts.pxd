@@ -4,7 +4,7 @@ from libcpp cimport bool
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/fonts.h" nogil:
+cdef extern from "kaacore/fonts.h" namespace "kaacore" nogil:
     cdef cppclass CFont "kaacore::Font":
         @staticmethod
         CFont load(const string& font_filepath) \

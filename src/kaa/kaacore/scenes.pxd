@@ -6,7 +6,7 @@ from .spatial_index cimport CSpatialIndex
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/scenes.h" nogil:
+cdef extern from "kaacore/scenes.h" namespace "kaacore" nogil:
     cdef cppclass CScene "kaacore::Scene":
         CNode root_node
         CViewsManager views

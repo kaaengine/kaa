@@ -5,7 +5,7 @@ from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/geometry.h" nogil:
+cdef extern from "kaacore/geometry.h" namespace "kaacore" nogil:
     cdef enum CPolygonType "kaacore::PolygonType":
         convex_cw "kaacore::PolygonType::convex_cw",
         convex_ccw "kaacore::PolygonType::convex_ccw",

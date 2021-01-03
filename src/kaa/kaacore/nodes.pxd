@@ -18,7 +18,7 @@ from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/node_ptr.h" nogil:
+cdef extern from "kaacore/node_ptr.h" namespace "kaacore" nogil:
     cdef cppclass CNodePtr "kaacore::NodePtr":
         CNodePtr()
         CNodePtr(CNode*)
@@ -35,7 +35,7 @@ cdef extern from "kaacore/node_ptr.h" nogil:
         void destroy() except +raise_py_error
 
 
-cdef extern from "kaacore/nodes.h" nogil:
+cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
     cdef enum CNodeType "kaacore::NodeType":
         basic "kaacore::NodeType::basic",
         space "kaacore::NodeType::space",

@@ -11,10 +11,10 @@ from .exceptions cimport raise_py_error
 from ..extra.optional cimport optional
 
 
-cdef extern from "kaacore/physics.h" nogil:
-    ctypedef size_t CollisionTriggerId "kaacore::CollisionTriggerId"
-    ctypedef size_t CollisionGroup "kaacore::CollisionGroup"
-    ctypedef size_t CollisionBitmask "kaacore::CollisionBitmask"
+cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
+    ctypedef size_t CollisionTriggerId
+    ctypedef size_t CollisionGroup
+    ctypedef size_t CollisionBitmask
 
     cdef:
         CollisionGroup collision_group_none
