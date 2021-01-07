@@ -10,5 +10,7 @@ addons:
       - g++
       - freeglut3-dev
 
-install: python3 -m pip install -vvv -e .
-script: python3 -c 'import kaa._kaa'
+install:
+  - python3 -m pip install -vvv -e .
+  - python3 -m pip install -r requirements/test.txt
+script: pytest || travis_terminate 1

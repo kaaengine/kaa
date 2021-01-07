@@ -12,5 +12,6 @@ steps:
     python -m venv venv_test_$(python.version)
     ./venv_test_$(python.version)/${PYTHON} -m pip install --upgrade pip
     ./venv_test_$(python.version)/${PYTHON} -m pip install --upgrade ../wheelhouse/*.whl
-    ./venv_test_$(python.version)/${PYTHON} -c "import kaa._kaa"
+    ./venv_test_$(python.version)/${PYTHON} -m pip install -r ../requirements/test.txt
+    ./venv_test_$(python.version)/${PYTHON} -m pytest
   displayName: 'Testing wheel (import)'
