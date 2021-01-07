@@ -46,7 +46,7 @@ python --version
 
 yum install -y alsa-lib-devel pulseaudio-libs-devel  # SDL audio dependencies
 yum install -y libXrandr-devel libXcursor-devel  # SDL video dependencies
-pip install -r /host/requirements-dev.txt
+pip install -r /host/requirements/build.txt -r /host/requirements/dev.txt
 
 # simulate out-of-source build
 cp -r /host/src -v .
