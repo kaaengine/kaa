@@ -1,4 +1,5 @@
 import atexit
+import pathlib
 from enum import IntEnum
 from contextlib import contextmanager
 
@@ -81,6 +82,12 @@ cdef class _Engine:
 
     def get_fps(self):
         return get_c_engine().get_fps()
+    
+    def get_writable_path(self, str org, str app):
+        cdef bytes path = get_c_engine().get_writable_path(
+            org.encode(), app.encode()
+        ).c_str()
+        return pathlib.Path(path.decode())
 
     def change_scene(self, Scene scene not None):
         get_c_engine().change_scene(scene._c_scene.get())

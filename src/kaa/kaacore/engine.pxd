@@ -12,6 +12,12 @@ from .exceptions cimport raise_py_error
 from .vectors cimport CUVec2
 
 
+cdef extern from "<filesystem>" namespace "std::filesystem" nogil:
+    cdef cppclass CPath "std::filesystem::path":
+        CPath(char*)
+        char* c_str()
+
+
 cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
     cdef enum CVirtualResolutionMode "kaacore::VirtualResolutionMode":
         adaptive_stretch "kaacore::VirtualResolutionMode::adaptive_stretch"
@@ -36,6 +42,7 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
 
         double get_fps()
         vector[CDisplay] get_displays()
+        CPath get_writable_path(const string org, const string app) except +raise_py_error
         void run(CScene* c_scene) except +raise_py_error
         void change_scene(CScene* c_scene) except +raise_py_error
         void quit() except +raise_py_error
