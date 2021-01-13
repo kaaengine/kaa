@@ -118,6 +118,9 @@ cdef class NodeBase:
         assert c_node_ptr, "Cannot atach NULL node."
         self._c_node_ptr = c_node_ptr
 
+    def __bool__(self):
+        return self._c_node_ptr.get() != NULL
+
     def add_child(self, NodeBase node):
         assert self._c_node_ptr, "Cannot add_child to NULL node."
         assert node._c_node_ptr, "Cannot add NULL node as child."
