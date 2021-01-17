@@ -558,23 +558,28 @@ Instance methods:
 
 Instance properties:
 
+.. _View.origin:
 .. attribute:: View.origin
 
     Gets or sets the origin of a view, as :class:`geometry.Vector`. The origin points to the top-left position of the
     view on the screen.
 
+.. _View.dimensions:
 .. attribute:: View.dimensions
 
     Gets or sets the dimensions of a view, as :class:`geometry.Vector`, x being width and y being height.
 
+.. _View.clear_color:
 .. attribute:: View.clear_color
 
     Gets or sets a clear color for a view as :class:`colors.Color`. Default color is black.
 
+.. _View.camera:
 .. attribute:: View.camera
 
     Returns a :class:`Camera` associated with this view.
 
+.. _View.z_index:
 .. attribute:: View.z_index
 
     Gets or sets z_index of a view.
@@ -782,6 +787,11 @@ Read only. Returns display resolution as :class:`geometry.Vector`.
 
 A camera projects the image of the 2D scene onto the screen. You can move, rotate or scale the camera by setting its
 properties.
+
+To get a Camera instance, either
+
+1) use the :attr:`Scene.camera` property which returns a default camera, or
+2) Access a specific view on a Scene via :attr:`Scene.views` and then access the camera property via :attr:`View.camera`
 
 .. note::
 
