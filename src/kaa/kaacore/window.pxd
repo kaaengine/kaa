@@ -4,7 +4,7 @@ from .vectors cimport CUVec2
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/window.h" nogil:
+cdef extern from "kaacore/window.h" namespace "kaacore" nogil:
     cdef cppclass CWindow "kaacore::Window":
         void show() except +raise_py_error
         void hide() except +raise_py_error

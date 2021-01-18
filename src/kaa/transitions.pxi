@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 import cython
+from libc.stdint cimport int16_t
 from libcpp.vector cimport vector
 from cymove cimport cymove as cmove
 
@@ -13,12 +14,14 @@ from .kaacore.transitions cimport (
     CNodeRotationTransition, CNodeScaleTransition,
     CNodeColorTransition, CBodyNodeVelocityTransition,
     CBodyNodeAngularVelocityTransition, CNodeTransitionDelay,
-    CNodeSpriteTransition,
+    CNodeSpriteTransition, CNodeZIndexSteppingTransition,
     make_node_transition, make_node_transitions_sequence,
     make_node_transitions_parallel
 )
 from .kaacore.nodes cimport CNodePtr
+from .kaacore.timers cimport CDuration
 from .kaacore.easings cimport CEasing
+from .extra.optional cimport optional, nullopt
 
 
 class AttributeTransitionMethod(IntEnum):
@@ -67,7 +70,7 @@ cdef class NodePositionTransition(NodeTransitionBase):
             make_node_transition[CNodePositionTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -85,7 +88,7 @@ cdef class NodeRotationTransition(NodeTransitionBase):
             make_node_transition[CNodeRotationTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -103,7 +106,7 @@ cdef class NodeScaleTransition(NodeTransitionBase):
             make_node_transition[CNodeScaleTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -121,7 +124,7 @@ cdef class NodeColorTransition(NodeTransitionBase):
             make_node_transition[CNodeColorTransition](
                 value_advance.c_color,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -139,7 +142,7 @@ cdef class BodyNodeVelocityTransition(NodeTransitionBase):
             make_node_transition[CBodyNodeVelocityTransition](
                 value_advance.c_vector,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -157,7 +160,7 @@ cdef class BodyNodeAngularVelocityTransition(NodeTransitionBase):
             make_node_transition[CBodyNodeAngularVelocityTransition](
                 value_advance,
                 (<CAttributeTransitionMethod>(<uint8_t>advance_method.value)),
-                duration,
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -179,7 +182,31 @@ cdef class NodeSpriteTransition(NodeTransitionBase):
         self._setup_handle(
             make_node_transition[CNodeSpriteTransition](
                 cmove(c_sprites_vector),
-                duration,
+                CDuration(duration),
+                self._prepare_warping(options),
+                self._prepare_easing(options),
+            )
+        )
+
+
+@cython.final
+cdef class NodeZIndexSteppingTransition(NodeTransitionBase):
+    def __init__(self, list z_indices, double duration, *,
+                 **options,
+    ):
+        cdef vector[optional[int16_t]] c_indices_vector
+        c_indices_vector.reserve(len(z_indices))
+        for z_index in z_indices:
+            if z_index is not None:
+                c_indices_vector.push_back(optional[int16_t](<int16_t>z_index))
+            else:
+                c_indices_vector.push_back(optional[int16_t](nullopt))
+
+        self._validate_options(options, can_use_easings=True)
+        self._setup_handle(
+            make_node_transition[CNodeZIndexSteppingTransition](
+                cmove(c_indices_vector),
+                CDuration(duration),
                 self._prepare_warping(options),
                 self._prepare_easing(options),
             )
@@ -193,7 +220,8 @@ cdef dict SPECIALIZED_TRANSITIONS = {
         Node.color: NodeColorTransition,
         Node.sprite: NodeSpriteTransition,
         BodyNode.velocity: BodyNodeVelocityTransition,
-        BodyNode.angular_velocity: BodyNodeAngularVelocityTransition
+        BodyNode.angular_velocity: BodyNodeAngularVelocityTransition,
+        Node.z_index: NodeZIndexSteppingTransition,
     }
 
 
@@ -210,7 +238,7 @@ def NodeTransition(attribute, *args, **kwargs):
 cdef class NodeTransitionDelay(NodeTransitionBase):
     def __init__(self, double duration):
         self._setup_handle(
-            make_node_transition[CNodeTransitionDelay](duration)
+            make_node_transition[CNodeTransitionDelay](CDuration(duration))
         )
 
 

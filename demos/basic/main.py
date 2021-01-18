@@ -8,7 +8,7 @@ from kaa.audio import Music, Sound
 from kaa.engine import Engine, Scene, VirtualResolutionMode
 from kaa.geometry import Segment, Circle, Polygon, Vector
 from kaa.log import (
-    set_core_logging_level, CoreLogLevel, CoreLogCategory
+    set_core_logging_level, CoreLogLevel
 )
 
 
@@ -124,7 +124,7 @@ class DemoScene(Scene):
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(5, 5)) as engine:
-        set_core_logging_level(CoreLogCategory.engine, CoreLogLevel.debug)
+        set_core_logging_level("engine", CoreLogLevel.debug)
         scene = DemoScene(
             sound_path=len(sys.argv) >= 2 and sys.argv[1],
             music_path=len(sys.argv) >= 3 and sys.argv[2],

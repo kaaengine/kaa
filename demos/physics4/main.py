@@ -49,6 +49,12 @@ class MainScene(Scene):
                 if event.keyboard_key.key_down == Keycode.q:
                     self.engine.quit()
 
+                if event.keyboard_key.key_down == Keycode.t:
+                    if self.time_scale < 1:
+                        self.time_scale = 1
+                    else:
+                        self.time_scale = 0.3
+
         for node in self.nodes:
             distance_vector = self.attractor.position - node.position
             distance = distance_vector.length()

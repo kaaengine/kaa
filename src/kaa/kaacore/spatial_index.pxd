@@ -7,7 +7,7 @@ from .geometry cimport CBoundingBox
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/spatial_index.h" nogil:
+cdef extern from "kaacore/spatial_index.h" namespace "kaacore" nogil:
     cdef cppclass CSpatialIndex "kaacore::SpatialIndex":
         vector[CNodePtr] query_bounding_box(const CBoundingBox& bbox, bool include_shapeless) \
             except +raise_py_error

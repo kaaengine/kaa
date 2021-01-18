@@ -15,8 +15,6 @@
 
 #include "extra/include/python_exceptions_wrapper.h"
 
-using namespace kaacore;
-
 
 struct PythonicCallbackWrapper {
     PyObject* py_callback;
@@ -25,13 +23,14 @@ struct PythonicCallbackWrapper {
     PythonicCallbackWrapper()
         : py_callback(nullptr), is_weakref(false)
     {
-        log<LogLevel::debug>("Creating empty PythonicCallbackWrapper.");
+        KAACORE_LOG_DEBUG("Creating empty PythonicCallbackWrapper.");
     }
 
     PythonicCallbackWrapper(PyObject* py_callback, bool is_weakref=false)
         : py_callback(py_callback), is_weakref(is_weakref)
     {
-        log<LogLevel::debug>("Creating PythonicCallbackWrapper: %p.", py_callback);
+        KAACORE_LOG_DEBUG("Creating PythonicCallbackWrapper: {}.",
+            fmt::ptr(py_callback));
         PyGILState_STATE gstate = PyGILState_Ensure();
         Py_INCREF(this->py_callback);
         PyGILState_Release(gstate);
@@ -42,7 +41,8 @@ struct PythonicCallbackWrapper {
         PyGILState_STATE gstate = PyGILState_Ensure();
         this->py_callback = other.py_callback;
         this->is_weakref = other.is_weakref;
-        log<LogLevel::debug>("Copying PythonicCallbackWrapper: %p.", this->py_callback);
+        KAACORE_LOG_DEBUG("Copying PythonicCallbackWrapper: {}.",
+            fmt::ptr(this->py_callback));
         Py_INCREF(this->py_callback);
         PyGILState_Release(gstate);
     }
@@ -52,7 +52,8 @@ struct PythonicCallbackWrapper {
     {
         other.py_callback = nullptr;
         other.is_weakref = false;
-        log<LogLevel::debug>("Moving PythonicCallbackWrapper: %p.", this->py_callback);
+        KAACORE_LOG_DEBUG("Moving PythonicCallbackWrapper: {}.",
+            fmt::ptr(this->py_callback));
     }
 
     ~PythonicCallbackWrapper()
@@ -60,8 +61,9 @@ struct PythonicCallbackWrapper {
         if (this->py_callback != nullptr) {
             PyGILState_STATE gstate = PyGILState_Ensure();
             Py_DECREF(this->py_callback);
-            log<LogLevel::debug>(
-                "Destroying PythonicCallbackWrapper: %p.", this->py_callback
+            KAACORE_LOG_DEBUG(
+                "Destroying PythonicCallbackWrapper: {}.",
+                fmt::ptr(this->py_callback)
             );
             PyGILState_Release(gstate);
         }
@@ -149,76 +151,79 @@ class PythonicCallbackResult {
 };
 
 
-typedef PythonicCallbackResult<int> (*CythonCollisionHandler)(const PythonicCallbackWrapper&, Arbiter,
-                                     CollisionPair, CollisionPair);
+typedef PythonicCallbackResult<int> (*CythonCollisionHandler)(const PythonicCallbackWrapper&,
+                                    kaacore::Arbiter, kaacore::CollisionPair, kaacore::CollisionPair);
 
-
-CollisionHandlerFunc bind_cython_collision_handler(
+kaacore::CollisionHandlerFunc bind_cython_collision_handler(
     const CythonCollisionHandler cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}]
-            (Arbiter arbiter, CollisionPair cp1, CollisionPair cp2) -> int {
+            (kaacore::Arbiter arbiter, kaacore::CollisionPair cp1, kaacore::CollisionPair cp2) -> int {
         return cy_handler(callback, arbiter, cp1, cp2).unwrap_result();
     };
 }
 
 
-typedef PythonicCallbackResult<void> (*CythonTimerCallback)(const PythonicCallbackWrapper&);
+typedef PythonicCallbackResult<kaacore::Duration> (*CythonTimerCallback)(const PythonicCallbackWrapper&,
+                                                  kaacore::TimerContext);
 
-TimerCallback bind_cython_timer_callback(
-    const CythonTimerCallback cy_handler, PythonicCallbackWrapper callback
+kaacore::TimerCallback bind_cython_timer_callback(
+    const CythonTimerCallback cy_handler, const PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}]() {
-        std::move(cy_handler(callback)).unwrap_result();
+    return [cy_handler, callback{std::move(callback)}](kaacore::TimerContext context) -> kaacore::Duration {
+        return cy_handler(callback, context).unwrap_result();
     };
 }
 
 
-typedef PythonicCallbackResult<void> (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper&, NodePtr);
+typedef PythonicCallbackResult<void> (*CythonNodeTransitionCallback)(const PythonicCallbackWrapper&,
+                                      kaacore::NodePtr);
 
-NodeTransitionCallbackFunc bind_cython_transition_callback(
+kaacore::NodeTransitionCallbackFunc bind_cython_transition_callback(
     const CythonNodeTransitionCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}](NodePtr node_ptr) {
+    return [cy_handler, callback{std::move(callback)}](kaacore::NodePtr node_ptr) {
         cy_handler(callback, node_ptr).unwrap_result();
     };
 }
 
 
-typedef PythonicCallbackResult<int32_t> (*CythonEventCallback)(const PythonicCallbackWrapper&, const Event&);
+typedef PythonicCallbackResult<int32_t> (*CythonEventCallback)(const PythonicCallbackWrapper&,
+                                        const kaacore::Event&);
 
-EventCallback bind_cython_event_callback(
+kaacore::EventCallback bind_cython_event_callback(
     const CythonEventCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}](const Event& event) -> int32_t {
+    return [cy_handler, callback{std::move(callback)}](const kaacore::Event& event) -> int32_t {
         return cy_handler(callback, event).unwrap_result();
     };
 }
 
 typedef PythonicCallbackResult<void> (*CythonVelocityUpdateCallback)(const PythonicCallbackWrapper&,
-    Node*, glm::dvec2, double, double);
+    kaacore::Node*, glm::dvec2, double, double);
 
-VelocityUpdateCallback bind_cython_update_velocity_callback(
+kaacore::VelocityUpdateCallback bind_cython_update_velocity_callback(
     const CythonVelocityUpdateCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}]
-        (Node* node, glm::dvec2 gravity, double damping, double dt) -> void {
+        (kaacore::Node* node, glm::dvec2 gravity, double damping, double dt) -> void {
             cy_handler(callback, node, gravity, damping, dt).unwrap_result();
     };
 }
 
-typedef PythonicCallbackResult<void> (*CythonPositionUpdateCallback)(const PythonicCallbackWrapper&, Node*, double);
+typedef PythonicCallbackResult<void> (*CythonPositionUpdateCallback)(const PythonicCallbackWrapper&,
+                                     kaacore::Node*, double);
 
-PositionUpdateCallback bind_cython_update_position_callback(
+kaacore::PositionUpdateCallback bind_cython_update_position_callback(
     const CythonPositionUpdateCallback cy_handler, PythonicCallbackWrapper callback
 )
 {
-    return [cy_handler, callback{std::move(callback)}](Node* node, double dt) -> void {
+    return [cy_handler, callback{std::move(callback)}](kaacore::Node* node, double dt) -> void {
         cy_handler(callback, node, dt).unwrap_result();
     };
 }

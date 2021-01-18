@@ -1,7 +1,7 @@
 from .vectors cimport CDVec2
 
 
-cdef extern from "kaacore/easings.h" nogil:
+cdef extern from "kaacore/easings.h" namespace "kaacore" nogil:
     cdef enum CEasing "kaacore::Easing":
         none "kaacore::Easing::none"
         back_in "kaacore::Easing::back_in"

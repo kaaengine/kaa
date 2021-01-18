@@ -11,13 +11,14 @@ from .geometry cimport CAlignment, CTransformation, CBoundingBox
 from .physics cimport CSpaceNode, CBodyNode, CHitboxNode
 from .fonts cimport CTextNode
 from .shapes cimport CShape
+from .clock cimport CDuration
 from .sprites cimport CSprite
 from .scenes cimport CScene
 from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/node_ptr.h" nogil:
+cdef extern from "kaacore/node_ptr.h" namespace "kaacore" nogil:
     cdef cppclass CNodePtr "kaacore::NodePtr":
         CNodePtr()
         CNodePtr(CNode*)
@@ -34,7 +35,7 @@ cdef extern from "kaacore/node_ptr.h" nogil:
         void destroy() except +raise_py_error
 
 
-cdef extern from "kaacore/nodes.h" nogil:
+cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
     cdef enum CNodeType "kaacore::NodeType":
         basic "kaacore::NodeType::basic",
         space "kaacore::NodeType::space",
@@ -44,6 +45,8 @@ cdef extern from "kaacore/nodes.h" nogil:
 
     cdef cppclass CForeignNodeWrapper "kaacore::ForeignNodeWrapper":
         void on_add_to_parent()
+        void on_attach()
+        void on_detach()
 
     cdef cppclass CNode "kaacore::Node":
         # UNION!
@@ -77,8 +80,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         CTransformation transformation() except +raise_py_error
         void transformation(const CTransformation& transformation) except +raise_py_error
 
-        int16_t z_index() except +raise_py_error
-        void z_index(const int16_t& z_index) except +raise_py_error
+        optional[int16_t] z_index() except +raise_py_error
+        void z_index(const optional[int16_t]& z_index) except +raise_py_error
 
         CShape shape() except +raise_py_error
         void shape(const CShape& shape) except +raise_py_error
@@ -95,8 +98,8 @@ cdef extern from "kaacore/nodes.h" nogil:
         CAlignment origin_alignment() except +raise_py_error
         void origin_alignment(const CAlignment& alignment) except +raise_py_error
 
-        uint32_t lifetime() except +raise_py_error
-        void lifetime(const uint32_t& lifetime) except +raise_py_error
+        CDuration lifetime() except +raise_py_error
+        void lifetime(const CDuration& lifetime) except +raise_py_error
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error

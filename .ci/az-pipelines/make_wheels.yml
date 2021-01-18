@@ -11,6 +11,11 @@ trigger:
       - master  # trigger building wheel for every master commit, don't upload wheel
 pr: none
 
+variables:
+  is_version_build: $[startswith(variables['Build.SourceBranch'], 'refs/tags/v')]
+  is_master_build: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+  is_main_repo: $[eq(variables['Build.DefinitionName'], 'kaaengine.kaa')]
+
 jobs:
 - job: build_linux
   displayName: "Build Linux wheel"
@@ -27,6 +32,9 @@ jobs:
       Python38:
         python.version: '3.8'
         python.version_tag: 'py38'
+      Python39:
+        python.version: '3.9'
+        python.version_tag: 'py39'
   variables:
     docker_image: "quay.io/pypa/manylinux2010_x86_64"
     platform.name: 'linux'
@@ -63,6 +71,9 @@ jobs:
       Python38:
         python.version: '3.8'
         python.version_tag: 'py38'
+      Python39:
+        python.version: '3.9'
+        python.version_tag: 'py39'
   variables:
     platform.name: 'windows'
   steps:
@@ -89,6 +100,9 @@ jobs:
       Python38:
         python.version: '3.8'
         python.version_tag: 'py38'
+      Python39:
+        python.version: '3.9'
+        python.version_tag: 'py39'
   variables:
     platform.name: 'macos'
     platform.tag: 'macosx-10.14-x86_64'
@@ -116,7 +130,7 @@ jobs:
   dependsOn:
   - build_linux
   - build_windows
-  # - build_macos
+  - build_macos
   pool:
     vmImage: 'ubuntu-16.04'
   variables:
@@ -147,4 +161,9 @@ jobs:
       python -m twine upload --disable-progress-bar $(Pipeline.Workspace)/build_*/*.whl
     # populated from TWINE_* env variables
     displayName: 'Twine Upload'
-    condition: and(eq(variables['kaa_version.local'], 'False'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: |
+      and(
+        eq(variables['kaa_version.local'], 'False'),
+        eq(variables['is_version_build'], true),
+        eq(variables['is_main_repo'], true)
+      )

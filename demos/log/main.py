@@ -1,4 +1,6 @@
-from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreLogCategory
+from kaa.log import (
+    get_core_logging_level, set_core_logging_level, CoreLogLevel,
+)
 
 from kaa.engine import Engine, Scene
 from kaa.geometry import Vector
@@ -17,6 +19,6 @@ with Engine(virtual_resolution=Vector(400, 200)) as engine:
     engine.window.size = Vector(400, 200)
     engine.window.center()
 
-    print(get_core_logging_level(CoreLogCategory.renderer))
+    print(get_core_logging_level("renderer"))
 
     engine.run(scene)

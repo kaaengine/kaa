@@ -4,7 +4,7 @@ from libc.stdint cimport uint16_t
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/audio.h" nogil:
+cdef extern from "kaacore/audio.h" namespace "kaacore" nogil:
     cdef enum CAudioStatus "kaacore::AudioStatus":
         playing "kaacore::AudioStatus::playing",
         paused "kaacore::AudioStatus::paused",

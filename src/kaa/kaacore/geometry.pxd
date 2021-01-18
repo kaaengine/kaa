@@ -5,7 +5,7 @@ from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/geometry.h" nogil:
+cdef extern from "kaacore/geometry.h" namespace "kaacore" nogil:
     cdef enum CPolygonType "kaacore::PolygonType":
         convex_cw "kaacore::PolygonType::convex_cw",
         convex_ccw "kaacore::PolygonType::convex_ccw",
@@ -68,6 +68,7 @@ cdef extern from "kaacore/geometry.h" nogil:
         bool contains(const CDVec2 vector)
         bool contains(const CBoundingBox& bbox)
         bool intersects(const CBoundingBox& bbox)
+        CBoundingBox intersection(const CBoundingBox& bbox)
         CBoundingBox grow(const CDVec2 vector)
         CDVec2 center()
         CDVec2 dimensions()

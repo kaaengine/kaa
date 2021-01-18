@@ -10,9 +10,6 @@ from kaa.physics import SpaceNode, BodyNode, HitboxNode
 from kaa.timers import Timer
 from kaa.input import Keycode, MouseButton
 from kaa.colors import Color
-from kaa.log import (
-    set_core_logging_level, CoreLogLevel, CoreLogCategory
-)
 
 class MyNode(Node):
 

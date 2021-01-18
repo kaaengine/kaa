@@ -11,10 +11,10 @@ from .exceptions cimport raise_py_error
 from ..extra.optional cimport optional
 
 
-cdef extern from "kaacore/physics.h" nogil:
-    ctypedef size_t CollisionTriggerId "kaacore::CollisionTriggerId"
-    ctypedef size_t CollisionGroup "kaacore::CollisionGroup"
-    ctypedef size_t CollisionBitmask "kaacore::CollisionBitmask"
+cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
+    ctypedef size_t CollisionTriggerId
+    ctypedef size_t CollisionGroup
+    ctypedef size_t CollisionBitmask
 
     cdef:
         CollisionGroup collision_group_none
@@ -54,6 +54,24 @@ cdef extern from "kaacore/physics.h" nogil:
         CNodePtr hitbox_node
         vector[CCollisionContactPoint] contact_points
 
+    cdef cppclass CShapeQueryResult "kaacore::ShapeQueryResult":
+        CNodePtr body_node
+        CNodePtr hitbox_node
+        vector[CCollisionContactPoint] contact_points
+
+    cdef cppclass CRayQueryResult "kaacore::RayQueryResult":
+        CNodePtr body_node
+        CNodePtr hitbox_node
+        CDVec2 point
+        CDVec2 normal
+        double alpha
+
+    cdef cppclass CPointQueryResult "kaacore::PointQueryResult":
+        CNodePtr body_node
+        CNodePtr hitbox_node
+        CDVec2 point
+        double distance
+
     cdef cppclass CSpaceNode "kaacore::SpaceNode":
         void gravity(const CDVec2& gravity) except +raise_py_error
         CDVec2 gravity() except +raise_py_error
@@ -68,7 +86,17 @@ cdef extern from "kaacore/physics.h" nogil:
             uint8_t phases_mask, bint only_non_deleted_nodes
         ) except +raise_py_error
         vector[CShapeQueryResult] query_shape_overlaps(
-            const CShape& shape, const CDVec2& position, const CollisionBitmask mask,
+            const CShape& shape, const CollisionBitmask mask,
+            const CollisionBitmask collision_mask, const CollisionGroup group,
+        ) except +raise_py_error
+        vector[CRayQueryResult] query_ray(
+            const CDVec2 ray_start, const CDVec2 ray_end,
+            const double radius, const CollisionBitmask mask,
+            const CollisionBitmask collision_mask, const CollisionGroup group,
+        ) except +raise_py_error
+        vector[CPointQueryResult] query_point_neighbors(
+            const CDVec2 point,
+            const double max_distance, const CollisionBitmask mask,
             const CollisionBitmask collision_mask, const CollisionGroup group,
         ) except +raise_py_error
 

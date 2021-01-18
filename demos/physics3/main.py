@@ -4,7 +4,9 @@ import math
 import enum
 
 from kaa.engine import Engine, Scene
-from kaa.geometry import Vector, Segment, Circle, Polygon, BoundingBox
+from kaa.geometry import (
+    Vector, Segment, Circle, Polygon, BoundingBox, Transformation,
+)
 from kaa.nodes import Node
 from kaa.physics import SpaceNode, BodyNode, HitboxNode
 from kaa.timers import Timer
@@ -44,7 +46,7 @@ class FallingPiece(BodyNode):
             scale=Vector(0.2, 0.2) + Vector.xy(
                 math.fabs(random.gauss(0.0, 1.0)),
             ),
-            lifetime=60000.,  # 60 seconds
+            lifetime=60.,
         )
 
         self.hitbox = self.add_child(HitboxNode(
@@ -74,11 +76,10 @@ class DemoScene(Scene):
             z_index=10,
         ))
 
-        self.spawn_timer = Timer(self._spawn_heartbeat, 20,
-                                 single_shot=False)
-        self.spawn_timer.start()
+        self.spawn_timer = Timer(self._spawn_heartbeat)
+        self.spawn_timer.start(0.02, self)
 
-    def _spawn_heartbeat(self):
+    def _spawn_heartbeat(self, context):
         if random.random() > 0.8:
             initial_position = Vector(
                 random.uniform(0, 300), -20.
@@ -86,13 +87,14 @@ class DemoScene(Scene):
             self.space.add_child(
                 FallingPiece(initial_position)
             )
+        return context.interval
 
-    def _perform_query(self):
+    def _perform_shape_query(self):
         results = self.space.query_shape_overlaps(
-            self.pointer.shape, self.pointer.position,
+            self.pointer.shape | Transformation(translate=self.pointer.position),
             collision_mask=QueryMask.clickable,
         )
-        print("Results count: {}".format(len(results)))
+        print("Shape query results count: {}".format(len(results)))
         for r in results:
             r.hitbox.color = Color(0., 1., 1., 1.)
             r.body.velocity = Vector(0, 0)
@@ -101,9 +103,36 @@ class DemoScene(Scene):
                     position=cp.point_b,
                     shape=Circle(0.5),
                     color=Color(1., 0., 0., 1.),
-                    lifetime=200,
+                    lifetime=0.2,
                     z_index=3,
                 ))
+
+    def _perform_point_query(self):
+        results = self.space.query_point_neighbors(
+            self.pointer.position, max_distance=50.,
+        )
+        print("Point query results count: {}".format(len(results)))
+        for r in results:
+            self.space.add_child(Node(
+                position=r.point,
+                shape=Circle(0.5),
+                color=Color(1., 1., 0., 1.),
+                lifetime=0.2,
+                z_index=3,
+            ))
+
+    def _perform_ray_query(self, point_a, point_b):
+        results = self.space.query_ray(
+            point_a, point_b,
+        )
+        for r in results:
+            self.space.add_child(Node(
+                position=r.point,
+                shape=Circle(0.5),
+                color=Color(1., 0., 1., 1.),
+                lifetime=0.2,
+                z_index=3,
+            ))
 
     def update(self, dt):
         for event in self.input.events():
@@ -120,9 +149,19 @@ class DemoScene(Scene):
             ):
                 if event.mouse_button.is_button_down:
                     self.pointer.color = POINTER_COLOR_ACTIVE
-                    self._perform_query()
+                    self._perform_shape_query()
                 else:
                     self.pointer.color = POINTER_COLOR_NORMAL
+            elif (
+                event.mouse_button
+                and event.mouse_button.button == MouseButton.right
+                and event.mouse_button.is_button_down
+            ):
+                self._perform_point_query()
+
+        self._perform_ray_query(
+            Vector(0, 250), Vector(300, 250),
+        )
 
         print("Visible nodes: ",
               len(self.spatial_index.query_bounding_box(

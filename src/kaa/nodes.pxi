@@ -10,7 +10,9 @@ from cymove cimport cymove as cmove
 from .extra.optional cimport optional, nullopt
 
 from .kaacore.shapes cimport CShape
+from .kaacore.clock cimport CDuration
 from .kaacore.sprites cimport CSprite
+from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.nodes cimport (
     CNodeType, CNode, CNodePtr, CNodeOwnerPtr, CForeignNodeWrapper,
     c_make_node,
@@ -23,20 +25,56 @@ from .kaacore.geometry cimport CAlignment
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
     PyObject* py_wrapper
     bool added_to_parent
+    bool on_attach_defined
+    bool on_detach_defined
 
-    __init__(PyObject* py_wrapper) with gil:
+    __init__(
+        PyObject* py_wrapper, const bool on_attach_defined,
+        const bool on_detach_defined
+    ) nogil:
         this.py_wrapper = py_wrapper
         this.added_to_parent = False
+        this.on_attach_defined = on_attach_defined
+        this.on_detach_defined = on_detach_defined
 
-    __dealloc__() with gil:
-        if this.added_to_parent:
-            Py_XDECREF(this.py_wrapper)
-        this.py_wrapper = NULL
+    void on_add_to_parent() with gil:
+        Py_XINCREF(py_wrapper)
+        this.added_to_parent = True
 
-    void on_add_to_parent() nogil:
+    void on_attach() nogil:
+        if not this.on_attach_defined:
+            return
+
         with gil:
-            Py_XINCREF(py_wrapper)
-            this.added_to_parent = True
+            try:
+                (<NodeBase>this.py_wrapper).on_attach()
+            except BaseException as exc:
+                CPythonicCallbackResult[void](<PyObject*>exc).unwrap_result()
+
+    void on_detach() with gil:
+        cdef:
+            CPythonicCallbackResult[void] result
+            NodeBase py_wrapper = <NodeBase>this.py_wrapper
+
+        if this.on_detach_defined:
+            try:
+                py_wrapper.on_detach()
+            except BaseException as exc:
+               result = CPythonicCallbackResult[void](<PyObject*>exc)
+
+        py_wrapper._reset()
+        result.unwrap_result()
+        this._release_wrapper()
+
+    __dealloc__() nogil:
+        if this.added_to_parent:
+            with gil:
+                this._release_wrapper()
+
+    void _release_wrapper() with gil:
+        Py_XDECREF(this.py_wrapper)
+        this.py_wrapper = NULL
+        this.added_to_parent = False
 
 
 cdef class NodeBase:
@@ -52,18 +90,26 @@ cdef class NodeBase:
     def __init__(self, **options):
         self.setup(**options)
 
+    cdef void _reset(self):
+        self._c_node_ptr = CNodePtr()
+
     cdef inline CNode* _get_c_node(self) except NULL:
         cdef CNode* c_node = self._c_node_ptr.get()
         assert c_node != NULL, \
-            'Operation on uninitialized or deleted Node. Aborting.'
+            'Operation on uninitialized or deleted Node.'
         return c_node
 
     cdef void _make_c_node(self, CNodeType type):
         self._c_node_owner_ptr = cmove(c_make_node(type))
         self._c_node_ptr = CNodePtr(self._c_node_owner_ptr.get())
+        cdef:
+            on_attach_defined = callable(getattr(self, 'on_attach', None))
+            on_detach_defined = callable(getattr(self, 'on_detach', None))
         self._c_node_ptr.get().setup_wrapper(
             unique_ptr[CForeignNodeWrapper](
-                new CPyNodeWrapper(<PyObject*>self)
+                new CPyNodeWrapper(
+                    <PyObject*>self, on_attach_defined, on_detach_defined
+                )
             )
         )
 
@@ -71,6 +117,9 @@ cdef class NodeBase:
         assert self._c_node_ptr.get() == NULL, "Node is already initialized, cannot attach."
         assert c_node_ptr, "Cannot atach NULL node."
         self._c_node_ptr = c_node_ptr
+
+    def __bool__(self):
+        return self._c_node_ptr.get() != NULL
 
     def add_child(self, NodeBase node):
         assert self._c_node_ptr, "Cannot add_child to NULL node."
@@ -190,11 +239,16 @@ cdef class NodeBase:
 
     @property
     def z_index(self):
-        return self._get_c_node().z_index()
+        cdef optional[int16_t] optional_z_index = self._get_c_node().z_index()
+        if optional_z_index.has_value():
+            return optional_z_index.value()
 
     @z_index.setter
-    def z_index(self, int value):
-        self._get_c_node().z_index(value)
+    def z_index(self, value):
+        if value is not None:
+            self._get_c_node().z_index(optional[int16_t](<int>value))
+        else:
+            self._get_c_node().z_index(optional[int16_t](nullopt))
 
     @property
     def rotation(self):
@@ -301,11 +355,11 @@ cdef class NodeBase:
 
     @property
     def lifetime(self):
-        return self._get_c_node().lifetime()
+        return self._get_c_node().lifetime().count()
 
     @lifetime.setter
-    def lifetime(self, uint32_t new_lifetime):
-        self._get_c_node().lifetime(new_lifetime)
+    def lifetime(self, double new_lifetime):
+        self._get_c_node().lifetime(CDuration(new_lifetime))
 
     @property
     def transition(self):

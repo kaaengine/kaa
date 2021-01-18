@@ -8,7 +8,7 @@ from .exceptions cimport raise_py_error
 from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
-cdef extern from "kaacore/input.h" nogil:
+cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
     ctypedef int32_t CControllerID "kaacore::ControllerID"
 
     cdef enum CKeycode "kaacore::Keycode":
@@ -430,6 +430,8 @@ cdef extern from "kaacore/input.h" nogil:
         bint is_released(CMouseButton mb) except +raise_py_error
         CDVec2 get_position() except +raise_py_error
 
+        bint cursor_visible() except +raise_py_error
+        void cursor_visible(const bint visible) except +raise_py_error
         bint relative_mode() except +raise_py_error
         void relative_mode(const bint rel) except +raise_py_error
 

@@ -7,7 +7,7 @@ from libcpp.string cimport string
 from .exceptions cimport raise_py_error
 
 
-cdef extern from "kaacore/transitions.h" nogil:
+cdef extern from "kaacore/transitions.h" namespace "kaacore" nogil:
     cdef cppclass CNodeTransitionHandle "kaacore::NodeTransitionHandle":
         CNodeTransitionHandle()
         bool operator bool()
@@ -32,7 +32,7 @@ cdef extern from "kaacore/transitions.h" nogil:
         void set(const string& name, const CNodeTransitionHandle& transition) except +raise_py_error
 
 
-cdef extern from "kaacore/node_transitions.h" nogil:
+cdef extern from "kaacore/node_transitions.h" namespace "kaacore" nogil:
     cdef enum CAttributeTransitionMethod "kaacore::AttributeTransitionMethod":
         set "kaacore::AttributeTransitionMethod::set"
         add "kaacore::AttributeTransitionMethod::add"
@@ -63,4 +63,7 @@ cdef extern from "kaacore/node_transitions.h" nogil:
         pass
 
     cdef cppclass CBodyNodeAngularVelocityTransition "kaacore::BodyNodeAngularVelocityTransition":
+        pass
+
+    cdef cppclass CNodeZIndexSteppingTransition "kaacore::NodeZIndexSteppingTransition":
         pass
