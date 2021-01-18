@@ -25,6 +25,9 @@ setup(
     url="https://github.com/kaaengine/kaa",
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
+    entry_points={
+        'console_scripts': ['shaderc=kaa.cli:shaderc']
+    },
     license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
