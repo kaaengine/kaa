@@ -8,5 +8,4 @@ SHADERC_PATH = pkg_resources.resource_filename(
 
 
 def _initialize_shaderc():
-    if os.path.isfile(SHADERC_PATH):
-        os.environ['SHADERC_PATH'] = SHADERC_PATH
+    os.environ['SHADERC_PATH'] = SHADERC_PATH
