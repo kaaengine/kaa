@@ -98,5 +98,5 @@ if (KAA_BUNDLE_SDL)
                          RUNTIME DESTINATION src/kaa)
 endif()
 
-install(TARGETS shaderc LIBRARY DESTINATION bin
-                        RUNTIME DESTINATION bin)
+install(TARGETS shaderc LIBRARY DESTINATION src/kaa/bin
+                        RUNTIME DESTINATION src/kaa/bin)
