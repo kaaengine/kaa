@@ -169,6 +169,10 @@ Instance properties:
     shows the mouse pointer and makes mouse motion events be published only if mouse movement occurs within the
     window.
 
+.. attribute:: MouseManager.cursor_visible
+
+    Gets or sets whether the system cursor pointer should be visible.
+
 
 Instance methods:
 
@@ -198,7 +202,11 @@ Instance methods:
 
 .. method:: MouseManager.get_position()
 
-    Returns current mouse pointer position as a :class:`geometry.Vector`
+    Returns current mouse pointer position as a :class:`geometry.Vector`.
+
+    IMPORTANT: the position is in the display screen frame of reference using the :ref:`virtual resolution coordinate
+    system <Engine.virtual_resolution>`). It is NOT a position of a mouse cursor on the scene. To convert the
+    position to the scene frame of reference use the :meth:`engine.Camera.unproject_position()` method.
 
     .. code-block:: python
 

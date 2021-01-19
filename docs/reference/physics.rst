@@ -65,7 +65,7 @@ Instance properties:
 .. _SpaceNode.sleeping_threshold:
 .. attribute:: SpaceNode.sleeping_threshold
 
-    Gets of sets the sleep time threshold (in miliseconds) which affects all BodyNodes in
+    Gets of sets the sleep time threshold (in seconds) which affects all BodyNodes in
     the SpaceNode. If given BodyNode remains static (doesn't change its position or rotation) for that amount of
     time the engine will stop making physical calculations for it. In some situations it can improve the performance.
     A body remaining in a sleeping state can still collide with other bodies - that will force it to move and
@@ -119,11 +119,11 @@ Instance methods:
     function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the
     collision handler function stops being called.
 
-.. method:: SpaceNode.query_shape_overlaps(shape, position=Vector(0,0), mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+.. method:: SpaceNode.query_shape_overlaps(shape, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
 
-    Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and its position on the scene and returns
+    Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and returns
     hitboxes which overlap with that shape (either partially or entirely) as well as body nodes which own those
-    hitboxes.
+    hitboxes. The shape coordinates are expected to be in a frame reference relative to the SpaceNode.
 
     When running the query, the shape you pass is treated like a hitbox node, therefore parameters such as mask,
     collision_mask and group behave identically as in :class:`HitboxNode`. Refer to :ref:`mask <HitboxNode.mask>`,
@@ -132,6 +132,16 @@ Instance methods:
     The query returns a list of :class:`ShapeQueryResult` objects. Each :class:`ShapeQueryResult` represents a
     'collision' of the shape with one hitbox. It holds a reference to hitbox' parent (body node) and other metadata
     such as intersection points.
+
+.. method:: SpaceNode.query_ray(ray_start, ray_end, radius=0., mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+
+    TODO
+
+.. method:: SpaceNode.query_point_neighbors(point, max_distance, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE):
+
+    TODO
+
+
 
 :class:`BodyNode` reference
 ---------------------------
@@ -536,3 +546,15 @@ Instance properties:
     * :code:`CollisionPhase.pre_solve`
     * :code:`CollisionPhase.post_solve`
     * :code:`CollisionPhase.separate`
+
+
+:class:`RayQueryResult` reference
+-----------------------------------
+
+TODO
+
+:class:`PointQueryResult` reference
+-----------------------------------
+
+TODO
+

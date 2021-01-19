@@ -34,7 +34,7 @@ a collection of other specialized Nodes (they all inherit from the :class:`Node`
 For your game's actual objects such as Player, Enemy, Bullet, etc. we recommend writing classes that inherit from
 the Node class (or BodyNode if you want the object to utilize :doc:`kaaengine's physics features </reference/physics>`).
 
-.. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True, views={0})
+.. class:: Node(position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=None, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True, views=None)
 
     A basic example how to create a new Node (with a sprite) and add it to the Scene:
 
@@ -107,7 +107,12 @@ Instance Properties:
 .. attribute:: Node.z_index
 
     Gets or sets node z_index (integer). Nodes with higher z_index will overlap those with lower z_index when drawn
-    on the screen.
+    on the screen. Default z_index is None meaning the node will inherit z_index value from its parent. Scene's
+    root node (:attr:`engine.Scene.root`) has z_index = 0.
+
+    .. note::
+
+        If parent and child nodes have the same z_index, then the child node will be rendered on top of the parent.
 
 .. _Node.rotation:
 .. attribute:: Node.rotation
@@ -266,7 +271,7 @@ Instance Properties:
         # inside a Scene's __init__:
         spritesheet = Sprite(os.path.join('assets', 'gfx', 'spritesheet.png')  # a 1000x1000 spritesheet with hundred 100x100 frames
         frames = split_spritesheet(spritesheet, Vector(100,100)) # cut the spritesheet into 100 individual <Sprite> instances
-        animation = NodeSpriteTransition(frames, duration=2000, loops=0, back_and_forth=False) # With 100 frames a duration of 2000 means 20 miliseconds per frame.
+        animation = NodeSpriteTransition(frames, duration=2., loops=0, back_and_forth=False) # With 100 frames a duration of 2 secs means 20 miliseconds per frame.
         self.node = Node(position=Vector(100, 100), transition=animation)  # the transition will take care of setting the appropriate <Sprite> over time, thus creating an animation effect.
         self.root.add_child(self.node)  # until you add the Node to the Scene it won't show up on the screen!
 
@@ -334,13 +339,13 @@ Instance Properties:
 .. _Node.lifetime:
 .. attribute:: Node.lifetime
 
-    Gets or sets a lifetime of the node, in miliseconds.
+    Gets or sets a lifetime of the node, in seconds.
 
     By default nodes live forever. After you add them to the scene with :meth:`Node.add_child` method they will stay
     there until you delete them by calling :meth:`Node.delete`.
 
     Setting the lifetime of a node will remove the node automatically from the scene after given number of
-    miliseconds. It's important to note that the timer starts ticking after you add the node to the scene, not
+    seconds. It's important to note that the timer starts ticking after you add the node to the scene, not
     when you instantiate the node.
 
 .. _Node.transition:
@@ -381,10 +386,10 @@ Instance Properties:
 .. _Node.views:
 .. attribute:: Node.views
 
-    Gets or sets indexes of views (as a set object) in which this node shall be rendered. Each scene has 32 views.
-    Default value is None meaning the node will inherit the view from its parent. Note that the :ref:`root node
-    of the scene <Scene.root>` has a view set to {0} (a set with just one element: zero) by default. Read more
-    about views in :class:`engine.View` reference.
+    Gets or sets indexes of views (as a set object) in which this node shall be rendered. Each scene can have a maximum
+    of 32 views (indexed -16 to 15). Default value is None meaning the node will inherit the view from its parent. Note that the
+    :ref:`root node of the scene <Scene.root>` has a view set to {0} (a set with just one element: zero) by default, so all
+    nodes added to root (and their children) will have a views value set to {0}. Read more about views in :class:`engine.View` reference.
 
     .. code-block:: python
 
@@ -450,3 +455,48 @@ Instance Methods:
 
     The :code:`ancestor` parameter must be a :class:`Node` and it must be an ancestor of a node on which the method
     is called.
+
+.. method:: Node.on_detach()
+
+    You don't call this method directly. Instead you can implement it on a class that inherits from Node. The method
+    gets called when the node is removed from the scene (by calling delete(), its lifetime expiring, scene being
+    destroyed, and so on...).
+
+    Once the node gets removed, accessing its properties results in an error, so :code:`on_detach()` offers an
+    opportunity to execute some cleanup code.
+
+    .. code-block:: python
+
+        class MyBulletNode(Node):
+
+            def on_detach(self):
+                # remove the node from our own custom collection
+                self.scene.my_bullets_manager.remove_bullet(self)
+
+
+.. method:: Node.on_attach()
+
+    You don't call this method directly. Instead you can implement it on a class that inherits from Node. The method
+    gets called when the node is added to the scene.
+
+    .. code-block:: python
+
+        class MyBulletNode(Node):
+
+            def on_attach(self):
+                # add the node to our own custom collection
+                self.scene.my_bullets_manager.add_bullet(self)
+
+
+.. method:: Node.__bool__(self)
+
+    Allows to inspect the node to verify if it's in a valid state.
+
+    .. code-block:: python
+
+        # ... inside a scene ....
+        node = Node()
+        self.root.add_child(node)
+        assert node
+        node.delete()
+        assert not node

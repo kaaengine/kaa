@@ -490,6 +490,13 @@ Instance methods:
     Returns :code:`True` if bounding box intersects with other :class:`geometry.BoundingBox`, otherwise returns
     :code:`False`
 
+.. method:: BoundingBox.intersection(other_bounding_box)
+
+    If bounding box intersects with other :class:`geometry.BoundingBox` a :class:`BoundingBox` is returned which spans
+    the intersection. If there's no intersection, an 'empty' :class:`geometry.BoundingBox` is returned (all
+    properties set to NaN)
+
+
 .. method:: BoundingBox.grow(vector)
 
     Scales the bounding box by given vector. The :code:`vector` param must be :class:`geometry.Vector`

@@ -27,7 +27,7 @@ Common transition parameters
 To create a Transition you'll typically need to pass the following parameters:
 
 * :code:`advance_value` - advance value for given transition type (e.g. target position for :class:`NodePositionTransition`).
-* :code:`duration` - transition duration time, in miliseconds
+* :code:`duration` - transition duration time, in seconds
 * :code:`advance_method` - an enum value of :class:`AttributeTransitionMethod` type which determines how the :code:`advance_value` will be applied to modify the appropriate node property.
     * :code:`AttributeTransitionMethod.set` - node's property will be changed towards the advance_value over time
     * :code:`AttributeTransitionMethod.add` - node's property will be changed towards the current value + advance_value over time
@@ -37,9 +37,9 @@ To create a Transition you'll typically need to pass the following parameters:
 * :code:`easing` - Optional. An enum value of :class:`easings.Easing` - specifies the rate of change of a value over time. Default is Easing.none which really means a linear easing.
 
 **Note:** the :code:`duration` parameter always refers to one loop, one direction. So for example, transition
-with the following set of parameters: :code:`duration=1000, loops=3, back_and_forth=True` will take 6000 miliseconds.
-1000 milisecond played back and forth is 2000 miliseconds, and it will be played 3 times, hence a total time
-of 6000 miliseconds.
+with the following set of parameters: :code:`duration=1., loops=3, back_and_forth=True` will take 6 seconds.
+1 second played back and forth is 2 seconds, and it will be played 3 times, hence a total time
+of 6 seconds.
 
 All transitions use linear easing. More built-in easing types are to be added soon.
 
@@ -158,9 +158,16 @@ Change sprite of a node, creating an animation effect:
 
     spritesheet = Sprite(os.path.join('assets', 'gfx', 'spritesheet.png')
     frames = split_spritesheet(spritesheet, Vector(100,100)) # cut the spritesheet into <Sprite> instances
-    animation = NodeSpriteTransition(frames, duration=2000, loops=0, back_and_forth=False)
+    animation = NodeSpriteTransition(frames, duration=2., loops=0, back_and_forth=False)
     node = Node(position=Vector(100, 100), transition=animation)
 
+
+Change z_index of a node over time:
+
+.. code-block:: python
+
+    node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
+    node.transition = NodeZIndexSteppingTransition([1,2,3,4,5,6,10,100], 1000)
 
 
 :class:`NodePositionTransition` reference
@@ -246,7 +253,7 @@ Change sprite of a node, creating an animation effect:
 .. _Transitions.NodeSpriteTransition:
 
 :class:`NodeSpriteTransition` reference
-----------------------------------------------------
+---------------------------------------
 
 .. class:: NodeSpriteTransition(sprites, duration, loops=1, back_and_forth=False, easing=Easing.none)
 
@@ -258,6 +265,15 @@ Change sprite of a node, creating an animation effect:
 
     The :code:`loops` and :code:`back_and_forth` parameters work normally - refer to the `Common transition parameters`_
     section for more information on those parameters.
+
+:class:`NodeZIndexSteppingTransition reference`
+-----------------------------------------------
+
+.. class:: NodeZIndexSteppingTransition(z_index_list, duration, loops=1, back_and_forth=False, easing=Easing.none)
+
+    Allows to change z_index of a node over time.
+
+    The :code:`z_index_list` must be an iterable with z_index values.
 
 
 :class:`NodeTransitionsSequence` reference
@@ -327,7 +343,7 @@ Change sprite of a node, creating an animation effect:
 
     Use this transition to create a delay between transitions in a sequence.
 
-    The :code:`duration` paramter is a number of miliseconds.
+    The :code:`duration` parameter is a number of seconds.
 
     See the `Examples`_ sections for more information.
 
@@ -418,7 +434,7 @@ Change sprite of a node, creating an animation effect:
     .. code-block:: python
 
         node = Node(position=Vector(15, 60))
-        node.transitions_manager.set('my_transition', NodePositionTransition(Vector(100,100), duration=300, loops=0))
+        node.transitions_manager.set('my_transition', NodePositionTransition(Vector(100,100), duration=0.300, loops=0))
         node.transitions_manager.set('other_transition', NodeRotationTransition(math.pi/2))
         node.transitions_manager.set('can_use_sequence_coz_why_not',  NodeTransitionsSequence([
             NodeScaleTransition(Vector(2, 2), 1000),

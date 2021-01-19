@@ -38,7 +38,7 @@ All kaa imports cheat sheet
 
     from kaa.input import Event, Keycode, MouseButton, ControllerButton, ControllerAxis, CompoundControllerAxis
 
-    from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreLogCategory, CoreHandler,
+    from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreHandler,
 
     from kaa.nodes import Node
 
@@ -53,7 +53,7 @@ All kaa imports cheat sheet
     from kaa.transitions import NodeTransitionsSequence, NodeTransitionsParallel, NodeCustomTransition,
         AttributeTransitionMethod, NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
         NodeColorTransition, BodyNodeVelocityTransition, BodyNodeAngularVelocityTransition, NodeTransitionDelay,
-        NodeTransitionCallback, NodeSpriteTransition
+        NodeTransitionCallback, NodeSpriteTransition, NodeZIndexSteppingTransition
 
 
 
