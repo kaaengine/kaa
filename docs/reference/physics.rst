@@ -30,9 +30,12 @@ Read more about :doc:`the nodes concept in general </reference/nodes>`.
     Collision handlers are your custom functions which will be called when a collision between a pair of defined
     hitbox nodes occurs.
 
-    Another feature of the SpaceNode is running spatial queries. You can give the space node a
-    custom shape (:class:`geometry.Circle`, :class:`geometry.Polygon` or :class:`geometry.Segment`) and ask
-    which hitboxes on the scene collide with that shape. See :meth:`SpaceNode.query_shape_overlaps`.
+    Another feature of the SpaceNode is running spatial queries. You can find hitboxes colliding with a
+    custom shape (:class:`geometry.Circle`, :class:`geometry.Polygon` or :class:`geometry.Segment`) via
+    :meth:`SpaceNode.query_shape_overlaps()`. You can find hitboxes colliding with a ray cast between points
+    A and B using :meth:`SpaceNode.query_ray()`. Finally you can also find hitboxes around a specific point
+    with :meth:`SpacenNode.query_point_neighbors()`.
+
 
     Constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
     new parameters:
