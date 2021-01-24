@@ -500,7 +500,7 @@ Instance methods:
 .. method:: SpatialIndexManager.query_bounding_box(bounding_box, include_shapeless=True)
 
     Returns a list of Nodes inside specified bounding box. It also includes those which only intersect the bounding box.
-    The :code:`bounding_box` must be an instance of `geometry.BoundingBox`.
+    The :code:`bounding_box` must be an instance of `geometry.BoundingBox`. Returned nodes are unordered.
 
     The :code:`include_shapeless` param determines whether the query will also include nodes which do not have a :ref:`shape <Node.shape>`.
 
@@ -516,9 +516,11 @@ Instance methods:
 .. method:: SpatialIndexManager.query_point(point)
 
     Returns a list of Nodes that contain the specified point. The :code:`point` must be a
-    `geometry.Vector`.
+    `geometry.Vector`. Returned nodes are unordered.
 
     .. note:: Only the nodes with indexable property set to True will be queried. The indexable property is True by default.
+
+
 
     .. code-block:: python
 
