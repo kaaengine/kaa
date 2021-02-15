@@ -27,6 +27,7 @@ set(CYTHON_FILES
     log.pxi
     easings.pxi
     spatial_index.pxi
+    statistics.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -53,6 +54,7 @@ set(CYTHON_FILES
     kaacore/easings.pxd
     kaacore/spatial_index.pxd
     kaacore/clock.pxd
+    kaacore/statistics.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
