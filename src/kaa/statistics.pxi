@@ -18,12 +18,14 @@ cdef class StatisticAnalysis:
         return statistic_analysis
 
     def __repr__(self):
-        return ("<StatisticAnalysis: samples_count:{}, last_value:{},"
-                " mean_value:{}, max_value:{}, min_value:{},"
-                " standard_deviation:{}").format(
-                    self.samples_count, self.last_value, self.mean_value,
-                    self.max_value, self.min_value, self.standard_deviation
-                )
+        return (
+            "<StatisticAnalysis: samples_count:{}, last_value:{},"
+            " mean_value:{}, max_value:{}, min_value:{},"
+            " standard_deviation:{}"
+        ).format(
+            self.samples_count, self.last_value, self.mean_value,
+            self.max_value, self.min_value, self.standard_deviation
+        )
 
     @property
     def samples_count(self):
