@@ -1,1 +1,2 @@
 cmake>=3.13.1
+pyhistory==2.1
