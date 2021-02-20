@@ -221,6 +221,17 @@ cdef class NodeBase:
             self._get_c_node().views(optional[unordered_set[int16_t]](nullopt))
 
     @property
+    def effective_views(self):
+        cdef:
+            int16_t c_index
+            set result = set()
+            vector[int16_t] c_indices = self._get_c_node().effective_views()
+
+        for c_index in range(c_indices.size()):
+            result.add(c_indices[c_index])
+        return result
+
+    @property
     def position(self):
         return Vector.from_c_vector(self._get_c_node().position())
     
@@ -249,6 +260,10 @@ cdef class NodeBase:
             self._get_c_node().z_index(optional[int16_t](<int>value))
         else:
             self._get_c_node().z_index(optional[int16_t](nullopt))
+
+    @property
+    def effective_z_index(self):
+        return self._get_c_node().effective_z_index()
 
     @property
     def rotation(self):
@@ -390,6 +405,10 @@ cdef class NodeBase:
     @indexable.setter
     def indexable(self, bool value):
         self._get_c_node().indexable(value)
+
+    @property
+    def root_distance(self):
+        return self._get_c_node().root_distance()
 
     @property
     def bounding_box(self):
