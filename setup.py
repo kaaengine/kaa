@@ -28,6 +28,11 @@ setup(
     entry_points={
         'console_scripts': ['shaderc=kaa.cli:shaderc']
     },
+    extras_require={
+        'stats_graph': [
+            'matplotlib>=3.1.1',
+        ]
+    },
     license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
