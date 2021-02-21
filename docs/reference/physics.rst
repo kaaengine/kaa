@@ -129,21 +129,100 @@ Instance methods:
     hitboxes. The shape coordinates are expected to be in a frame reference relative to the SpaceNode.
 
     When running the query, the shape you pass is treated like a hitbox node, therefore parameters such as mask,
-    collision_mask and group behave identically as in :class:`HitboxNode`. Refer to :ref:`mask <HitboxNode.mask>`,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
     :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
 
     The query returns a list of :class:`ShapeQueryResult` objects. Each :class:`ShapeQueryResult` represents a
     'collision' of the shape with one hitbox. It holds a reference to hitbox' parent (body node) and other metadata
     such as intersection points.
 
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+
+        # find hitboxes intersecting with our triangular polygon
+        triangle = Polygon([Vector(0, 0), Vector(100, 100), Vector(0, 200) ])
+        results = self.space.query_shape_overlaps(triangle)
+        for result in results:
+            print(f"Shape {triangle.points} collided with hitbox {result.hitbox.shape.points} owned "
+                  f"by {result.body}. Contact points metadata accessible at {result.contact_points}.")
+
 .. method:: SpaceNode.query_ray(ray_start, ray_end, radius=0., mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
 
-    TODO
+    A "ray casting" method. Takes in a ray (two Vectors: :code:`ray_start` and :code:`ray_end`) and returns hitboxes
+    (and their owning BodyNodes) which collide with that ray. The ray coordinates are expected to be in a frame reference
+    relative to the SpaceNode.
 
-.. method:: SpaceNode.query_point_neighbors(point, max_distance, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE):
+    The :code:`radius` parameter sets the width of the cast ray.
 
-    TODO
+    When running the query, the ray is treated like a hitbox node, therefore parameters such as mask,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
+    :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
 
+    The query returns a list of :class:`RayQueryResult` objects. Each represents a collision of the ray with one
+    hitbox. It holds a reference to hitbox owner (body node) and other metadata such as intersection point.
+
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+
+        # cast a ray and find hitboxes colliding with the ray
+        results = self.space.query_ray(ray_start=Vector(-200, -200), ray_end=Vector(200,200))
+        for result in results:
+            print(f"Ray collided with {result.hitbox.shape.points} hitbox owned by {result.body} at "
+                  f"{result.point}. Normal was {result.normal} and alpha was {result.alpha}")
+
+
+
+.. method:: SpaceNode.query_point_neighbors(point, max_distance, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+
+    Queries for hitboxes :code:`max_distance` away from :code:`point`. The :code:`point` must be a
+    :class:`geometry.Vector`.
+
+    When running the query, the :code:`point` is treated like a hitbox node, therefore parameters such as mask,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
+    :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
+
+    The query returns a list of :class:`PointQueryResult` objects which contain collision data such as references
+    to hitbox, its owner body node and other metadata.
+
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+
+        # find hitboxes in the vicinity of a point
+        point = Vector(-140, 140)
+        results = self.space.query_point_neighbors(point=point, max_distance=200)
+        for result in results:
+            print(f"Point {point} collided with hitbox {result.hitbox.shape.points} owned "
+                  f"by {result.body}. Collision point is at {result.point}, distance: {result.distance}")
 
 
 :class:`BodyNode` reference
@@ -554,10 +633,25 @@ Instance properties:
 :class:`RayQueryResult` reference
 -----------------------------------
 
-TODO
+.. class:: RayQueryResult
+
+    RayQueryResult objects are returned by the :meth:`SpaceNode.query_ray()` method. A ShapeQueryResult represents
+    a collision between a ray and a hitbox. It has the following properties:
+
+    * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
+    * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
+    * :code:`point` - a :class:`geometry.Vector` where the ray intersected the hitbox
+    * :code:`normal` - TODO
+    * :code:`alpha` - TODO
 
 :class:`PointQueryResult` reference
 -----------------------------------
 
-TODO
+.. class:: PointQueryResult
 
+    PointQueryResult objects are returned by the :meth:`SpaceNode.query_point_neighbors()` method. Properties are
+
+    * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
+    * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
+    * :code:`point` - a :class:`geometry.Vector` coords of the nearest point of collision
+    * :code:`distance` - a :class:`geometry.Vector` with a distance to the point of collision
