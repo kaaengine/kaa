@@ -641,8 +641,8 @@ Instance properties:
     * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
     * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
     * :code:`point` - a :class:`geometry.Vector` where the ray intersected the hitbox
-    * :code:`normal` - TODO
-    * :code:`alpha` - TODO
+    * :code:`normal` - a :class:`geometry.Vector` with ray reflection angle. This vector is normalized.
+    * :code:`alpha` - a float number indicating distance from the ray start point to the point where collision occurred. The distance is in relation to the ray length so the number is always between 0 and 1.
 
 :class:`PointQueryResult` reference
 -----------------------------------
