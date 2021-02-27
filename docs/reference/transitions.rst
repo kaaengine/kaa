@@ -51,7 +51,7 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds.
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodePositionTransition(Vector(30, 70), 2000)
+    node.transition = NodePositionTransition(Vector(30, 70), 2.)
 
 
 Change position of a node, from (100,100) by (30, 70), i.e. to (130, 170) over 2 seconds.
@@ -59,21 +59,21 @@ Change position of a node, from (100,100) by (30, 70), i.e. to (130, 170) over 2
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodePositionTransition(Vector(30, 70), 2000, advance_method=AttributeTransitionMethod.add)
+    node.transition = NodePositionTransition(Vector(30, 70), 2., advance_method=AttributeTransitionMethod.add)
 
 Change position of a node, from (100, 100) by (x30, x70), i.e. to (3000, 7000) over 2 seconds.
 
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodePositionTransition(Vector(30, 70), 2000, advance_method=AttributeTransitionMethod.multiply)
+    node.transition = NodePositionTransition(Vector(30, 70), 2., advance_method=AttributeTransitionMethod.multiply)
 
 Change position of a node, from (100,100) to (30, 70) then back to the initial position (100,100) over 2 seconds.
 
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodePositionTransition(Vector(30, 70), 2000, back_and_forth=True)
+    node.transition = NodePositionTransition(Vector(30, 70), 2., back_and_forth=True)
 
 Change position of a node, from (100,100) to (30, 70) then get back to the initial position over 2 seconds. Repeat
 it 3 times.
@@ -81,14 +81,14 @@ it 3 times.
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodePositionTransition(Vector(30, 70), 2000, loops=3, back_and_forth=True)
+    node.transition = NodePositionTransition(Vector(30, 70), 2., loops=3, back_and_forth=True)
 
 Change the scale of a node (twice on the X axis and three times on the Y axis) over 1 second.
 
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodeScaleTransition(Vector(2, 3), 1000)
+    node.transition = NodeScaleTransition(Vector(2, 3), 1.)
 
 Change the scale of a node (twice on the X axis and three times on the Y axis) over 1 second. Repeat indefinitely
 (creating pulsation effect).
@@ -96,14 +96,14 @@ Change the scale of a node (twice on the X axis and three times on the Y axis) o
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodeScaleTransition(Vector(2, 3), 1000, loops=0)
+    node.transition = NodeScaleTransition(Vector(2, 3), 1., loops=0)
 
 Rotate the node 90 degrees clockwise over 3 seconds
 
 .. code-block:: python
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
-    node.transition = NodeRotationTransition(math.pi/2, 3000)
+    node.transition = NodeRotationTransition(math.pi/2, 3.)
 
 Change position of a node by (150, 100) over 2 seconds, then enlarge it twice over 1 second, then do nothing for
 2 seconds, finally rotate it 180 degrees over 3 seconds. Play the whole sequence two times, back and forth.
@@ -112,10 +112,10 @@ Change position of a node by (150, 100) over 2 seconds, then enlarge it twice ov
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     transitions = [
-        NodePositionTransition(Vector(150, 100), 2000, advance_method=AttributeTransitionMethod.add),
-        NodeScaleTransition(Vector(2, 2), 1000),
-        NodeTransitionDelay(2000),
-        NodeRotationTransition(math.pi, 3000)
+        NodePositionTransition(Vector(150, 100), 2., advance_method=AttributeTransitionMethod.add),
+        NodeScaleTransition(Vector(2, 2), 1.),
+        NodeTransitionDelay(2.),
+        NodeRotationTransition(math.pi, 3.)
     ]
     node.transition = NodeTransitionsSequence(transitions, loops=2, back_and_forth=True)
 
@@ -126,12 +126,12 @@ back and forth in 1500 milisecond intervals.
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     transitions = [
-        NodePositionTransition(Vector(150, 100), 2000, advance_method=AttributeTransitionMethod.add),
-        NodeScaleTransition(Vector(2, 2), 1000),
-        NodeTransitionDelay(2000),
-        NodeRotationTransition(math.pi, 3000)
+        NodePositionTransition(Vector(150, 100), 2., advance_method=AttributeTransitionMethod.add),
+        NodeScaleTransition(Vector(2, 2), 1.),
+        NodeTransitionDelay(2.),
+        NodeRotationTransition(math.pi, 3.)
     ]
-    color_transition = NodeColorTransition(Color(1,0,0,1), 1500, loops=0, back_and_forth=True)
+    color_transition = NodeColorTransition(Color(1,0,0,1), 1.5, loops=0, back_and_forth=True)
 
     node.transition = NodeTransitionsParalel([
         color_transition,
@@ -148,7 +148,7 @@ Change position of a node, from (100,100) to (30, 70) over 2 seconds and call fu
 
     node = Node(position=Vector(100, 100), sprite=Sprite('image.png'))
     node.transition = NodeTransitionSequence([
-        NodePositionTransition(Vector(30, 70), 2000),
+        NodePositionTransition(Vector(30, 70), 2.),
         NodeTransitionCallback(my_func)])
 
 
@@ -391,7 +391,7 @@ Change z_index of a node over time:
                     node, 'position',
                     state['positions'][min(int(t * 10), 9)],
                 ),
-                10000.,
+                10.,
                 loops=5,
             )
 
@@ -437,9 +437,9 @@ Change z_index of a node over time:
         node.transitions_manager.set('my_transition', NodePositionTransition(Vector(100,100), duration=0.300, loops=0))
         node.transitions_manager.set('other_transition', NodeRotationTransition(math.pi/2))
         node.transitions_manager.set('can_use_sequence_coz_why_not',  NodeTransitionsSequence([
-            NodeScaleTransition(Vector(2, 2), 1000),
-            NodeTransitionDelay(2000),
-            NodeColorTransition(Color(0.5, 1, 0, 1), 3000)],
+            NodeScaleTransition(Vector(2, 2), 1.),
+            NodeTransitionDelay(2.),
+            NodeColorTransition(Color(0.5, 1, 0, 1), 3.)],
             loops=2, back_and_forth=True))
 
 
