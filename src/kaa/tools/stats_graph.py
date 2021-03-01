@@ -114,7 +114,7 @@ class Graph:
         self.figure, self.axes = plt.subplots(needed_subplots_count, 1)
         # for single plot returned axes will not be an iterable
         if not isinstance(self.axes, np.ndarray):
-            self.axes = np.ndarray([self.axes])
+            self.axes = np.array([self.axes])
         plt.subplots_adjust(left=0.1, right=0.99, top=0.95, bottom=0.05)
         for ax in self.axes:
             ax.set_xlim(-PLOT_DISPLAYED_VALUES, 0)
