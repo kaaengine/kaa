@@ -348,8 +348,8 @@ Instance methods:
 
     .. code-block::
 
-        rotate_than_move = t2 | t4
-        move_than_rotate = t2 @ t4
+        rotate_then_move = t2 | t4
+        move_then_rotate = t2 @ t4
 
     Finally, you can use the :meth:`inverse()` method on the Transformation instance to get the inversed transformation:
 
@@ -440,9 +440,15 @@ Class methods:
 
 .. classmethod:: BoundingBox.from_points(points)
 
-    Creates a BoundingBox from two points. The :code:`points` must be a list of two :class:`geometry.Vector`
-    instances. The first point in the list will become BoundingBox's min_x and min_y while the second one will become
-    max_x and max_y
+    Creates a BoundingBox from points. The :code:`points` must be a list of :class:`geometry.Vector`
+    instances, representing point coordinates.
+
+    If :code:`points` list is empty, it will return bounding box with NaN values.
+
+    If :code:`points` list has 1 point, it behaves exactly like :meth:`BoundingBox.single_point`
+
+    If :code:`points` list has 2 or more points, it will return smallest box which contains all provided points.
+
 
 Instance properties:
 
@@ -499,7 +505,8 @@ Instance methods:
 
 .. method:: BoundingBox.grow(vector)
 
-    Scales the bounding box by given vector. The :code:`vector` param must be :class:`geometry.Vector`
+    Grows the bounding box by given vector (adds the vector's x and y value to the corresponding sides of the bounding box).
+    The :code:`vector` param must be :class:`geometry.Vector`
 
 
 :class:`Alignment` reference

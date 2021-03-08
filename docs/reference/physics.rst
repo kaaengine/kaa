@@ -148,7 +148,6 @@ Instance methods:
         hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
         body_node.add_child(hitbox)
         self.space.add_child(body_node)
-
         # find hitboxes intersecting with our triangular polygon
         triangle = Polygon([Vector(0, 0), Vector(100, 100), Vector(0, 200) ])
         results = self.space.query_shape_overlaps(triangle)
@@ -641,7 +640,7 @@ Instance properties:
     * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
     * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
     * :code:`point` - a :class:`geometry.Vector` where the ray intersected the hitbox
-    * :code:`normal` - a :class:`geometry.Vector` with ray reflection angle. This vector is normalized.
+    * :code:`normal` - a :class:`geometry.Vector` with ray reflection direction. This vector is normalized.
     * :code:`alpha` - a float number indicating distance from the ray start point to the point where collision occurred. The distance is in relation to the ray length so the number is always between 0 and 1.
 
 :class:`PointQueryResult` reference

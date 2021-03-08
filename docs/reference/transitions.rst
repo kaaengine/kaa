@@ -33,13 +33,19 @@ To create a Transition you'll typically need to pass the following parameters:
     * :code:`AttributeTransitionMethod.add` - node's property will be changed towards the current value + advance_value over time
     * :code:`AttributeTransitionMethod.multiply` - node's property will be changed towards the current value * advance_value over time
 * :code:`loops` - Optional. How many times the transition should "play". Set to 0 to play infinite number of times. Default is 1.
-* :code:`back_and_forth` - Optional. If set to :code:`True`, the transition will be played back and forth. Default is False.
+* :code:`back_and_forth` - Optional. If set to :code:`True`, the transition will be played back and forth (that counts as one "loop"). Default is False.
 * :code:`easing` - Optional. An enum value of :class:`easings.Easing` - specifies the rate of change of a value over time. Default is Easing.none which really means a linear easing.
 
-**Note:** the :code:`duration` parameter always refers to one loop, one direction. So for example, transition
-with the following set of parameters: :code:`duration=1., loops=3, back_and_forth=True` will take 6 seconds.
-1 second played back and forth is 2 seconds, and it will be played 3 times, hence a total time
-of 6 seconds.
+.. note::
+
+    The :code:`duration` parameter always refers to one loop, one direction. So for example, transition
+    with the following set of parameters: :code:`duration=1., loops=3, back_and_forth=True` will take 6 seconds.
+    1 second played back and forth is 2 seconds, and it will be played 3 times, hence a total time
+    of 6 seconds.
+
+.. note::
+
+    If :code:`back_and_forth` is set to :code:`True`, the transition will play back and forth which counts as one loop.
 
 All transitions use linear easing. More built-in easing types are to be added soon.
 
