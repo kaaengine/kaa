@@ -1,20 +1,12 @@
-import random
-import itertools
-import math
-import enum
-
 from kaa.engine import Engine, Scene
-from kaa.geometry import Vector, Segment, Circle, Polygon, Transformation
+from kaa.geometry import Vector, Polygon, Transformation
 from kaa.nodes import Node
-from kaa.physics import SpaceNode, BodyNode, HitboxNode
-from kaa.timers import Timer
-from kaa.input import Keycode, MouseButton
+from kaa.input import Keycode
 from kaa.colors import Color
 
 class MyNode(Node):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         print(self.position)
         print(self.views)
 

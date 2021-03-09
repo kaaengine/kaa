@@ -1,3 +1,5 @@
+import os
+
 from kaa.engine import Engine, Scene, get_engine
 from kaa.input import Event, Keycode
 from kaa.fonts import TextNode, Font
@@ -12,7 +14,7 @@ def handle_quit(event):
 class FontDemoScene(Scene):
     def __init__(self):
         self.camera.position = Vector(0., 0.)
-        self.my_font = Font("kaacore/demos/assets/fonts/Roboto/Roboto-Regular.ttf")
+        self.my_font = Font(os.path.join('demos', 'assets', 'fonts', 'DejaVuSans.ttf'))
 
         self.text_node = TextNode(font=self.my_font, content="Hello World", font_size=1.)
         self.root.add_child(self.text_node)
