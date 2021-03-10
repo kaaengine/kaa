@@ -18,7 +18,6 @@ variables:
   is_version_build: $[startswith(variables['Build.SourceBranch'], 'refs/tags/v')]
   is_master_build: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   is_main_repo: $[eq(variables['Build.DefinitionName'], 'kaaengine.kaa')]
-  build_all_py_versions: $[not(eq(variables['Build.Reason'], 'PullRequest'))]
 
 jobs:
 - job: build_linux
@@ -27,18 +26,15 @@ jobs:
     vmImage: 'ubuntu-16.04'
   strategy:
     matrix:
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python36:
-          python.version: '3.6'
-          python.version_tag: 'py36'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python37:
-          python.version: '3.7'
-          python.version_tag: 'py37'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python38:
-          python.version: '3.8'
-          python.version_tag: 'py38'
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
@@ -69,18 +65,15 @@ jobs:
     vmImage: 'windows-2019'
   strategy:
     matrix:
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python36:
-          python.version: '3.6'
-          python.version_tag: 'py36'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python37:
-          python.version: '3.7'
-          python.version_tag: 'py37'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python38:
-          python.version: '3.8'
-          python.version_tag: 'py38'
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
@@ -101,18 +94,15 @@ jobs:
     vmImage: 'macOS-10.14'
   strategy:
     matrix:
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python36:
-          python.version: '3.6'
-          python.version_tag: 'py36'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python37:
-          python.version: '3.7'
-          python.version_tag: 'py37'
-      ${{ if eq(variables['build_all_py_versions'], true) }}:
-        Python38:
-          python.version: '3.8'
-          python.version_tag: 'py38'
+      Python36:
+        python.version: '3.6'
+        python.version_tag: 'py36'
+      Python37:
+        python.version: '3.7'
+        python.version_tag: 'py37'
+      Python38:
+        python.version: '3.8'
+        python.version_tag: 'py38'
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
