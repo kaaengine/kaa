@@ -113,21 +113,6 @@ Instance methods:
     * wav
     * ogg
 
-Instance properties:
-
-.. attribute:: Music.is_paused
-
-    Read only. Returns bool value indicating if the music track is paused.
-
-.. attribute:: Music.is_playing
-
-    Read only. Returns bool value indicating if the music track is playing. To find out when a music track stopped playing
-    use
-
-.. attribute:: Music.volume
-
-    Gets or sets a default volume of the music track.
-
 Class methods
 
 .. classmethod:: Music.get_current()
@@ -147,6 +132,11 @@ Instance properties
 .. attribute:: Music.is_paused
 
     Read only. Returns :code:`True` if the music is paused.
+
+.. attribute:: Music.volume
+
+    Gets or sets a default volume of the music track.
+
 
 Instance methods
 

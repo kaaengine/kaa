@@ -30,9 +30,12 @@ Read more about :doc:`the nodes concept in general </reference/nodes>`.
     Collision handlers are your custom functions which will be called when a collision between a pair of defined
     hitbox nodes occurs.
 
-    Another feature of the SpaceNode is running spatial queries. You can give the space node a
-    custom shape (:class:`geometry.Circle`, :class:`geometry.Polygon` or :class:`geometry.Segment`) and ask
-    which hitboxes on the scene collide with that shape. See :meth:`SpaceNode.query_shape_overlaps`.
+    Another feature of the SpaceNode is running spatial queries. You can find hitboxes colliding with a
+    custom shape (:class:`geometry.Circle`, :class:`geometry.Polygon` or :class:`geometry.Segment`) via
+    :meth:`SpaceNode.query_shape_overlaps()`. You can find hitboxes colliding with a ray cast between points
+    A and B using :meth:`SpaceNode.query_ray()`. Finally you can also find hitboxes around a specific point
+    with :meth:`SpacenNode.query_point_neighbors()`.
+
 
     Constructor accepts all parameters from the base :class:`nodes.Node` class and adds the following
     new parameters:
@@ -65,7 +68,7 @@ Instance properties:
 .. _SpaceNode.sleeping_threshold:
 .. attribute:: SpaceNode.sleeping_threshold
 
-    Gets of sets the sleep time threshold (in miliseconds) which affects all BodyNodes in
+    Gets of sets the sleep time threshold (in seconds) which affects all BodyNodes in
     the SpaceNode. If given BodyNode remains static (doesn't change its position or rotation) for that amount of
     time the engine will stop making physical calculations for it. In some situations it can improve the performance.
     A body remaining in a sleeping state can still collide with other bodies - that will force it to move and
@@ -103,7 +106,7 @@ Instance methods:
         enemy_hitbox = HitboxNode(shape=Circle(radius=10), trigger_id=456, ...... )  # 456 is our own value we give to all enemy hitboxes
 
         # collision handler function:
-        def on_collision_bullet_enemy(self, arbiter, bullet_pair, enemy_pair):
+        def on_collision_bullet_enemy(arbiter, bullet_pair, enemy_pair):
             print("Detected a collision between a bullet object's {} hitbox {} and Enemy's object {} hitbox {}".format(
                 bullet_pair.body, bullet_pair.hitbox, enemy_pair.body, enemy_pair.hitbox))
             # ... write code to handle the collision effects ....
@@ -119,19 +122,107 @@ Instance methods:
     function will be called every frame, as long as the hitboxes touch or overlap. When they make apart, the
     collision handler function stops being called.
 
-.. method:: SpaceNode.query_shape_overlaps(shape, position=Vector(0,0), mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+.. method:: SpaceNode.query_shape_overlaps(shape, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
 
-    Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and its position on the scene and returns
+    Takes a shape (:class:`geometry.Circle` or :class:`geometry.Polygon`) and returns
     hitboxes which overlap with that shape (either partially or entirely) as well as body nodes which own those
-    hitboxes.
+    hitboxes. The shape coordinates are expected to be in a frame reference relative to the SpaceNode.
 
     When running the query, the shape you pass is treated like a hitbox node, therefore parameters such as mask,
-    collision_mask and group behave identically as in :class:`HitboxNode`. Refer to :ref:`mask <HitboxNode.mask>`,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
     :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
 
     The query returns a list of :class:`ShapeQueryResult` objects. Each :class:`ShapeQueryResult` represents a
     'collision' of the shape with one hitbox. It holds a reference to hitbox' parent (body node) and other metadata
     such as intersection points.
+
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+        # find hitboxes intersecting with our triangular polygon
+        triangle = Polygon([Vector(0, 0), Vector(100, 100), Vector(0, 200) ])
+        results = self.space.query_shape_overlaps(triangle)
+        for result in results:
+            print(f"Shape {triangle.points} collided with hitbox {result.hitbox.shape.points} owned "
+                  f"by {result.body}. Contact points metadata accessible at {result.contact_points}.")
+
+.. method:: SpaceNode.query_ray(ray_start, ray_end, radius=0., mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+
+    A "ray casting" method. Takes in a ray (two Vectors: :code:`ray_start` and :code:`ray_end`) and returns hitboxes
+    (and their owning BodyNodes) which collide with that ray. The ray coordinates are expected to be in a frame reference
+    relative to the SpaceNode.
+
+    The :code:`radius` parameter sets the width of the cast ray.
+
+    When running the query, the ray is treated like a hitbox node, therefore parameters such as mask,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
+    :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
+
+    The query returns a list of :class:`RayQueryResult` objects. Each represents a collision of the ray with one
+    hitbox. It holds a reference to hitbox owner (body node) and other metadata such as intersection point.
+
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+
+        # cast a ray and find hitboxes colliding with the ray
+        results = self.space.query_ray(ray_start=Vector(-200, -200), ray_end=Vector(200,200))
+        for result in results:
+            print(f"Ray collided with {result.hitbox.shape.points} hitbox owned by {result.body} at "
+                  f"{result.point}. Normal was {result.normal} and alpha was {result.alpha}")
+
+
+
+.. method:: SpaceNode.query_point_neighbors(point, max_distance, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, group=kaa.physics.COLLISION_GROUP_NONE)
+
+    Queries for hitboxes :code:`max_distance` away from :code:`point`. The :code:`point` must be a
+    :class:`geometry.Vector`.
+
+    When running the query, the :code:`point` is treated like a hitbox node, therefore parameters such as mask,
+    collision_mask and group behave identically as in :class:`HitboxNode`. It means you can use those params
+    for filtering purpose. Refer to :ref:`mask <HitboxNode.mask>`,
+    :ref:`collision_mask <HitboxNode.collision_mask>` and :ref:`group <HitboxNode.group>` for more information.
+
+    The query returns a list of :class:`PointQueryResult` objects which contain collision data such as references
+    to hitbox, its owner body node and other metadata.
+
+    .. code-block:: python
+
+        from kaa.physics import SpaceNode, BodyNode, HitboxNode
+        from kaa.geometry import Polygon
+
+        self.space = SpaceNode()
+        self.root.add_child(self.space)
+        body_node = BodyNode(position=Vector(0, 0))
+        hitbox = HitboxNode(shape=Polygon.from_box(Vector(100, 100)))
+        body_node.add_child(hitbox)
+        self.space.add_child(body_node)
+
+        # find hitboxes in the vicinity of a point
+        point = Vector(-140, 140)
+        results = self.space.query_point_neighbors(point=point, max_distance=200)
+        for result in results:
+            print(f"Point {point} collided with hitbox {result.hitbox.shape.points} owned "
+                  f"by {result.body}. Collision point is at {result.point}, distance: {result.distance}")
+
 
 :class:`BodyNode` reference
 ---------------------------
@@ -201,6 +292,18 @@ Instance properties:
     Force has an effect only on :ref:`dynamic body nodes <BodyNode.body_type>`. Static and kinematic body nodes will
     not be affected.
 
+.. _BodyNode.local_force:
+.. attribute:: BodyNode.local_force
+
+    Same as :ref:`BodyNode.force <BodyNode.force>` but uses strictly local frame of reference.
+
+    .. code-block:: python
+
+        node.rotation_degrees = 0
+        node.force = Vector(1, 0)  # force will drag the object in direction V(1, 0), regardless to node rotation
+
+        other_node.rotation_degrees = 45
+        other_node.local_force = Vector(1, 0)  # force direction will be calculated AFTER applying the rotation!
 
 .. _BodyNode.velocity:
 .. attribute:: BodyNode.velocity
@@ -272,27 +375,69 @@ Instance properties:
 
     See also: :ref:`SpaceNode.sleeping_threshold <SpaceNode.sleeping_threshold>`.
 
+Instance methods:
+
+.. method:: BodyNode.apply_force_at_local(force, at)
+
+    Applies :code:`force` (:class:`geometry.Vector`) to this body node at position :code:`at` (:class:`geometry.Vector`).
+    The :code:`at` parameter is in a relative frame of reference. For example, if :code:`at` is :code:`Vector(0, 0)`
+    then the force will be applied at the center of the body node.
+
+    .. note::
+
+        Applied force will be automatically reset to zero each frame, so if you want to apply force constantly
+        you should do that on each frame.
+
+.. method:: BodyNode.apply_impulse_at_local(impulse, at)
+
+    Applies :code:`impulse` (:class:`geometry.Vector`) to this body node at position :code:`at` (:class:`geometry.Vector`).
+    The :code:`at` parameter is in a relative frame of reference. For example, if :code:`at` is :code:`Vector(0, 0)`
+    then the impulse will be applied at the center of the body node.
+
+    .. note::
+        Use impulses when you need to apply a very large force applied over a very short period of time. Some
+        examples are a ball hitting a wall or cannon firing.
+
+.. method:: BodyNode.apply_force_at(force, at)
+
+    Same as :meth:`BodyNode.apply_force_at_local` but :code:`at` is in an absolute frame of reference. For instance,
+    if body node's :ref:`absolute position <Node.absolute_position>` is Vector(110, 34) and you want to apply the
+    force at the center of the body, you need to pass :code:`at=Vector(110, 34)`.
+
+.. method:: BodyNode.apply_impulse_at(impulse, at)
+
+    Same as :meth:`BodyNode.apply_impulse_at_local` but :code:`at` is in an absolute frame of reference. For instance,
+    if body node's :ref:`absolute position <Node.absolute_position>` is Vector(110, 34) and you want to apply the
+    impulse at the center of the body, you need to pass :code:`at=Vector(110, 34)`.
+
 
 :class:`HitboxNode` reference
 -----------------------------
 
-.. class:: HitboxNode(shape, group=kaa.physics.COLLISION_GROUP_NONE, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True)
+.. class:: HitboxNode(shape, group=kaa.physics.COLLISION_GROUP_NONE, mask=kaa.physics.COLLISION_BITMASK_ALL, collision_mask=kaa.physics.COLLISION_BITMASK_ALL, trigger_id=None, position=Vector(0,0), rotation=0, scale=Vector(1, 1), z_index=0, color=Color(0,0,0,0), sprite=None, shape=None, sensor=False, elasticity=0.95, friction=0, surface_velocity=Vector(0, 0), origin_alignment=Alignment.center, lifetime=None, transition=None, visible=True))
 
     HitboxNode extends the :class:`Node` class and introduces collision detection features.
 
     In the nodes tree, HitboxNode must be a direct child of a :class:`BodyNode`. A :class:`BodyNode` can have many
     HitboxNodes.
 
-    HitboxNode inherits all :class:`Node` properties and methods, some of which may be particularly usful for
+    HitboxNode inherits all :class:`Node` properties and methods, some of which may be particularly useful for
     debugging. For example, by setting a color and z_index of on a HitboxNode you can make the hitbox visible.
 
-    Hitbox node has its own specific params:
+    Hitbox node has its own specific params, related with collision handling:
 
     * :code:`shape` - can be either :class:`geometry.Polygon` or :class:`geometry.Circle`
-    * :code:`group` - an integer, default value is a kaa constant meaning "no group"
-    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
-    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks"
-    * :code:`trigger_id` - an integer, your own value used with the :meth:`SpaceNode.set_collision_handler()` method.
+    * :code:`group` - an integer, default value is a kaa constant meaning "no group". Hitboxes within the same group will never collide with each other.
+    * :code:`mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks". Defines a category of this hitbox.
+    * :code:`collision_mask` - an integer, used as a bit mask, it's recommended to use enum.Intflag enumerated constant. Default value is a kaa constant meaning "match all masks". Defines with which categories this hitbox should collide.
+    * :code:`trigger_id` - an integer, your own value used with the :meth:`SpaceNode.set_collision_handler()` method. Used in custom collision handling.
+
+    The hitbox node also has a few properties affecting its physical behaviour:
+
+    * :code:`sensor`
+    * :code:`elasticity`
+    * :code:`friction`
+    * :code:`surface_velocity`
 
 Instance properties:
 
@@ -377,6 +522,33 @@ Instance properties:
     'tag' value which you need to pass when :ref:`registering your custom collision
     handler function <SpaceNode.set_collision_handler>`
 
+.. attribute:: HitboxNode.sensor
+
+    Gets or sets the sensor flag (bool). Default is :code:`False`. If set to :code:`True`, the hitbox will not
+    cause any physical collision effects (i.e. will not interact with other colliding objects) but will still trigger
+    its collision handler function (check out :ref:`SpaceNode.set_collision_handler <SpaceNode.set_collision_handler>`
+    method for more info on how to register a collision handlers for hitboxes).
+
+.. attribute:: HitboxNode.elasticity
+
+    Gets or sets hitbox elasticity, as :code:`float`. This is a percentage of kinetic energy transferred during collision
+    and should be between 0 and 1. A value of 0.0 gives no bounce, while a value of 1.0 will give a "perfect" bounce.
+    Default elasticity is 0.95. The elasticity for a collision is found by multiplying the elasticity of the
+    interacting hitboxes together.
+
+.. attribute:: HitboxNode.friction
+
+    Gets or sets hitbox friction coefficient, as :code:`float`. Physics engine uses the Coulomb friction model, a
+    value of 0.0 is frictionless. The friction for a collision is found by multiplying the friction of
+    the interacting hitboxes together. Default is 0.
+
+.. attribute:: HitboxNode.surface_velocity
+
+    Gets or sets hitbox surface velocity, as :class:`geometry.Vector`. Useful for creating conveyor belts or players
+    that move around. This value is only used when calculating friction, not resolving the collision. Default is
+    :code:`Vector(0, 0)` (no surface velocity)
+
+
 :class:`ShapeQueryResult` reference
 -----------------------------------
 
@@ -455,3 +627,30 @@ Instance properties:
     * :code:`CollisionPhase.pre_solve`
     * :code:`CollisionPhase.post_solve`
     * :code:`CollisionPhase.separate`
+
+
+:class:`RayQueryResult` reference
+-----------------------------------
+
+.. class:: RayQueryResult
+
+    RayQueryResult objects are returned by the :meth:`SpaceNode.query_ray()` method. A ShapeQueryResult represents
+    a collision between a ray and a hitbox. It has the following properties:
+
+    * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
+    * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
+    * :code:`point` - a :class:`geometry.Vector` where the ray intersected the hitbox
+    * :code:`normal` - a :class:`geometry.Vector` with ray reflection direction. This vector is normalized.
+    * :code:`alpha` - a float number indicating distance from the ray start point to the point where collision occurred. The distance is in relation to the ray length so the number is always between 0 and 1.
+
+:class:`PointQueryResult` reference
+-----------------------------------
+
+.. class:: PointQueryResult
+
+    PointQueryResult objects are returned by the :meth:`SpaceNode.query_point_neighbors()` method. Properties are
+
+    * :code:`hitbox` - an instance of :class:`HitboxNode` which collided
+    * :code:`body` - a :class:`BodyNode` instance that owns the hitbox
+    * :code:`point` - a :class:`geometry.Vector` coords of the nearest point of collision
+    * :code:`distance` - a :class:`geometry.Vector` with a distance to the point of collision

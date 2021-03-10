@@ -7,6 +7,7 @@ Kaa engine Reference
 
     audio
     colors
+    easings
     engine
     fonts
     geometry
@@ -27,15 +28,17 @@ All kaa imports cheat sheet
 
     from kaa.colors import Color
 
+    from kaa.easings import Easing, ease, ease_between
+
     from kaa.engine import Engine, Scene, VirtualResolutionMode, get_engine
 
     from kaa.fonts import Font, TextNode
 
-    from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, Transformation, classify_polygon
+    from kaa.geometry import Vector, Segment, Circle, Polygon, PolygonType, Alignment, Transformation, BoundingBox, classify_polygon
 
     from kaa.input import Event, Keycode, MouseButton, ControllerButton, ControllerAxis, CompoundControllerAxis
 
-    from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreLogCategory, CoreHandler,
+    from kaa.log import get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreHandler,
 
     from kaa.nodes import Node
 
@@ -50,7 +53,7 @@ All kaa imports cheat sheet
     from kaa.transitions import NodeTransitionsSequence, NodeTransitionsParallel, NodeCustomTransition,
         AttributeTransitionMethod, NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
         NodeColorTransition, BodyNodeVelocityTransition, BodyNodeAngularVelocityTransition, NodeTransitionDelay,
-        NodeTransitionCallback, NodeSpriteTransition
+        NodeTransitionCallback, NodeSpriteTransition, NodeZIndexSteppingTransition
 
 
 
