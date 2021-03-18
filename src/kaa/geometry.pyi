@@ -72,7 +72,7 @@ class Vector:
     def transform(self, transformation: Transformation) -> Vector:
         ...
 
-    def __add__(self, other) -> Vector:
+    def __add__(self, other: Vector) -> Vector:
         ...
 
     def __bool__(self) -> bool:
@@ -84,7 +84,10 @@ class Vector:
     def __hash__(self) -> int:
         ...
 
-    def __mul__(self, other) -> Vector:
+    def __mul__(self, other: float) -> Vector:
+        ...
+
+    def __rmul__(self, other: float) -> Vector:
         ...
 
     def __neg__(self) -> Vector:
@@ -93,10 +96,10 @@ class Vector:
     def __or__(self, other: Transformation) -> Vector:
         ...
 
-    def __sub__(self, other) -> Vector:
+    def __sub__(self, other: Vector) -> Vector:
         ...
 
-    def __truediv__(self, other) -> Vector:
+    def __truediv__(self, other: float) -> Vector:
         ...
 
 

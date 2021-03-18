@@ -64,10 +64,14 @@ class EngineInstance:
     def __enter__(self) -> EngineInstance:
         ...
 
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        ...
+
 
 def Engine(
     virtual_resolution: Vector,
-    virtual_resolution_mode: Optional[VirtualResolutionMode],
+    virtual_resolution_mode: Optional[VirtualResolutionMode]
+    = VirtualResolutionMode.adaptive_stretch,
 ) -> EngineInstance:
     ...
 
