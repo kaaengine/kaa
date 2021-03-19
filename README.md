@@ -30,3 +30,7 @@ python setup.py install --build-type Debug
 ## Documentation
 
 https://kaa.readthedocs.io/
+
+## Changelog
+
+See [CHANGELOG file](CHANGELOG.rst).
