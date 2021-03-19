@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 import enum
-from typing import final, type_check_only, Callable, List, Optional, Set, Union
+from typing import final, type_check_only, Callable, List, Optional, Set
 
 from .colors import Color
-from .fonts import TextNode
-from .geometry import Alignment, ShapeBase, Transformation, Vector
-from .nodes import NodeBase, Node
+from .geometry import AnyShape, Alignment, Transformation, Vector
+from .nodes import NodeBase, AnyNode
 from .sprites import Sprite
-from .transitions import NodeTransitionBase
+from .transitions import AnyTransitionArgument
 
 
-COLLISION_BITMASK_ALL: int
-COLLISION_BITMASK_NONE: int
-COLLISION_GROUP_NONE: int
+COLLISION_BITMASK_ALL: int = ...
+COLLISION_BITMASK_NONE: int = ...
+COLLISION_GROUP_NONE: int = ...
 
 
 class CollisionPhase(enum.IntFlag):
@@ -97,6 +98,7 @@ class PointQueryResult(SpatialQueryResultBase):
         ...
 
 
+@final
 class Arbiter:
     @property
     def phase(self) -> CollisionPhase:
@@ -117,10 +119,10 @@ class HitboxNode(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
-        shape: Optional[ShapeBase] = None,
+        shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
-        transition: Optional[NodeTransitionBase] = None,
+        transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
         views: Optional[Set[int]] = None,
@@ -145,10 +147,10 @@ class HitboxNode(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
-        shape: Optional[ShapeBase] = ...,
+        shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
-        transition: Optional[NodeTransitionBase] = ...,
+        transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
         views: Optional[Set[int]] = ...,
@@ -164,7 +166,7 @@ class HitboxNode(NodeBase):
     ) -> None:
         ...
 
-    def add_child(self, node: Union[Node, SpaceNode, TextNode]) -> NodeBase:
+    def add_child(self, node: AnyNode) -> AnyNode:
         ...
 
     @property
@@ -242,10 +244,10 @@ class BodyNode(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
-        shape: Optional[ShapeBase] = None,
+        shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
-        transition: Optional[NodeTransitionBase] = None,
+        transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
         views: Optional[Set[int]] = None,
@@ -271,10 +273,10 @@ class BodyNode(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
-        shape: Optional[ShapeBase] = ...,
+        shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
-        transition: Optional[NodeTransitionBase] = ...,
+        transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
         views: Optional[Set[int]] = ...,
@@ -291,7 +293,7 @@ class BodyNode(NodeBase):
     ) -> None:
         ...
 
-    def add_child(self, node: Union[HitboxNode, Node, SpaceNode, TextNode]) -> NodeBase:
+    def add_child(self, node: AnyNode) -> AnyNode:
         ...
 
     @property
@@ -463,10 +465,10 @@ class SpaceNode(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
-        shape: Optional[ShapeBase] = None,
+        shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
-        transition: Optional[NodeTransitionBase] = None,
+        transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
         views: Optional[Set[int]] = None,
@@ -486,10 +488,10 @@ class SpaceNode(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
-        shape: Optional[ShapeBase] = ...,
+        shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
-        transition: Optional[NodeTransitionBase] = ...,
+        transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
         views: Optional[Set[int]] = ...,
@@ -500,7 +502,7 @@ class SpaceNode(NodeBase):
     ) -> None:
         ...
 
-    def add_child(self, node: Union[BodyNode, Node, SpaceNode, TextNode]) -> NodeBase:
+    def add_child(self, node: AnyNode) -> AnyNode:
         ...
 
     @property
@@ -547,7 +549,7 @@ class SpaceNode(NodeBase):
     ) -> RayQueryResult:
         ...
     def query_shape_overlaps(
-        self, shape: ShapeBase,
+        self, shape: AnyShape,
         *, mask: int = COLLISION_BITMASK_ALL,
         collision_mask: int = COLLISION_BITMASK_ALL,
         group: int = COLLISION_GROUP_NONE,

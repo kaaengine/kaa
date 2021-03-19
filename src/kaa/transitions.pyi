@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import enum
 
-from typing import final, type_check_only, Callable, List, TypeVar
+from typing import (
+    final, type_check_only, Callable, List, Optional, TypeVar, Sequence, Union,
+)
 
 from .colors import Color
 from .easings import Easing
@@ -168,14 +172,29 @@ class NodeCustomTransition(NodeTransitionBase):
         ...
 
 
-def NodeTransition(attribute, *args, **kwargs):
-    ...  # TODO
+AnyTransition = Union[
+    NodePositionTransition, NodeRotationTransition, NodeScaleTransition,
+    NodeColorTransition, BodyNodeVelocityTransition, BodyNodeAngularVelocityTransition,
+    NodeSpriteTransition, NodeZIndexSteppingTransition,
+    NodeTransitionDelay, NodeTransitionCallback, NodeCustomTransition,
+    NodeTransitionsSequence, NodeTransitionsParallel,
+]
+
+AnyTransitionArgument = Union[
+    AnyTransition, Sequence[AnyTransition], None,
+]
+
+
+def NodeTransition(attribute, *args, **kwargs) -> AnyTransition:
+    ...  # TODO find a better way to type-spec this function
 
 
 @type_check_only
 class NodeTransitionsManager:
-    def get(self, transition_name: str) -> NodeTransitionBase:
+    def get(self, transition_name: str) -> AnyTransition:
         ...
 
-    def set(self, transition_name: str, transition: NodeTransitionBase) -> None:
+    def set(
+        self, transition_name: str, transition: Optional[AnyTransition]
+    ) -> None:
         ...

@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import enum
-from typing import List, Optional, final, overload, type_check_only
+from typing import (
+    final, overload, type_check_only, List, Optional, Sequence, Union,
+)
 
 
 @final
@@ -12,11 +16,11 @@ class Vector:
         ...
 
     @classmethod
-    def from_angle(angle_rad: float) -> Vector:
+    def from_angle(cls, angle_rad: float) -> Vector:
         ...
 
     @classmethod
-    def from_angle_degrees(angle_deg: float) -> Vector:
+    def from_angle_degrees(cls, angle_deg: float) -> Vector:
         ...
 
     @property
@@ -103,6 +107,7 @@ class Vector:
         ...
 
 
+@type_check_only
 class ShapeBase:
     @property
     def bounding_box(self) -> BoundingBox:
@@ -152,7 +157,7 @@ class Circle(ShapeBase):
 
 @final
 class Polygon(ShapeBase):
-    def __init__(self, points: List[Vector]) -> None:
+    def __init__(self, points: Sequence[Vector]) -> None:
         ...
 
     @staticmethod
@@ -164,6 +169,8 @@ class Polygon(ShapeBase):
         ...
 
 
+AnyShape = Union[Segment, Circle, Polygon]
+
 
 class PolygonType(enum.IntEnum):
     convex_ccw: PolygonType
@@ -171,7 +178,7 @@ class PolygonType(enum.IntEnum):
     not_convex: PolygonType
 
 
-def classify_polygon(points: List[Vector]) -> PolygonType:
+def classify_polygon(points: Sequence[Vector]) -> PolygonType:
     ...
 
 
@@ -259,7 +266,7 @@ class BoundingBox:
         ...
 
     @staticmethod
-    def from_points(points: List[Vector]) -> BoundingBox:
+    def from_points(points: Sequence[Vector]) -> BoundingBox:
         ...
 
     @property

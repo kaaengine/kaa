@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import enum
-from typing import Optional, Iterable, List, type_check_only
+from typing import type_check_only, Optional, Iterable, List, TypeVar
 
 from .colors import Color
 from .geometry import Vector, BoundingBox
@@ -204,6 +206,9 @@ class Scene:
 
     def update(self, dt: float) -> None:
         ...
+
+
+AnyScene = TypeVar('AnyScene', bound=Scene)
 
 
 @type_check_only

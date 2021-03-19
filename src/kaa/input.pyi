@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 from typing import Callable, Iterable, Optional, overload, type_check_only
 

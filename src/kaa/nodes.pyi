@@ -1,11 +1,13 @@
-from typing import Iterable, Optional, Set, Union
+from __future__ import annotations
+
+from typing import Iterable, Optional, Set, TypeVar
 
 from .colors import Color
-from .engine import Scene
+from .engine import AnyScene
 from .fonts import TextNode
-from .geometry import Alignment, BoundingBox, ShapeBase, Transformation, Vector
-from .physics import SpaceNode
-from .transitions import NodeTransitionBase, NodeTransitionsManager
+from .geometry import AnyShape, Alignment, BoundingBox, Transformation, Vector
+from .physics import SpaceNode, BodyNode, HitboxNode
+from .transitions import AnyTransition, AnyTransitionArgument, NodeTransitionsManager
 from .sprites import Sprite
 
 
@@ -35,7 +37,7 @@ class NodeBase:
         ...
 
     @property
-    def children(self) -> Iterable[NodeBase]:
+    def children(self) -> Iterable[AnyNode]:
         ...
 
     @property
@@ -79,7 +81,7 @@ class NodeBase:
         ...
 
     @property
-    def parent(self) -> Optional[NodeBase]:
+    def parent(self) -> Optional[AnyNode]:
         ...
 
     @property
@@ -119,15 +121,15 @@ class NodeBase:
         ...
 
     @property
-    def scene(self) -> Optional[Scene]:
+    def scene(self) -> Optional[AnyScene]:
         ...
 
     @property
-    def shape(self) -> Optional[ShapeBase]:
+    def shape(self) -> Optional[AnyShape]:
         ...
 
     @shape.setter
-    def shape(self, value: Optional[ShapeBase]) -> None:
+    def shape(self, value: Optional[AnyShape]) -> None:
         ...
 
     @property
@@ -147,11 +149,11 @@ class NodeBase:
         ...
 
     @property
-    def transition(self) -> Optional[NodeTransitionBase]:
+    def transition(self) -> Optional[AnyTransition]:
         ...
 
     @transition.setter
-    def transition(self, value: Optional[NodeTransitionBase]) -> None:
+    def transition(self, value: AnyTransitionArgument) -> None:
         ...
 
     @property
@@ -209,10 +211,10 @@ class Node(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
-        shape: Optional[ShapeBase] = None,
+        shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
-        transition: Optional[NodeTransitionBase] = None,
+        transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
         views: Optional[Set[int]] = None,
@@ -228,10 +230,10 @@ class Node(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
-        shape: Optional[ShapeBase] = ...,
+        shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
-        transition: Optional[NodeTransitionBase] = ...,
+        transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
         views: Optional[Set[int]] = ...,
@@ -239,5 +241,8 @@ class Node(NodeBase):
     ) -> None:
         ...
 
-    def add_child(self, node: Union[Node, SpaceNode, TextNode]) -> NodeBase:
+    def add_child(self, node: AnyNode) -> AnyNode:
         ...
+
+
+AnyNode = TypeVar('AnyNode', bound=NodeBase)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Callable, Optional, type_check_only
 
 from .engine import Scene

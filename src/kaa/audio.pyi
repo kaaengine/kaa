@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import final
+
 import enum
 
 
@@ -7,6 +11,7 @@ class AudioStatus(enum.IntEnum):
     stopped: AudioStatus
 
 
+@final
 class Sound:
     def __init__(self, sound_filepath: str, volume: float = ...) -> None:
         ...
@@ -15,7 +20,7 @@ class Sound:
     def volume(self) -> float:
         ...
 
-    def play(self) -> None:
+    def play(self, volume: float = 1.) -> None:
         ...
 
     def __eq__(self, other) -> bool:
@@ -25,6 +30,7 @@ class Sound:
         ...
 
 
+@final
 class SoundPlayback:
     def __init__(self, sound: Sound, volume: float = ...) -> None:
         ...
@@ -49,10 +55,14 @@ class SoundPlayback:
     def volume(self) -> float:
         ...
 
+    @volume.setter
+    def volume(self, value: float) -> None:
+        ...
+
     def pause(self) -> None:
         ...
 
-    def play(self) -> None:
+    def play(self, loops: int = 1) -> None:
         ...
 
     def resume(self) -> None:
@@ -62,6 +72,7 @@ class SoundPlayback:
         ...
 
 
+@final
 class Music:
     def __init__(self, music_filepath: str, volume: float = ...) -> None:
         ...
@@ -89,7 +100,7 @@ class Music:
     def pause(self) -> None:
         ...
 
-    def play(self) -> None:
+    def play(self, volume: float = 1.) -> None:
         ...
 
     def resume(self) -> None:

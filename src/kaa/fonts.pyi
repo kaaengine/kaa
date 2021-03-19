@@ -1,13 +1,15 @@
-from typing import Optional, Set, Union
+from __future__ import annotations
+
+from typing import final, Optional, Set
 
 from .colors import Color
-from .geometry import Alignment, ShapeBase, Transformation, Vector
-from .nodes import NodeBase, Node
-from .physics import SpaceNode
-from .transitions import NodeTransitionBase
+from .geometry import AnyShape, Alignment, Transformation, Vector
+from .nodes import AnyNode, NodeBase
+from .transitions import AnyTransitionArgument
 from .sprites import Sprite
 
 
+@final
 class Font:
     def __init__(self, font_path: str) -> None:
         ...
@@ -29,10 +31,10 @@ class TextNode(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
-        shape: Optional[ShapeBase] = None,
+        shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
-        transition: Optional[NodeTransitionBase] = None,
+        transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
         views: Optional[Set[int]] = None,
@@ -55,10 +57,10 @@ class TextNode(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
-        shape: Optional[ShapeBase] = ...,
+        shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
-        transition: Optional[NodeTransitionBase] = ...,
+        transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
         views: Optional[Set[int]] = ...,
@@ -72,7 +74,7 @@ class TextNode(NodeBase):
     ) -> None:
         ...
 
-    def add_child(self, node: Union[Node, SpaceNode, TextNode]) -> NodeBase:
+    def add_child(self, node: AnyNode) -> AnyNode:
         ...
 
     @property

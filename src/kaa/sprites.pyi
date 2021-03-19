@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from typing import List
 
 from .geometry import Vector
 
 
+@final
 class Sprite:
     @property
     def dimensions(self) -> Vector:

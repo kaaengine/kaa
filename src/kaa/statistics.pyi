@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from typing import type_check_only, List, Tuple
 
 
+@final
 class StatisticAnalysis:
     @property
     def last_value(self) -> float:
