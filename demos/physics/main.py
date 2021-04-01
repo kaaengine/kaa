@@ -136,12 +136,16 @@ class MyScene(Scene):
                 if event.keyboard_key.key == Keycode.c:
                     self.collisions_enabled = not self.collisions_enabled
                     if not self.collisions_enabled:
-                        self.obj1_hitbox.collision_mask = HitboxMask.side
-                        self.obj2_hitbox.collision_mask = HitboxMask.side
+                        if self.obj1_hitbox:
+                            self.obj1_hitbox.collision_mask = HitboxMask.side
+                        if self.obj2_hitbox:
+                            self.obj2_hitbox.collision_mask = HitboxMask.side
                         print("Objects will NOT collide")
                     else:
-                        self.obj1_hitbox.collision_mask = HitboxMask.all
-                        self.obj2_hitbox.collision_mask = HitboxMask.all
+                        if self.obj1_hitbox:
+                            self.obj1_hitbox.collision_mask = HitboxMask.all
+                        if self.obj2_hitbox:
+                            self.obj2_hitbox.collision_mask = HitboxMask.all
                         print("Objects will collide")
                 if event.keyboard_key.key == Keycode.f:
                     self.engine.window.fullscreen = not self.engine.window.fullscreen
@@ -155,12 +159,11 @@ class MyScene(Scene):
             self.engine.quit()
         elif self.input.keyboard.is_pressed(Keycode.x) and self.space:
             self.space.delete()
-            self.space = None
 
 
 if __name__ == '__main__':
     engine = Engine(virtual_resolution=Vector(10, 10))
-    engine.window.title = engine.window.title + "Test 123"
+    engine.window.title = engine.window.title + "Test physics"
     engine.window.size = Vector(800, 600)
     engine.window.center()
     engine.run(MyScene())

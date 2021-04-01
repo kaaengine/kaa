@@ -167,6 +167,10 @@ Instance properties:
 
     Read only. Returns point B of the segment
 
+.. attribute:: Segment.bounding_box
+
+    Read only. Returns segment's bounding box as :class:`geometry.BoundingBox`.
+
 Instance methods:
 
 .. method:: Segment.transform(transformation)
@@ -198,6 +202,11 @@ Instance properties:
 .. attribute:: Circle.center
 
     Read only. Returns circle center.
+
+.. attribute:: Circle.bounding_box
+
+    Read only. Returns circle bounding box as :class:`geometry.BoundingBox`.
+
 
 Instance methods:
 
@@ -253,6 +262,11 @@ Instance properties:
 .. attribute:: Polygon.points
 
     Read only. Returns a list of points constituting the Polygon.
+
+.. attribute:: Polygon.bounding_box
+
+    Read only. Returns polygon's bounding box as :class:`geometry.BoundingBox`.
+
 
 Instance methods:
 
@@ -330,6 +344,13 @@ Instance methods:
         square_4 = square.transform(t4 | t2)
         print(square_4.points)  # [V[5.656, -7.071], V[7.071, -8.485], V[8.485, -7.071], V[7.0710, -5.656]]
 
+    Using the @ operator you can chain transformation in the matrix-style order:
+
+    .. code-block::
+
+        rotate_then_move = t2 | t4
+        move_then_rotate = t2 @ t4
+
     Finally, you can use the :meth:`inverse()` method on the Transformation instance to get the inversed transformation:
 
     .. code-block:: python
@@ -362,6 +383,131 @@ Instance methods:
 .. method:: Transformation.inverse()
 
     Returns a new Transformation, being an inversed version of this Transformation.
+
+.. method:: Transformation.decompose()
+
+    Returns a :class:`DecomposedTransformation` object which allows reading transformation's translation, rotation
+    and scale.
+
+    .. code-block:: python
+
+        combined_transformation = t1 | t2 | t3 | t4
+        result = combined_transformation.decompose()
+        print(result.translation, result.rotation, result.rotation_degrees, result.scale)
+
+:class:`DecomposedTransformation` reference
+-------------------------------------------
+
+.. class:: DecomposedTransformation
+
+Object returned by :meth:`Transformation.decompose()`. It surfaces transformation properties.
+
+Instance properties:
+
+.. attribute:: DecomposedTransformation.translation
+
+    Returns translation as :class:`geometry.Vector`
+
+.. attribute:: DecomposedTransformation.rotation
+
+    Returns rotation as float, in radians
+
+.. attribute:: DecomposedTransformation.rotation_degrees
+
+    Returns rotation as float, in degrees
+
+.. attribute:: DecomposedTransformation.scale
+
+    Returns scale, as :class:`geometry.Vector`
+
+
+:class:`BoundingBox` reference
+---------------------------------
+
+.. class:: BoundingBox(min_x, min_y, max_x, max_y)
+
+    Represents a rectangular bounding box. Bounding box is always aligned with x and y axis. Bounding boxes
+    are being used when querying for nodes on scene. Constructor accepts four parameters, which determine the
+    bounding box x and y limits. You can also construct the BoundingBox using helper methods
+    :meth:`BoundingBox.single_point` and :meth:`BoundingBox.from_points`
+
+Class methods:
+
+.. classmethod:: BoundingBox.single_point(point)
+
+    Creates a BoundingBox from a single point. The :code:`point` parameter must be a :class:`geometry.Vector`
+    representing point coordinates. A single point BoundingBox has no width/height.
+
+.. classmethod:: BoundingBox.from_points(points)
+
+    Creates a BoundingBox from points. The :code:`points` must be a list of :class:`geometry.Vector`
+    instances, representing point coordinates.
+
+    If :code:`points` list is empty, it will return bounding box with NaN values.
+
+    If :code:`points` list has 1 point, it behaves exactly like :meth:`BoundingBox.single_point`
+
+    If :code:`points` list has 2 or more points, it will return smallest box which contains all provided points.
+
+
+Instance properties:
+
+.. attribute:: BoundingBox.min_x
+
+    Gets min_x of the bounding box.
+
+.. attribute:: BoundingBox.min_y
+
+    Gets min_y of the bounding box.
+
+.. attribute:: BoundingBox.max_x
+
+    Gets max_x of the bounding box.
+
+.. attribute:: BoundingBox.max_y
+
+    Gets max_y of the bounding box.
+
+.. attribute:: BoundingBox.is_nan
+
+    Gets "not a number" status of the bounding box, as :code:`bool`
+
+.. attribute:: BoundingBox.center
+
+    Gets the central point of the bounding box, as :class:`geometry.Vector`.
+
+.. attribute:: BoundingBox.dimensions
+
+    Gets dimensions of the bounding box, as :class:`geometry.Vector`, x being width and y being height.
+
+Instance methods:
+
+.. method:: BoundingBox.merge(other_bounding_box)
+
+    Merges the bounding box with other and returns a new bounding box.
+
+.. method:: BoundingBox.contains(other)
+
+    Other can be :class:`BoundingBox` or :class:`geometry.Vector`. Returns :code:`True` if bounding box contains
+    other bounding box or point.
+
+.. method:: BoundingBox.intersects(other_bounding_box)
+
+    Returns :code:`True` if bounding box intersects with other :class:`geometry.BoundingBox`, otherwise returns
+    :code:`False`
+
+.. method:: BoundingBox.intersection(other_bounding_box)
+
+    If bounding box intersects with other :class:`geometry.BoundingBox` a :class:`BoundingBox` is returned which spans
+    the intersection. If there's no intersection, an 'empty' :class:`geometry.BoundingBox` is returned (all
+    properties set to NaN)
+
+
+.. method:: BoundingBox.grow(vector)
+
+    Grows the bounding box by given vector (adds the vector's x and y value to the corresponding sides of the bounding box).
+    The :code:`vector` param must be :class:`geometry.Vector`
+
 
 :class:`Alignment` reference
 ----------------------------

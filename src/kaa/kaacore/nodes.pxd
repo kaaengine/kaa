@@ -1,4 +1,4 @@
-from libc.stdint cimport int16_t, uint32_t
+from libc.stdint cimport uint16_t, int16_t, uint32_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.memory cimport unique_ptr
@@ -84,6 +84,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         optional[int16_t] z_index() except +raise_py_error
         void z_index(const optional[int16_t]& z_index) except +raise_py_error
+        int16_t effective_z_index() except +raise_py_error
 
         CShape shape() except +raise_py_error
         void shape(const CShape& shape) except +raise_py_error
@@ -116,12 +117,15 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         void views(const optional[unordered_set[int16_t]]& z_indices) except +raise_py_error
         const optional[vector[int16_t]] views() except +raise_py_error
+        const vector[int16_t] effective_views() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
 
         bool indexable() except +raise_py_error
         void indexable(const bool indexable) except +raise_py_error
+
+        uint16_t root_distance() except +raise_py_error
 
         CBoundingBox bounding_box() except +raise_py_error
 

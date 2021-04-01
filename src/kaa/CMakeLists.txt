@@ -30,6 +30,7 @@ set(CYTHON_FILES
     images.pxi
     shaders.pxi
     materials.pxi
+    statistics.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -60,6 +61,7 @@ set(CYTHON_FILES
     kaacore/materials.pxd
     kaacore/resources.pxd
     kaacore/images.pxd
+    kaacore/statistics.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h

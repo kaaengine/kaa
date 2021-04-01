@@ -207,7 +207,7 @@ Instance methods:
                     if event.keyboard_key:
                         if event.keyboard_key.is_key_down and event.keyboard_key.key == Keycode.q:
                             self.engine.change_scene(SCENES['title_screen_scene'])
-                self.label.rotation_degrees += dt*20 / 1000
+                self.label.rotation_degrees += dt * 20
 
 
         with Engine(virtual_resolution=Vector(1920, 1080)) as engine:
@@ -264,6 +264,10 @@ Instance methods:
 
     Stops the engine. You won't need to call it if you use context manager, i.e. initialize the Engine using the
     :code:`with` statement.
+
+.. method:: Engine.get_fps()
+
+    Returns current frames per second rate. It is an average from the last 10 frames.
 
 :class:`Scene` reference
 ------------------------
@@ -429,13 +433,27 @@ An example of 800x600 viewport, colored in green, running in the 1200x1000 windo
             engine.window.size = Vector(1200, 1000)
             engine.run(scene)
 
+.. _Scene.spatial_index:
+.. attribute:: Scene.spatial_index
+
+    A get accessor to the :class:`SpatialIndexManager`, which offers methods to query for nodes at specific
+    position or inside a specific :class:`geometry.BoundingBox`
+
+.. attribute:: Scene.time_scale
+
+    Gets or sets a time scale, as float. Kaa engine will apply this scale everywhere (in physics, timers, transitions
+    and so on). Basically it allows you to speed up or slow down the time scale of your whole game.
 
 Instance methods:
 
 .. method:: Scene.update(dt)
 
-    An update method is called every frame. The dt parameter is a time elapsed since previous update call,
-    in miliseconds. Most of your game logic will live inside the update method.
+    An update method is called every frame. The dt parameter is a time elapsed since previous update call, in seconds.
+    Most of your game logic will live inside the update method.
+
+    .. note::
+
+        If you change the :attr:`Scene.time_scale` value the dt value received by the update() will be adjusted accordingly.
 
     .. code-block:: python
 
@@ -452,7 +470,7 @@ Instance methods:
                 self.root.add_child(self.arrow_node)
 
             def update(self, dt)
-                self.arrow_node.rotation_degrees += 20 * dt / 1000  # rotate the arrow 20 degrees per second, clockwise
+                self.arrow_node.rotation_degrees += 20 * dt # rotate the arrow 20 degrees per second, clockwise
 
 
 .. method:: Scene.on_enter()
@@ -465,20 +483,68 @@ Instance methods:
     Same as :meth:`Scene.on_enter` but is called just before the scene gets deactivated via the
     :meth:`Engine.change_scene`.
 
+:class:`SpatialIndexManager` reference
+--------------------------------------
+
+.. class:: SpatialIndexManager
+
+    Input manager object can be accessed via :ref:`Scene.spatial_index <Scene.spatial_index>` property. It has two main features:
+
+    * Find Nodes on the Scene, at given position (x,y)
+    * Find Nodes on the Scene inside a specific `geometry.BoundingBox`.
+
+    Note that only nodes whose :code:`indexable` property is set to True will be queried.
+
+Instance methods:
+
+.. method:: SpatialIndexManager.query_bounding_box(bounding_box, include_shapeless=True)
+
+    Returns a list of Nodes inside specified bounding box. It also includes those which only intersect the bounding box.
+    The :code:`bounding_box` must be an instance of `geometry.BoundingBox`. Returned nodes are unordered.
+
+    The :code:`include_shapeless` param determines whether the query will also include nodes which do not have a :ref:`shape <Node.shape>`.
+
+    .. note:: Only the nodes with indexable property set to True will be queried. The indexable property is True by default.
+
+    .. code-block:: python
+
+        from kaa.geometry import BoundingBox
+
+        nodes = scene.spatial_index.query_bounding_box(BoundingBox(100, 150, 500, 600))
+        print("found {} nodes inside or intersecting that bounding box!".format(len(nodes)))
+
+.. method:: SpatialIndexManager.query_point(point)
+
+    Returns a list of Nodes that contain the specified point. The :code:`point` must be a
+    `geometry.Vector`. Returned nodes are unordered.
+
+    .. note:: Only the nodes with indexable property set to True will be queried. The indexable property is True by default.
+
+
+
+    .. code-block:: python
+
+        from kaa.geometry import Vector
+
+        nodes = scene.spatial_index.query_point(Vector(100, 150))
+        print("found {} nodes which contain that point!".format(len(nodes)))
+
 
 :class:`View` reference
 -----------------------
 
 .. class:: View
 
-    Views allow you to fine-tune how the scene is being redenred on the screen. Each scene has 32 views which you
-    can configure independently. You can configure a view to be displayed at given position on the screen, give it
+    Views allow you to fine-tune how the scene is being redenred on the screen. Each scene has 32 views (indexed -16
+    to 15) which you can configure independently. You can configure a view to be displayed at given position on the screen, give it
     specific width/height and then use the view's camera to show the scene normally inside the view's box.
     Important caveat: **the view will render only Nodes which were explicitly assigned to it.**. It means
     you need to use the :ref:`views property on a Node <Node.views>` to explicitly assign a Node to a specific view.
 
-    Each view has its own z_index property. It is used to manage the 'layering' of all 32 views. Node's z_index values are
-    used to manage 'layering' of nodes **within a view**.
+    Each view's index determines its z_index property. It is used to manage the 'layering' of all 32 views. In other
+    words all nodes assigned to view with a higher index will be rendered in front of any node assigned to a view with
+    a lower index, regardless of node's z_index values. Node's z_index values are used to manage 'layering' of
+    nodes **within a view**.
 
     An example below configures a 400x400 view at position (100, 200) and inside that box it displays
     a fragment of the scene using view's camera:
@@ -495,11 +561,10 @@ Instance methods:
                 some_view.camera.position = Vector(300, 500)
                 some_view.camera.scale = Vector(3, 3)
                 some_view.clear_color = Color(1, 0, 0, 1)  # we can set the clear color for the view as well
-                some_view.z_index = 100 # the view will be rendered on top of views with smaller z_index
 
                 # we may add nodes to views independently.
                 self.root.add_child(Node())  # will be rendered in the default view only (0)
-                self.root.add_child(Node(views={0, 1, 2, 17}))  # the node will be rendered in views 0, 1, 2, 17
+                self.root.add_child(Node(views={0, 1, 2, 14}))  # the node will be rendered in views 0, 1, 2, 14
 
     Few typical use cases for views:
 
@@ -509,26 +574,31 @@ Instance methods:
 
 Instance properties:
 
+.. _View.origin:
 .. attribute:: View.origin
 
     Gets or sets the origin of a view, as :class:`geometry.Vector`. The origin points to the top-left position of the
     view on the screen.
 
+.. _View.dimensions:
 .. attribute:: View.dimensions
 
     Gets or sets the dimensions of a view, as :class:`geometry.Vector`, x being width and y being height.
 
+.. _View.clear_color:
 .. attribute:: View.clear_color
 
     Gets or sets a clear color for a view as :class:`colors.Color`. Default color is black.
 
+.. _View.camera:
 .. attribute:: View.camera
 
     Returns a :class:`Camera` associated with this view.
 
+.. _View.z_index:
 .. attribute:: View.z_index
 
-    Gets or sets z_index of a view.
+    Read only. Gets the z_index of a view, that is basically view index (can be a value between -15 and 16)
 
 
 :class:`Window` reference
@@ -734,6 +804,11 @@ Read only. Returns display resolution as :class:`geometry.Vector`.
 A camera projects the image of the 2D scene onto the screen. You can move, rotate or scale the camera by setting its
 properties.
 
+To get a Camera instance, either
+
+1) use the :attr:`Scene.camera` property which returns a default camera, or
+2) Access a specific view on a Scene via :attr:`Scene.views` and then access the camera property via :attr:`View.camera`
+
 .. note::
 
     There isn't a "global" camera - each :class:`View` has its own camera allowing to display fragments of scene
@@ -791,13 +866,17 @@ Instance properties:
         # somewhere inside Scene:
         self.camera.scale= Vector(1.5, 1.5) # 50% zoom-in
 
+.. attribute:: Camera.visible_area_bounding_box
+
+    Returns camera's visible area as :class:`geometry.BoundingBox`.
 
 Instance methods:
 
 .. method:: Camera.unproject_position(position)
 
 Takes a position (`geometry.Vector`), applies all camera transformations (position, scale, rotation) to that position
-and returns the result. Usfule when you have applied some transformations to the camera and want to know the actual
+and returns the result. Useful when you want to convert position in the screen frame reference (as returned by
+MouseEventButton.position) or when you have applied some transformations to the camera and want to know the actual
 position of given point (e.g. mouse position)
 
 Full example:

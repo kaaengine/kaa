@@ -5,7 +5,7 @@ import enum
 
 from kaa.engine import Engine, Scene
 from kaa.geometry import (
-    Vector, Segment, Circle, Polygon, BoundingBox, Transformation,
+    Vector, Circle, Polygon, BoundingBox, Transformation,
 )
 from kaa.nodes import Node
 from kaa.physics import SpaceNode, BodyNode, HitboxNode
