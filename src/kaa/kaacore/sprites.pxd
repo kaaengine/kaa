@@ -1,20 +1,26 @@
 from libc.stdint cimport uint16_t, uint32_t, uint64_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 
+from .images cimport CImage
 from .vectors cimport CDVec2
 from .exceptions cimport raise_py_error
+from .resources cimport CResourceReference
+
 
 
 cdef extern from "kaacore/sprites.h" namespace "kaacore" nogil:
     cdef cppclass CSprite "kaacore::Sprite":
         CDVec2 origin
         CDVec2 dimensions
+        CResourceReference[CImage] texture
 
         CSprite()
+        CSprite(CResourceReference[CImage]& image)
 
         @staticmethod
-        CSprite load(const char* path, uint64_t flags) \
+        CSprite load(const string& path, uint64_t flags) \
             except +raise_py_error
 
         bool operator==(const CSprite&)

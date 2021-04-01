@@ -16,6 +16,8 @@ from .sprites cimport CSprite
 from .scenes cimport CScene
 from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
+from .resources cimport CResourceReference
+from .materials cimport CMaterial
 
 
 cdef extern from "kaacore/node_ptr.h" namespace "kaacore" nogil:
@@ -88,6 +90,9 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         CSprite sprite() except +raise_py_error
         void sprite(const CSprite& sprite) except +raise_py_error
+
+        CResourceReference[CMaterial]& material() except +raise_py_error
+        void material(const CResourceReference[CMaterial]& material) except +raise_py_error
 
         CColor color() except +raise_py_error
         void color(const CColor& color) except +raise_py_error

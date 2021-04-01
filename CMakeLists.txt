@@ -34,3 +34,10 @@ if (
 endif()
 
 add_subdirectory(src/kaa)
+
+install(TARGETS shaderc RUNTIME DESTINATION src/kaa/shaderc)
+install(FILES kaacore/shaders/varying.def.sc DESTINATION src/kaa/shaderc)
+install(FILES
+    kaacore/third_party/bgfx/bgfx/src/bgfx_shader.sh
+    kaacore/third_party/bgfx/bgfx/src/bgfx_compute.sh
+DESTINATION src/kaa/shaderc/include)

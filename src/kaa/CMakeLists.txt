@@ -27,6 +27,9 @@ set(CYTHON_FILES
     log.pxi
     easings.pxi
     spatial_index.pxi
+    images.pxi
+    shaders.pxi
+    materials.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
@@ -53,6 +56,10 @@ set(CYTHON_FILES
     kaacore/easings.pxd
     kaacore/spatial_index.pxd
     kaacore/clock.pxd
+    kaacore/shaders.pxd
+    kaacore/materials.pxd
+    kaacore/resources.pxd
+    kaacore/images.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h
@@ -97,6 +104,3 @@ if (KAA_BUNDLE_SDL)
     install(TARGETS SDL2 LIBRARY DESTINATION src/kaa
                          RUNTIME DESTINATION src/kaa)
 endif()
-
-install(TARGETS shaderc LIBRARY DESTINATION src/kaa/bin
-                        RUNTIME DESTINATION src/kaa/bin)

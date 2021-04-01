@@ -394,7 +394,7 @@ cdef class _BaseEvent:
     cdef CEvent c_event
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}@{self.type.name}>'
+        return f'<{self.__class__.__name__}[{self.type.name}]>'
 
     @property
     def type(self):
@@ -418,7 +418,7 @@ cdef class SystemEvent(_BaseEvent):
     @typed_property(EventType.quit)
     def quit(self):
         return self.c_event.system().is_quit()
-    
+
     @typed_property(EventType.clipboard_updated)
     def clipboard_updated(self):
         return self.c_event.system().is_clipboard_updated()
@@ -437,15 +437,15 @@ cdef class WindowEvent(_BaseEvent):
     @typed_property(EventType.window_shown)
     def is_shown(self):
         return self.c_event.window().is_shown()
-    
+
     @typed_property(EventType.window_exposed)
     def is_exposed(self):
         return self.c_event.window().is_exposed()
-    
+
     @typed_property(EventType.window_moved)
     def is_moved(self):
         return self.c_event.window().is_moved()
-    
+
     @typed_property(EventType.window_resized)
     def is_resized(self):
         return self.c_event.window().is_resized()
@@ -461,7 +461,7 @@ cdef class WindowEvent(_BaseEvent):
     @typed_property(EventType.window_restored)
     def is_restored(self):
         return self.c_event.window().is_restored()
-    
+
     @typed_property(EventType.window_enter)
     def is_enter(self):
         return self.c_event.window().is_enter()
@@ -496,7 +496,7 @@ cdef class KeyboardKeyEvent(_BaseEvent):
     @property
     def key(self):
         return Keycode(<uint32_t>(self.c_event.keyboard_key().key()))
-    
+
     @property
     def repeat(self):
         return self.c_event.keyboard_key().repeat()
@@ -539,7 +539,7 @@ cdef class MouseButtonEvent(_BaseEvent):
         )
         instance.c_event = c_event
         return instance
-    
+
     @typed_property((
         EventType.mouse_button_down, EventType.mouse_button_up
     ))
@@ -574,7 +574,7 @@ cdef class MouseMotionEvent(_BaseEvent):
         return Vector.from_c_vector(
             self.c_event.mouse_motion().position()
         )
-    
+
     @property
     def motion(self):
         return Vector.from_c_vector(
@@ -620,7 +620,7 @@ cdef class ControllerButtonEvent(_BaseEvent):
         return ControllerButton(
             <uint32_t>(self.c_event.controller_button().button())
         )
-    
+
     @typed_property(EventType.controller_button_down)
     def is_button_down(self):
         return self.c_event.controller_button().is_button_down()
@@ -694,7 +694,7 @@ cdef class Event(_BaseEvent):
         cdef Event instance = Event.__new__(Event)
         instance.c_event = c_event
         return instance
-    
+
     @typed_property((
         EventType.quit,
         EventType.clipboard_updated
@@ -702,7 +702,7 @@ cdef class Event(_BaseEvent):
     def system(self):
         if self.c_event.system():
             return SystemEvent.create(self.c_event)
-    
+
     @typed_property((
         EventType.window_shown,
         EventType.window_hidden,
@@ -778,7 +778,7 @@ cdef class Event(_BaseEvent):
     def music_finished(self):
         if self.c_event.music_finished():
             return MusicFinishedEvent.create(self.c_event)
-    
+
 
 cdef class _BaseInputManager:
     cdef CInputManager* _get_c_input_manager(self) except NULL:
@@ -789,7 +789,7 @@ cdef class _BaseInputManager:
 cdef class SystemManager(_BaseInputManager):
     def get_clipboard_text(self):
         self._get_c_input_manager().system.get_clipboard_text().c_str()
-    
+
     def set_clipboard_text(self, str text not None):
         self._get_c_input_manager().system.set_clipboard_text(text)
 
@@ -800,7 +800,7 @@ cdef class KeyboardManager(_BaseInputManager):
         return self._get_c_input_manager().keyboard.is_pressed(
             <CKeycode>(<uint32_t>(kc.value))
         )
-    
+
     def is_released(self, kc not None):
         return self._get_c_input_manager().keyboard.is_released(
             <CKeycode>(<uint32_t>(kc.value))
@@ -830,12 +830,12 @@ cdef class MouseManager(_BaseInputManager):
         return self._get_c_input_manager().mouse.is_pressed(
             <CMouseButton>(<uint32_t>(mc.value))
         )
-    
+
     def is_released(self, mc not None):
         return self._get_c_input_manager().mouse.is_released(
             <CMouseButton>(<uint32_t>(mc.value))
         )
-    
+
     def get_position(self):
         return Vector.from_c_vector(
             self._get_c_input_manager().mouse.get_position()
@@ -848,17 +848,17 @@ cdef class ControllerManager(_BaseInputManager):
         return self._get_c_input_manager().controller.is_connected(
             controller_id
         )
-    
+
     def is_pressed(self, cb not None, CControllerID controller_id):
         return self._get_c_input_manager().controller.is_pressed(
             <CControllerButton>(<uint32_t>(cb.value)), controller_id
         )
-    
+
     def is_released(self, cb not None, CControllerID controller_id):
         return self._get_c_input_manager().controller.is_released(
             <CControllerButton>(<uint32_t>(cb.value)), controller_id
         )
-    
+
     def is_axis_pressed(self, axis not None, CControllerID controller_id):
         return self._get_c_input_manager().controller.is_pressed(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
@@ -868,20 +868,20 @@ cdef class ControllerManager(_BaseInputManager):
         return self._get_c_input_manager().controller.is_released(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
         )
-    
+
     def get_axis_motion(self, axis not None, CControllerID controller_id):
         return self._get_c_input_manager().controller.get_axis_motion(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
         )
-    
+
     def get_name(self, CControllerID controller_id):
         return self._get_c_input_manager().controller.get_name(controller_id).c_str()
-    
+
     def get_triggers(self, CControllerID controller_id):
         return Vector.from_c_vector(
             self._get_c_input_manager().controller.get_triggers(controller_id)
         )
-    
+
     def get_sticks(self, compound_axis not None, CControllerID controller_id):
         return Vector.from_c_vector(
             self._get_c_input_manager().controller.get_sticks(
@@ -920,7 +920,7 @@ cdef class InputManager(_BaseInputManager):
         self.keyboard = KeyboardManager()
         self.mouse = MouseManager()
         self.controller = ControllerManager()
-    
+
     def events(self):
         cdef CEvent c_event
         for c_event in self._get_c_input_manager().events_queue:

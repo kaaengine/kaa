@@ -26,7 +26,10 @@ setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     entry_points={
-        'console_scripts': ['shaderc=kaa.cli:shaderc']
+        'console_scripts': [
+            'shaderc=kaa.cli:shaderc',
+            'compile_shader=kaa.cli:compile_shader'
+        ]
     },
     license="MIT",
     classifiers=[

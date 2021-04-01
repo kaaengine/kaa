@@ -19,6 +19,15 @@ cdef class Sprite:
         sprite.c_sprite = c_sprite
         return sprite
 
+    @staticmethod
+    def from_image(Image image not None):
+        cdef:
+            CSprite c_sprite = CSprite(image.c_image)
+            Sprite instance = Sprite.__new__(Sprite)
+
+        instance.c_sprite = c_sprite
+        return instance
+
     def __init__(self, str path):
         self.c_sprite = CSprite.load(path.encode(), 0)
 
@@ -33,6 +42,10 @@ cdef class Sprite:
         return Sprite.create(self.c_sprite.crop(
             origin.c_vector, dimensions.c_vector
         ))
+
+    @property
+    def image(self):
+        return Image.create(self.c_sprite.texture)
 
     @property
     def origin(self):

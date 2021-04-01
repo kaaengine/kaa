@@ -15,8 +15,3 @@ del get_versions
 from .log import _initialize_kaa_logging_config
 _initialize_kaa_logging_config()
 del _initialize_kaa_logging_config
-
-
-from ._bin import _initialize_shaderc
-_initialize_shaderc()
-del _initialize_shaderc

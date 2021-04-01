@@ -55,7 +55,6 @@ cdef CPythonicCallbackResult[CDuration] cython_timer_callback(
     return CPythonicCallbackResult[CDuration](CDuration(new_interval))
 
 
-@cython.final
 @cython.freelist(TIMER_FREELIST_SIZE)
 cdef class Timer:
     cdef CTimer c_timer
