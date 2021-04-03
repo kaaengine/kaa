@@ -12,6 +12,7 @@ from .kaacore.engine cimport (
     CVirtualResolutionMode
 )
 from .kaacore.display cimport CDisplay
+from .kaacore.capture cimport CCapturingAdapterBase
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
 
 from . import __version__
@@ -97,7 +98,24 @@ cdef class _Engine:
             CScene* c_scene = scene._c_scene.get()
             CEngine* c_engine = get_c_engine()
         with nogil:
-            c_engine.run(c_scene)
+            c_engine.run(c_scene, 0, NULL)
+
+    def run_capture(
+        self, Scene scene not None, uint32_t frames_limit,
+        CapturingWrapperBase capturing_wrapper = None,
+    ):
+        cdef:
+            CScene* c_scene = scene._c_scene.get()
+            CEngine* c_engine = get_c_engine()
+            CapturingWrapperBase final_capturing_wrapper = (
+                capturing_wrapper if capturing_wrapper is not None
+                else c_get_default_capturing_wrapper()
+            )
+            CCapturingAdapterBase* c_capture_adapter = final_capturing_wrapper.c_get_adapter()
+        with nogil:
+            c_engine.run(c_scene, frames_limit, c_capture_adapter)
+
+        return final_capturing_wrapper.get_result()
 
     def quit(self):
         get_c_engine().quit()
