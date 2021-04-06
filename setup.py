@@ -23,7 +23,7 @@ setup(
     long_description=readme_content,
     long_description_content_type='text/markdown',
     url="https://github.com/kaaengine/kaa",
-    packages=setuptools.find_packages('src'),
+    packages=['kaa'],
     package_dir={'': 'src'},
     entry_points={
         'console_scripts': ['shaderc=kaa.cli:shaderc']
