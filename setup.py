@@ -51,6 +51,9 @@ setup(
         "Source Code": 'https://github.com/kaaengine/kaa/',
     },
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
+    package_data={
+      'kaa': ['*.pyi', 'py.typed'],
+    },
     include_package_data=True,
     cmake_args=[
         '-DKAA_INSTALL_KAACORE:BOOL=OFF',
