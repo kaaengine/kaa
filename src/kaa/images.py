@@ -1,1 +1,1 @@
-from ._kaa import Sprite
+from ._kaa import Sprite, Image

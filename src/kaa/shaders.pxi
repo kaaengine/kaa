@@ -186,7 +186,7 @@ cdef class Program:
 
     @property
     def fragment_shader(self):
-        return VertexShader.create(self.c_program.get().vertex_shader)
+        return FragmentShader.create(self.c_program.get().fragment_shader)
 
     @staticmethod
     cdef Program create(CResourceReference[CProgram]& program):
@@ -320,10 +320,13 @@ def _choose_shader_profile(model: str, type_: str):
 
 
 class _AutoShaderCompiler(ShaderCompiler):
-    def __init__(self):
+    BIN_DIR = Path(tempfile.gettempdir()) / f'kaa-{kaa.__version__}' \
+        / 'shaders' / 'bin'
+
+    def __init__(self, bin_dir: Path = None):
         super().__init__(raise_on_error=True)
-        tmp_dir = Path(tempfile.gettempdir())
-        self.bin_dir = tmp_dir / f'kaa-{kaa.__version__}' / 'shaders' / 'bin'
+
+        self.bin_dir = bin_dir or self.BIN_DIR
         self.bin_dir.mkdir(parents=True, exist_ok=True)
 
     def auto_compile(

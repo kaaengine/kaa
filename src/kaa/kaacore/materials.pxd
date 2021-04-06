@@ -4,6 +4,8 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libc.stdint cimport uint8_t, uint16_t, uint32_t
 
+from ..extra.optional cimport optional
+
 from .images cimport CImage
 from .shaders cimport CProgram
 from .exceptions cimport raise_py_error
@@ -23,6 +25,7 @@ cdef extern from "kaacore/materials.h" namespace "kaacore" nogil:
         CUniformSpecification(
             const CUniformType type, const uint16_t number_of_elements
         ) except +raise_py_error
+        bool operator==(const CUniformSpecification& other)
         CUniformType type() except +raise_py_error
         uint16_t number_of_elements() except +raise_py_error
 
@@ -55,7 +58,7 @@ cdef extern from "kaacore/materials.h" namespace "kaacore" nogil:
             const string& name, const CResourceReference[CImage]& image,
             const uint8_t stage, const uint32_t flags
         ) except +raise_py_error
-        CSamplerValue get_uniform_texture(const string& name) \
+        optional[CSamplerValue] get_uniform_texture(const string& name) \
             except +raise_py_error
         vector[T] get_uniform_value[T](const string& name) \
             except +raise_py_error

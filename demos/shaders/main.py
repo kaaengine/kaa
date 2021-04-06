@@ -22,10 +22,9 @@ class MainScene(Scene):
             in_out_layout
         )
         uniforms = {'u_blur': Uniform(UniformType.vec4)}
-        self.material = Material(program, uniforms)
         self.blur_quality = 16.
+        self.material = Material(program, uniforms)
         self.material.set_uniform_value('u_blur', (self.blur_quality, 0, 0, 0))
-
         self.node = self.root.add_child(
             Node(
                 sprite=Sprite(PYTHON_IMAGE_PATH),

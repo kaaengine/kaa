@@ -5,7 +5,9 @@ from libcpp.pair cimport pair
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libc.stdint cimport uint16_t, uint32_t
+from libcpp.unordered_map cimport unordered_map
 
+from .extra.optional cimport optional
 from .kaacore.hashing cimport c_calculate_hash
 from .kaacore.vectors cimport CFVec4, CFMat3, CFMat4
 from .kaacore.materials cimport (
@@ -31,11 +33,17 @@ cdef class Uniform:
     cdef:
         CUniformSpecification c_specification
 
-    def __init__(self, object type_ not None, uint16_t number_of_elements = 1):
+    def __init__(self, object type_ not None, uint16_t number_of_elements=1):
         super().__init__()
         self.c_specification = CUniformSpecification(
             <CUniformType>(<uint32_t>(type_.value)), number_of_elements
         )
+
+    def __eq__(self, Uniform other):
+        if other is None:
+            return False
+
+        return self.c_specification == other.c_specification
 
     @staticmethod
     cdef Uniform create(CUniformSpecification& c_specification):
@@ -101,9 +109,11 @@ cdef class Material:
         return result
 
     def get_uniform_texture(self, str name not None):
-        return SamplerValue.create(
-            self.c_material.get().get_uniform_texture(name.encode())
-        )
+        cdef optional[CSamplerValue] c_value = self.c_material.get() \
+            .get_uniform_texture(name.encode())
+
+        if c_value:
+            return SamplerValue.create(c_value.value())
 
     def get_uniform_value(self, str name not None):
         cdef:
@@ -111,10 +121,8 @@ cdef class Material:
             CFMat3 mat3
             CFMat4 mat4
             list result = []
-            CUniformSpecification c_uniform
+            CUniformSpecification c_uniform = self._get_specification(name)
 
-        # TODO: try except?
-        c_uniform = self.c_material.get().uniforms().at(name.encode())
         if c_uniform.type() == CUniformType.vec4:
             for vec4 in self.c_material.get() \
                 .get_uniform_value[CFVec4](name.encode()):
@@ -143,7 +151,10 @@ cdef class Material:
                     )
                 )
 
-        if len(result) == 1:
+        if not result:
+            return
+
+        if c_uniform.number_of_elements() == 1 and len(result) == 1:
             return result[0]
         return tuple(result)
 
@@ -155,21 +166,19 @@ cdef class Material:
         uint32_t flags
     ):
         self.c_material.get().set_uniform_texture(
-            name.decode(), texture.c_image, stage, flags
+            name.encode(), texture.c_image, stage, flags
         )
 
     def set_uniform_value(self, str name not None, tuple value not None):
         cdef:
-            uint16_t elements_num
-            CUniformSpecification c_uniform
+            CUniformSpecification c_uniform = self._get_specification(name)
+            uint16_t elements_num = c_uniform.number_of_elements()
 
-        # TODO: try except?
-        c_uniform = self.c_material.get().uniforms().at(name.encode())
-        elements_num = c_uniform.number_of_elements()
         if elements_num > 1:
-            assert len(value) == c_uniform.number_of_elements(), \
-            f'Invalid number of elements, expected {elements_num}, '
-            f'got {len(value)}.'
+            assert len(value) == c_uniform.number_of_elements(), (
+                f'Invalid number of elements, expected {elements_num}, '
+                f'got {len(value)}.'
+            )
         else:
             value = (value, )
 
@@ -180,8 +189,10 @@ cdef class Material:
 
         for nested_value in value:
             if c_uniform.type() == CUniformType.vec4:
-                assert len(nested_value) == 4, \
-                    f'Invalid number of elements for {UniformType.vec4}'
+                assert len(nested_value) == 4, (
+                    f'Invalid number of elements for {UniformType.vec4.name} '
+                    f'(got {len(nested_value)}).'
+                )
 
                 c_vec4.push_back(
                     CFVec4(
@@ -191,7 +202,7 @@ cdef class Material:
                 )
             elif c_uniform.type() == CUniformType.mat3:
                 assert len(nested_value) == 9, \
-                    f'Invalid number of elements for {UniformType.mat3}'
+                    f'Invalid number of elements for {UniformType.mat3.name}'
 
                 c_mat3.push_back(
                     CFMat3(
@@ -202,7 +213,7 @@ cdef class Material:
                 )
             elif c_uniform.type() == CUniformType.mat4:
                 assert len(nested_value) == 16, \
-                    f'Invalid number of elements for {UniformType.mat4}'
+                    f'Invalid number of elements for {UniformType.mat4.name}'
 
                 c_mat4.push_back(
                     CFMat4(
@@ -217,23 +228,31 @@ cdef class Material:
             else:
                 raise Exception('Unsupported uniform type.')
 
-            if c_uniform.type() == CUniformType.vec4:
-                self.c_material.get().set_uniform_value[CFVec4](
-                    name.encode(), CUniformValue[CFVec4](c_vec4)
-                )
-            elif c_uniform.type() == CUniformType.mat3:
-                self.c_material.get().set_uniform_value[CFMat3](
-                    name.encode(), CUniformValue[CFMat3](c_mat3)
-                )
-            elif c_uniform.type() == CUniformType.mat4:
-                self.c_material.get().set_uniform_value[CFMat4](
-                    name.encode(), CUniformValue[CFMat4](c_mat4)
-                )
-            else:
-                raise Exception('Unsupported uniform type.')
+        if c_uniform.type() == CUniformType.vec4:
+            self.c_material.get().set_uniform_value[CFVec4](
+                name.encode(), CUniformValue[CFVec4](c_vec4)
+            )
+        elif c_uniform.type() == CUniformType.mat3:
+            self.c_material.get().set_uniform_value[CFMat3](
+                name.encode(), CUniformValue[CFMat3](c_mat3)
+            )
+        elif c_uniform.type() == CUniformType.mat4:
+            self.c_material.get().set_uniform_value[CFMat4](
+                name.encode(), CUniformValue[CFMat4](c_mat4)
+            )
+        else:
+            raise Exception('Unsupported uniform type.')
 
     def clone(self):
-        Material.create(self.c_material.get().clone())
+        return Material.create(self.c_material.get().clone())
+
+    cdef CUniformSpecification _get_specification(self, str name) except *:
+        cdef unordered_map[string, CUniformSpecification] uniforms
+        uniforms = self.c_material.get().uniforms()
+        if uniforms.find(name.encode()) == uniforms.end():
+            raise KaacoreError(f'Unknown uniform: {name}.')
+
+        return uniforms[name.encode()]
 
 
 @cython.final
@@ -252,7 +271,7 @@ cdef class SamplerValue:
 
     @property
     def flags(self):
-        return self.c_value.stage
+        return self.c_value.flags
 
     @property
     def texture(self):
