@@ -105,7 +105,7 @@ cdef class Vector:
 
     def angle_between(self, Vector other_vec):
         return c_vector_oriented_angle(
-            self.c_vector, other_vec.c_vector
+            c_vector_normalize(self.c_vector), c_vector_normalize(other_vec.c_vector)
         )
 
     def angle_between_degrees(self, Vector other_vec):
