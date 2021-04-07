@@ -287,9 +287,9 @@ class ShaderCompiler:
         output_path = output_dir / f'{source_path.stem}-{model}.bin'
         profile = _choose_shader_profile(model, type_)
         self.compile(
-            '-f', source_path, '-o', output_path,
+            '-f', str(source_path), '-o', str(output_path),
             '--platform', platform_name, '--type', type_,
-            '--profile', profile, '--varyingdef', varyingdef_path
+            '--profile', profile, '--varyingdef', str(varyingdef_path)
         )
         return output_path
 
@@ -360,9 +360,9 @@ class _AutoShaderCompiler(ShaderCompiler):
         if not output_path.is_file():
             profile = _choose_shader_profile(model, type_)
             self.compile(
-                '-f', source_path, '-o', output_path,
+                '-f', str(source_path), '-o', str(output_path),
                 '--platform', platform_name, '--type', type_,
-                '--profile', profile, '--varyingdef', varyingdef_path
+                '--profile', profile, '--varyingdef', str(varyingdef_path)
             )
         return output_path
 
