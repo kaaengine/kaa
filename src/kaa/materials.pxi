@@ -1,11 +1,12 @@
 cimport cython
-
 from enum import IntEnum
 from libcpp.pair cimport pair
 from libcpp.string cimport string
 from libcpp.vector cimport vector
-from libc.stdint cimport uint16_t, uint32_t
+from libc.stdint cimport uint16_t, uint32_t, UINT32_MAX
 from libcpp.unordered_map cimport unordered_map
+
+from cymove cimport cymove as cmove
 
 from .extra.optional cimport optional
 from .kaacore.hashing cimport c_calculate_hash
@@ -163,7 +164,7 @@ cdef class Material:
         str name not None,
         Image texture not None,
         uint8_t stage,
-        uint32_t flags
+        uint32_t flags=UINT32_MAX
     ):
         self.c_material.get().set_uniform_texture(
             name.encode(), texture.c_image, stage, flags
@@ -230,15 +231,15 @@ cdef class Material:
 
         if c_uniform.type() == CUniformType.vec4:
             self.c_material.get().set_uniform_value[CFVec4](
-                name.encode(), CUniformValue[CFVec4](c_vec4)
+                name.encode(), cmove(CUniformValue[CFVec4](c_vec4))
             )
         elif c_uniform.type() == CUniformType.mat3:
             self.c_material.get().set_uniform_value[CFMat3](
-                name.encode(), CUniformValue[CFMat3](c_mat3)
+                name.encode(), cmove(CUniformValue[CFMat3](c_mat3))
             )
         elif c_uniform.type() == CUniformType.mat4:
             self.c_material.get().set_uniform_value[CFMat4](
-                name.encode(), CUniformValue[CFMat4](c_mat4)
+                name.encode(), cmove(CUniformValue[CFMat4](c_mat4))
             )
         else:
             raise Exception('Unsupported uniform type.')

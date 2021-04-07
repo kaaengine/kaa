@@ -233,12 +233,13 @@ class ShaderCompiler:
             cmd.extend(('-i', include_dir))
         cmd.extend(args)
 
+        kwargs = {'check': self.raise_on_error}
+        if self.raise_on_error:
+            kwargs['stdout'] = subprocess.PIPE
+            kwargs['stderr'] = subprocess.PIPE
+
         try:
-            return subprocess.run(
-                cmd,
-                check=self.raise_on_error,
-                capture_output=self.raise_on_error
-            ).returncode
+            return subprocess.run(cmd, **kwargs).returncode
         except subprocess.CalledProcessError as e:
             raise ShaderCompilationError(f'\n{e.stdout.decode()}') from e
 

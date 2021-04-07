@@ -11,9 +11,9 @@ uniform vec4 u_blur;
 void main()
 {
 	float pi_2 = 6.28318530718;
-    float directions = 20.;
-    float quality = 10.;
-    float size = u_blur.x;
+	float directions = 20.;
+	float quality = 10.;
+	float size = u_blur.x;
 
 	vec2 viewport = (u_viewRect.zw - u_viewRect.xy);
 	vec2 radius = size / viewport;
