@@ -223,8 +223,8 @@ class ShaderCompiler:
     @property
     def current_platform(self):
         platform_name = platform.system().lower()
-        if platform == 'darwin':
-            platform_name = 'osx'
+        if platform_name == 'darwin':
+            return 'osx'
         return platform_name
 
     def compile(self, *args: str):
