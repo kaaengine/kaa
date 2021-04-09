@@ -25,7 +25,39 @@ ctypedef CShader* CShader_ptr
 ctypedef CProgram* CProgram_ptr
 
 logger = logging.getLogger(__name__)
-_SHADERC_DIR = pkg_resources.resource_filename(__name__, 'shaderc')
+SHADERC_DIR = pkg_resources.resource_filename(__name__, 'shaderc')
+COMPILATION_FLAGS = {
+    ('glsl', 'vertex'): {
+        'target_platform': 'linux', 'profile': '120'
+    },
+    ('glsl', 'fragment'): {
+        'target_platform': 'linux', 'profile': '120'
+    },
+    ('spirv', 'vertex'): {
+        'target_platform': 'linux', 'profile': 'spirv'
+    },
+    ('spirv', 'fragment'): {
+        'target_platform': 'linux', 'profile': 'spirv'
+    },
+    ('metal', 'vertex'): {
+        'target_platform': 'osx', 'profile': 'metal'
+    },
+    ('metal', 'fragment'): {
+        'target_platform': 'osx', 'profile': 'metal'
+    },
+    ('hlsl_dx9', 'vertex'): {
+        'target_platform': 'windows', 'profile': 'vs_3_0'
+    },
+    ('hlsl_dx9', 'fragment'): {
+        'target_platform': 'windows', 'profile': 'ps_3_0'
+    },
+    ('hlsl_dx11', 'vertex'): {
+        'target_platform': 'windows', 'profile': 'vs_5_0'
+    },
+    ('hlsl_dx11', 'fragment'): {
+        'target_platform': 'windows', 'profile': 'ps_5_0'
+    }
+}
 
 
 class ShaderType(IntEnum):
@@ -217,8 +249,8 @@ class ShaderCompiler:
 
     def __init__(self, bool raise_on_error=False):
         self.raise_on_error = raise_on_error
-        self.shaderc = os.path.join(_SHADERC_DIR, 'shaderc')
-        self.includes = [os.path.join(_SHADERC_DIR, 'include')]
+        self.shaderc = os.path.join(SHADERC_DIR, 'shaderc')
+        self.includes = [os.path.join(SHADERC_DIR, 'include')]
 
     @property
     def current_platform(self):
@@ -238,10 +270,7 @@ class ShaderCompiler:
             kwargs['stdout'] = subprocess.PIPE
             kwargs['stderr'] = subprocess.PIPE
 
-        try:
-            return subprocess.run(cmd, **kwargs).returncode
-        except subprocess.CalledProcessError as e:
-            raise ShaderCompilationError(f'\n{e.stdout.decode()}') from e
+        return subprocess.run(cmd, **kwargs).returncode
 
     def compile_for_platforms(
         self,
@@ -264,34 +293,43 @@ class ShaderCompiler:
         seen_models = set()
         output_dir = output_dir or source_path.parent
         for platform_name in platforms:
-            for model in _choose_models_for_platform(platform_name):
+            compilation_flags = get_compilation_flags(platform_name, type_)
+            for model, flags in compilation_flags.items():
                 if model in seen_models:
                     continue
 
                 result[model] = self.compile_model(
-                    model, platform_name, source_path, output_dir,
-                    type_, varyingdef_path
+                    type_, model, flags['profile'], flags['target_platform'],
+                    source_path, output_dir, varyingdef_path
                 )
                 seen_models.add(model)
         return result
 
     def compile_model(
         self,
+        type_: str,
         model: str,
-        platform_name: str,
+        profile: str,
+        target_platform: str,
         source_path: Path,
         output_dir: Path,
-        type_: str,
         varyingdef_path: Path
     ):
         output_path = output_dir / f'{source_path.stem}-{model}.bin'
-        profile = _choose_shader_profile(model, type_)
         self.compile(
             '-f', str(source_path), '-o', str(output_path),
-            '--platform', platform_name, '--type', type_,
-            '--profile', profile, '--varyingdef', str(varyingdef_path)
+            '--type', type_, '--varyingdef', str(varyingdef_path),
+            '--platform', target_platform, '--profile', profile,
+            '--verbose'
         )
         return output_path
+
+
+def get_compilation_flags(platform_name: str, type_: str):
+    return {
+        model: COMPILATION_FLAGS[model, type_]
+        for model in _choose_models_for_platform(platform_name)
+    }
 
 
 def _choose_models_for_platform(platform_name):
@@ -301,23 +339,6 @@ def _choose_models_for_platform(platform_name):
         return ('metal', 'glsl', 'spirv')
     elif platform_name == 'windows':
         return ('hlsl_dx9', 'hlsl_dx11', 'glsl', 'spirv')
-
-
-def _choose_shader_profile(model: str, type_: str):
-    if model == 'glsl':
-        return '120'
-    elif model == 'metal':
-        return 'metal'
-    elif model == 'hlsl_dx9':
-        if type_ == 'vertex':
-            return 'vs_3_0'
-        return 'ps_3_0'
-    elif model == 'hlsl_dx11':
-        if type_ == 'vertex':
-            return 'vs_5_0'
-        return 'ps_5_0'
-    elif model == 'spirv':
-        return 'spirv'
 
 
 class _AutoShaderCompiler(ShaderCompiler):
@@ -342,27 +363,39 @@ class _AutoShaderCompiler(ShaderCompiler):
         if not varyingdef_path.is_file():
             varyingdef_path.write_text(varyingdef_content)
         platforms = [self.current_platform]
-        return self.compile_for_platforms(
-            platforms, source_path, type_, varyingdef_path, self.bin_dir
-        )
+
+        try:
+            return self.compile_for_platforms(
+                platforms, source_path, type_, varyingdef_path, self.bin_dir
+            )
+        except subprocess.CalledProcessError as e:
+            error_message = (
+                '\n\nVarying.def.sc:\n'
+                '---\n'
+                f'{varyingdef_content}\n\n'
+                f'{e.stdout.decode()}\n'
+                '---\n'
+            )
+            raise ShaderCompilationError(error_message) from e
 
     def compile_model(
         self,
+        type_: str,
         model: str,
-        platform_name: str,
+        profile: str,
+        target_platform: str,
         source_path: Path,
         output_dir: Path,
-        type_: str,
         varyingdef_path: Path
     ):
         crc32 = zlib.crc32(source_path.read_bytes())
         output_path = output_dir / f'{source_path.stem}-{model}-{crc32}.bin'
         if not output_path.is_file():
-            profile = _choose_shader_profile(model, type_)
             self.compile(
                 '-f', str(source_path), '-o', str(output_path),
-                '--platform', platform_name, '--type', type_,
-                '--profile', profile, '--varyingdef', str(varyingdef_path)
+                '--type', type_, '--varyingdef', str(varyingdef_path),
+                '--platform', target_platform, '--profile', profile,
+                '--verbose'
             )
         return output_path
 
