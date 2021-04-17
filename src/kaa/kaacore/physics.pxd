@@ -32,6 +32,8 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
         CCollisionPhase phase
         CNodePtr space
 
+        double total_kinetic_energy() except +raise_py_error
+
     cdef cppclass CCollisionPair "kaacore::CollisionPair":
         CNodePtr body_node
         CNodePtr hitbox_node
@@ -144,6 +146,8 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
 
         void gravity(const optional[CDVec2]& gravity) except +raise_py_error
         optional[CDVec2] gravity() except +raise_py_error
+
+        double kinetic_energy() except +raise_py_error
 
         bint sleeping() except +raise_py_error
         void sleeping(const bint sleeping) except +raise_py_error
