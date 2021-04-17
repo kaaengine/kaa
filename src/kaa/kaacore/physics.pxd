@@ -32,6 +32,7 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
         CCollisionPhase phase
         CNodePtr space
 
+        bool first_contact() except +raise_py_error
         double total_kinetic_energy() except +raise_py_error
 
     cdef cppclass CCollisionPair "kaacore::CollisionPair":

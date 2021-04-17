@@ -258,6 +258,10 @@ cdef class Arbiter:
         return get_node_wrapper(self.c_arbiter.space)
 
     @property
+    def first_contact(self):
+        return self.c_arbiter.first_contact()
+
+    @property
     def total_kinetic_energy(self):
         return self.c_arbiter.total_kinetic_energy()
 
