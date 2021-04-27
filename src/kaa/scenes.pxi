@@ -119,6 +119,10 @@ cdef class Scene:
         self.views[views_default_z_index].clear_color = color
 
     @property
+    def total_time(self):
+        return self._c_scene.get().total_time().count()
+
+    @property
     def time_scale(self):
         return self._c_scene.get().get_time_scale()
 
