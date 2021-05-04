@@ -9,12 +9,14 @@ from libcpp.unordered_map cimport unordered_map
 from cymove cimport cymove as cmove
 
 from .extra.optional cimport optional
+from .kaacore.materials cimport CMaterial
 from .kaacore.hashing cimport c_calculate_hash
 from .kaacore.vectors cimport CFVec4, CFMat3, CFMat4
-from .kaacore.materials cimport (
+from .kaacore.uniforms cimport (
     CUniformType, CUniformSpecification, CSamplerValue, CUniformValue,
-    CUniformSpecificationMap, CMaterial
+    CUniformSpecificationMap
 )
+
 
 DEF UNIFORM_FREELIST_SIZE = 8
 DEF MATERIAL_FREELIST_SIZE = 8
@@ -61,9 +63,8 @@ cdef class Uniform:
         return self.c_specification.number_of_elements()
 
 
-@cython.final
 @cython.freelist(MATERIAL_FREELIST_SIZE)
-cdef class Material:
+cdef class MaterialBase:
     cdef:
         CResourceReference[CMaterial] c_material
 
@@ -89,12 +90,6 @@ cdef class Material:
 
     def __hash__(self):
         return c_calculate_hash[CMaterial_ptr](self.c_material.get())
-
-    @staticmethod
-    cdef Material create(CResourceReference[CMaterial]& c_material):
-        cdef Material instance = Material.__new__(Material)
-        instance.c_material = c_material
-        return instance
 
     @property
     def uniforms(self):
@@ -158,6 +153,36 @@ cdef class Material:
         if c_uniform.number_of_elements() == 1 and len(result) == 1:
             return result[0]
         return tuple(result)
+
+    cdef CUniformSpecification _get_specification(self, str name) except *:
+        cdef unordered_map[string, CUniformSpecification] uniforms
+        uniforms = self.c_material.get().uniforms()
+        if uniforms.find(name.encode()) == uniforms.end():
+            raise KaacoreError(f'Unknown uniform: {name}.')
+
+        return uniforms[name.encode()]
+
+
+@cython.final
+cdef class MaterialView(MaterialBase):
+    @staticmethod
+    cdef MaterialView create(CResourceReference[CMaterial]& c_material):
+        cdef MaterialView instance = MaterialView.__new__(MaterialView)
+        instance.c_material = c_material
+        return instance
+
+    @property
+    def source(self):
+        return Material.create(self.c_material)
+
+
+@cython.final
+cdef class Material(MaterialBase):
+    @staticmethod
+    cdef Material create(CResourceReference[CMaterial]& c_material):
+        cdef Material instance = Material.__new__(Material)
+        instance.c_material = c_material
+        return instance
 
     def set_uniform_texture(
         self,
@@ -246,14 +271,6 @@ cdef class Material:
 
     def clone(self):
         return Material.create(self.c_material.get().clone())
-
-    cdef CUniformSpecification _get_specification(self, str name) except *:
-        cdef unordered_map[string, CUniformSpecification] uniforms
-        uniforms = self.c_material.get().uniforms()
-        if uniforms.find(name.encode()) == uniforms.end():
-            raise KaacoreError(f'Unknown uniform: {name}.')
-
-        return uniforms[name.encode()]
 
 
 @cython.final

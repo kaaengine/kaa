@@ -15,7 +15,7 @@ cdef extern from "kaacore/shaders.h" namespace "kaacore" nogil:
         hlsl_dx9 "kaacore::ShaderModel::hlsl_dx9"
         hlsl_dx11 "kaacore::ShaderModel::hlsl_dx11"
         glsl "kaacore::ShaderModel::glsl"
-        spriv "kaacore::ShaderModel::spriv"
+        spirv "kaacore::ShaderModel::spirv"
         metal "kaacore::ShaderModel::metal"
         unknown "kaacore::ShaderModel::unknown"
 

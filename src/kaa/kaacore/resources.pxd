@@ -10,4 +10,4 @@ cdef extern from "kaacore/resources.h" namespace "kaacore" nogil:
         CResourceReference(const shared_ptr[T]& ptr)
         bool operator bool()
         bool operator==(const CResourceReference[T]& other)
-        T* get() except +raise_py_error
+        T* get "get_valid"() except +raise_py_error

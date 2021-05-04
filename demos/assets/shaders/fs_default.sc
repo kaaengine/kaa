@@ -1,11 +1,8 @@
 $input v_texcoord0
 
 // source: https://www.shadertoy.com/view/Xltfzj
+#include <kaa.sh>
 
-
-#include <bgfx_shader.sh>
-
-SAMPLER2D(s_texture, 0);
 uniform vec4 u_blur;
 
 void main()
@@ -13,7 +10,7 @@ void main()
 	float pi_2 = 6.28318530718;
 	float directions = 20.;
 	float quality = 10.;
-	float size = u_blur.x;
+	float size = u_blur.x * cos(u_time);
 
 	vec2 viewport = (u_viewRect.zw - u_viewRect.xy);
 	vec2 radius = size / viewport;

@@ -357,7 +357,7 @@ cdef class NodeBase:
     @property
     def material(self):
         if self._get_c_node().material():
-            return Material.create(self._get_c_node().material())
+            return MaterialView.create(self._get_c_node().material())
 
     @material.setter
     def material(self, Material material):

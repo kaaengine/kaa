@@ -87,9 +87,16 @@ class AttributeLocation(Enum):
 
 
 class VaryingType(Enum):
+    float = 'float'
     vec2 = 'vec2'
     vec3 = 'vec3'
     vec4 = 'vec4'
+    mat2 = 'mat2'
+    mat3 = 'mat3'
+    mat4 = 'mat4'
+
+    def __str__(self):
+        return self.value
 
 
 @cython.final
@@ -106,7 +113,7 @@ cdef class Varying:
         self.type = type_
 
     def __str__(self):
-        return f'{self.type.value} {self.name}'
+        return f'{self.type} {self.name}'
 
 
 @cython.freelist(SHADER_FREELIST_SIZE)
@@ -182,8 +189,8 @@ cdef CShaderModel _translate_shader_model(str model_name):
         return CShaderModel.hlsl_dx11
     elif model_name == 'glsl':
         return CShaderModel.glsl
-    elif model_name == 'spriv':
-        return CShaderModel.spriv
+    elif model_name == 'spirv':
+        return CShaderModel.spirv
     elif model_name == 'metal':
         return CShaderModel.metal
     return CShaderModel.unknown

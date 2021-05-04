@@ -345,13 +345,13 @@ class EventType(enum.IntEnum):
 
 
 @type_check_only
-class _BaseEvent:
+class EventBase:
     @property
     def timestamp(self) -> int:
         ...
 
 
-class ControllerAxisEvent(_BaseEvent):
+class ControllerAxisEvent(EventBase):
     @property
     def axis(self) -> ControllerAxis:
         ...
@@ -365,7 +365,7 @@ class ControllerAxisEvent(_BaseEvent):
         ...
 
 
-class ControllerButtonEvent(_BaseEvent):
+class ControllerButtonEvent(EventBase):
     @property
     def id(self) -> int:
         ...
@@ -383,7 +383,7 @@ class ControllerButtonEvent(_BaseEvent):
         ...
 
 
-class ControllerDeviceEvent(_BaseEvent):
+class ControllerDeviceEvent(EventBase):
     @property
     def id(self) -> int:
         ...
@@ -397,7 +397,7 @@ class ControllerDeviceEvent(_BaseEvent):
         ...
 
 
-class KeyboardKeyEvent(_BaseEvent):
+class KeyboardKeyEvent(EventBase):
     @property
     def key(self) -> Keycode:
         ...
@@ -419,13 +419,13 @@ class KeyboardKeyEvent(_BaseEvent):
         ...
 
 
-class KeyboardTextEvent(_BaseEvent):
+class KeyboardTextEvent(EventBase):
     @property
     def text(self) -> str:
         ...
 
 
-class MouseButtonEvent(_BaseEvent):
+class MouseButtonEvent(EventBase):
     @property
     def position(self) -> Vector:
         ...
@@ -441,7 +441,7 @@ class MouseButtonEvent(_BaseEvent):
         ...
 
 
-class MouseMotionEvent(_BaseEvent):
+class MouseMotionEvent(EventBase):
     @property
     def motion(self) -> Vector:
         ...
@@ -451,17 +451,17 @@ class MouseMotionEvent(_BaseEvent):
         ...
 
 
-class MouseWheelEvent(_BaseEvent):
+class MouseWheelEvent(EventBase):
     @property
     def scroll(self) -> Vector:
         ...
 
 
-class MusicFinishedEvent(_BaseEvent):
+class MusicFinishedEvent(EventBase):
     ...
 
 
-class SystemEvent(_BaseEvent):
+class SystemEvent(EventBase):
     @property
     def clipboard_updated(self) -> bool:
         ...
@@ -471,7 +471,7 @@ class SystemEvent(_BaseEvent):
         ...
 
 
-class WindowEvent(_BaseEvent):
+class WindowEvent(EventBase):
     @property
     def is_close(self) -> bool:
         ...
@@ -521,7 +521,7 @@ class WindowEvent(_BaseEvent):
         ...
 
 
-class Event(_BaseEvent):
+class Event(EventBase):
     @property
     def controller_axis(self) -> Optional[ControllerAxisEvent]:
         ...

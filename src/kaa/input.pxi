@@ -390,7 +390,7 @@ cdef typed_property(object type_):
 
 
 @cython.freelist(EVENT_FREELIST_SIZE)
-cdef class _BaseEvent:
+cdef class EventBase:
     cdef CEvent c_event
 
     def __repr__(self):
@@ -406,7 +406,7 @@ cdef class _BaseEvent:
 
 
 @cython.final
-cdef class SystemEvent(_BaseEvent):
+cdef class SystemEvent(EventBase):
     @staticmethod
     cdef SystemEvent create(CEvent c_event):
         cdef SystemEvent instance = SystemEvent.__new__(
@@ -425,7 +425,7 @@ cdef class SystemEvent(_BaseEvent):
 
 
 @cython.final
-cdef class WindowEvent(_BaseEvent):
+cdef class WindowEvent(EventBase):
     @staticmethod
     cdef WindowEvent create(CEvent c_event):
         cdef WindowEvent instance = WindowEvent.__new__(
@@ -484,7 +484,7 @@ cdef class WindowEvent(_BaseEvent):
 
 
 @cython.final
-cdef class KeyboardKeyEvent(_BaseEvent):
+cdef class KeyboardKeyEvent(EventBase):
     @staticmethod
     cdef KeyboardKeyEvent create(CEvent c_event):
         cdef KeyboardKeyEvent instance = KeyboardKeyEvent.__new__(
@@ -516,7 +516,7 @@ cdef class KeyboardKeyEvent(_BaseEvent):
 
 
 @cython.final
-cdef class KeyboardTextEvent(_BaseEvent):
+cdef class KeyboardTextEvent(EventBase):
     @staticmethod
     cdef KeyboardTextEvent create(CEvent c_event):
         cdef KeyboardTextEvent instance = KeyboardTextEvent.__new__(
@@ -531,7 +531,7 @@ cdef class KeyboardTextEvent(_BaseEvent):
 
 
 @cython.final
-cdef class MouseButtonEvent(_BaseEvent):
+cdef class MouseButtonEvent(EventBase):
     @staticmethod
     cdef MouseButtonEvent create(CEvent c_event):
         cdef MouseButtonEvent instance = MouseButtonEvent.__new__(
@@ -560,7 +560,7 @@ cdef class MouseButtonEvent(_BaseEvent):
 
 
 @cython.final
-cdef class MouseMotionEvent(_BaseEvent):
+cdef class MouseMotionEvent(EventBase):
     @staticmethod
     cdef MouseMotionEvent create(CEvent c_event):
         cdef MouseMotionEvent instance = MouseMotionEvent.__new__(
@@ -583,7 +583,7 @@ cdef class MouseMotionEvent(_BaseEvent):
 
 
 @cython.final
-cdef class MouseWheelEvent(_BaseEvent):
+cdef class MouseWheelEvent(EventBase):
     @staticmethod
     cdef MouseWheelEvent create(CEvent c_event):
         cdef MouseWheelEvent instance = MouseWheelEvent.__new__(
@@ -600,7 +600,7 @@ cdef class MouseWheelEvent(_BaseEvent):
 
 
 @cython.final
-cdef class ControllerButtonEvent(_BaseEvent):
+cdef class ControllerButtonEvent(EventBase):
     @staticmethod
     cdef ControllerButtonEvent create(CEvent c_event):
         cdef ControllerButtonEvent instance = ControllerButtonEvent.__new__(
@@ -631,7 +631,7 @@ cdef class ControllerButtonEvent(_BaseEvent):
 
 
 @cython.final
-cdef class ControllerAxisEvent(_BaseEvent):
+cdef class ControllerAxisEvent(EventBase):
     @staticmethod
     cdef ControllerAxisEvent create(CEvent c_event):
         cdef ControllerAxisEvent instance = ControllerAxisEvent.__new__(
@@ -656,7 +656,7 @@ cdef class ControllerAxisEvent(_BaseEvent):
 
 
 @cython.final
-cdef class ControllerDeviceEvent(_BaseEvent):
+cdef class ControllerDeviceEvent(EventBase):
     @staticmethod
     cdef ControllerDeviceEvent create(CEvent c_event):
         cdef ControllerDeviceEvent instance = ControllerDeviceEvent.__new__(
@@ -679,7 +679,7 @@ cdef class ControllerDeviceEvent(_BaseEvent):
 
 
 @cython.final
-cdef class MusicFinishedEvent(_BaseEvent):
+cdef class MusicFinishedEvent(EventBase):
     @staticmethod
     cdef MusicFinishedEvent create(CEvent c_event):
         cdef MusicFinishedEvent instance = MusicFinishedEvent.__new__(MusicFinishedEvent)
@@ -688,7 +688,7 @@ cdef class MusicFinishedEvent(_BaseEvent):
 
 
 @cython.final
-cdef class Event(_BaseEvent):
+cdef class Event(EventBase):
     @staticmethod
     cdef Event create(CEvent c_event):
         cdef Event instance = Event.__new__(Event)
