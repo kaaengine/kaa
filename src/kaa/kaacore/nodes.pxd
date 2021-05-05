@@ -57,7 +57,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         CHitboxNode hitbox
         CTextNode text
 
-        vector[CNode*]& children() except +raise_py_error
+        vector[CNode*] children() except +raise_py_error
 
         void add_child(CNodeOwnerPtr child_node) except +raise_py_error
         const CNodeType type() except +raise_py_error
