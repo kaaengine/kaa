@@ -11,6 +11,7 @@ def handle_quit(event):
         get_engine().quit()
     return True
 
+
 class FontDemoScene(Scene):
     def __init__(self):
         self.camera.position = Vector(0., 0.)

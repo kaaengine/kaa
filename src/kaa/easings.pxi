@@ -57,5 +57,5 @@ def ease_between(object easing, double progress, a, b):
             (<Vector>a).c_vector,
             (<Vector>b).c_vector
         ))
-    
-    raise Exception('Unsupported type of parameters.')
+
+    raise TypeError('Unsupported type of parameters.')

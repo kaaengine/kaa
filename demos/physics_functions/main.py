@@ -14,7 +14,7 @@ def update_velocity(node, gravity, damping, dt):
     # reimplements default velocity function
     if node.body_type == BodyNodeType.kinematic:
         return
-    
+
     assert node.mass > 0 and node.moment > 0
 
     f = node.force
@@ -24,7 +24,7 @@ def update_velocity(node, gravity, damping, dt):
 
     t = node.torque
     w = node.angular_velocity
-    node.angular_velocity = (w * damping) + (t * m_inv * dt) 
+    node.angular_velocity = (w * damping) + (t * m_inv * dt)
 
     node.force = Vector.xy(0)
     node.torque = 0
@@ -58,7 +58,7 @@ class MainScene(Scene):
                 velocity=Vector.from_angle_degrees(random_angle) * 100
             )
         )
-        
+
         self.node.set_position_update_callback(update_position)
         self.node.set_velocity_update_callback(update_velocity)
 
@@ -67,6 +67,7 @@ class MainScene(Scene):
             if event.keyboard_key:
                 if event.keyboard_key.key_down == Keycode.q:
                     self.engine.quit()
+
 
 if __name__ == '__main__':
     with Engine(virtual_resolution=Vector(1024, 768)) as engine:
