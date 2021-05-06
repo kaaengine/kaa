@@ -257,6 +257,14 @@ cdef class Arbiter:
     def space(self):
         return get_node_wrapper(self.c_arbiter.space)
 
+    @property
+    def first_contact(self):
+        return self.c_arbiter.first_contact()
+
+    @property
+    def total_kinetic_energy(self):
+        return self.c_arbiter.total_kinetic_energy()
+
 
 cdef CollisionPair _prepare_collision_pair(CCollisionPair& c_pair):
     cdef CollisionPair pair = CollisionPair.__new__(CollisionPair)
@@ -572,7 +580,7 @@ cdef class BodyNode(NodeBase):
     @moment.setter
     def moment(self, double value):
         self._get_c_node().body.moment(value)
-    
+
     @property
     def center_of_gravity(self):
         return Vector.from_c_vector(self._get_c_node().body.center_of_gravity())
@@ -609,6 +617,10 @@ cdef class BodyNode(NodeBase):
             self._get_c_node().body.gravity(optional[CDVec2](gravity.c_vector))
 
     @property
+    def kinetic_energy(self):
+        return self._get_c_node().body.kinetic_energy()
+
+    @property
     def sleeping(self):
         return self._get_c_node().body.sleeping()
 
@@ -619,7 +631,7 @@ cdef class BodyNode(NodeBase):
     @property
     def _velocity_bias(self):
         return Vector.from_c_vector(self._get_c_node().body._velocity_bias())
-    
+
     @_velocity_bias.setter
     def _velocity_bias(self, Vector velocity not None):
         self._get_c_node().body._velocity_bias(velocity.c_vector)
@@ -627,7 +639,7 @@ cdef class BodyNode(NodeBase):
     @property
     def _angular_velocity_bias(self):
         return self._get_c_node().body._angular_velocity_bias()
-    
+
     @_angular_velocity_bias.setter
     def _angular_velocity_bias(self, double torque):
         self._get_c_node().body._angular_velocity_bias(torque)
