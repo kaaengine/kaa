@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libc.stdint cimport uint8_t, uint16_t, uint32_t
 
-from .images cimport CImage
+from .textures cimport CTexture
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
 
@@ -29,7 +29,7 @@ cdef extern from "kaacore/uniforms.h" namespace "kaacore" nogil:
     cdef cppclass CSamplerValue "kaacore::SamplerValue":
         uint8_t stage
         uint32_t flags
-        CResourceReference[CImage] texture
+        CResourceReference[CTexture] texture
 
     cdef cppclass CUniformValue "kaacore::UniformValue"[T] :
         CUniformValue()

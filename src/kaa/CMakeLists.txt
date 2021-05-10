@@ -27,7 +27,7 @@ set(CYTHON_FILES
     log.pxi
     easings.pxi
     spatial_index.pxi
-    images.pxi
+    textures.pxi
     shaders.pxi
     materials.pxi
     statistics.pxi
@@ -60,7 +60,7 @@ set(CYTHON_FILES
     kaacore/shaders.pxd
     kaacore/materials.pxd
     kaacore/resources.pxd
-    kaacore/images.pxd
+    kaacore/textures.pxd
     kaacore/statistics.pxd
 
     extra/include/pythonic_callback.h
