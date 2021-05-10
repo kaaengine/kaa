@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from kaa.images import Image
+from kaa.images import Texture
 
 
 STATIC_IMAGES_DIR = Path(__file__).parent / 'static' / 'images'
@@ -15,4 +15,4 @@ def image_path():
 
 @pytest.fixture
 def texture(image_path):
-    return Image(image_path)
+    return Texture(image_path)
