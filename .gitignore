@@ -2,7 +2,7 @@
 /src/kaa/_kaa.*.pyd
 /src/kaa/libSDL2*.so*
 /src/kaa/libSDL2*.dll
-/src/kaa/bin
+/src/kaa/shaderc
 build/
 dist/
 cmake_build/

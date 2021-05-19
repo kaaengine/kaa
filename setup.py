@@ -23,10 +23,13 @@ setup(
     long_description=readme_content,
     long_description_content_type='text/markdown',
     url="https://github.com/kaaengine/kaa",
-    packages=setuptools.find_packages('src'),
+    packages=['kaa'],
     package_dir={'': 'src'},
     entry_points={
-        'console_scripts': ['shaderc=kaa.cli:shaderc']
+        'console_scripts': [
+            'shaderc=kaa.cli:shaderc',
+            'compile_shader=kaa.cli:compile_shader'
+        ]
     },
     extras_require={
         'stats_graph': [
@@ -51,6 +54,9 @@ setup(
         "Source Code": 'https://github.com/kaaengine/kaa/',
     },
     cmake_source_dir=KAA_SETUP_CMAKE_SOURCE,
+    package_data={
+      'kaa': ['*.pyi', 'py.typed'],
+    },
     include_package_data=True,
     cmake_args=[
         '-DKAA_INSTALL_KAACORE:BOOL=OFF',

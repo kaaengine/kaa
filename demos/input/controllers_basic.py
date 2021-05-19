@@ -1,6 +1,6 @@
 from kaa.engine import Engine, Scene
 from kaa.geometry import Vector
-from kaa.input import Keycode, ControllerButton, ControllerAxis
+from kaa.input import ControllerButton, ControllerAxis
 
 class MyScene(Scene):
 

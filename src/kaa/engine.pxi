@@ -79,6 +79,10 @@ cdef class _Engine:
     def audio(self):
         return self._audio_manager
 
+    @property
+    def total_time(self):
+        return get_c_engine().total_time().count()
+
     def get_fps(self):
         return get_c_engine().get_fps()
 

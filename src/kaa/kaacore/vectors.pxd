@@ -43,6 +43,48 @@ cdef extern from "glm/glm.hpp" nogil:
         CColor(double r, double g, double b, double a)
         bint operator==(CColor, CColor)
 
+    cdef cppclass CFVec3 "glm::fvec3":
+        float x
+        float y
+        float z
+
+        CFVec3()
+        CFVec3(float x, float y, float z)
+        float& operator[](int32_t i)
+
+    cdef cppclass CFVec4 "glm::fvec4":
+        float x
+        float y
+        float z
+        float w
+
+        CFVec4()
+        CFVec4(float x, float y, float z, float w)
+        float& operator[](int32_t i)
+
+    cdef cppclass CFMat3 "glm::fmat3":
+        CFMat3()
+        CFMat3(float scalar)
+        CFMat3(
+            float x0, float y0, float z0,
+			float x1, float y1, float z1,
+			float x2, float y2, float z2
+        )
+        CFMat3(CFVec3 v0, CFVec3 v1, CFVec3 v2)
+        CFVec3& operator[](int32_t i)
+
+    cdef cppclass CFMat4 "glm::fmat4":
+        CFMat4()
+        CFMat4(float scalar)
+        CFMat4(
+            float x0, float y0, float z0, float w0,
+			float x1, float y1, float z1, float w1,
+			float x2, float y2, float z2, float w2,
+			float x3, float y3, float z3, float w3
+        )
+        CFMat4(CFVec4 v0, CFVec4 v1, CFVec4 v2, CFVec4 v3)
+        CFVec4& operator[](int32_t i)
+
 
 cdef extern from "glm/gtx/rotate_vector.hpp" nogil:
     CDVec2 c_vector_rotate_angle "glm::rotate" (CDVec2& v, double angle)
