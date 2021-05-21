@@ -187,12 +187,12 @@ cdef class Material(MaterialBase):
     def set_uniform_texture(
         self,
         str name not None,
-        Image texture not None,
+        Texture texture not None,
         uint8_t stage,
         uint32_t flags=UINT32_MAX
     ):
         self.c_material.get().set_uniform_texture(
-            name.encode(), texture.c_image, stage, flags
+            name.encode(), texture.c_texture, stage, flags
         )
 
     def set_uniform_value(self, str name not None, tuple value not None):
@@ -293,4 +293,4 @@ cdef class SamplerValue:
 
     @property
     def texture(self):
-        return Image.create(self.c_value.texture)
+        return Texture.create(self.c_value.texture)

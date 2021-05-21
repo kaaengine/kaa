@@ -1,6 +1,6 @@
 import pytest
 
-from kaa.images import Image
+from kaa.images import Texture
 from kaa.shaders import Program
 from kaa.exceptions import KaacoreError
 from kaa.materials import Uniform, UniformType, Material
@@ -109,7 +109,7 @@ def test_materials_cloning(program, texture):
 
 
 @pytest.mark.usefixtures('test_engine')
-def test_materials_invalid_usage(program: Program, texture: Image):
+def test_materials_invalid_usage(program: Program, texture: Texture):
     vec4 = Uniform(UniformType.vec4, number_of_elements=1)
     sampler = Uniform(UniformType.sampler)
     uniforms = {'vec4': vec4, 'sampler': sampler}
