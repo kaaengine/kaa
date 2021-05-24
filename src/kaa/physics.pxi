@@ -319,7 +319,6 @@ cdef class Arbiter:
             c_vector.push_back(point.c_collision_contact_point)
         self._get_c_arbiter().contact_points(c_vector)
 
-
     cdef CArbiter* _get_c_arbiter(self) except NULL:
         assert self.c_arbiter != NULL, \
             'Arbiter used outside of collision handler.'
