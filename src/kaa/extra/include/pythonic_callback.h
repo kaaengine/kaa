@@ -152,14 +152,14 @@ class PythonicCallbackResult {
 
 
 typedef PythonicCallbackResult<int> (*CythonCollisionHandler)(const PythonicCallbackWrapper&,
-                                    kaacore::Arbiter, kaacore::CollisionPair, kaacore::CollisionPair);
+                                    kaacore::Arbiter&, kaacore::CollisionPair, kaacore::CollisionPair);
 
 kaacore::CollisionHandlerFunc bind_cython_collision_handler(
     const CythonCollisionHandler cy_handler, PythonicCallbackWrapper callback
 )
 {
     return [cy_handler, callback{std::move(callback)}]
-            (kaacore::Arbiter arbiter, kaacore::CollisionPair cp1, kaacore::CollisionPair cp2) -> int {
+            (kaacore::Arbiter& arbiter, kaacore::CollisionPair cp1, kaacore::CollisionPair cp2) -> int {
         return cy_handler(callback, arbiter, cp1, cp2).unwrap_result();
     };
 }
