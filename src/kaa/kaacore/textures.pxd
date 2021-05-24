@@ -6,12 +6,12 @@ from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
 
 
-cdef extern from "kaacore/images.h" namespace "kaacore" nogil:
+cdef extern from "kaacore/textures.h" namespace "kaacore" nogil:
 
-    cdef cppclass CImage "kaacore::Image":
-        CImage()
+    cdef cppclass CTexture "kaacore::Texture":
+        CTexture()
         @staticmethod
-        CResourceReference[CImage] load(const string& path, uint64_t flags) \
+        CResourceReference[CTexture] load(const string& path, uint64_t flags) \
             except +raise_py_error
 
 

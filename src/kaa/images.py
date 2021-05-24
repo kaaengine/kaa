@@ -1,1 +1,1 @@
-from ._kaa import Sprite, Image
+from ._kaa import Sprite, Texture

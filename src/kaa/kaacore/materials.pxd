@@ -4,8 +4,8 @@ from libc.stdint cimport uint8_t, uint32_t
 
 from ..extra.optional cimport optional
 
-from .images cimport CImage
 from .shaders cimport CProgram
+from .textures cimport CTexture
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
 from .uniforms cimport CUniformSpecificationMap, CSamplerValue, CUniformValue
@@ -22,7 +22,7 @@ cdef extern from "kaacore/materials.h" namespace "kaacore" nogil:
         CResourceReference[CMaterial] clone() except +raise_py_error
         CUniformSpecificationMap uniforms() except +raise_py_error
         void set_uniform_texture(
-            const string& name, const CResourceReference[CImage]& image,
+            const string& name, const CResourceReference[CTexture]& texture,
             const uint8_t stage, const uint32_t flags
         ) except +raise_py_error
         optional[CSamplerValue] get_uniform_texture(const string& name) \
