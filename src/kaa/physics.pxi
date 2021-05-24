@@ -307,8 +307,17 @@ cdef class Arbiter:
         c_result = self._get_c_arbiter().contact_points()
         for c_point in c_result:
             result.append(CollisionContactPoint.create(c_point))
-
         return result
+
+    @contact_points.setter
+    def contact_points(self, list value not None):
+        cdef:
+            CollisionContactPoint point
+            vector[CCollisionContactPoint] c_vector
+
+        for point in value:
+            c_vector.push_back(point.c_collision_contact_point)
+        self._get_c_arbiter().contact_points(c_vector)
 
 
     cdef CArbiter* _get_c_arbiter(self) except NULL:

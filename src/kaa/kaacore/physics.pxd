@@ -42,7 +42,7 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
         CDVec2 surface_velocity() except +raise_py_error
         void surface_velocity(const CDVec2 value) except +raise_py_error
         vector[CCollisionContactPoint] contact_points() except +raise_py_error
-        void contact(const vector[CCollisionContactPoint]& value)  except +raise_py_error
+        void contact_points(const vector[CCollisionContactPoint]& value)  except +raise_py_error
 
     cdef cppclass CCollisionPair "kaacore::CollisionPair":
         CNodePtr body_node

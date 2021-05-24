@@ -108,6 +108,50 @@ class Arbiter:
     def space(self) -> SpaceNode:
         ...
 
+    @property
+    def first_contact(self) -> bool:
+        ...
+
+    @property
+    def total_kinetic_energy(self) -> float:
+        ...
+
+    @property
+    def total_impulse(self) -> Vector:
+        ...
+
+    @property
+    def elasticity(self) -> float:
+        ...
+
+    @elasticity.setter
+    def elasticity(self, value: float) -> None:
+        ...
+
+    @property
+    def friction(self) -> float:
+        ...
+
+    @friction.setter
+    def friction(self, value: float) -> None:
+        ...
+
+    @property
+    def surface_velocity(self) -> Vector:
+        ...
+
+    @surface_velocity.setter
+    def surface_velocity(self, value: Vector) -> None:
+        ...
+
+    @property
+    def contact_points(self) -> List[CollisionContactPoint]:
+        ...
+
+    @contact_points.setter
+    def contact_points(self, value: List[CollisionContactPoint]) -> None:
+        ...
+
 
 class HitboxNode(NodeBase):
     def __init__(
