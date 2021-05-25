@@ -118,9 +118,17 @@ cdef class CollisionContactPoint:
     def point_a(self):
         return Vector.from_c_vector(self.c_collision_contact_point.point_a)
 
+    @point_a.setter
+    def point_a(self, Vector value not None):
+        self.c_collision_contact_point.point_a = value.c_vector
+
     @property
     def point_b(self):
         return Vector.from_c_vector(self.c_collision_contact_point.point_b)
+
+    @point_b.setter
+    def point_b(self, Vector value not None):
+        self.c_collision_contact_point.point_b = value.c_vector
 
     @property
     def distance(self):
@@ -326,6 +334,14 @@ cdef class Arbiter:
 
     cdef _reset(self):
         self.c_arbiter = NULL
+
+    @property
+    def collision_normal(self):
+        return Vector.from_c_vector(self._get_c_arbiter().collision_normal())
+
+    @collision_normal.setter
+    def collision_normal(self, Vector value not None):
+        self._get_c_arbiter().collision_normal(value.c_vector)
 
 
 cdef CollisionPair _prepare_collision_pair(CCollisionPair& c_pair):
