@@ -30,7 +30,7 @@ COLLISION_GROUP_NONE = collision_group_none
 
 cdef CPythonicCallbackResult[int] collision_handler_dispatch(
     const CPythonicCallbackWrapper& c_wrapper,
-    CArbiter c_arbiter, CCollisionPair c_pair_a, CCollisionPair c_pair_b
+    CArbiter& c_arbiter, CCollisionPair c_pair_a, CCollisionPair c_pair_b
 ) with gil:
     cdef object callback
     if c_wrapper.is_weakref:
@@ -50,7 +50,11 @@ cdef CPythonicCallbackResult[int] collision_handler_dispatch(
     except Exception as py_exc:
         return CPythonicCallbackResult[int](<PyObject*>py_exc)
     else:
-        return CPythonicCallbackResult[int](<int>(ret if ret is not None else 1))
+        return CPythonicCallbackResult[int](<int>(
+            ret if ret is not None else 1)
+        )
+    finally:
+        arbiter._reset()
 
 
 class CollisionPhase(IntEnum):
@@ -114,9 +118,17 @@ cdef class CollisionContactPoint:
     def point_a(self):
         return Vector.from_c_vector(self.c_collision_contact_point.point_a)
 
+    @point_a.setter
+    def point_a(self, Vector value not None):
+        self.c_collision_contact_point.point_a = value.c_vector
+
     @property
     def point_b(self):
         return Vector.from_c_vector(self.c_collision_contact_point.point_b)
+
+    @point_b.setter
+    def point_b(self, Vector value not None):
+        self.c_collision_contact_point.point_b = value.c_vector
 
     @property
     def distance(self):
@@ -251,19 +263,85 @@ cdef class Arbiter:
 
     @property
     def phase(self):
-        return CollisionPhase(<uint8_t>self.c_arbiter.phase)
+        return CollisionPhase(<uint8_t>self._get_c_arbiter().phase)
 
     @property
     def space(self):
-        return get_node_wrapper(self.c_arbiter.space)
+        return get_node_wrapper(self._get_c_arbiter().space)
 
     @property
     def first_contact(self):
-        return self.c_arbiter.first_contact()
+        return self._get_c_arbiter().first_contact()
 
     @property
     def total_kinetic_energy(self):
-        return self.c_arbiter.total_kinetic_energy()
+        return self._get_c_arbiter().total_kinetic_energy()
+
+    @property
+    def total_impulse(self):
+        return Vector.from_c_vector(self._get_c_arbiter().total_impulse())
+
+    @property
+    def elasticity(self):
+        return self._get_c_arbiter().elasticity()
+
+    @elasticity.setter
+    def elasticity(self, double value):
+        self._get_c_arbiter().elasticity(value)
+
+    @property
+    def friction(self):
+        return self._get_c_arbiter().friction()
+
+    @friction.setter
+    def friction(self, double value):
+        self._get_c_arbiter().friction(value)
+
+    @property
+    def surface_velocity(self):
+        return Vector.from_c_vector(self._get_c_arbiter().surface_velocity())
+
+    @surface_velocity.setter
+    def surface_velocity(self, Vector value not None):
+        self._get_c_arbiter().surface_velocity(value.c_vector)
+
+    @property
+    def contact_points(self):
+        cdef:
+            list result = []
+            CCollisionContactPoint c_point
+            vector[CCollisionContactPoint] c_result
+
+        c_result = self._get_c_arbiter().contact_points()
+        for c_point in c_result:
+            result.append(CollisionContactPoint.create(c_point))
+        return result
+
+    @contact_points.setter
+    def contact_points(self, list value not None):
+        cdef:
+            CollisionContactPoint point
+            vector[CCollisionContactPoint] c_vector
+
+        for point in value:
+            c_vector.push_back(point.c_collision_contact_point)
+        self._get_c_arbiter().contact_points(c_vector)
+
+    cdef CArbiter* _get_c_arbiter(self) except NULL:
+        assert self.c_arbiter != NULL, \
+            'Arbiter used outside of collision handler.'
+        return self.c_arbiter
+
+    cdef _reset(self):
+        self.c_arbiter = NULL
+
+    @property
+    def collision_normal(self):
+        return Vector.from_c_vector(self._get_c_arbiter().collision_normal())
+
+    @collision_normal.setter
+    def collision_normal(self, Vector value not None):
+        self._get_c_arbiter().collision_normal(value.c_vector)
 
 
 cdef CollisionPair _prepare_collision_pair(CCollisionPair& c_pair):
