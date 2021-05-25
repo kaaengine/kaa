@@ -49,8 +49,16 @@ class CollisionContactPoint:
     def point_a(self) -> Vector:
         ...
 
+    @point_a.setter
+    def point_a(self, value: Vector) -> None:
+        ...
+
     @property
     def point_b(self) -> Vector:
+        ...
+
+    @point_b.setter
+    def point_b(self, value: Vector) -> None:
         ...
 
 
@@ -150,6 +158,14 @@ class Arbiter:
 
     @contact_points.setter
     def contact_points(self, value: List[CollisionContactPoint]) -> None:
+        ...
+
+    @property
+    def collision_normal(self) -> Vector:
+        ...
+
+    @collision_normal.setter
+    def collision_normal(self, value: Vector) -> None:
         ...
 
 
