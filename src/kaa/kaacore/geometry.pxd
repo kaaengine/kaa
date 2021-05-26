@@ -78,3 +78,11 @@ cdef extern from "kaacore/geometry.h" namespace "kaacore" nogil:
 
         @staticmethod
         CBoundingBox from_points(const vector[CDVec2]& points)
+
+    cdef enum CAngleSign "kaacore::AngleSign":
+        mixed "kaacore::AngleSign::mixed"
+        negative "kaacore::AngleSign::negative"
+        positive "kaacore::AngleSign::positive"
+
+    cdef double c_normalize_angle "kaacore::normalize_angle" (const double value, const CAngleSign sign)
+    cdef double c_normalize_angle_degrees "kaacore::normalize_angle_degrees" (const double value, const CAngleSign sign)
