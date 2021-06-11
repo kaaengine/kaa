@@ -20,9 +20,9 @@ cdef class Sprite:
         return sprite
 
     @staticmethod
-    def from_image(Image image not None):
+    def from_texture(Texture texture not None):
         cdef:
-            CSprite c_sprite = CSprite(image.c_image)
+            CSprite c_sprite = CSprite(texture.c_texture)
             Sprite instance = Sprite.__new__(Sprite)
 
         instance.c_sprite = c_sprite
@@ -44,8 +44,8 @@ cdef class Sprite:
         ))
 
     @property
-    def image(self):
-        return Image.create(self.c_sprite.texture)
+    def texture(self):
+        return Texture.create(self.c_sprite.texture)
 
     @property
     def origin(self):

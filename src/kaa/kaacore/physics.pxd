@@ -34,12 +34,23 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
 
         bool first_contact() except +raise_py_error
         double total_kinetic_energy() except +raise_py_error
+        CDVec2 total_impulse() except +raise_py_error
+        double elasticity() except +raise_py_error
+        void elasticity(const double value) except +raise_py_error
+        double friction() except +raise_py_error
+        void friction(const double value) except +raise_py_error
+        CDVec2 surface_velocity() except +raise_py_error
+        void surface_velocity(const CDVec2 value) except +raise_py_error
+        vector[CCollisionContactPoint] contact_points() except +raise_py_error
+        void contact_points(const vector[CCollisionContactPoint]& value) except +raise_py_error
+        CDVec2 collision_normal() except +raise_py_error
+        void collision_normal(const CDVec2 value) except +raise_py_error
 
     cdef cppclass CCollisionPair "kaacore::CollisionPair":
         CNodePtr body_node
         CNodePtr hitbox_node
 
-    ctypedef function[int(CArbiter, CCollisionPair, CCollisionPair)] \
+    ctypedef function[int(CArbiter&, CCollisionPair, CCollisionPair)] \
         CCollisionHandlerFunc "kaacore::CollisionHandlerFunc"
 
     cdef enum CBodyNodeType "kaacore::BodyNodeType":
