@@ -1,5 +1,4 @@
 import atexit
-import pathlib
 from enum import IntEnum
 from contextlib import contextmanager
 
@@ -80,14 +79,22 @@ cdef class _Engine:
     def audio(self):
         return self._audio_manager
 
+    @property
+    def total_time(self):
+        return get_c_engine().total_time().count()
+
     def get_fps(self):
         return get_c_engine().get_fps()
-    
-    def get_writable_path(self, str org, str app):
-        cdef bytes path = get_c_engine().get_writable_path(
-            org.encode(), app.encode()
+
+    def get_persistent_directory(
+        self,
+        str prefix not None,
+        str organization_prefix not None = 'kaaengine'
+    ):
+        cdef bytes path = get_c_engine().get_persistent_directory(
+            prefix.encode(), organization_prefix.encode()
         ).c_str()
-        return pathlib.Path(path.decode())
+        return path.decode()
 
     def change_scene(self, Scene scene not None):
         get_c_engine().change_scene(scene._c_scene.get())

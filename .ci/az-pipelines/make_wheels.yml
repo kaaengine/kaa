@@ -9,7 +9,10 @@ trigger:
   branches:
     include:
       - master  # trigger building wheel for every master commit, don't upload wheel
-pr: none
+pr:  # run on all pull requests
+  branches:
+    include:
+      - '*'
 
 variables:
   is_version_build: $[startswith(variables['Build.SourceBranch'], 'refs/tags/v')]

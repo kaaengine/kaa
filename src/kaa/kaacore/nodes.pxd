@@ -1,4 +1,4 @@
-from libc.stdint cimport int16_t, uint32_t
+from libc.stdint cimport uint16_t, int16_t, uint32_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.memory cimport unique_ptr
@@ -16,6 +16,8 @@ from .sprites cimport CSprite
 from .scenes cimport CScene
 from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
+from .resources cimport CResourceReference
+from .materials cimport CMaterial
 
 
 cdef extern from "kaacore/node_ptr.h" namespace "kaacore" nogil:
@@ -55,7 +57,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         CHitboxNode hitbox
         CTextNode text
 
-        vector[CNode*]& children() except +raise_py_error
+        vector[CNode*] children() except +raise_py_error
 
         void add_child(CNodeOwnerPtr child_node) except +raise_py_error
         const CNodeType type() except +raise_py_error
@@ -82,12 +84,16 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         optional[int16_t] z_index() except +raise_py_error
         void z_index(const optional[int16_t]& z_index) except +raise_py_error
+        int16_t effective_z_index() except +raise_py_error
 
         CShape shape() except +raise_py_error
         void shape(const CShape& shape) except +raise_py_error
 
         CSprite sprite() except +raise_py_error
         void sprite(const CSprite& sprite) except +raise_py_error
+
+        CResourceReference[CMaterial]& material() except +raise_py_error
+        void material(const CResourceReference[CMaterial]& material) except +raise_py_error
 
         CColor color() except +raise_py_error
         void color(const CColor& color) except +raise_py_error
@@ -111,12 +117,15 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         void views(const optional[unordered_set[int16_t]]& z_indices) except +raise_py_error
         const optional[vector[int16_t]] views() except +raise_py_error
+        const vector[int16_t] effective_views() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
 
         bool indexable() except +raise_py_error
         void indexable(const bool indexable) except +raise_py_error
+
+        uint16_t root_distance() except +raise_py_error
 
         CBoundingBox bounding_box() except +raise_py_error
 

@@ -3,7 +3,7 @@ import random
 
 from kaa.engine import Engine, Scene
 from kaa.input import Keycode
-from kaa.geometry import Vector, Circle
+from kaa.geometry import Vector
 from kaa.sprites import Sprite, split_spritesheet
 from kaa.nodes import Node
 from kaa.physics import SpaceNode, BodyNode
@@ -48,16 +48,14 @@ class DemoTransitionsScene(Scene):
         ])
 
         self.custom_transition = NodeCustomTransition(
-            lambda node: {'positions': [
+            prepare_func=lambda node: {'positions': [
                 Vector(random.uniform(-100, 100), random.uniform(-100, 100))
                 for _ in range(10)
             ]},
-            lambda state, node, t: setattr(
+            evaluate_func=lambda state, node, t: setattr(
                 node, 'position',
                 state['positions'][min(int(t * 10), 9)],
-            ),
-            10000.,
-            loops=5,
+            ), duration=10., loops=5,
         )
 
         spritesheet_frames = split_spritesheet(

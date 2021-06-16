@@ -135,10 +135,14 @@ class MyScene(Scene):
                         target_ball = random.choice(all_balls)
                         target_ball.lifetime = 1500
 
-            if event.mouse_button and event.mouse_button.button == MouseButton.left:
+            if (
+                event.mouse_button
+                and event.mouse_button.is_button_down
+                and event.mouse_button.button == MouseButton.left
+            ):
                 self.spawn_object(
                     position=self.camera.unproject_position(
-                        event.mouse.position,
+                        event.mouse_button.position,
                     ),
                     velocity=Vector(0., 0.),
                 )

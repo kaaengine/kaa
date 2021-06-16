@@ -1,5 +1,5 @@
+import cython
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
-
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libc.stdint cimport int16_t, uint32_t
@@ -8,7 +8,6 @@ from libcpp.unordered_set cimport unordered_set
 from cymove cimport cymove as cmove
 
 from .extra.optional cimport optional, nullopt
-
 from .kaacore.shapes cimport CShape
 from .kaacore.clock cimport CDuration
 from .kaacore.sprites cimport CSprite
@@ -20,6 +19,10 @@ from .kaacore.nodes cimport (
 from .kaacore.transitions cimport CNodeTransitionHandle
 from .kaacore.math cimport radians, degrees
 from .kaacore.geometry cimport CAlignment
+from .kaacore.materials cimport CMaterial
+from .kaacore.resources cimport CResourceReference
+
+DEF NODE_FREELIST_SIZE = 32
 
 
 cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
@@ -77,6 +80,7 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
         this.added_to_parent = False
 
 
+@cython.freelist(NODE_FREELIST_SIZE)
 cdef class NodeBase:
     cdef:
         # When node is created by class __init__ this member will be filled,
@@ -151,6 +155,8 @@ cdef class NodeBase:
             self.color = options.pop('color')
         if 'sprite' in options:
             self.sprite = options.pop('sprite')
+        if 'material' in options:
+            self.material = options.pop('material')
         if 'shape' in options:
             self.shape = options.pop('shape')
         if 'origin_alignment' in options:
@@ -194,19 +200,19 @@ cdef class NodeBase:
     def parent(self):
         if self._get_c_node().parent():
             return get_node_wrapper(self._get_c_node().parent())
-    
+
     @property
     def views(self):
         cdef:
             int16_t c_index
             set result = set()
             optional[vector[int16_t]] c_indices = self._get_c_node().views()
-        
+
         if c_indices.has_value():
             for c_index in range(c_indices.value().size()):
                 result.add(c_indices.value()[c_index])
             return result
-    
+
     @views.setter
     def views(self, set z_indices):
         cdef:
@@ -221,9 +227,20 @@ cdef class NodeBase:
             self._get_c_node().views(optional[unordered_set[int16_t]](nullopt))
 
     @property
+    def effective_views(self):
+        cdef:
+            int16_t c_index
+            set result = set()
+            vector[int16_t] c_indices = self._get_c_node().effective_views()
+
+        for c_index in range(c_indices.size()):
+            result.add(c_indices[c_index])
+        return result
+
+    @property
     def position(self):
         return Vector.from_c_vector(self._get_c_node().position())
-    
+
     @property
     def absolute_position(self):
         return Vector.from_c_vector(self._get_c_node().absolute_position())
@@ -231,7 +248,7 @@ cdef class NodeBase:
     @position.setter
     def position(self, Vector vec):
         self._get_c_node().position(vec.c_vector)
-    
+
     def get_relative_position(self, NodeBase ancestor not None):
         return Vector.from_c_vector(
             self._get_c_node().get_relative_position(ancestor._get_c_node())
@@ -251,6 +268,10 @@ cdef class NodeBase:
             self._get_c_node().z_index(optional[int16_t](nullopt))
 
     @property
+    def effective_z_index(self):
+        return self._get_c_node().effective_z_index()
+
+    @property
     def rotation(self):
         return self._get_c_node().rotation()
 
@@ -265,7 +286,7 @@ cdef class NodeBase:
     @property
     def rotation_degrees(self):
         return degrees(self._get_c_node().rotation())
-    
+
     @property
     def absolute_rotation_degrees(self):
         return degrees(self._get_c_node().absolute_rotation())
@@ -277,7 +298,7 @@ cdef class NodeBase:
     @property
     def scale(self):
         return Vector.from_c_vector(self._get_c_node().scale())
-    
+
     @property
     def absolute_scale(self):
         return Vector.from_c_vector(self._get_c_node().absolute_scale())
@@ -332,6 +353,18 @@ cdef class NodeBase:
             self._get_c_node().sprite(sprite.c_sprite)
         else:
             self._get_c_node().sprite(CSprite())
+
+    @property
+    def material(self):
+        if self._get_c_node().material():
+            return MaterialView.create(self._get_c_node().material())
+
+    @material.setter
+    def material(self, Material material):
+        if material is not None:
+            self._get_c_node().material(material.c_material)
+        else:
+            self._get_c_node().material(CResourceReference[CMaterial]())
 
     @property
     def shape(self):
@@ -390,6 +423,10 @@ cdef class NodeBase:
     @indexable.setter
     def indexable(self, bool value):
         self._get_c_node().indexable(value)
+
+    @property
+    def root_distance(self):
+        return self._get_c_node().root_distance()
 
     @property
     def bounding_box(self):

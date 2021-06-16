@@ -21,8 +21,8 @@ class AudioStatus(IntEnum):
     stopped = <uint8_t>CAudioStatus.stopped
 
 
-@cython.freelist(SOUND_FREELIST_SIZE)
 @cython.final
+@cython.freelist(SOUND_FREELIST_SIZE)
 cdef class Sound:
     cdef CSound c_sound
 

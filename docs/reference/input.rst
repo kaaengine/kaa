@@ -169,6 +169,10 @@ Instance properties:
     shows the mouse pointer and makes mouse motion events be published only if mouse movement occurs within the
     window.
 
+.. attribute:: MouseManager.cursor_visible
+
+    Gets or sets whether the system cursor pointer should be visible.
+
 
 Instance methods:
 
@@ -198,7 +202,11 @@ Instance methods:
 
 .. method:: MouseManager.get_position()
 
-    Returns current mouse pointer position as a :class:`geometry.Vector`
+    Returns current mouse pointer position as a :class:`geometry.Vector`.
+
+    IMPORTANT: the position is in the display screen frame of reference using the :ref:`virtual resolution coordinate
+    system <Engine.virtual_resolution>`). It is NOT a position of a mouse cursor on the scene. To convert the
+    position to the scene frame of reference use the :meth:`engine.Camera.unproject_position()` method.
 
     .. code-block:: python
 
@@ -575,7 +583,20 @@ Instance properties:
 
 .. attribute:: MouseButtonEvent.position
 
-    Returns mouse pointer position, at the moment of the click, as :class:`geometry.Vector`.
+    Returns mouse pointer position, at the moment of the click, as :class:`geometry.Vector`. *IMPORTANT*: the position
+    is in the display screen frame of reference (using the :ref:`virtual resolution coordinate
+    system <Engine.virtual_resolution>`). It is NOT a position of a mouse cursor on the scene.
+    To convert the position to the scene frame of reference use the :meth:`engine.Camera.unproject_position` method on the
+    Camera object.
+
+    .. code-block:: python
+
+        # somewhere inside the Scene instance:
+        for event in self.input.events():
+            if event.mouse_button:
+                if event.mouse_button.is_button_down and event.mouse_button.button == MouseButton.left:
+                    mouse_pos_absolute = event.mouse_button.position
+                    mouse_pos_on_scene = self.camera.unproject_position(mouse_pos_absolute)
 
 
 :class:`MouseMotionEvent` reference
@@ -597,11 +618,23 @@ window).
 
 Instance properties:
 
-.. attribute:: MouseButtonEvent.position
+.. attribute:: MouseMotionEvent.position
 
-    Returns mouse pointer position as :class:`geometry.Vector`.
+    Returns mouse pointer position as :class:`geometry.Vector`. *IMPORTANT*: the position
+    is in the display screen frame of reference (using the :ref:`virtual resolution coordinate
+    system <Engine.virtual_resolution>`). It is NOT a position of a mouse cursor on the scene.
+    To convert the position to the scene frame of reference use the :meth:`engine.Camera.unproject_position` method on the
+    Camera object.
 
-.. attribute:: MouseButtonEvent.motion
+    .. code-block:: python
+
+        # somewhere inside the Scene instance:
+        for event in self.input.events():
+            if event.mouse_motion:
+                mouse_pos_absolute = event.mouse_button.position
+                mouse_pos_on_scene = self.camera.unproject_position(mouse_pos_absolute)
+
+.. attribute:: MouseMotionEvent.motion
 
     Returns mouse pointer motion (difference between the current and previous position) as :class:`geometry.Vector`.
 
