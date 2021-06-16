@@ -1,18 +1,12 @@
 cimport cython
-import os
-import zlib
 import logging
-import tempfile
-import platform
-import subprocess
-import pkg_resources
-from typing import List, Dict
+from pathlib import Path
 from enum import IntEnum, Enum
-from pathlib import Path, PurePath
 
 from libc.stdint cimport uint32_t
 
 import kaa
+from .shader_tools import AutoShaderCompiler
 from .kaacore.hashing cimport c_calculate_hash
 from .kaacore.resources cimport CResourceReference
 from .kaacore.shaders cimport (
@@ -25,39 +19,6 @@ ctypedef CShader* CShader_ptr
 ctypedef CProgram* CProgram_ptr
 
 logger = logging.getLogger(__name__)
-SHADERC_DIR = pkg_resources.resource_filename(__name__, 'shaderc')
-COMPILATION_FLAGS = {
-    ('glsl', 'vertex'): {
-        'target_platform': 'linux', 'profile': '120'
-    },
-    ('glsl', 'fragment'): {
-        'target_platform': 'linux', 'profile': '120'
-    },
-    ('spirv', 'vertex'): {
-        'target_platform': 'linux', 'profile': 'spirv'
-    },
-    ('spirv', 'fragment'): {
-        'target_platform': 'linux', 'profile': 'spirv'
-    },
-    ('metal', 'vertex'): {
-        'target_platform': 'osx', 'profile': 'metal'
-    },
-    ('metal', 'fragment'): {
-        'target_platform': 'osx', 'profile': 'metal'
-    },
-    ('hlsl_dx9', 'vertex'): {
-        'target_platform': 'windows', 'profile': 'vs_3_0'
-    },
-    ('hlsl_dx9', 'fragment'): {
-        'target_platform': 'windows', 'profile': 'ps_3_0'
-    },
-    ('hlsl_dx11', 'vertex'): {
-        'target_platform': 'windows', 'profile': 'vs_5_0'
-    },
-    ('hlsl_dx11', 'fragment'): {
-        'target_platform': 'windows', 'profile': 'ps_5_0'
-    }
-}
 
 
 class ShaderType(IntEnum):
@@ -65,60 +26,11 @@ class ShaderType(IntEnum):
     fragment = <uint32_t>(CShaderType.fragment)
 
 
-class AttributeLocation(Enum):
-    position = 'POSITION'
-    normal = 'NORMAL'
-    tangent = 'TANGENT'
-    bitangent = 'BITANGENT'
-    color0 = 'COLOR0'
-    color1 = 'COLOR1'
-    color2 = 'COLOR2'
-    color3 = 'COLOR3'
-    indices = 'INDICES'
-    weight = 'WEIGHT'
-    texcoord0 = 'TEXCOORD0'
-    texcoord1 = 'TEXCOORD1'
-    texcoord2 = 'TEXCOORD2'
-    texcoord3 = 'TEXCOORD3'
-    texcoord4 = 'TEXCOORD4'
-    texcoord5 = 'TEXCOORD5'
-    texcoord6 = 'TEXCOORD6'
-    texcoord7 = 'TEXCOORD7'
-
-
-class VaryingType(Enum):
-    float = 'float'
-    vec2 = 'vec2'
-    vec3 = 'vec3'
-    vec4 = 'vec4'
-    mat2 = 'mat2'
-    mat3 = 'mat3'
-    mat4 = 'mat4'
-
-    def __str__(self):
-        return self.value
-
-
-@cython.final
-cdef class Varying:
-    cdef:
-        readonly str name
-        readonly object type
-
-    def __cinit__(self, str name, object type_ not None):
-        if not isinstance(type_, VaryingType):
-            raise TypeError('type_ must be instance of VaryingType.')
-
-        self.name = name
-        self.type = type_
-
-    def __str__(self):
-        return f'{self.type} {self.name}'
-
-
 @cython.freelist(SHADER_FREELIST_SIZE)
 cdef class _ShaderBase:
-    cdef CResourceReference[CShader] c_shader
+    cdef:
+        set varyings
+        CResourceReference[CShader] c_shader
 
     def __eq__(self, _ShaderBase other):
         if other is None:
@@ -136,14 +48,13 @@ cdef class _ShaderBase:
     cdef CResourceReference[CShader] _load(
         self,
         str path,
-        CShaderType type_,
-        dict varyings
+        CShaderType type_
     ) except *:
         cdef str shader_type = (
             'vertex' if type_ == CShaderType.vertex else 'fragment'
         )
-        compiler = _AutoShaderCompiler()
-        result = compiler.auto_compile(Path(path), shader_type, varyings)
+        compiler = AutoShaderCompiler()
+        result = compiler.auto_compile(Path(path), shader_type)
 
         cdef:
             str shader_model
@@ -153,14 +64,15 @@ cdef class _ShaderBase:
         for shader_model, output_path in result.items():
             c_model = _translate_shader_model(shader_model)
             c_model_map[c_model] = str(output_path).encode()
+
         return CShader.load(type_, c_model_map)
 
 
 @cython.final
 cdef class VertexShader(_ShaderBase):
-    def __init__(self, str path, dict output_layout not None):
+    def __init__(self, str path):
         super().__init__()
-        self.c_shader = self._load(path, CShaderType.vertex, output_layout)
+        self.c_shader = self._load(path, CShaderType.vertex)
 
     @staticmethod
     cdef VertexShader create(const CResourceReference[CShader]& c_shader):
@@ -171,9 +83,9 @@ cdef class VertexShader(_ShaderBase):
 
 @cython.final
 cdef class FragmentShader(_ShaderBase):
-    def __init__(self, str path, dict input_layout not None):
+    def __init__(self, str path):
         super().__init__()
-        self.c_shader = self._load(path, CShaderType.fragment, input_layout)
+        self.c_shader = self._load(path, CShaderType.fragment)
 
     @staticmethod
     cdef FragmentShader create(const CResourceReference[CShader]& c_shader):
@@ -237,186 +149,9 @@ cdef class Program:
     def from_files(
         cls,
         str vertex_shader_path not None,
-        str fragment_shader_path not None,
-        dict input_output_layout not None,
+        str fragment_shader_path not None
     ):
         return cls(
-            VertexShader(vertex_shader_path, input_output_layout),
-            FragmentShader(fragment_shader_path, input_output_layout)
+            VertexShader(vertex_shader_path),
+            FragmentShader(fragment_shader_path)
         )
-
-
-class ShaderCompilationError(Exception):
-    pass
-
-
-class ShaderCompiler:
-    SUPPORTED_TYPES :set = {'vertex', 'fragment'}
-    SUPPORTED_PLATFORMS: set = {'linux', 'osx', 'windows'}
-
-    def __init__(self, bool raise_on_error=False):
-        self.raise_on_error = raise_on_error
-        self.shaderc = os.path.join(SHADERC_DIR, 'shaderc')
-        self.includes = [os.path.join(SHADERC_DIR, 'include')]
-
-    @property
-    def current_platform(self):
-        platform_name = platform.system().lower()
-        if platform_name == 'darwin':
-            return 'osx'
-        return platform_name
-
-    def compile(self, *args: str):
-        cmd = [self.shaderc]
-        for include_dir in self.includes:
-            cmd.extend(('-i', include_dir))
-        cmd.extend(args)
-
-        kwargs = {'check': self.raise_on_error}
-        if self.raise_on_error:
-            kwargs['stdout'] = subprocess.PIPE
-            kwargs['stderr'] = subprocess.PIPE
-
-        return subprocess.run(cmd, **kwargs).returncode
-
-    def compile_for_platforms(
-        self,
-        platforms: List[str],
-        source_path: Path,
-        type_: str,
-        varyingdef_path: Path,
-        output_dir: Path = None
-    ):
-        diff = set(platforms).difference(self.SUPPORTED_PLATFORMS)
-        if diff:
-            raise RuntimeError(f'Unsupported platforms: {diff}.')
-
-        if 'windows' in platforms and self.current_platform != 'windows':
-            raise RuntimeError(
-                'DirectX shaders can be only compiled on Windows.'
-            )
-
-        result = {}
-        seen_models = set()
-        output_dir = output_dir or source_path.parent
-        for platform_name in platforms:
-            compilation_flags = get_compilation_flags(platform_name, type_)
-            for model, flags in compilation_flags.items():
-                if model in seen_models:
-                    continue
-
-                result[model] = self.compile_model(
-                    type_, model, flags['profile'], flags['target_platform'],
-                    source_path, output_dir, varyingdef_path
-                )
-                seen_models.add(model)
-        return result
-
-    def compile_model(
-        self,
-        type_: str,
-        model: str,
-        profile: str,
-        target_platform: str,
-        source_path: Path,
-        output_dir: Path,
-        varyingdef_path: Path
-    ):
-        output_path = output_dir / f'{source_path.stem}-{model}.bin'
-        self.compile(
-            '-f', str(source_path), '-o', str(output_path),
-            '--type', type_, '--varyingdef', str(varyingdef_path),
-            '--platform', target_platform, '--profile', profile,
-            '--verbose'
-        )
-        return output_path
-
-
-def get_compilation_flags(platform_name: str, type_: str):
-    return {
-        model: COMPILATION_FLAGS[model, type_]
-        for model in _choose_models_for_platform(platform_name)
-    }
-
-
-def _choose_models_for_platform(platform_name):
-    if platform_name == 'linux':
-        return ('glsl', 'spirv')
-    elif platform_name == 'osx':
-        return ('metal', 'glsl', 'spirv')
-    elif platform_name == 'windows':
-        return ('hlsl_dx9', 'hlsl_dx11', 'glsl', 'spirv')
-
-
-class _AutoShaderCompiler(ShaderCompiler):
-    BIN_DIR = Path(tempfile.gettempdir()) / f'kaa-{kaa.__version__}' \
-        / 'shaders' / 'bin'
-
-    def __init__(self, bin_dir: Path = None):
-        super().__init__(raise_on_error=True)
-
-        self.bin_dir = bin_dir or self.BIN_DIR
-        self.bin_dir.mkdir(parents=True, exist_ok=True)
-
-    def auto_compile(
-        self,
-        source_path: Path,
-        type_: ShaderType,
-        varyings: Dict[AttributeLocation, Varying]
-    ):
-        varyingdef_content = _render_varyingdef(varyings)
-        crc32 = zlib.crc32(varyingdef_content.encode())
-        varyingdef_path = self.bin_dir / f'varying-{crc32}.def.sc'
-        if not varyingdef_path.is_file():
-            varyingdef_path.write_text(varyingdef_content)
-        platforms = [self.current_platform]
-
-        try:
-            return self.compile_for_platforms(
-                platforms, source_path, type_, varyingdef_path, self.bin_dir
-            )
-        except subprocess.CalledProcessError as e:
-            error_message = (
-                '\n\nVarying.def.sc:\n'
-                '---\n'
-                f'{varyingdef_content}\n\n'
-                f'{e.stdout.decode()}\n'
-                '---\n'
-            )
-            raise ShaderCompilationError(error_message) from e
-
-    def compile_model(
-        self,
-        type_: str,
-        model: str,
-        profile: str,
-        target_platform: str,
-        source_path: Path,
-        output_dir: Path,
-        varyingdef_path: Path
-    ):
-        crc32 = zlib.crc32(source_path.read_bytes())
-        output_path = output_dir / f'{source_path.stem}-{model}-{crc32}.bin'
-        if not output_path.is_file():
-            self.compile(
-                '-f', str(source_path), '-o', str(output_path),
-                '--type', type_, '--varyingdef', str(varyingdef_path),
-                '--platform', target_platform, '--profile', profile,
-                '--verbose'
-            )
-        return output_path
-
-
-cdef _render_varyingdef(varyings: Dict[AttributeLocation, Varying]):
-    lines = []
-    for location, varying in varyings.items():
-        lines.append(f'{varying} : {location.value};')
-
-    if lines:
-        lines.append('')
-
-    lines.append('vec3 a_position : POSITION;')
-    lines.append('vec4 a_color0 : COLOR0;')
-    lines.append('vec2 a_texcoord0 : TEXCOORD0;')
-    lines.append('vec2 a_texcoord1 : TEXCOORD1;')
-    return '\n'.join(lines)

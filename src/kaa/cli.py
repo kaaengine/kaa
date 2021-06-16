@@ -3,7 +3,7 @@ import logging
 import argparse
 from pathlib import Path
 
-from kaa.shaders import ShaderCompiler
+from kaa.shader_tools import ShaderCompiler
 
 logger = logging.getLogger(__name__)
 
@@ -15,27 +15,26 @@ def shaderc():
 
 def compile_shader():
     parser = argparse.ArgumentParser()
-    parser.add_argument('source_file', help='Path to shader source file.')
+    parser.add_argument('source_file', help='path to shader source file')
     parser.add_argument(
-        'type', choices=ShaderCompiler.SUPPORTED_TYPES, help='Shader type.'
+        'type', choices=ShaderCompiler.SUPPORTED_TYPES, help='shader type'
     )
-    parser.add_argument('varyingdef_path', help='Path to varying.def.sc file.')
     parser.add_argument(
         '-p', '--platform', choices=ShaderCompiler.SUPPORTED_PLATFORMS,
-        nargs='+', default=None, help='Target platform.'
+        nargs='+', required=True, help='target platform'
     )
     parser.add_argument(
         '-o', '--output_dir', default=None,
-        help='Output directory. Source file directory will be used, If not provided'
+        help='output directory, source file directory will be used, if not provided'
     )
     args = parser.parse_args()
-    compiler = ShaderCompiler()
+    compiler = ShaderCompiler(raise_on_compilation_error=False)
 
     try:
         result = compiler.compile_for_platforms(
             platforms=args.platform, source_path=Path(args.source_file),
-            type_=args.type, varyingdef_path=Path(args.varyingdef_path),
-            output_dir=Path(args.output_dir) if args.output_dir is not None else None,
+            type_=args.type,
+            output_dir=Path(args.output_dir) if args.output_dir is not None else None
         )
     except RuntimeError as e:
         logger.error(str(e))
