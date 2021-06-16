@@ -192,6 +192,10 @@ class Scene:
         ...
 
     @property
+    def total_time(self) -> float:
+        ...
+
+    @property
     def views(self) -> ViewsManager:
         ...
 
