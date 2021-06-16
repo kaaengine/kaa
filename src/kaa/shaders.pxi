@@ -28,9 +28,7 @@ class ShaderType(IntEnum):
 
 @cython.freelist(SHADER_FREELIST_SIZE)
 cdef class _ShaderBase:
-    cdef:
-        set varyings
-        CResourceReference[CShader] c_shader
+    cdef CResourceReference[CShader] c_shader
 
     def __eq__(self, _ShaderBase other):
         if other is None:

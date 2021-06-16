@@ -15,8 +15,6 @@ import parsy
 import kaa
 
 
-logger = logging.getLogger(__name__)
-
 SHADERC_DIR = pkg_resources.resource_filename(__name__, 'shaderc')
 TYPES = ('float', 'vec2', 'vec3', 'vec4', 'mat2', 'mat3', 'mat4')
 SEMANTICS = (
@@ -81,7 +79,7 @@ class TypeConstructor:
 
 
 @dataclasses.dataclass(frozen=True)
-class Variable:
+class Attribute:
     type: str
     identifier: str
     semantic: str
@@ -91,7 +89,7 @@ class Variable:
 
 
 @dataclasses.dataclass(frozen=True)
-class Varying(Variable):
+class Varying(Attribute):
     default_value: Union[TypeConstructor, Float] = None
 
     def __str__(self):
@@ -166,10 +164,10 @@ class EnsurePathMeta(type):
 
 class ShaderCompiler(metaclass=EnsurePathMeta):
     ATTRIBUTES = (
-        Variable('vec3', 'a_position', 'POSITION'),
-        Variable('vec4', 'a_color0', 'COLOR0'),
-        Variable('vec2', 'a_texcoord0', 'TEXCOORD0'),
-        Variable('vec2', 'a_texcoord1', 'TEXCOORD1')
+        Attribute('vec3', 'a_position', 'POSITION'),
+        Attribute('vec4', 'a_color0', 'COLOR0'),
+        Attribute('vec2', 'a_texcoord0', 'TEXCOORD0'),
+        Attribute('vec2', 'a_texcoord1', 'TEXCOORD1')
     )
     SUPPORTED_TYPES: Set[str] = {'vertex', 'fragment'}
     SUPPORTED_PLATFORMS: Set[str] = {'linux', 'osx', 'windows'}

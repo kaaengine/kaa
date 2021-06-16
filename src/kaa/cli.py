@@ -30,11 +30,11 @@ def compile_shader():
     args = parser.parse_args()
     compiler = ShaderCompiler(raise_on_compilation_error=False)
 
+    output_dir = Path(args.output_dir) if args.output_dir is not None else None
     try:
         result = compiler.compile_for_platforms(
             platforms=args.platform, source_path=Path(args.source_file),
-            type_=args.type,
-            output_dir=Path(args.output_dir) if args.output_dir is not None else None
+            type_=args.type, output_dir=output_dir
         )
     except RuntimeError as e:
         logger.error(str(e))
