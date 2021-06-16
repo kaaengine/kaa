@@ -1,7 +1,6 @@
 import os
 import re
 import zlib
-import logging
 import platform
 import tempfile
 import subprocess
