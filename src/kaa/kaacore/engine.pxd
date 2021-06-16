@@ -35,8 +35,8 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
         CEngine(CUVec2 virtual_resolution,
                 CVirtualResolutionMode virtual_resolution_mode)
 
-        string get_persistent_directory(const string& prefix,
-                                        const string& organization_prefix) except +raise_py_error
+        string get_persistent_path(const string& prefix,
+                                   const string& organization_prefix) except +raise_py_error
         vector[CDisplay] get_displays() except +raise_py_error
         CDuration total_time() except +raise_py_error
         double get_fps() except +raise_py_error

@@ -86,12 +86,12 @@ cdef class _Engine:
     def get_fps(self):
         return get_c_engine().get_fps()
 
-    def get_persistent_directory(
+    def get_persistent_path(
         self,
         str prefix not None,
         str organization_prefix not None = 'kaaengine'
     ):
-        cdef bytes path = get_c_engine().get_persistent_directory(
+        cdef bytes path = get_c_engine().get_persistent_path(
             prefix.encode(), organization_prefix.encode()
         ).c_str()
         return path.decode()
