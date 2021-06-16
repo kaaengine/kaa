@@ -45,7 +45,9 @@ cdef class _Engine:
 
     @property
     def current_scene(self):
-        return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
+        cdef CEngine* c_engine = get_c_engine()
+        if c_engine.current_scene():
+            return (<CPyScene*>c_engine.current_scene()).get_py_scene()
 
     @property
     def virtual_resolution(self):
