@@ -30,6 +30,10 @@ setup(
             'compile_shader=kaa.cli:compile_shader'
         ]
     },
+    install_requires=[
+        "parsy==1.3.0",
+        "dataclasses==0.8 ; python_version == '3.6'"
+    ],
     extras_require={
         'stats_graph': [
             'matplotlib>=3.1.1',
