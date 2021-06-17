@@ -248,6 +248,9 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
                     '\nVarying.def.sc:\n'
                     '---\n'
                     f'{varying_path.read_text()}\n\n'
+                    '\nParsed source:\n'
+                    '---\n'
+                    f'{parsed_source}\n\n'
                     f'{e.stdout.decode()}\n'
                     '---\n'
                 )
