@@ -278,10 +278,10 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
     def _parse_shader_source(self, type_: str, source: str) -> Tuple[List[Varying], str]:
         if type_ == 'vertex':
             varying_definition, source = parse_shader('output', source)
-            varying_names = ', '.join(
+            attributes = ', '.join(
                 attribute.identifier for attribute in self.ATTRIBUTES
             )
-            header = f'$input {varying_names}\n'
+            header = f'$input {attributes}\n'
             return varying_definition, header + source
         else:
             return parse_shader('input', source)
