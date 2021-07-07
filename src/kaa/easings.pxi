@@ -1,3 +1,5 @@
+from collections import abc
+
 from .kaacore.easings cimport CEasing, c_ease, c_ease_between
 
 
@@ -58,4 +60,28 @@ def ease_between(object easing, double progress, a, b):
             (<Vector>b).c_vector
         ))
 
-    raise TypeError('Unsupported type of parameters.')
+    if isinstance(a, Color):
+        assert isinstance(b, Color), \
+            "`a` is a Color, `b` must have the same type."
+        return Color(
+            r=min(1., max(0., ease_between(easing, progress, a.r, b.r))),
+            g=min(1., max(0., ease_between(easing, progress, a.g, b.g))),
+            b=min(1., max(0., ease_between(easing, progress, a.b, b.b))),
+            a=min(1., max(0., ease_between(easing, progress, a.a, b.a))),
+        )
+
+    if isinstance(a, abc.Sequence):
+        assert isinstance(b, abc.Sequence), \
+            "`a` is a `abc.Sequence`, `b` must have the same type."
+        assert len(a) == len(b), \
+            "Sequences `a` ({}) and `b` ({}) must have the same length.".format(
+                len(a), len(b),
+            )
+        return tuple(
+            ease_between(easing, progress, a_elem, b_elem)
+            for a_elem, b_elem in zip(a, b)
+        )
+
+    raise TypeError(
+        'Unsupported type of parameters: {}'.format(type(a))
+    )
