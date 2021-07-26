@@ -1,4 +1,6 @@
-$input v_texcoord0
+@input {
+    vec2 v_texcoord0 : TEXCOORD0;
+}
 
 // source: https://www.shadertoy.com/view/Xltfzj
 #include <kaa.sh>

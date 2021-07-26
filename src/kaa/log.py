@@ -1,8 +1,12 @@
 import logging.config
 
 from ._kaa import (
-    get_core_logging_level, set_core_logging_level, CoreLogLevel,
-    CoreHandler,
+    get_core_logging_level, set_core_logging_level, CoreLogLevel, CoreHandler
+)
+
+
+__all__ = (
+    'get_core_logging_level', 'set_core_logging_level', 'CoreLogLevel', 'CoreHandler'
 )
 
 
