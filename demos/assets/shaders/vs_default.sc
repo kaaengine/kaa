@@ -1,5 +1,6 @@
-$input a_position, a_texcoord0
-$output v_texcoord0
+@output {
+    vec2 v_texcoord0 : TEXCOORD0;
+}
 
 #include <kaa.sh>
 
