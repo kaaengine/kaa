@@ -1,4 +1,5 @@
 import atexit
+import math
 from enum import IntEnum
 from contextlib import contextmanager
 
@@ -14,8 +15,12 @@ from .kaacore.engine cimport (
 from .kaacore.display cimport CDisplay
 from .kaacore.capture cimport CCapturingAdapterBase
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
+from .kaacore.clock cimport CDuration
 
 from . import __version__
+
+
+cdef double DEFAULT_FIXED_FRAMETIME = 1. / 60.
 
 
 def _clean_up():
@@ -98,10 +103,11 @@ cdef class _Engine:
             CScene* c_scene = scene._c_scene.get()
             CEngine* c_engine = get_c_engine()
         with nogil:
-            c_engine.run(c_scene, 0, NULL)
+            c_engine.run(c_scene, 0, CDuration(0.), NULL)
 
     def run_capture(
         self, Scene scene not None, uint32_t frames_limit,
+        *, double fixed_frametime = DEFAULT_FIXED_FRAMETIME,
         CapturingWrapperBase capturing_wrapper = None,
     ):
         cdef:
@@ -112,8 +118,9 @@ cdef class _Engine:
                 else c_get_default_capturing_wrapper()
             )
             CCapturingAdapterBase* c_capture_adapter = final_capturing_wrapper.c_get_adapter()
+            CDuration c_duration = CDuration(fixed_frametime)
         with nogil:
-            c_engine.run(c_scene, frames_limit, c_capture_adapter)
+            c_engine.run(c_scene, frames_limit, c_duration, c_capture_adapter)
 
         return final_capturing_wrapper.get_result()
 

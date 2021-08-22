@@ -48,7 +48,7 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
         double get_fps() except +raise_py_error
         CDuration total_time() except +raise_py_error
         vector[CDisplay] get_displays() except +raise_py_error
-        void run(CScene* c_scene, uint32_t frames_limit,
+        void run(CScene* c_scene, uint32_t frames_limit, CDuration frame_fixed_duration,
                  CCapturingAdapterBase* capturing_adapter) except +raise_py_error
         void change_scene(CScene* c_scene) except +raise_py_error
         void quit() except +raise_py_error
