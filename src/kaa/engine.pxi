@@ -8,7 +8,8 @@ from libcpp.vector cimport vector
 from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport (
-    CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
+    CEngine, get_c_engine, is_c_engine_initialized, get_c_persistent_path,
+    CVirtualResolutionMode
 )
 from .kaacore.display cimport CDisplay
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
@@ -88,16 +89,6 @@ cdef class _Engine:
     def get_fps(self):
         return get_c_engine().get_fps()
 
-    def get_persistent_path(
-        self,
-        str prefix not None,
-        str organization_prefix not None = 'kaaengine'
-    ):
-        cdef bytes path = get_c_engine().get_persistent_path(
-            prefix.encode(), organization_prefix.encode()
-        ).c_str()
-        return path.decode()
-
     def change_scene(self, Scene scene not None):
         get_c_engine().change_scene(scene._c_scene.get())
 
@@ -169,6 +160,15 @@ def Engine(Vector virtual_resolution, virtual_resolution_mode=None):
 def get_engine():
     if is_c_engine_initialized():
         return _engine_wrapper
+
+
+def get_persistent_path(
+    str prefix not None,
+    str organization = None
+):
+    return get_c_persistent_path(
+        prefix.encode(), (organization or "").encode()
+    ).c_str().decode()
 
 
 cdef void _print_hello_message():

@@ -3,10 +3,8 @@ import dataclasses
 import typing
 import queue
 import threading
-import socket
 import socketserver
 import struct
-from collections import defaultdict
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -41,10 +39,6 @@ class BinaryDatagramFormatter:
         assert version == 0x01
         assert segments_count > 0
 
-        expected_message_size = (
-            cls.HEADER_STRUCT.size
-            + segments_count * cls.STAT_SEGMENT_STRUCT.size
-        )
         for i in range(segments_count):
             stat_name, value = cls.STAT_SEGMENT_STRUCT.unpack_from(
                 datagram, offset=(cls.HEADER_STRUCT.size
