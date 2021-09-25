@@ -162,12 +162,25 @@ def get_engine():
         return _engine_wrapper
 
 
-def get_persistent_path(
-    str prefix not None,
-    str organization = None
-):
+def get_persistent_path(str prefix not None, str organization = None):
+    def _get_invalid_chars(str dir_name):
+        return tuple(
+            c for c in dir_name
+            if not c.isalnum() and
+            not c.isspace() and
+            not c in ('_', '-')
+        )
+
+    organization = organization or ''
+    invalid_chars = _get_invalid_chars(prefix)
+    invalid_chars += _get_invalid_chars(organization)
+    if invalid_chars:
+        raise Exception(
+            "{} characters are not allowed.".format(', '.join(invalid_chars))
+        )
+
     return get_c_persistent_path(
-        prefix.encode(), (organization or "").encode()
+        prefix.encode(), organization.encode()
     ).c_str().decode()
 
 

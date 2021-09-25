@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from kaa.engine import get_persistent_path
 
 
@@ -17,3 +19,10 @@ def test_persistent_path():
 
     with open(path, 'r') as f:
         f.read() == 'test_data'
+
+
+def test_persistent_path_invalid():
+    with pytest.raises(Exception) as e:
+        os.path.join(get_persistent_path('@:/'), 'test_file')
+
+    assert str(e.value) == '@, :, / characters are not allowed.'
