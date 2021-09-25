@@ -175,8 +175,13 @@ def get_persistent_path(str prefix not None, str organization = None):
     invalid_chars = _get_invalid_chars(prefix)
     invalid_chars += _get_invalid_chars(organization)
     if invalid_chars:
+        plural = len(invalid_chars) > 1
         raise Exception(
-            "{} characters are not allowed.".format(', '.join(invalid_chars))
+            '{} character{} {} not allowed.'.format(
+                ', '.join(invalid_chars),
+                's' if plural else '',
+                'are' if plural else 'is'
+            )
         )
 
     return get_c_persistent_path(
