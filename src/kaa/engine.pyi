@@ -82,6 +82,10 @@ def get_engine() -> Optional[EngineInstance]:
     ...
 
 
+def get_persistent_path(prefix: str, organization: Optional[str]) -> str:
+    ...
+
+
 @type_check_only
 class Display:
     @property
