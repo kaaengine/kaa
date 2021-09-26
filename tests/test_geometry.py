@@ -47,7 +47,7 @@ def test_vector():
 def test_normalize_angle_mixed():
     assert normalize_angle(math.pi) == -math.pi
     assert normalize_angle(math.pi, AngleSign.mixed) == -math.pi
-    
+
     assert normalize_angle(-math.pi / 2, AngleSign.mixed) == -math.pi / 2
     assert normalize_angle(math.pi, AngleSign.mixed) == -math.pi
 
@@ -63,7 +63,7 @@ def test_normalize_angle_negative():
 def test_normalize_angle_degrees_mixed():
     assert normalize_angle_degrees(180.) == -180.
     assert normalize_angle_degrees(180., AngleSign.mixed) == -180.
-    
+
     assert normalize_angle_degrees(-90., AngleSign.mixed) == -90.
     assert normalize_angle_degrees(180., AngleSign.mixed) == -180.
 
