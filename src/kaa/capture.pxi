@@ -1,40 +1,28 @@
-from libcpp.memory cimport unique_ptr
+from libcpp.vector cimport vector
 from cython.view cimport array as cvarray
 
-from .kaacore.capture cimport CCapturingAdapterBase, CMemoryVectorCapturingAdapter
+from .kaacore.capture cimport CCapturedFrames
 
 import base64
 from io import BytesIO
 
 
-cdef class CapturingWrapperBase:
-    cdef unique_ptr[CCapturingAdapterBase] capturing_adapter
+cdef class CapturedFrames:
+    cdef CCapturedFrames c_captured_frames
 
-    cdef CCapturingAdapterBase* c_get_adapter(self):
-        assert self.capturing_adapter.get() != NULL
-        return self.capturing_adapter.get()
-
-    def get_result(self):
-        raise NotImplementedError
-
-
-cdef class AnimatedGifCapturingWrapper(CapturingWrapperBase):
-    def __init__(self):
-        self.capturing_adapter = \
-            unique_ptr[CCapturingAdapterBase](new CMemoryVectorCapturingAdapter())
+    cdef void c_attach_captured_frames(self, CCapturedFrames& c_captured_frames):
+        self.c_captured_frames = c_captured_frames
 
     @property
-    def frames_memoryviews(self):
-        cdef CMemoryVectorCapturingAdapter* c_capturing_adapter = \
-                <CMemoryVectorCapturingAdapter*>self.capturing_adapter.get()
+    def memoryviews(self):
         cdef cvarray image_array
         cdef uint8_t* frame_data
-        cdef tuple frame_shape = self.frame_shape
+        cdef tuple dimensions = self.dimensions
         cdef list collected_memoryviews = []
 
-        for frame_data in c_capturing_adapter.frames_uint8():
+        for frame_data in self.c_captured_frames.raw_ptr_frames_uint8():
             image_array = cvarray(
-                shape=frame_shape,
+                shape=dimensions,
                 itemsize=4, format='I', mode='c', allocate_buffer=False,
             )
             image_array.data = <char*>frame_data
@@ -42,39 +30,37 @@ cdef class AnimatedGifCapturingWrapper(CapturingWrapperBase):
         return collected_memoryviews
 
     @property
-    def frame_shape(self):
-        cdef CMemoryVectorCapturingAdapter* c_capturing_adapter = \
-                <CMemoryVectorCapturingAdapter*>self.capturing_adapter.get()
-        return (c_capturing_adapter.width(), c_capturing_adapter.height())
-
-    def get_result(self):
-        from PIL import Image
-
-        cdef object bytes_buffer = BytesIO()
-        cdef list images = [Image.frombuffer('RGBA', memview.shape, memview)
-                            for memview in self.frames_memoryviews]
-
-        images[0].save(bytes_buffer,
-                       format='gif',
-                       save_all=True,
-                       append_images=images[1:],
-                       duration=50,
-                       loop=0)
-        return AnimatedGifCaptureResult(bytes_buffer)
+    def dimensions(self):
+        return (self.c_captured_frames.width, self.c_captured_frames.height)
 
 
-cdef class AnimatedGifCaptureResult:
-    cdef object bytes_buffer
-
-    def __init__(self, object bytes_buffer not None):
-        self.bytes_buffer = bytes_buffer
+class HTMLBase64Image:
+    def __init__(self, bytes content, str image_type):
+        self.content_encoded = base64.b64encode(content).decode('ascii')
+        self.image_type = image_type
 
     def _repr_html_(self):
-        self.bytes_buffer.seek(0)
-        return '<img src="data:image/gif;base64,{}" />'.format(
-            base64.b64encode(self.bytes_buffer.read()).decode('ascii')
+        return '<img src="data:{};base64,{}" />'.format(
+            self.image_type, self.content_encoded,
         )
 
 
-cdef CapturingWrapperBase c_get_default_capturing_wrapper():
-    return AnimatedGifCapturingWrapper()
+def generate_gif(CapturedFrames captured_frames, *, duration=33):
+    from PIL import Image
+
+    cdef object bytes_buffer = BytesIO()
+    cdef list images = [Image.frombuffer('RGBA', memview.shape, memview)
+                        for memview in captured_frames.memoryviews]
+
+    images[0].save(
+        bytes_buffer, format='gif', save_all=True,
+        append_images=images[1:], duration=duration, loop=0,
+        optimize=False,
+    )
+
+    bytes_buffer.seek(0)
+    return HTMLBase64Image(bytes_buffer.read(), 'image/gif')
+
+
+def generate_auto(CapturedFrames captured_frames):
+    return generate_gif(captured_frames)
