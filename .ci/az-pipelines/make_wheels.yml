@@ -135,7 +135,7 @@ jobs:
   - build_windows
   - build_macos
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   variables:
   - group: pypi-credentials
   # selected variable group should provide: TWINE_USERNAME, TWINE_PASSWORD, TWINE_REPOSITORY_URL
