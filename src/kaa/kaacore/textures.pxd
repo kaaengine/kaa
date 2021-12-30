@@ -9,10 +9,14 @@ from .resources cimport CResourceReference
 cdef extern from "kaacore/textures.h" namespace "kaacore" nogil:
 
     cdef cppclass CTexture "kaacore::Texture":
-        CTexture()
-        @staticmethod
-        CResourceReference[CTexture] load(const string& path, uint64_t flags) \
-            except +raise_py_error
-
-
         CDVec2 get_dimensions() except +raise_py_error
+
+    cdef cppclass CMemoryTexture "kaacore::MemoryTexture"(CTexture):
+        pass
+
+    cdef cppclass CImageTexture "kaacore::ImageTexture"(CMemoryTexture):
+        CImageTexture()
+
+        @staticmethod
+        CResourceReference[CImageTexture] load(const string& path) \
+            except +raise_py_error

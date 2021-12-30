@@ -29,6 +29,17 @@ cdef class Color:
 
         return Color(r / 255., g / 255., b / 255., a / 255.)
 
+    @staticmethod
+    def from_hex(str hex_color):
+        assert len(hex) == 8
+
+        return Color.from_int(
+            int(hex_color[0:2], base=16),
+            int(hex_color[2:4], base=16),
+            int(hex_color[4:6], base=16),
+            int(hex_color[6:8], base=16),
+        )
+
     def __str__(self):
         cls = self.__class__.__name__
         return f'{cls}[{self.r:.2f}, {self.g:.2f}, {self.b:.2f}, {self.a:.2f}]'

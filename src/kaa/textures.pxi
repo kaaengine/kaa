@@ -1,6 +1,8 @@
-from .kaacore.textures cimport CTexture
+from libcpp.memory cimport static_pointer_cast
+
 from .kaacore.hashing cimport c_calculate_hash
 from .kaacore.resources cimport CResourceReference
+from .kaacore.textures cimport CTexture, CImageTexture
 
 ctypedef CTexture* CTexture_ptr
 
@@ -10,13 +12,17 @@ cdef class Texture:
     cdef CResourceReference[CTexture] c_texture
 
     @staticmethod
-    cdef Texture create(CResourceReference[CTexture]& texture):
+    cdef Texture create(const CResourceReference[CTexture]& texture):
         cdef Texture instance = Texture.__new__(Texture)
         instance.c_texture = texture
         return instance
 
     def __init__(self, str path not None):
-        self.c_texture = CTexture.load(path.encode(), 0)
+        self.c_texture = CResourceReference[CTexture](
+            static_pointer_cast[CTexture, CImageTexture](
+                CImageTexture.load(path.encode()).res_ptr
+            )
+        )
 
     def __eq__(self, Texture other):
         if other is None:

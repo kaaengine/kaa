@@ -9,7 +9,7 @@ from .glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 
 cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
-    ctypedef int32_t CControllerID "kaacore::ControllerID"
+    ctypedef int32_t CControllerId "kaacore::ControllerId"
 
     cdef enum CKeycode "kaacore::Keycode":
         k_unknown "kaacore::Keycode::unknown",
@@ -338,11 +338,11 @@ cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
         controller_remapped "kaacore::EventType::controller_remapped",
         music_finished "kaacore::EventType::music_finished",
         channel_finished "kaacore::EventType::channel_finished",
-    
+
     cdef enum CCompoundControllerAxis "kaacore::CompoundControllerAxis":
         left_stick "kaacore::CompoundControllerAxis::left_stick",
         right_stick "kaacore::CompoundControllerAxis::right_stick"
-    
+
     cdef cppclass CSystemEvent "kaacore::SystemEvent":
         bint is_quit() except +raise_py_error
         bint is_clipboard_updated() except +raise_py_error
@@ -384,18 +384,18 @@ cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
         CDVec2 scroll() except +raise_py_error
 
     cdef cppclass CControllerButtonEvent "kaacore::ControllerButtonEvent":
-        CControllerID id() except +raise_py_error
+        CControllerId id() except +raise_py_error
         CControllerButton button() except +raise_py_error
         bint is_button_down() except +raise_py_error
         bint is_button_up() except +raise_py_error
 
     cdef cppclass CControllerAxisEvent "kaacore::ControllerAxisEvent":
-        CControllerID id() except +raise_py_error
+        CControllerId id() except +raise_py_error
         CControllerAxis axis() except +raise_py_error
         double motion() except +raise_py_error
 
     cdef cppclass CControllerDeviceEvent "kaacore::ControllerDeviceEvent":
-        CControllerID id() except +raise_py_error
+        CControllerId id() except +raise_py_error
         bint is_added() except +raise_py_error
         bint is_removed() except +raise_py_error
 
@@ -416,7 +416,7 @@ cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
         const CControllerAxisEvent* const controller_axis() except +raise_py_error
         const CControllerDeviceEvent* const controller_device() except +raise_py_error
         const CMusicFinishedEvent* const music_finished() except +raise_py_error
-    
+
     cdef cppclass CSystemManager "kaacore::InputManager::SystemManager":
         string get_clipboard_text() except +raise_py_error
         void set_clipboard_text(string& text) except +raise_py_error
@@ -437,14 +437,14 @@ cdef extern from "kaacore/input.h" namespace "kaacore" nogil:
 
     cdef cppclass CControllerManager "kaacore::InputManager::ControllerManager":
         bint is_connected(int32_t id_) except +raise_py_error
-        bint is_pressed(CControllerButton cb, CControllerID id_) except +raise_py_error
-        bint is_released(CControllerButton cb, CControllerID id_) except +raise_py_error
-        bint is_pressed (CControllerAxis ca, CControllerID id_) except +raise_py_error
-        bint is_released (CControllerAxis ca, CControllerID id_) except +raise_py_error
-        double get_axis_motion(CControllerAxis ca, CControllerID id_) except +raise_py_error
-        string get_name(CControllerID id_) except +raise_py_error
-        CDVec2 get_triggers(CControllerID id_) except +raise_py_error
-        CDVec2 get_sticks(CCompoundControllerAxis ca, CControllerID id_) except +raise_py_error
+        bint is_pressed(CControllerButton cb, CControllerId id_) except +raise_py_error
+        bint is_released(CControllerButton cb, CControllerId id_) except +raise_py_error
+        bint is_pressed (CControllerAxis ca, CControllerId id_) except +raise_py_error
+        bint is_released (CControllerAxis ca, CControllerId id_) except +raise_py_error
+        double get_axis_motion(CControllerAxis ca, CControllerId id_) except +raise_py_error
+        string get_name(CControllerId id_) except +raise_py_error
+        CDVec2 get_triggers(CControllerId id_) except +raise_py_error
+        CDVec2 get_sticks(CCompoundControllerAxis ca, CControllerId id_) except +raise_py_error
         vector[int32_t] get_connected_controllers() except +raise_py_error
 
     ctypedef function[int(const CEvent&)] CEventCallback "kaacore::EventCallback"

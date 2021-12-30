@@ -17,10 +17,9 @@ from .kaacore.input cimport (
     CKeyboardKeyEvent, CKeyboardTextEvent, CMouseButtonEvent, CMouseMotionEvent,
     CMouseWheelEvent, CControllerButtonEvent, CControllerAxisEvent, CMusicFinishedEvent,
     CEvent, CInputManager, CSystemManager, CKeyboardManager, CMouseManager,
-    CControllerManager, CControllerID, CEventCallback, CythonEventCallback,
+    CControllerManager, CControllerId, CEventCallback, CythonEventCallback,
     bind_cython_event_callback
 )
-
 
 DEF EVENT_FREELIST_SIZE = 16
 
@@ -781,28 +780,28 @@ cdef class Event(EventBase):
 
 
 cdef class _BaseInputManager:
-    cdef CInputManager* _get_c_input_manager(self) except NULL:
+    cdef CInputManager* get_c_input_manager(self) except NULL:
         return get_c_engine().input_manager.get()
 
 
 @cython.final
 cdef class SystemManager(_BaseInputManager):
     def get_clipboard_text(self):
-        self._get_c_input_manager().system.get_clipboard_text().c_str()
+        self.get_c_input_manager().system.get_clipboard_text().c_str()
 
     def set_clipboard_text(self, str text not None):
-        self._get_c_input_manager().system.set_clipboard_text(text)
+        self.get_c_input_manager().system.set_clipboard_text(text)
 
 
 @cython.final
 cdef class KeyboardManager(_BaseInputManager):
     def is_pressed(self, kc not None):
-        return self._get_c_input_manager().keyboard.is_pressed(
+        return self.get_c_input_manager().keyboard.is_pressed(
             <CKeycode>(<uint32_t>(kc.value))
         )
 
     def is_released(self, kc not None):
-        return self._get_c_input_manager().keyboard.is_released(
+        return self.get_c_input_manager().keyboard.is_released(
             <CKeycode>(<uint32_t>(kc.value))
         )
 
@@ -811,80 +810,80 @@ cdef class KeyboardManager(_BaseInputManager):
 cdef class MouseManager(_BaseInputManager):
     @property
     def cursor_visible(self):
-        return self._get_c_input_manager().mouse.cursor_visible()
+        return self.get_c_input_manager().mouse.cursor_visible()
 
     @cursor_visible.setter
     def cursor_visible(self, bint visible):
-        self._get_c_input_manager().mouse.cursor_visible(visible)
+        self.get_c_input_manager().mouse.cursor_visible(visible)
 
     @property
     def relative_mode(self):
-        return self._get_c_input_manager().mouse.relative_mode()
+        return self.get_c_input_manager().mouse.relative_mode()
 
     @relative_mode.setter
     def relative_mode(self, bint rel):
-        self._get_c_input_manager().mouse.relative_mode(rel)
+        self.get_c_input_manager().mouse.relative_mode(rel)
 
 
     def is_pressed(self, mc not None):
-        return self._get_c_input_manager().mouse.is_pressed(
+        return self.get_c_input_manager().mouse.is_pressed(
             <CMouseButton>(<uint32_t>(mc.value))
         )
 
     def is_released(self, mc not None):
-        return self._get_c_input_manager().mouse.is_released(
+        return self.get_c_input_manager().mouse.is_released(
             <CMouseButton>(<uint32_t>(mc.value))
         )
 
     def get_position(self):
         return Vector.from_c_vector(
-            self._get_c_input_manager().mouse.get_position()
+            self.get_c_input_manager().mouse.get_position()
         )
 
 
 @cython.final
 cdef class ControllerManager(_BaseInputManager):
-    def is_connected(self, CControllerID controller_id):
-        return self._get_c_input_manager().controller.is_connected(
+    def is_connected(self, CControllerId controller_id):
+        return self.get_c_input_manager().controller.is_connected(
             controller_id
         )
 
-    def is_pressed(self, cb not None, CControllerID controller_id):
-        return self._get_c_input_manager().controller.is_pressed(
+    def is_pressed(self, cb not None, CControllerId controller_id):
+        return self.get_c_input_manager().controller.is_pressed(
             <CControllerButton>(<uint32_t>(cb.value)), controller_id
         )
 
-    def is_released(self, cb not None, CControllerID controller_id):
-        return self._get_c_input_manager().controller.is_released(
+    def is_released(self, cb not None, CControllerId controller_id):
+        return self.get_c_input_manager().controller.is_released(
             <CControllerButton>(<uint32_t>(cb.value)), controller_id
         )
 
-    def is_axis_pressed(self, axis not None, CControllerID controller_id):
-        return self._get_c_input_manager().controller.is_pressed(
+    def is_axis_pressed(self, axis not None, CControllerId controller_id):
+        return self.get_c_input_manager().controller.is_pressed(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
         )
 
-    def is_axis_released(self, axis not None, CControllerID controller_id):
-        return self._get_c_input_manager().controller.is_released(
+    def is_axis_released(self, axis not None, CControllerId controller_id):
+        return self.get_c_input_manager().controller.is_released(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
         )
 
-    def get_axis_motion(self, axis not None, CControllerID controller_id):
-        return self._get_c_input_manager().controller.get_axis_motion(
+    def get_axis_motion(self, axis not None, CControllerId controller_id):
+        return self.get_c_input_manager().controller.get_axis_motion(
             <CControllerAxis>(<uint32_t>(axis.value)), controller_id
         )
 
-    def get_name(self, CControllerID controller_id):
-        return self._get_c_input_manager().controller.get_name(controller_id).c_str()
+    def get_name(self, CControllerId controller_id):
+        return self.get_c_input_manager().controller.get_name(controller_id).c_str()
 
-    def get_triggers(self, CControllerID controller_id):
+    def get_triggers(self, CControllerId controller_id):
         return Vector.from_c_vector(
-            self._get_c_input_manager().controller.get_triggers(controller_id)
+            self.get_c_input_manager().controller.get_triggers(controller_id)
         )
 
-    def get_sticks(self, compound_axis not None, CControllerID controller_id):
+    def get_sticks(self, compound_axis not None, CControllerId controller_id):
         return Vector.from_c_vector(
-            self._get_c_input_manager().controller.get_sticks(
+            self.get_c_input_manager().controller.get_sticks(
                 <CCompoundControllerAxis>(<uint32_t>(compound_axis.value)),
                 controller_id
             )
@@ -923,7 +922,7 @@ cdef class InputManager(_BaseInputManager):
 
     def events(self):
         cdef CEvent c_event
-        for c_event in self._get_c_input_manager().events_queue:
+        for c_event in self.get_c_input_manager().events_queue:
             yield Event.create(c_event)
 
     def register_callback(self, object event_type not None, object callback):
@@ -947,7 +946,7 @@ cdef class InputManager(_BaseInputManager):
         cdef CEventType c_event_type = <CEventType>(<uint32_t>(event_type.value))
 
         if callback is None:
-            return self._get_c_input_manager().register_callback(
+            return self.get_c_input_manager().register_callback(
                 c_event_type, <CEventCallback>nullptr
             )
 
@@ -955,6 +954,6 @@ cdef class InputManager(_BaseInputManager):
             cython_event_callback,
             CPythonicCallbackWrapper(<PyObject*>callback)
         )
-        self._get_c_input_manager().register_callback(
+        self.get_c_input_manager().register_callback(
             c_event_type, cmove(bound_callback)
         )

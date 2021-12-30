@@ -26,11 +26,11 @@ class AudioStatus(IntEnum):
 cdef class Sound:
     cdef CSound c_sound
 
-    cdef void _attach_c_sound(self, const CSound& c_sound):
+    cdef void attach_c_sound(self, const CSound& c_sound):
         self.c_sound = c_sound
 
     def __init__(self, str sound_filepath, double volume=1.):
-        self._attach_c_sound(CSound.load(sound_filepath.encode(), volume))
+        self.attach_c_sound(CSound.load(sound_filepath.encode(), volume))
 
     def __eq__(self, Sound other):
         return self.c_sound == other.c_sound
@@ -48,7 +48,7 @@ cdef class Sound:
 
 cdef Sound get_sound_wrapper(const CSound& c_sound):
     cdef Sound sound = Sound.__new__(Sound)
-    sound._attach_c_sound(c_sound)
+    sound.attach_c_sound(c_sound)
     return sound
 
 
@@ -104,11 +104,11 @@ cdef class SoundPlayback:
 cdef class Music:
     cdef CMusic c_music
 
-    cdef void _attach_c_music(self, const CMusic& c_music):
+    cdef void attach_c_music(self, const CMusic& c_music):
         self.c_music = c_music
 
     def __init__(self, str music_filepath, double volume=1.):
-        self._attach_c_music(CMusic.load(music_filepath.encode(), volume))
+        self.attach_c_music(CMusic.load(music_filepath.encode(), volume))
 
     def __eq__(self, Music other):
         return self.c_music == other.c_music
@@ -151,43 +151,43 @@ cdef class Music:
 
 cdef Music get_music_wrapper(const CMusic& c_music):
     cdef Music music = Music.__new__(Music)
-    music._attach_c_music(c_music)
+    music.attach_c_music(c_music)
     return music
 
 
 @cython.final
 cdef class _AudioManager:
-    cdef CAudioManager* _get_c_audio_manager(self) except NULL:
+    cdef CAudioManager* get_c_audio_manager(self) except NULL:
         return get_c_engine().audio_manager.get()
 
     @property
     def master_volume(self):
-        return self._get_c_audio_manager().master_volume()
+        return self.get_c_audio_manager().master_volume()
 
     @master_volume.setter
     def master_volume(self, double vol):
-        self._get_c_audio_manager().master_volume(vol)
+        self.get_c_audio_manager().master_volume(vol)
 
     @property
     def master_sound_volume(self):
-        return self._get_c_audio_manager().master_sound_volume()
+        return self.get_c_audio_manager().master_sound_volume()
 
     @master_sound_volume.setter
     def master_sound_volume(self, double vol):
-        self._get_c_audio_manager().master_sound_volume(vol)
+        self.get_c_audio_manager().master_sound_volume(vol)
 
     @property
     def master_music_volume(self):
-        return self._get_c_audio_manager().master_music_volume()
+        return self.get_c_audio_manager().master_music_volume()
 
     @master_music_volume.setter
     def master_music_volume(self, double vol):
-        self._get_c_audio_manager().master_music_volume(vol)
+        self.get_c_audio_manager().master_music_volume(vol)
 
     @property
     def mixing_channels(self):
-        return self._get_c_audio_manager().mixing_channels()
+        return self.get_c_audio_manager().mixing_channels()
 
     @mixing_channels.setter
     def mixing_channels(self, int ch):
-        self._get_c_audio_manager().mixing_channels(ch)
+        self.get_c_audio_manager().mixing_channels(ch)

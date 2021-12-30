@@ -14,27 +14,36 @@ PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_small.png')
 class MainScene(Scene):
 
     def __init__(self):
-        self.camera.position = Vector(0., 0.)
         snake_image = Sprite(PYTHON_IMAGE_PATH)
+        self.camera.position = Vector.xy(0)
+        self.viewports[1].camera.position = Vector.xy(0)
+        self.viewports[1].origin = Vector(600, 0)
+        self.viewports[1].dimensions = Vector(200, 600)
 
-        minimap_view = self.views[1]
-        minimap_view.origin = Vector(600, 0)
-        minimap_view.dimensions = Vector(200, 600)
-        minimap_view.camera.position = Vector.xy(0)
-        minimap_view.camera.scale = Vector.xy(200 / 800)
-        minimap_view.clear_color = Color(0.5, 0.5, 0.5, 1)
+        self.root.add_child(
+            Node(
+                shape=Polygon.from_box(Vector(800, 600 * 800 / 200)),
+                color=Color(0.5, 0.5, 0.5, 0.95),
+                viewports={1}
+            )
+        )
 
         for _ in range(100):
             x = random.randrange(-400, 400)
             y = random.randrange(-1200, 1200)
             self.root.add_child(
-                Node(sprite=snake_image, views={0, 1}, position=Vector(x, y))
+                Node(
+                    sprite=snake_image,
+                    viewports={0, 1},
+                    position=Vector(x, y),
+                    z_index=1
+                )
             )
 
         self.viewport = Node(
-            color=Color(1, 0, 0, 0.1),
-            views={1},
-            shape=Polygon.from_box(Vector(800, 600))
+            shape=Polygon.from_box(Vector(800, 600)),
+            color=Color(1, 0, 0, 0.2),
+            viewports={1},
         )
         self.root.add_child(self.viewport)
 

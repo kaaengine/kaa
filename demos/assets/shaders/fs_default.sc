@@ -9,12 +9,12 @@ uniform vec4 u_blur;
 
 void main()
 {
-	float pi_2 = 6.28318530718;
-	float directions = 20.;
-	float quality = 10.;
-	float size = u_blur.x * cos(u_time);
+	const float pi_2 = 6.28318530718;
+	const float directions = 20.;
+	const float quality = 10.;
 
-	vec2 viewport = (u_viewRect.zw - u_viewRect.xy);
+	float size = u_blur.x * cos(u_time);
+	vec2 viewport = (u_viewportRect.zw - u_viewportRect.xy);
 	vec2 radius = size / viewport;
 	vec4 color = texture2D(s_texture, v_texcoord0);
 

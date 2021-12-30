@@ -1,15 +1,20 @@
+import cython
+import weakref
 from libc.stdint cimport uint32_t
 from libcpp.memory cimport unique_ptr
 from cpython.weakref cimport PyWeakref_NewRef
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 
 from .kaacore.scenes cimport CScene
-from .kaacore.clock cimport CDuration
 from .kaacore.nodes cimport CNodePtr
+from .kaacore.clock cimport CDuration
 from .kaacore.glue cimport CPythonicCallbackResult
 from .kaacore.engine cimport is_c_engine_initialized
+from .kaacore.render_passes cimport default_pass_index
+from .kaacore.viewports cimport default_viewport_z_index
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
-from .kaacore.views cimport views_default_z_index
+
+DEF SCENE_RESOURCE_FREELIST_SIZE = 8
 
 
 cdef cppclass CPyScene(CScene):
@@ -68,10 +73,11 @@ cdef cppclass CPyScene(CScene):
 cdef class Scene:
     cdef:
         object __weakref__
-        unique_ptr[CPyScene] _c_scene
+        unique_ptr[CPyScene] c_scene
         Node _root_node_wrapper
         InputManager input_
-        readonly _ViewsManager views
+        readonly _ViewportsManager viewports
+        readonly _RenderPassesManager render_passes
         readonly _SpatialIndexManager spatial_index
 
     def __cinit__(self):
@@ -85,13 +91,14 @@ cdef class Scene:
         )
         cdef CPyScene* c_scene = new CPyScene(self)
         assert c_scene != NULL
-        self._c_scene = unique_ptr[CPyScene](c_scene)
+        self.c_scene = unique_ptr[CPyScene](c_scene)
 
         self.input_ = InputManager()
-        self.views = _ViewsManager.create(self)
+        self.viewports = _ViewportsManager.create(self)
+        self.render_passes = _RenderPassesManager.create(self)
         self.spatial_index = _SpatialIndexManager.create(self)
         self._root_node_wrapper = get_node_wrapper(
-            CNodePtr(&self._c_scene.get().root_node)
+            CNodePtr(&self.c_scene.get().root_node)
         )
 
     @property
@@ -104,7 +111,7 @@ cdef class Scene:
 
     @property
     def camera(self):
-        return self.views[views_default_z_index].camera
+        return self.viewports[default_viewport_z_index].camera
 
     @property
     def input(self):
@@ -112,23 +119,23 @@ cdef class Scene:
 
     @property
     def clear_color(self):
-        return self.views[views_default_z_index].clear_color
+        return self.render_passes[default_pass_index].clear_color
 
     @clear_color.setter
     def clear_color(self, Color color):
-        self.views[views_default_z_index].clear_color = color
+        self.render_passes[default_pass_index].clear_color = color
 
     @property
     def total_time(self):
-        return self._c_scene.get().total_time().count()
+        return self.c_scene.get().total_time().count()
 
     @property
     def time_scale(self):
-        return self._c_scene.get().get_time_scale()
+        return self.c_scene.get().get_time_scale()
 
     @time_scale.setter
     def time_scale(self, double scale):
-        self._c_scene.get().set_time_scale(scale)
+        self.c_scene.get().set_time_scale(scale)
 
     def on_enter(self):
         pass
@@ -138,3 +145,35 @@ cdef class Scene:
 
     def on_exit(self):
         pass
+
+
+@cython.freelist(SCENE_RESOURCE_FREELIST_SIZE)
+cdef class _SceneResource:
+    cdef bint c_is_valid
+
+    def __cinit__(self, Scene scene):
+        self.c_is_valid = True
+
+        def _finalizer():
+            self.c_is_valid = False
+        weakref.finalize(scene, _finalizer)
+
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError(
+            f'{self.__class__} must not be instantiated manually!'
+        )
+
+    def __copy__(self):
+        raise NotImplementedError
+
+    def __deepcopy__(self):
+        raise NotImplementedError
+
+    def __reduce__(self):
+        raise NotImplementedError
+
+    cdef int32_t check_valid(self) except -1:
+        if not self.c_is_valid:
+            raise RuntimeError(
+                f'Accessing already deleted resource ({self.__class__}).'
+            )

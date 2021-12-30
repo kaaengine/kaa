@@ -12,7 +12,6 @@ from .uniforms cimport CUniformSpecificationMap, CSamplerValue, CUniformValue
 
 
 cdef extern from "kaacore/materials.h" namespace "kaacore" nogil:
-
     cdef cppclass CMaterial "kaacore::Material":
         @staticmethod
         CResourceReference[CMaterial] create(
