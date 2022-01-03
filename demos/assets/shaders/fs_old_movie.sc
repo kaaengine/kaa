@@ -27,7 +27,7 @@ float randomLine(float seed, vec2 uv) {
     } else {
         l = 2.0 - pow(abs(a * uv.x + b * uv.y + c), 1.0 / 8.0);
     }
-    return mix(0.5,1.0,l);
+    return mix(0.5, 1.0, l);
 }
 
 float randomBlotch(float seed, vec2 uv) {
