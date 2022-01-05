@@ -33,6 +33,11 @@ def fragment_shader_path():
 
 
 @pytest.fixture
+def fragment_shader_effect_path():
+    return str(STATIC_SHADERS_DIR / 'effect.sc')
+
+
+@pytest.fixture
 @pytest.mark.usefixtures('shader_cache_directory')
 def vertex_shader(vertex_shader_path: str):
     return VertexShader(vertex_shader_path)
@@ -42,6 +47,12 @@ def vertex_shader(vertex_shader_path: str):
 @pytest.mark.usefixtures('shader_cache_directory')
 def fragment_shader(fragment_shader_path: str):
     return FragmentShader(fragment_shader_path)
+
+
+@pytest.fixture
+@pytest.mark.usefixtures('shader_cache_directory')
+def fragment_shader_effect(fragment_shader_effect_path: str):
+    return FragmentShader(fragment_shader_effect_path)
 
 
 @pytest.fixture
