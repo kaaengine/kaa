@@ -4,12 +4,12 @@ from libcpp.vector cimport vector
 
 from ..extra.optional cimport optional
 
+from .vectors cimport CColor
 from .shaders cimport CShader
 from .materials cimport CMaterial
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
 from .render_targets cimport CRenderTarget
-from .vectors cimport CColor, CIVec2, CUVec2
 from .uniforms cimport CUniformSpecificationMap
 
 

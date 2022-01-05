@@ -1,7 +1,6 @@
 import cython
 from libcpp.memory cimport static_pointer_cast
 
-from .kaacore.vectors cimport CColor
 from .kaacore.hashing cimport c_calculate_hash
 from .kaacore.resources cimport CResourceReference
 from .kaacore.render_targets cimport CRenderTarget

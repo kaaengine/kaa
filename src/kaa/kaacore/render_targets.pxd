@@ -1,6 +1,5 @@
 from libcpp.vector cimport vector
 
-from .vectors cimport CColor
 from .textures cimport CTexture
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
