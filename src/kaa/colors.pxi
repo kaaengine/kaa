@@ -26,7 +26,6 @@ cdef class Color:
         assert 0 <= g <= 255
         assert 0 <= b <= 255
         assert 0 <= a <= 255
-
         return cls(r / 255., g / 255., b / 255., a / 255.)
 
     @classmethod

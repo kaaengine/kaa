@@ -616,7 +616,10 @@ class ControllerManager:
     def get_name(self, controller_id: int) -> str:
         ...
 
-    def get_sticks(self, compound_axis: CompoundControllerAxis, controller_id: int) -> Vector:
+    def get_sticks(
+        self, compound_axis: CompoundControllerAxis,
+        controller_id: int
+    ) -> Vector:
         ...
 
     def get_triggers(self, controller_id: int) -> Vector:
