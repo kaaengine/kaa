@@ -91,7 +91,7 @@ jobs:
 - job: build_macos
   displayName: "Build macOS wheel"
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   strategy:
     matrix:
       Python36:
@@ -108,7 +108,7 @@ jobs:
         python.version_tag: 'py39'
   variables:
     platform.name: 'macos'
-    platform.tag: 'macosx-10.14-x86_64'
+    platform.tag: 'macosx-10.15-x86_64'
   steps:
   - template: templates/common_checkout_repository.yml
   - template: templates/common_prepare_python.yml
