@@ -17,11 +17,12 @@ PROJECTOR_SOUND = os.path.join('demos', 'assets', 'sounds', 'projector.ogg')
 
 class MainScene(Scene):
     def __init__(self):
+        clear_color = Color(1., 1., 1., 1.)
         fragment_shader = FragmentShader('demos/assets/shaders/fs_old_movie.sc')
-        self.render_target = RenderTarget()
+        self.render_target = RenderTarget(clear_color)
         uniforms = {'s_target': Uniform(UniformType.sampler)}
         self.camera.position = Vector.xy(0)
-        self.clear_color = Color(1., 1., 1., 1.)
+        self.clear_color = clear_color
         self.effect = Effect(fragment_shader, uniforms)
         self.effect.set_uniform_texture(
             's_target', self.render_target.texture, 1

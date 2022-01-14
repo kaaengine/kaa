@@ -12,8 +12,10 @@ ctypedef CRenderTarget* CRenderTarget_ptr
 cdef class RenderTarget:
     cdef CResourceReference[CRenderTarget] c_render_target
 
-    def __init__(self):
+    def __init__(self, Color clear_color=None):
         self.c_render_target = CRenderTarget.create()
+        if clear_color is not None:
+            self.clear_color = clear_color
 
     @staticmethod
     cdef RenderTarget create(
@@ -33,6 +35,14 @@ cdef class RenderTarget:
         return c_calculate_hash[CRenderTarget_ptr](
             self.c_render_target.get()
         )
+
+    @property
+    def clear_color(self):
+        return Color.from_c_color(self.c_render_target.get().clear_color())
+
+    @clear_color.setter
+    def clear_color(self, Color color not None):
+        self.c_render_target.get().clear_color(color.c_color)
 
     @property
     def texture(self):

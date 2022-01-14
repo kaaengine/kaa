@@ -43,6 +43,7 @@ class SceneTransitionNode(Node):
         )
 
     def on_attach(self):
+        self.target.clear_color = self.scene.clear_color
         self.scene.render_passes[self.source_pass].render_targets = (self.target, )
 
     def on_detach(self):
