@@ -70,7 +70,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         double rotation() except +raise_py_error
         double absolute_rotation() except +raise_py_error
-        void rotation(const double& rotation) except +raise_py_error
+        void rotation(const double rotation) except +raise_py_error
 
         CDVec2 scale() except +raise_py_error
         CDVec2 absolute_scale() except +raise_py_error
@@ -99,13 +99,13 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         void color(const CColor& color) except +raise_py_error
 
         bool visible() except +raise_py_error
-        void visible(const bool& visible) except +raise_py_error
+        void visible(const bool visible) except +raise_py_error
 
         CAlignment origin_alignment() except +raise_py_error
-        void origin_alignment(const CAlignment& alignment) except +raise_py_error
+        void origin_alignment(const CAlignment alignment) except +raise_py_error
 
         CDuration lifetime() except +raise_py_error
-        void lifetime(const CDuration& lifetime) except +raise_py_error
+        void lifetime(const CDuration lifetime) except +raise_py_error
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error
