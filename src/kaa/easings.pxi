@@ -1,3 +1,4 @@
+from .kaacore.vectors cimport CColor
 from .kaacore.easings cimport CEasing, c_ease, c_ease_between
 
 
@@ -51,11 +52,25 @@ def ease_between(object easing, double progress, a, b):
     if isinstance(a, Vector):
         assert isinstance(b, Vector), \
             "`a` is a Vector, `b` must have the same type."
-        return Vector.from_c_vector(c_ease_between[CDVec2](
-            <CEasing>(<uint8_t>easing.value),
-            progress,
-            (<Vector>a).c_vector,
-            (<Vector>b).c_vector
-        ))
+        return Vector.from_c_vector(
+            c_ease_between[CDVec2](
+                <CEasing>(<uint8_t>easing.value),
+                progress,
+                (<Vector>a).c_vector,
+                (<Vector>b).c_vector
+            )
+        )
+
+    if isinstance(a, Color):
+        assert isinstance(b, Color), \
+            "`a` is a Color, `b` must have the same type."
+        return Color.from_c_color(
+            c_ease_between[CColor](
+                <CEasing>(<uint8_t>easing.value),
+                progress,
+                (<Color>a).c_color,
+                (<Color>b).c_color
+            )
+        )
 
     raise TypeError('Unsupported type of parameters.')
