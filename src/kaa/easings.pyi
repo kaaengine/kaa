@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import enum
-from typing import overload
+from typing import overload, Sequence, Tuple, TypeVar
 
 from .geometry import Vector
+from .colors import Color
 
 
 class Easing(enum.IntEnum):
@@ -44,6 +45,9 @@ def ease(easing: Easing, progress: float) -> float:
     ...
 
 
+_T_EasingArg = TypeVar('_T_EasingArg', float, Vector, Color)
+
+
 @overload
 def ease_between(easing: Easing, progress: float, a: float, b: float) -> float:
     ...
@@ -51,4 +55,17 @@ def ease_between(easing: Easing, progress: float, a: float, b: float) -> float:
 
 @overload
 def ease_between(easing: Easing, progress: float, a: Vector, b: Vector) -> Vector:
+    ...
+
+
+@overload
+def ease_between(easing: Easing, progress: float, a: Color, b: Color) -> Color:
+    ...
+
+
+@overload
+def ease_between(
+    easing: Easing, progress: float,
+    a: Sequence[_T_EasingArg], b: Sequence[_T_EasingArg],
+) -> Tuple[_T_EasingArg, ...]:
     ...

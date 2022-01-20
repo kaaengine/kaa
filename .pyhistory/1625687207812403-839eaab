@@ -1,0 +1,1 @@
+Added support for `Color`, `tuple` and `list` types in easing functions.
