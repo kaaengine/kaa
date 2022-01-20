@@ -1,5 +1,4 @@
 from collections import abc
-
 from .kaacore.easings cimport CEasing, c_ease, c_ease_between
 
 
@@ -53,12 +52,14 @@ def ease_between(object easing, double progress, a, b):
     if isinstance(a, Vector):
         assert isinstance(b, Vector), \
             "`a` is a Vector, `b` must have the same type."
-        return Vector.from_c_vector(c_ease_between[CDVec2](
-            <CEasing>(<uint8_t>easing.value),
-            progress,
-            (<Vector>a).c_vector,
-            (<Vector>b).c_vector
-        ))
+        return Vector.from_c_vector(
+            c_ease_between[CDVec2](
+                <CEasing>(<uint8_t>easing.value),
+                progress,
+                (<Vector>a).c_vector,
+                (<Vector>b).c_vector
+            )
+        )
 
     if isinstance(a, Color):
         assert isinstance(b, Color), \
