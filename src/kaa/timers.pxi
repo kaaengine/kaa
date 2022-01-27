@@ -10,7 +10,7 @@ from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
 
 DEF TIMER_FREELIST_SIZE = 10
 DEF TIMER_CONTEXT_FREELIST_SIZE = 2
-ctypedef CPyScene* _CPyScenePtr 
+ctypedef CPyScene* _CPyScenePtr
 
 
 @cython.final
