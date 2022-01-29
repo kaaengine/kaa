@@ -1,0 +1,1 @@
+More consistent generation of `TextNode` shapes: generated bounding box height will stay the same, it will no longer depend on used characters.
