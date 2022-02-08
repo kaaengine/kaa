@@ -150,7 +150,7 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
         void torque(const double torque) except +raise_py_error
         double torque() except +raise_py_error
 
-        void angular_velocity(const double& angular_velocity) except +raise_py_error
+        void angular_velocity(const double angular_velocity) except +raise_py_error
         double angular_velocity() except +raise_py_error
 
         void damping(const optional[double]& damping) except +raise_py_error
@@ -174,16 +174,16 @@ cdef extern from "kaacore/physics.h" namespace "kaacore" nogil:
         void set_position_update_callback(CPositionUpdateCallback callback)
 
     cdef cppclass CHitboxNode "kaacore::HitboxNode":
-        void trigger_id(const CollisionTriggerId& trigger_id) except +raise_py_error
+        void trigger_id(const CollisionTriggerId trigger_id) except +raise_py_error
         CollisionTriggerId trigger_id() except +raise_py_error
 
-        void group(const CollisionGroup& group) except +raise_py_error
+        void group(const CollisionGroup group) except +raise_py_error
         CollisionGroup group() except +raise_py_error
 
-        void mask(const CollisionBitmask& mask) except +raise_py_error
+        void mask(const CollisionBitmask mask) except +raise_py_error
         CollisionBitmask mask() except +raise_py_error
 
-        void collision_mask(const CollisionBitmask& mask) except +raise_py_error
+        void collision_mask(const CollisionBitmask mask) except +raise_py_error
         CollisionBitmask collision_mask() except +raise_py_error
 
         void sensor(const bool sensor) except +raise_py_error
