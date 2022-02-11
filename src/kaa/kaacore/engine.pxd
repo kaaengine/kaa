@@ -1,9 +1,10 @@
 from libcpp.string cimport string
 from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
-from libc.stdint cimport int32_t, uint64_t
+from libc.stdint cimport uint32_t, uint64_t
 
 from .clock cimport CDuration
+from .capture cimport CCapturedFrames
 from .display cimport CDisplay
 from .scenes cimport CScene
 from .window cimport CWindow
@@ -47,6 +48,8 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
         double get_fps() except +raise_py_error
 
         void run(CScene* c_scene) except +raise_py_error
+        CCapturedFrames run_capture(CScene* c_scene, uint32_t frames_limit,
+                                    CDuration fixed_dt) except +raise_py_error
         void change_scene(CScene* c_scene) except +raise_py_error
         void quit() except +raise_py_error
 

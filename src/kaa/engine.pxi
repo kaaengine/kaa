@@ -1,4 +1,5 @@
 import atexit
+import math
 from enum import IntEnum
 from contextlib import contextmanager
 
@@ -12,9 +13,14 @@ from .kaacore.engine cimport (
     CVirtualResolutionMode
 )
 from .kaacore.display cimport CDisplay
+from .kaacore.capture cimport CCapturedFrames
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
+from .kaacore.clock cimport CDuration
 
 from . import __version__
+
+
+cdef double DEFAULT_FIXED_FRAMETIME = 1. / 30.
 
 
 def _clean_up():
@@ -98,6 +104,26 @@ cdef class _Engine:
             CEngine* c_engine = get_c_engine()
         with nogil:
             c_engine.run(c_scene)
+
+    def run_capture(
+        self, Scene scene not None, uint32_t frames_limit,
+        *, double fixed_dt=DEFAULT_FIXED_FRAMETIME,
+        frames_preview_generator=None,
+    ):
+        cdef:
+            CScene* c_scene = scene._c_scene.get()
+            CEngine* c_engine = get_c_engine()
+            CDuration c_duration = CDuration(fixed_dt)
+            CCapturedFrames c_captured_frames
+            CapturedFrames captured_frames = CapturedFrames.__new__(CapturedFrames)
+        with nogil:
+            c_captured_frames = c_engine.run_capture(c_scene, frames_limit, c_duration)
+
+        if frames_preview_generator is None:
+            frames_preview_generator = generate_auto
+
+        captured_frames.c_attach_captured_frames(c_captured_frames)
+        return frames_preview_generator(captured_frames)
 
     def quit(self):
         get_c_engine().quit()
