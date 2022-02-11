@@ -67,17 +67,11 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
 
         py_wrapper._reset()
         result.unwrap_result()
-        this._release_wrapper()
 
     __dealloc__() nogil:
         if this.added_to_parent:
             with gil:
-                this._release_wrapper()
-
-    void _release_wrapper() with gil:
-        Py_XDECREF(this.py_wrapper)
-        this.py_wrapper = NULL
-        this.added_to_parent = False
+                Py_XDECREF(this.py_wrapper)
 
 
 @cython.freelist(NODE_FREELIST_SIZE)
