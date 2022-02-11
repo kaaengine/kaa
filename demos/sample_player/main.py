@@ -100,7 +100,7 @@ def main(args):
     * Up/Down arrows - navigation
     * 0/9 volume up/down
     * X - play
-    * C - pause 
+    * C - pause
     * V - resume
     * B - stop""")
     samples_paths = []

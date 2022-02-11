@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import enum
-from typing import type_check_only, Optional, Iterable, List, TypeVar
+from typing import (
+    type_check_only, final, Optional, Iterable, Tuple, List, Dict, TypeVar
+)
 
-from .colors import Color
-from .geometry import Vector, BoundingBox
-from .input import InputManager
 from .nodes import Node
+from .colors import Color
+from .textures import Texture
+from .input import InputManager
+from .shaders import FragmentShader
+from .geometry import Vector, BoundingBox
+from .materials import Uniform, BaseMaterial
 
 
 class VirtualResolutionMode(enum.IntEnum):
@@ -200,7 +205,11 @@ class Scene:
         ...
 
     @property
-    def views(self) -> ViewsManager:
+    def viewports(self) -> ViewportsManager:
+        ...
+
+    @property
+    def render_passes(self) -> RenderPassesManager:
         ...
 
     def __init__(self) -> None:
@@ -262,25 +271,13 @@ class Camera:
 
 
 @type_check_only
-class View:
+class Viewport:
     @property
     def camera(self) -> Camera:
         ...
 
     @property
-    def clear_color(self) -> Color:
-        ...
-
-    @clear_color.setter
-    def clear_color(self, color: Color) -> None:
-        ...
-
-    @property
-    def dimensions(self) -> Vector:
-        ...
-
-    @dimensions.setter
-    def dimensions(self, dimensions: Vector) -> None:
+    def z_index(self) -> int:
         ...
 
     @property
@@ -292,16 +289,82 @@ class View:
         ...
 
     @property
-    def z_index(self) -> int:
+    def dimensions(self) -> Vector:
+        ...
+
+    @dimensions.setter
+    def dimensions(self, dimensions: Vector) -> None:
         ...
 
 
 @type_check_only
-class ViewsManager:
-    def __getitem__(self, index: int) -> View:
+class RenderPass:
+    @property
+    def index(self) -> int:
         ...
 
-    def __iter__(self) -> Iterable[View]:
+    @property
+    def clear_color(self) -> Color:
+        ...
+
+    @clear_color.setter
+    def clear_color(self, value: Color) -> None:
+        ...
+
+    @property
+    def effect(self) -> Effect:
+        ...
+
+    @effect.setter
+    def effect(self, value: Effect) -> None:
+        ...
+
+    @property
+    def render_targets(self) -> Tuple[RenderTarget, ...]:
+        ...
+
+    @render_targets.setter
+    def render_targets(self, value: Iterable[RenderTarget]):
+        ...
+
+
+@final
+class RenderTarget:
+    @property
+    def texture(self) -> Texture:
+        ...
+
+
+@final
+class Effect(BaseMaterial):
+    def __init__(
+        shader: FragmentShader,
+        uniforms: Dict[str, Uniform]
+    ) -> None:
+        ...
+
+    def clone(self) -> Effect:
+        ...
+
+
+@type_check_only
+class RenderPassesManager:
+    def __getitem__(self, index: int) -> RenderPass:
+        ...
+
+    def __iter__(self) -> Iterable[RenderPass]:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+
+@type_check_only
+class ViewportsManager:
+    def __getitem__(self, index: int) -> Viewport:
+        ...
+
+    def __iter__(self) -> Iterable[Viewport]:
         ...
 
     def __len__(self) -> int:

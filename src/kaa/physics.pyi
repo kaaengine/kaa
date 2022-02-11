@@ -608,6 +608,7 @@ class SpaceNode(NodeBase):
         group: int = COLLISION_GROUP_NONE,
     ) -> RayQueryResult:
         ...
+
     def query_shape_overlaps(
         self, shape: AnyShape,
         *, mask: int = COLLISION_BITMASK_ALL,
@@ -615,6 +616,7 @@ class SpaceNode(NodeBase):
         group: int = COLLISION_GROUP_NONE,
     ) -> ShapeQueryResult:
         ...
+
     def set_collision_handler(
         self, trigger_a: int, trigger_b: int,
         handler: Callable[[Arbiter, CollisionPair, CollisionPair], Optional[bool]],

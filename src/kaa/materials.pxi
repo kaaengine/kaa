@@ -64,12 +64,12 @@ cdef class Uniform:
 
 
 @cython.freelist(MATERIAL_FREELIST_SIZE)
-cdef class MaterialBase:
-    cdef:
-        CResourceReference[CMaterial] c_material
+cdef class _ReadonlyMaterial:
+    cdef CResourceReference[CMaterial] c_material
 
     def __init__(self, Program program, dict uniforms=None):
         super().__init__()
+
         cdef:
             str name
             Uniform uniform
@@ -82,7 +82,7 @@ cdef class MaterialBase:
 
         self.c_material = CMaterial.create(program.c_program, c_uniforms)
 
-    def __eq__(self, Material other):
+    def __eq__(self, _ReadonlyMaterial other):
         if other is None:
             return False
 
@@ -117,7 +117,7 @@ cdef class MaterialBase:
             CFMat3 mat3
             CFMat4 mat4
             list result = []
-            CUniformSpecification c_uniform = self._get_specification(name)
+            CUniformSpecification c_uniform = self.get_specification(name)
 
         if c_uniform.type() == CUniformType.vec4:
             for vec4 in self.c_material.get() \
@@ -154,7 +154,7 @@ cdef class MaterialBase:
             return result[0]
         return tuple(result)
 
-    cdef CUniformSpecification _get_specification(self, str name) except *:
+    cdef CUniformSpecification get_specification(self, str name) except *:
         cdef unordered_map[string, CUniformSpecification] uniforms
         uniforms = self.c_material.get().uniforms()
         if uniforms.find(name.encode()) == uniforms.end():
@@ -164,7 +164,7 @@ cdef class MaterialBase:
 
 
 @cython.final
-cdef class MaterialView(MaterialBase):
+cdef class MaterialView(_ReadonlyMaterial):
     @staticmethod
     cdef MaterialView create(CResourceReference[CMaterial]& c_material):
         cdef MaterialView instance = MaterialView.__new__(MaterialView)
@@ -176,14 +176,7 @@ cdef class MaterialView(MaterialBase):
         return Material.create(self.c_material)
 
 
-@cython.final
-cdef class Material(MaterialBase):
-    @staticmethod
-    cdef Material create(CResourceReference[CMaterial]& c_material):
-        cdef Material instance = Material.__new__(Material)
-        instance.c_material = c_material
-        return instance
-
+cdef class _Material(_ReadonlyMaterial):
     def set_uniform_texture(
         self,
         str name not None,
@@ -197,7 +190,7 @@ cdef class Material(MaterialBase):
 
     def set_uniform_value(self, str name not None, tuple value not None):
         cdef:
-            CUniformSpecification c_uniform = self._get_specification(name)
+            CUniformSpecification c_uniform = self.get_specification(name)
             uint16_t elements_num = c_uniform.number_of_elements()
 
         if elements_num > 1:
@@ -268,6 +261,15 @@ cdef class Material(MaterialBase):
             )
         else:
             raise Exception('Unsupported uniform type.')
+
+
+@cython.final
+cdef class Material(_Material):
+    @staticmethod
+    cdef Material create(CResourceReference[CMaterial]& c_material):
+        cdef Material instance = Material.__new__(Material)
+        instance.c_material = c_material
+        return instance
 
     def clone(self):
         return Material.create(self.c_material.get().clone())

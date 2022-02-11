@@ -8,7 +8,7 @@ class MyNode(Node):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         print(self.position)
-        print(self.views)
+        print(self.viewports)
 
 
 class DemoScene(Scene):
@@ -27,7 +27,7 @@ class DemoScene(Scene):
         self.root.add_child(self.square_2)
         self.root.add_child(self.square_3)
 
-        MyNode(views={1}, position=Vector(200,200))
+        MyNode(viewports={1}, position=Vector(200,200))
 
     def update(self, dt):
         for event in self.input.events():

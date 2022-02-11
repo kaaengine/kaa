@@ -24,7 +24,7 @@ class MainScene(Scene):
             Node(
                 sprite=Sprite(PYTHON_IMAGE_PATH),
                 position=Vector(400, 300),
-                scale=Vector.xy(2),
+                scale=Vector.xy(1),
                 material=self.material
             )
         )

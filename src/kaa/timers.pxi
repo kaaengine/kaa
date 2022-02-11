@@ -71,7 +71,7 @@ cdef class Timer:
         return self.c_timer.is_running()
 
     def start(self, double interval, Scene scene not None):
-        self.c_timer.start(CDuration(interval), scene._c_scene.get())
+        self.c_timer.start(CDuration(interval), scene.c_scene.get())
 
     def start_global(self, double interval):
         self.c_timer.start_global(CDuration(interval))

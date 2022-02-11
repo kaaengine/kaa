@@ -115,9 +115,15 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         CScene* scene() except +raise_py_error
         CNodePtr parent() except +raise_py_error
 
-        void views(const optional[unordered_set[int16_t]]& z_indices) except +raise_py_error
-        const optional[vector[int16_t]] views() except +raise_py_error
-        const vector[int16_t] effective_views() except +raise_py_error
+        void render_passes(const optional[unordered_set[int16_t]]& indices) \
+            except +raise_py_error
+        const optional[vector[int16_t]] render_passes() except +raise_py_error
+        const vector[int16_t] effective_render_passes() except +raise_py_error
+
+        void viewports(const optional[unordered_set[int16_t]]& z_indices) \
+            except +raise_py_error
+        const optional[vector[int16_t]] viewports() except +raise_py_error
+        const vector[int16_t] effective_viewports() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error

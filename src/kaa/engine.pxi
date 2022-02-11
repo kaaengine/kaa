@@ -46,9 +46,7 @@ cdef class _Engine:
 
     @property
     def current_scene(self):
-        cdef CEngine* c_engine = get_c_engine()
-        if c_engine.current_scene():
-            return (<CPyScene*>c_engine.current_scene()).get_py_scene()
+        return (<CPyScene*>get_c_engine().current_scene()).get_py_scene()
 
     @property
     def virtual_resolution(self):
@@ -90,11 +88,11 @@ cdef class _Engine:
         return get_c_engine().get_fps()
 
     def change_scene(self, Scene scene not None):
-        get_c_engine().change_scene(scene._c_scene.get())
+        get_c_engine().change_scene(scene.c_scene.get())
 
     def run(self, Scene scene not None):
         cdef:
-            CScene* c_scene = scene._c_scene.get()
+            CScene* c_scene = scene.c_scene.get()
             CEngine* c_engine = get_c_engine()
         with nogil:
             c_engine.run(c_scene)
@@ -108,7 +106,7 @@ cdef class _Engine:
         displays_list = []
 
         for c_disp in c_displays:
-            displays_list.append(Display._wrap_c_display(c_disp))
+            displays_list.append(Display.wrap_c_display(c_disp))
         return displays_list
 
     def stop(self):

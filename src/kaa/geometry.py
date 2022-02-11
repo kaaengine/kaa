@@ -5,6 +5,6 @@ from ._kaa import (
 
 
 __all__ = (
-    'Vector', 'Segment', 'Circle', 'Polygon', 'PolygonType', 'classify_polygon',
-    'Alignment', 'Transformation', 'BoundingBox'
+    'Vector', 'Segment', 'Circle', 'Polygon', 'PolygonType', 'classify_polygon', 'Alignment',
+    'Transformation', 'BoundingBox', 'AngleSign', 'normalize_angle', 'normalize_angle_degrees',
 )

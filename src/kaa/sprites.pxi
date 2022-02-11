@@ -29,7 +29,7 @@ cdef class Sprite:
         return instance
 
     def __init__(self, str path):
-        self.c_sprite = CSprite.load(path.encode(), 0)
+        self.c_sprite = CSprite.load(path.encode())
 
     def __eq__(self, Sprite other):
         return self.c_sprite == other.c_sprite

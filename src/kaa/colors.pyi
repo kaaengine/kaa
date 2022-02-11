@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import final
+from typing import final, Union
 
 
 @final
@@ -16,6 +16,10 @@ class Color:
         self, r: int = 0, g: int = 0,
         b: int = 0, a: int = 255,
     ) -> Color:
+        ...
+
+    @classmethod
+    def from_hex(self, hex_color: Union[int, str]) -> Color:
         ...
 
     @property

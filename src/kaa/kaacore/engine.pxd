@@ -34,18 +34,15 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
         void virtual_resolution(CUVec2 resolution) except +raise_py_error
 
         CVirtualResolutionMode virtual_resolution_mode() except +raise_py_error
-        void virtual_resolution_mode(
-            CVirtualResolutionMode vr_mode
-        ) except +raise_py_error
+        void virtual_resolution_mode(CVirtualResolutionMode vr_mode) except +raise_py_error
 
         CEngine(CUVec2 virtual_resolution)
         CEngine(CUVec2 virtual_resolution,
                 CVirtualResolutionMode virtual_resolution_mode)
 
-        vector[CDisplay] get_displays() except +raise_py_error
-        CDuration total_time() except +raise_py_error
         double get_fps() except +raise_py_error
-
+        CDuration total_time() except +raise_py_error
+        vector[CDisplay] get_displays() except +raise_py_error
         void run(CScene* c_scene) except +raise_py_error
         void change_scene(CScene* c_scene) except +raise_py_error
         void quit() except +raise_py_error

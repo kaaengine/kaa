@@ -82,28 +82,28 @@ cdef class NodeBase:
         # (destroying underlying cnode if appropriate).
         # It's not used if Node class is used as a
         # wrapper for existing node.
-        CNodeOwnerPtr _c_node_owner_ptr
-        CNodePtr _c_node_ptr
+        CNodeOwnerPtr c_node_owner_ptr
+        CNodePtr c_node_ptr
 
     def __init__(self, **options):
         self.setup(**options)
 
     cdef void _reset(self):
-        self._c_node_ptr = CNodePtr()
+        self.c_node_ptr = CNodePtr()
 
-    cdef inline CNode* _get_c_node(self) except NULL:
-        cdef CNode* c_node = self._c_node_ptr.get()
+    cdef inline CNode* get_c_node(self) except NULL:
+        cdef CNode* c_node = self.c_node_ptr.get()
         assert c_node != NULL, \
             'Operation on uninitialized or deleted Node.'
         return c_node
 
-    cdef void _make_c_node(self, CNodeType type):
-        self._c_node_owner_ptr = cmove(c_make_node(type))
-        self._c_node_ptr = CNodePtr(self._c_node_owner_ptr.get())
+    cdef void make_c_node(self, CNodeType type):
+        self.c_node_owner_ptr = cmove(c_make_node(type))
+        self.c_node_ptr = CNodePtr(self.c_node_owner_ptr.get())
         cdef:
             on_attach_defined = callable(getattr(self, 'on_attach', None))
             on_detach_defined = callable(getattr(self, 'on_detach', None))
-        self._c_node_ptr.get().setup_wrapper(
+        self.c_node_ptr.get().setup_wrapper(
             unique_ptr[CForeignNodeWrapper](
                 new CPyNodeWrapper(
                     <PyObject*>self, on_attach_defined, on_detach_defined
@@ -111,24 +111,24 @@ cdef class NodeBase:
             )
         )
 
-    cdef void _attach_c_node(self, CNodePtr c_node_ptr):
-        assert self._c_node_ptr.get() == NULL, "Node is already initialized, cannot attach."
+    cdef void attach_c_node(self, CNodePtr c_node_ptr):
+        assert self.c_node_ptr.get() == NULL, "Node is already initialized, cannot attach."
         assert c_node_ptr, "Cannot atach NULL node."
-        self._c_node_ptr = c_node_ptr
+        self.c_node_ptr = c_node_ptr
 
     def __bool__(self):
-        return self._c_node_ptr.get() != NULL
+        return self.c_node_ptr.get() != NULL
 
     def add_child(self, NodeBase node):
-        assert self._c_node_ptr, "Cannot add_child to NULL node."
-        assert node._c_node_ptr, "Cannot add NULL node as child."
-        assert node._c_node_owner_ptr, "Node added as child must be owned node."
-        self._c_node_ptr.get().add_child(node._c_node_owner_ptr)
+        assert self.c_node_ptr, "Cannot add_child to NULL node."
+        assert node.c_node_ptr, "Cannot add NULL node as child."
+        assert node.c_node_owner_ptr, "Node added as child must be owned node."
+        self.c_node_ptr.get().add_child(node.c_node_owner_ptr)
         return node
 
     def delete(self):
-        assert self._c_node_ptr, "Node already deleted."
-        self._c_node_ptr.destroy()
+        assert self.c_node_ptr, "Node already deleted."
+        self.c_node_ptr.destroy()
 
     def setup(self, **options):
         if 'position' in options:
@@ -159,8 +159,10 @@ cdef class NodeBase:
             self.lifetime = options.pop('lifetime')
         if 'transition' in options:
             self.transition = options.pop('transition')
-        if 'views' in options:
-            self.views = options.pop('views')
+        if 'viewports' in options:
+            self.viewports = options.pop('viewports')
+        if 'render_passes' in options:
+            self.render_passes = options.pop('render_passes')
         if 'indexable' in options:
             self.indexable = options.pop('indexable')
 
@@ -175,40 +177,34 @@ cdef class NodeBase:
     def children(self):
         cdef:
             CNode* c_node
-            vector[CNode*] children_copy = self._get_c_node().children()
+            vector[CNode*] children_copy = self.get_c_node().children()
 
         for c_node in children_copy:
             yield get_node_wrapper(CNodePtr(c_node))
 
     @property
     def type(self):
-        return <int>self._get_c_node().type()
+        return <int>self.get_c_node().type()
 
     @property
     def scene(self):
-        cdef CPyScene* cpy_scene = <CPyScene*>self._get_c_node().scene()
+        cdef CPyScene* cpy_scene = <CPyScene*>self.get_c_node().scene()
         if cpy_scene:
             return cpy_scene.get_py_scene()
 
     @property
     def parent(self):
-        if self._get_c_node().parent():
-            return get_node_wrapper(self._get_c_node().parent())
+        if self.get_c_node().parent():
+            return get_node_wrapper(self.get_c_node().parent())
 
     @property
-    def views(self):
-        cdef:
-            int16_t c_index
-            set result = set()
-            optional[vector[int16_t]] c_indices = self._get_c_node().views()
-
+    def viewports(self):
+        cdef optional[vector[int16_t]] c_indices = self.get_c_node().viewports()
         if c_indices.has_value():
-            for c_index in range(c_indices.value().size()):
-                result.add(c_indices.value()[c_index])
-            return result
+            return c_indices_to_set(c_indices.value())
 
-    @views.setter
-    def views(self, set z_indices):
+    @viewports.setter
+    def viewports(self, set z_indices):
         cdef:
             int16_t z_index
             unordered_set[int16_t] c_z_indices
@@ -216,182 +212,207 @@ cdef class NodeBase:
         if z_indices is not None:
             for z_index in z_indices:
                 c_z_indices.insert(z_index)
-            self._get_c_node().views(optional[unordered_set[int16_t]](c_z_indices))
+            self.get_c_node().viewports(
+                optional[unordered_set[int16_t]](c_z_indices)
+            )
         else:
-            self._get_c_node().views(optional[unordered_set[int16_t]](nullopt))
+            self.get_c_node().viewports(
+                optional[unordered_set[int16_t]](nullopt)
+            )
 
     @property
-    def effective_views(self):
+    def effective_viewports(self):
+        return c_indices_to_set(self.get_c_node().effective_viewports())
+
+    @property
+    def render_passes(self):
+        cdef optional[vector[int16_t]] c_indices = self.get_c_node() \
+            .render_passes()
+        if c_indices.has_value():
+            return c_indices_to_set(c_indices.value())
+
+    @render_passes.setter
+    def render_passes(self, set indices):
         cdef:
             int16_t c_index
-            set result = set()
-            vector[int16_t] c_indices = self._get_c_node().effective_views()
+            unordered_set[int16_t] c_indices
 
-        for c_index in range(c_indices.size()):
-            result.add(c_indices[c_index])
-        return result
+        if indices is not None:
+            for c_index in indices:
+                c_indices.insert(c_index)
+            self.get_c_node().render_passes(
+                optional[unordered_set[int16_t]](c_indices)
+            )
+        else:
+            self.get_c_node().render_passes(
+                optional[unordered_set[int16_t]](nullopt)
+            )
+
+    @property
+    def effective_render_passes(self):
+        return c_indices_to_set(self.get_c_node().effective_render_passes())
 
     @property
     def position(self):
-        return Vector.from_c_vector(self._get_c_node().position())
+        return Vector.from_c_vector(self.get_c_node().position())
 
     @property
     def absolute_position(self):
-        return Vector.from_c_vector(self._get_c_node().absolute_position())
+        return Vector.from_c_vector(self.get_c_node().absolute_position())
 
     @position.setter
     def position(self, Vector vec):
-        self._get_c_node().position(vec.c_vector)
+        self.get_c_node().position(vec.c_vector)
 
     def get_relative_position(self, NodeBase ancestor not None):
         return Vector.from_c_vector(
-            self._get_c_node().get_relative_position(ancestor._get_c_node())
+            self.get_c_node().get_relative_position(ancestor.get_c_node())
         )
 
     @property
     def z_index(self):
-        cdef optional[int16_t] optional_z_index = self._get_c_node().z_index()
+        cdef optional[int16_t] optional_z_index = self.get_c_node().z_index()
         if optional_z_index.has_value():
             return optional_z_index.value()
 
     @z_index.setter
     def z_index(self, value):
         if value is not None:
-            self._get_c_node().z_index(optional[int16_t](<int>value))
+            self.get_c_node().z_index(optional[int16_t](<int>value))
         else:
-            self._get_c_node().z_index(optional[int16_t](nullopt))
+            self.get_c_node().z_index(optional[int16_t](nullopt))
 
     @property
     def effective_z_index(self):
-        return self._get_c_node().effective_z_index()
+        return self.get_c_node().effective_z_index()
 
     @property
     def rotation(self):
-        return self._get_c_node().rotation()
+        return self.get_c_node().rotation()
 
     @property
     def absolute_rotation(self):
-        return self._get_c_node().absolute_rotation()
+        return self.get_c_node().absolute_rotation()
 
     @rotation.setter
     def rotation(self, double value):
-        self._get_c_node().rotation(value)
+        self.get_c_node().rotation(value)
 
     @property
     def rotation_degrees(self):
-        return degrees(self._get_c_node().rotation())
+        return degrees(self.get_c_node().rotation())
 
     @property
     def absolute_rotation_degrees(self):
-        return degrees(self._get_c_node().absolute_rotation())
+        return degrees(self.get_c_node().absolute_rotation())
 
     @rotation_degrees.setter
     def rotation_degrees(self, double value):
-        self._get_c_node().rotation(radians(value))
+        self.get_c_node().rotation(radians(value))
 
     @property
     def scale(self):
-        return Vector.from_c_vector(self._get_c_node().scale())
+        return Vector.from_c_vector(self.get_c_node().scale())
 
     @property
     def absolute_scale(self):
-        return Vector.from_c_vector(self._get_c_node().absolute_scale())
+        return Vector.from_c_vector(self.get_c_node().absolute_scale())
 
     @scale.setter
     def scale(self, Vector vec):
-        self._get_c_node().scale(vec.c_vector)
+        self.get_c_node().scale(vec.c_vector)
 
     @property
     def transformation(self):
-        return Transformation.create(self._get_c_node().transformation())
+        return Transformation.create(self.get_c_node().transformation())
 
     @transformation.setter
     def transformation(self, Transformation transformation not None):
-        self._get_c_node().transformation(transformation.c_transformation)
+        self.get_c_node().transformation(transformation.c_transformation)
 
     @property
     def absolute_transformation(self):
-        return Transformation.create(self._get_c_node().absolute_transformation())
+        return Transformation.create(self.get_c_node().absolute_transformation())
 
     def get_relative_transformation(self, NodeBase ancestor not None):
         return Transformation.create(
-            self._get_c_node().get_relative_transformation(
-                ancestor._get_c_node()
+            self.get_c_node().get_relative_transformation(
+                ancestor.get_c_node()
             )
         )
 
     @property
     def color(self):
-        return Color.from_c_color(self._get_c_node().color())
+        return Color.from_c_color(self.get_c_node().color())
 
     @color.setter
     def color(self, Color col):
-        self._get_c_node().color(col.c_color)
+        self.get_c_node().color(col.c_color)
 
     @property
     def visible(self):
-        return self._get_c_node().visible()
+        return self.get_c_node().visible()
 
     @visible.setter
     def visible(self, bint value):
-        self._get_c_node().visible(value)
+        self.get_c_node().visible(value)
 
     @property
     def sprite(self):
-        if self._get_c_node().sprite().has_texture():
-            return Sprite.create(self._get_c_node().sprite())
+        if self.get_c_node().sprite().has_texture():
+            return Sprite.create(self.get_c_node().sprite())
 
     @sprite.setter
     def sprite(self, Sprite sprite):
         if sprite is not None:
-            self._get_c_node().sprite(sprite.c_sprite)
+            self.get_c_node().sprite(sprite.c_sprite)
         else:
-            self._get_c_node().sprite(CSprite())
+            self.get_c_node().sprite(CSprite())
 
     @property
     def material(self):
-        if self._get_c_node().material():
-            return MaterialView.create(self._get_c_node().material())
+        if self.get_c_node().material():
+            return MaterialView.create(self.get_c_node().material())
 
     @material.setter
     def material(self, Material material):
         if material is not None:
-            self._get_c_node().material(material.c_material)
+            self.get_c_node().material(material.c_material)
         else:
-            self._get_c_node().material(CResourceReference[CMaterial]())
+            self.get_c_node().material(CResourceReference[CMaterial]())
 
     @property
     def shape(self):
-        if self._get_c_node().shape():
-            return get_shape_wrapper(self._get_c_node().shape())
+        if self.get_c_node().shape():
+            return get_shape_wrapper(self.get_c_node().shape())
 
     @shape.setter
     def shape(self, ShapeBase new_shape):
         if new_shape is not None:
-            self._get_c_node().shape(new_shape.c_shape_ptr[0])
+            self.get_c_node().shape(new_shape.c_shape_ptr[0])
         else:
-            self._get_c_node().shape(CShape())
+            self.get_c_node().shape(CShape())
 
     @property
     def origin_alignment(self):
-        return Alignment(<uint32_t>self._get_c_node().origin_alignment())
+        return Alignment(<uint32_t>self.get_c_node().origin_alignment())
 
     @origin_alignment.setter
     def origin_alignment(self, alignment):
-        self._get_c_node().origin_alignment(<CAlignment>(<uint32_t>alignment.value))
+        self.get_c_node().origin_alignment(<CAlignment>(<uint32_t>alignment.value))
 
     @property
     def lifetime(self):
-        return self._get_c_node().lifetime().count()
+        return self.get_c_node().lifetime().count()
 
     @lifetime.setter
     def lifetime(self, double new_lifetime):
-        self._get_c_node().lifetime(CDuration(new_lifetime))
+        self.get_c_node().lifetime(CDuration(new_lifetime))
 
     @property
     def transition(self):
-        if self._get_c_node().transition():
-            return get_transition_wrapper(self._get_c_node().transition())
+        if self.get_c_node().transition():
+            return get_transition_wrapper(self.get_c_node().transition())
 
     @transition.setter
     def transition(self, transition_or_list):
@@ -402,34 +423,44 @@ cdef class NodeBase:
             else:
                 transition = transition_or_list
             assert transition.c_handle
-            self._get_c_node().transition(transition.c_handle)
+            self.get_c_node().transition(transition.c_handle)
         else:
-            self._get_c_node().transition(CNodeTransitionHandle())
+            self.get_c_node().transition(CNodeTransitionHandle())
 
     @property
     def transitions_manager(self):
-        return _NodeTransitionsManager.create(self._c_node_ptr)
+        return _NodeTransitionsManager.create(self.c_node_ptr)
 
     @property
     def indexable(self):
-        return self._get_c_node().indexable()
+        return self.get_c_node().indexable()
 
     @indexable.setter
     def indexable(self, bool value):
-        self._get_c_node().indexable(value)
+        self.get_c_node().indexable(value)
 
     @property
     def root_distance(self):
-        return self._get_c_node().root_distance()
+        return self.get_c_node().root_distance()
 
     @property
     def bounding_box(self):
-        return BoundingBox.create(self._get_c_node().bounding_box())
+        return BoundingBox.create(self.get_c_node().bounding_box())
+
+
+cdef set c_indices_to_set(vector[int16_t]& c_indices):
+    cdef:
+        int16_t c_index
+        set result = set()
+
+    for c_index in range(c_indices.size()):
+        result.add(c_indices[c_index])
+    return result
 
 
 cdef class Node(NodeBase):
     def __init__(self, **options):
-        self._make_c_node(CNodeType.basic)
+        self.make_c_node(CNodeType.basic)
         super().__init__(**options)
 
 
@@ -444,17 +475,17 @@ cdef NodeBase get_node_wrapper(CNodePtr c_node_ptr):
         ).py_wrapper
     elif c_node.type() == CNodeType.space:
         py_node = SpaceNode.__new__(SpaceNode)
-        py_node._attach_c_node(c_node_ptr)
+        py_node.attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.body:
         py_node = BodyNode.__new__(BodyNode)
-        py_node._attach_c_node(c_node_ptr)
+        py_node.attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.hitbox:
         py_node = HitboxNode.__new__(HitboxNode)
-        py_node._attach_c_node(c_node_ptr)
+        py_node.attach_c_node(c_node_ptr)
     elif c_node.type() == CNodeType.text:
         py_node = TextNode.__new__(TextNode)
-        py_node._attach_c_node(c_node_ptr)
+        py_node.attach_c_node(c_node_ptr)
     else:
         py_node = Node.__new__(Node)
-        py_node._attach_c_node(c_node_ptr)
+        py_node.attach_c_node(c_node_ptr)
     return py_node
