@@ -38,6 +38,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     docker_image: "quay.io/pypa/manylinux2010_x86_64"
     platform.name: 'linux'
@@ -77,6 +80,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     platform.name: 'windows'
   steps:
@@ -106,6 +112,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     platform.name: 'macos'
     platform.tag: 'macosx-10.14-x86_64'

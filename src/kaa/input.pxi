@@ -1,6 +1,6 @@
 import inspect
 from enum import IntEnum
-from collections import Iterable
+from collections.abc import Iterable
 
 import cython
 from libcpp cimport nullptr

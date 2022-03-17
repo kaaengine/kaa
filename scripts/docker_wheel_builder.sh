@@ -29,6 +29,10 @@ then
             PY_VERSION="python3.9"
             PY_VERSION_ABI="cp39-cp39"
             ;;
+        "py310")
+            PY_VERSION="python3.10"
+            PY_VERSION_ABI="cp310-cp310"
+            ;;
         *)
             echo "ERROR: Unknown py version specified: $1"
             exit 1
@@ -46,7 +50,7 @@ python --version
 
 yum install -y alsa-lib-devel pulseaudio-libs-devel  # SDL audio dependencies
 yum install -y libXrandr-devel libXcursor-devel  # SDL video dependencies
-pip install -r /host/requirements/build.txt -r /host/requirements/dev.txt
+pip install cmake -r /host/requirements/build.txt
 
 # simulate out-of-source build
 cp -r /host/src -v .
