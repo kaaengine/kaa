@@ -165,6 +165,8 @@ cdef class NodeBase:
             self.render_passes = options.pop('render_passes')
         if 'indexable' in options:
             self.indexable = options.pop('indexable')
+        if 'stencil_mode' in options:
+            self.stencil_mode = options.pop('stencil_mode')
 
         if options:
             raise ValueError('Passed unknown options to {}: {}'.format(
@@ -438,6 +440,19 @@ cdef class NodeBase:
     @indexable.setter
     def indexable(self, bool value):
         self.get_c_node().indexable(value)
+
+    @property
+    def stencil_mode(self):
+        cdef optional[CStencilMode] c_stencil_mode = self.get_c_node().stencil_mode()
+        if c_stencil_mode.has_value():
+            return StencilMode.create(c_stencil_mode.value())
+
+    @stencil_mode.setter
+    def stencil_mode(self, object stencil_mode):
+        if stencil_mode is not None:
+            self.get_c_node().stencil_mode(optional[CStencilMode]((<StencilMode>stencil_mode).c_stencil_mode))
+        else:
+            self.get_c_node().stencil_mode(optional[CStencilMode](nullopt))
 
     @property
     def root_distance(self):
