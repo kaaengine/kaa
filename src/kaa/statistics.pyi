@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import type_check_only, List, Tuple
+from typing import final, type_check_only, List, Tuple
 
 
 @final

@@ -70,7 +70,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
 
         double rotation() except +raise_py_error
         double absolute_rotation() except +raise_py_error
-        void rotation(const double& rotation) except +raise_py_error
+        void rotation(const double rotation) except +raise_py_error
 
         CDVec2 scale() except +raise_py_error
         CDVec2 absolute_scale() except +raise_py_error
@@ -99,13 +99,13 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         void color(const CColor& color) except +raise_py_error
 
         bool visible() except +raise_py_error
-        void visible(const bool& visible) except +raise_py_error
+        void visible(const bool visible) except +raise_py_error
 
         CAlignment origin_alignment() except +raise_py_error
-        void origin_alignment(const CAlignment& alignment) except +raise_py_error
+        void origin_alignment(const CAlignment alignment) except +raise_py_error
 
         CDuration lifetime() except +raise_py_error
-        void lifetime(const CDuration& lifetime) except +raise_py_error
+        void lifetime(const CDuration lifetime) except +raise_py_error
 
         CNodeTransitionHandle transition() except +raise_py_error
         void transition(const CNodeTransitionHandle& transition) except +raise_py_error
@@ -115,9 +115,15 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         CScene* scene() except +raise_py_error
         CNodePtr parent() except +raise_py_error
 
-        void views(const optional[unordered_set[int16_t]]& z_indices) except +raise_py_error
-        const optional[vector[int16_t]] views() except +raise_py_error
-        const vector[int16_t] effective_views() except +raise_py_error
+        void render_passes(const optional[unordered_set[int16_t]]& indices) \
+            except +raise_py_error
+        const optional[vector[int16_t]] render_passes() except +raise_py_error
+        const vector[int16_t] effective_render_passes() except +raise_py_error
+
+        void viewports(const optional[unordered_set[int16_t]]& z_indices) \
+            except +raise_py_error
+        const optional[vector[int16_t]] viewports() except +raise_py_error
+        const vector[int16_t] effective_viewports() except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error

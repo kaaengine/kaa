@@ -322,3 +322,19 @@ class BoundingBox:
 
     def __hash__(self) -> int:
         ...
+
+
+class AngleSign(enum.IntEnum):
+    mixed: AngleSign
+    positive: AngleSign
+    negative: AngleSign
+
+
+def normalize_angle(value: float, angle_sign: AngleSign = AngleSign.mixed) -> float:
+    ...
+
+
+def normalize_angle_degrees(
+    value: float, angle_sign: AngleSign = AngleSign.mixed
+) -> float:
+    ...

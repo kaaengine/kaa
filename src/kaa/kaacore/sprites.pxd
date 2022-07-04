@@ -1,4 +1,3 @@
-from libc.stdint cimport uint16_t, uint32_t, uint64_t
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.string cimport string
@@ -18,13 +17,10 @@ cdef extern from "kaacore/sprites.h" namespace "kaacore" nogil:
 
         CSprite()
         CSprite(CResourceReference[CTexture]& texture)
-
-        @staticmethod
-        CSprite load(const string& path, uint64_t flags) \
-            except +raise_py_error
-
         bool operator==(const CSprite&)
 
+        @staticmethod
+        CSprite load(const string& path) except +raise_py_error
         CSprite crop(CDVec2 new_origin, CDVec2 new_dimensions) \
             except +raise_py_error
         bint has_texture() \

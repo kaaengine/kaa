@@ -23,7 +23,7 @@ jobs:
 - job: build_linux
   displayName: "Build Linux wheel"
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   strategy:
     matrix:
       Python36:
@@ -38,6 +38,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     docker_image: "quay.io/pypa/manylinux2010_x86_64"
     platform.name: 'linux'
@@ -77,6 +80,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     platform.name: 'windows'
   steps:
@@ -91,7 +97,7 @@ jobs:
 - job: build_macos
   displayName: "Build macOS wheel"
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   strategy:
     matrix:
       Python36:
@@ -106,6 +112,9 @@ jobs:
       Python39:
         python.version: '3.9'
         python.version_tag: 'py39'
+      Python310:
+        python.version: '3.10'
+        python.version_tag: 'py310'
   variables:
     platform.name: 'macos'
     platform.tag: 'macosx-10.14-x86_64'
@@ -135,7 +144,7 @@ jobs:
   - build_windows
   - build_macos
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   variables:
   - group: pypi-credentials
   # selected variable group should provide: TWINE_USERNAME, TWINE_PASSWORD, TWINE_REPOSITORY_URL

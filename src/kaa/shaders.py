@@ -1,4 +1,7 @@
-from ._kaa import (
-    ShaderType, VertexShader, FragmentShader, Varying, VaryingType, AttributeLocation,
-    Program, ShaderCompiler, ShaderCompilationError
+from ._kaa import ShaderType, VertexShader, FragmentShader, Program
+from .shader_tools import ShaderCompilationError
+
+
+__all__ = (
+    'ShaderType', 'VertexShader', 'FragmentShader', 'Program', 'ShaderCompilationError'
 )

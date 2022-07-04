@@ -5,7 +5,7 @@ cdef class Display:
     cdef CDisplay c_display
 
     @staticmethod
-    cdef Display _wrap_c_display(const CDisplay& c_display):
+    cdef Display wrap_c_display(const CDisplay& c_display):
         cdef Display display = Display.__new__(Display)
         display.c_display = c_display
         return display

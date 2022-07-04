@@ -263,47 +263,47 @@ cdef class Arbiter:
 
     @property
     def phase(self):
-        return CollisionPhase(<uint8_t>self._get_c_arbiter().phase)
+        return CollisionPhase(<uint8_t>self.get_c_arbiter().phase)
 
     @property
     def space(self):
-        return get_node_wrapper(self._get_c_arbiter().space)
+        return get_node_wrapper(self.get_c_arbiter().space)
 
     @property
     def first_contact(self):
-        return self._get_c_arbiter().first_contact()
+        return self.get_c_arbiter().first_contact()
 
     @property
     def total_kinetic_energy(self):
-        return self._get_c_arbiter().total_kinetic_energy()
+        return self.get_c_arbiter().total_kinetic_energy()
 
     @property
     def total_impulse(self):
-        return Vector.from_c_vector(self._get_c_arbiter().total_impulse())
+        return Vector.from_c_vector(self.get_c_arbiter().total_impulse())
 
     @property
     def elasticity(self):
-        return self._get_c_arbiter().elasticity()
+        return self.get_c_arbiter().elasticity()
 
     @elasticity.setter
     def elasticity(self, double value):
-        self._get_c_arbiter().elasticity(value)
+        self.get_c_arbiter().elasticity(value)
 
     @property
     def friction(self):
-        return self._get_c_arbiter().friction()
+        return self.get_c_arbiter().friction()
 
     @friction.setter
     def friction(self, double value):
-        self._get_c_arbiter().friction(value)
+        self.get_c_arbiter().friction(value)
 
     @property
     def surface_velocity(self):
-        return Vector.from_c_vector(self._get_c_arbiter().surface_velocity())
+        return Vector.from_c_vector(self.get_c_arbiter().surface_velocity())
 
     @surface_velocity.setter
     def surface_velocity(self, Vector value not None):
-        self._get_c_arbiter().surface_velocity(value.c_vector)
+        self.get_c_arbiter().surface_velocity(value.c_vector)
 
     @property
     def contact_points(self):
@@ -312,7 +312,7 @@ cdef class Arbiter:
             CCollisionContactPoint c_point
             vector[CCollisionContactPoint] c_result
 
-        c_result = self._get_c_arbiter().contact_points()
+        c_result = self.get_c_arbiter().contact_points()
         for c_point in c_result:
             result.append(CollisionContactPoint.create(c_point))
         return result
@@ -325,9 +325,9 @@ cdef class Arbiter:
 
         for point in value:
             c_vector.push_back(point.c_collision_contact_point)
-        self._get_c_arbiter().contact_points(c_vector)
+        self.get_c_arbiter().contact_points(c_vector)
 
-    cdef CArbiter* _get_c_arbiter(self) except NULL:
+    cdef CArbiter* get_c_arbiter(self) except NULL:
         assert self.c_arbiter != NULL, \
             'Arbiter used outside of collision handler.'
         return self.c_arbiter
@@ -337,11 +337,11 @@ cdef class Arbiter:
 
     @property
     def collision_normal(self):
-        return Vector.from_c_vector(self._get_c_arbiter().collision_normal())
+        return Vector.from_c_vector(self.get_c_arbiter().collision_normal())
 
     @collision_normal.setter
     def collision_normal(self, Vector value not None):
-        self._get_c_arbiter().collision_normal(value.c_vector)
+        self.get_c_arbiter().collision_normal(value.c_vector)
 
 
 cdef CollisionPair _prepare_collision_pair(CCollisionPair& c_pair):
@@ -359,7 +359,7 @@ cdef Arbiter _prepare_arbiter(CArbiter& c_arbiter):
 
 cdef class SpaceNode(NodeBase):
     def __init__(self, **options):
-        self._make_c_node(CNodeType.space)
+        self.make_c_node(CNodeType.space)
         super().__init__(**options)
 
     def setup(self, **options):
@@ -374,31 +374,31 @@ cdef class SpaceNode(NodeBase):
 
     @property
     def gravity(self):
-        return Vector.from_c_vector(self._get_c_node().space.gravity())
+        return Vector.from_c_vector(self.get_c_node().space.gravity())
 
     @gravity.setter
     def gravity(self, Vector value):
-        self._get_c_node().space.gravity(value.c_vector)
+        self.get_c_node().space.gravity(value.c_vector)
 
     @property
     def damping(self):
-        return self._get_c_node().space.damping()
+        return self.get_c_node().space.damping()
 
     @damping.setter
     def damping(self, double value):
-        self._get_c_node().space.damping(value)
+        self.get_c_node().space.damping(value)
 
     @property
     def sleeping_threshold(self):
-        return self._get_c_node().space.sleeping_threshold()
+        return self.get_c_node().space.sleeping_threshold()
 
     @sleeping_threshold.setter
     def sleeping_threshold(self, double value):
-        self._get_c_node().space.sleeping_threshold(value)
+        self.get_c_node().space.sleeping_threshold(value)
 
     @property
     def locked(self):
-        return self._get_c_node().space.locked()
+        return self.get_c_node().space.locked()
 
     def set_collision_handler(self, CollisionTriggerId trigger_a,
                               CollisionTriggerId trigger_b, object handler,
@@ -418,7 +418,7 @@ cdef class SpaceNode(NodeBase):
             CPythonicCallbackWrapper(<PyObject*>final_handler,
                                      final_handler_is_weakref),
         )
-        self._get_c_node().space.set_collision_handler(
+        self.get_c_node().space.set_collision_handler(
             trigger_a, trigger_b,
             bound_handler, phases_mask=phases_mask,
             only_non_deleted_nodes=only_non_deleted_nodes
@@ -436,7 +436,7 @@ cdef class SpaceNode(NodeBase):
             )
             shape |= Transformation(translate=position)
         return ShapeQueryResult.create_list(
-            self._get_c_node().space.query_shape_overlaps(
+            self.get_c_node().space.query_shape_overlaps(
                 shape.c_shape_ptr[0], mask, collision_mask, group
             )
         )
@@ -447,7 +447,7 @@ cdef class SpaceNode(NodeBase):
                   CollisionBitmask collision_mask=collision_bitmask_all,
                   CollisionGroup group=collision_group_none):
         return RayQueryResult.create_list(
-            self._get_c_node().space.query_ray(
+            self.get_c_node().space.query_ray(
                 ray_start.c_vector, ray_end.c_vector, radius,
                 mask, collision_mask, group,
             )
@@ -458,7 +458,7 @@ cdef class SpaceNode(NodeBase):
                   CollisionBitmask collision_mask=collision_bitmask_all,
                   CollisionGroup group=collision_group_none):
         return PointQueryResult.create_list(
-            self._get_c_node().space.query_point_neighbors(
+            self.get_c_node().space.query_point_neighbors(
                 point.c_vector, max_distance,
                 mask, collision_mask, group,
             )
@@ -520,7 +520,7 @@ cdef CPythonicCallbackResult[void] cython_update_position_callback(
 
 cdef class BodyNode(NodeBase):
     def __init__(self, **options):
-        self._make_c_node(CNodeType.body)
+        self.make_c_node(CNodeType.body)
         super().__init__(**options)
 
     def setup(self, **options):
@@ -553,174 +553,174 @@ cdef class BodyNode(NodeBase):
 
     @property
     def body_type(self):
-        return BodyNodeType(<uint8_t>self._get_c_node().body.body_type())
+        return BodyNodeType(<uint8_t>self.get_c_node().body.body_type())
 
     @body_type.setter
     def body_type(self, body_t):
-        self._get_c_node().body.body_type(<CBodyNodeType>(<uint8_t>body_t.value))
+        self.get_c_node().body.body_type(<CBodyNodeType>(<uint8_t>body_t.value))
 
     @property
     def local_force(self):
-        return Vector.from_c_vector(self._get_c_node().body.local_force())
+        return Vector.from_c_vector(self.get_c_node().body.local_force())
 
     @local_force.setter
     def local_force(self, Vector vec not None):
-        self._get_c_node().body.local_force(vec.c_vector)
+        self.get_c_node().body.local_force(vec.c_vector)
 
     @property
     def force(self):
-        return Vector.from_c_vector(self._get_c_node().body.force())
+        return Vector.from_c_vector(self.get_c_node().body.force())
 
     @force.setter
     def force(self, Vector vec not None):
-        self._get_c_node().body.force(vec.c_vector)
+        self.get_c_node().body.force(vec.c_vector)
 
     def apply_force_at_local(self, Vector force not None, Vector at not None):
-        self._get_c_node().body.apply_force_at_local(
+        self.get_c_node().body.apply_force_at_local(
             force.c_vector, at.c_vector
         )
 
     def apply_impulse_at_local(self, Vector force not None, Vector at not None):
-        self._get_c_node().body.apply_impulse_at_local(
+        self.get_c_node().body.apply_impulse_at_local(
             force.c_vector, at.c_vector
         )
 
     def apply_force_at(self, Vector force not None, Vector at not None):
-        self._get_c_node().body.apply_force_at(
+        self.get_c_node().body.apply_force_at(
             force.c_vector, at.c_vector
         )
 
     def apply_impulse_at(self, Vector force not None, Vector at not None):
-        self._get_c_node().body.apply_impulse_at(
+        self.get_c_node().body.apply_impulse_at(
             force.c_vector, at.c_vector
         )
 
     @property
     def velocity(self):
-        return Vector.from_c_vector(self._get_c_node().body.velocity())
+        return Vector.from_c_vector(self.get_c_node().body.velocity())
 
     @velocity.setter
     def velocity(self, Vector vec not None):
-        self._get_c_node().body.velocity(vec.c_vector)
+        self.get_c_node().body.velocity(vec.c_vector)
 
     @property
     def torque(self):
-        return self._get_c_node().body.torque()
+        return self.get_c_node().body.torque()
 
     @torque.setter
     def torque(self, double rad_sec):
-        self._get_c_node().body.torque(rad_sec)
+        self.get_c_node().body.torque(rad_sec)
 
     @property
     def torque_degrees(self):
-        return degrees(self._get_c_node().body.torque())
+        return degrees(self.get_c_node().body.torque())
 
     @torque_degrees.setter
     def torque_degrees(self, double deg_sec):
-        self._get_c_node().body.torque(radians(deg_sec))
+        self.get_c_node().body.torque(radians(deg_sec))
 
     @property
     def angular_velocity(self):
-        return self._get_c_node().body.angular_velocity()
+        return self.get_c_node().body.angular_velocity()
 
     @angular_velocity.setter
     def angular_velocity(self, double rad_sec):
-        self._get_c_node().body.angular_velocity(rad_sec)
+        self.get_c_node().body.angular_velocity(rad_sec)
 
     @property
     def angular_velocity_degrees(self):
-        return degrees(self._get_c_node().body.angular_velocity())
+        return degrees(self.get_c_node().body.angular_velocity())
 
     @angular_velocity_degrees.setter
     def angular_velocity_degrees(self, double deg_sec):
-        self._get_c_node().body.angular_velocity(radians(deg_sec))
+        self.get_c_node().body.angular_velocity(radians(deg_sec))
 
     @property
     def mass(self):
-        return self._get_c_node().body.mass()
+        return self.get_c_node().body.mass()
 
     @property
     def mass_inverse(self):
-        return self._get_c_node().body.mass_inverse()
+        return self.get_c_node().body.mass_inverse()
 
     @mass.setter
     def mass(self, double value):
-        self._get_c_node().body.mass(value)
+        self.get_c_node().body.mass(value)
 
     @property
     def moment(self):
-        return self._get_c_node().body.moment()
+        return self.get_c_node().body.moment()
 
     @property
     def moment_inverse(self):
-        return self._get_c_node().body.moment_inverse()
+        return self.get_c_node().body.moment_inverse()
 
     @moment.setter
     def moment(self, double value):
-        self._get_c_node().body.moment(value)
+        self.get_c_node().body.moment(value)
 
     @property
     def center_of_gravity(self):
-        return Vector.from_c_vector(self._get_c_node().body.center_of_gravity())
+        return Vector.from_c_vector(self.get_c_node().body.center_of_gravity())
 
     @center_of_gravity.setter
     def center_of_gravity(self, Vector cog not None):
-        self._get_c_node().body.center_of_gravity(cog.c_vector)
+        self.get_c_node().body.center_of_gravity(cog.c_vector)
 
     @property
     def damping(self):
-        cdef optional[double] c_damping = self._get_c_node().body.damping()
+        cdef optional[double] c_damping = self.get_c_node().body.damping()
         if c_damping:
             return <double>(c_damping.value())
 
     @damping.setter
     def damping(self, damping):
         if damping is None:
-            self._get_c_node().body.damping(optional[double](nullopt))
+            self.get_c_node().body.damping(optional[double](nullopt))
         else:
             assert isinstance(damping, (int, float))
-            self._get_c_node().body.damping(optional[double](<double>(damping)))
+            self.get_c_node().body.damping(optional[double](<double>(damping)))
 
     @property
     def gravity(self):
-        cdef optional[CDVec2] c_gravity = self._get_c_node().body.gravity()
+        cdef optional[CDVec2] c_gravity = self.get_c_node().body.gravity()
         if c_gravity:
             return Vector.from_c_vector(c_gravity.value())
 
     @gravity.setter
     def gravity(self, Vector gravity):
         if gravity is None:
-            self._get_c_node().body.gravity(optional[CDVec2](nullopt))
+            self.get_c_node().body.gravity(optional[CDVec2](nullopt))
         else:
-            self._get_c_node().body.gravity(optional[CDVec2](gravity.c_vector))
+            self.get_c_node().body.gravity(optional[CDVec2](gravity.c_vector))
 
     @property
     def kinetic_energy(self):
-        return self._get_c_node().body.kinetic_energy()
+        return self.get_c_node().body.kinetic_energy()
 
     @property
     def sleeping(self):
-        return self._get_c_node().body.sleeping()
+        return self.get_c_node().body.sleeping()
 
     @sleeping.setter
     def sleeping(self, bool sleeping):
-        self._get_c_node().body.sleeping(sleeping)
+        self.get_c_node().body.sleeping(sleeping)
 
     @property
     def _velocity_bias(self):
-        return Vector.from_c_vector(self._get_c_node().body._velocity_bias())
+        return Vector.from_c_vector(self.get_c_node().body._velocity_bias())
 
     @_velocity_bias.setter
     def _velocity_bias(self, Vector velocity not None):
-        self._get_c_node().body._velocity_bias(velocity.c_vector)
+        self.get_c_node().body._velocity_bias(velocity.c_vector)
 
     @property
     def _angular_velocity_bias(self):
-        return self._get_c_node().body._angular_velocity_bias()
+        return self.get_c_node().body._angular_velocity_bias()
 
     @_angular_velocity_bias.setter
     def _angular_velocity_bias(self, double torque):
-        self._get_c_node().body._angular_velocity_bias(torque)
+        self.get_c_node().body._angular_velocity_bias(torque)
 
     def set_velocity_update_callback(self, object callback not None):
         cdef bint is_weakref = inspect.ismethod(callback)
@@ -731,7 +731,7 @@ cdef class BodyNode(NodeBase):
             cython_update_velocity_callback,
             CPythonicCallbackWrapper(<PyObject*>callback, is_weakref),
         )
-        self._get_c_node().body.set_velocity_update_callback(cmove(bound_handler))
+        self.get_c_node().body.set_velocity_update_callback(cmove(bound_handler))
 
     def set_position_update_callback(self, object callback not None):
         cdef bint is_weakref = inspect.ismethod(callback)
@@ -742,12 +742,12 @@ cdef class BodyNode(NodeBase):
             cython_update_position_callback,
             CPythonicCallbackWrapper(<PyObject*>callback, is_weakref),
         )
-        self._get_c_node().body.set_position_update_callback(cmove(bound_handler))
+        self.get_c_node().body.set_position_update_callback(cmove(bound_handler))
 
 
 cdef class HitboxNode(NodeBase):
     def __init__(self, **options):
-        self._make_c_node(CNodeType.hitbox)
+        self.make_c_node(CNodeType.hitbox)
         super().__init__(**options)
 
     def setup(self, **options):
@@ -775,64 +775,64 @@ cdef class HitboxNode(NodeBase):
 
     @property
     def group(self):
-        return self._get_c_node().hitbox.group()
+        return self.get_c_node().hitbox.group()
 
     @group.setter
     def group(self, CollisionGroup cgrp):
-        self._get_c_node().hitbox.group(cgrp)
+        self.get_c_node().hitbox.group(cgrp)
 
     @property
     def mask(self):
-        return self._get_c_node().hitbox.mask()
+        return self.get_c_node().hitbox.mask()
 
     @mask.setter
     def mask(self, CollisionBitmask mask):
-        self._get_c_node().hitbox.mask(mask)
+        self.get_c_node().hitbox.mask(mask)
 
     @property
     def collision_mask(self):
-        return self._get_c_node().hitbox.collision_mask()
+        return self.get_c_node().hitbox.collision_mask()
 
     @collision_mask.setter
     def collision_mask(self, CollisionBitmask mask):
-        self._get_c_node().hitbox.collision_mask(mask)
+        self.get_c_node().hitbox.collision_mask(mask)
 
     @property
     def trigger_id(self):
-        return self._get_c_node().hitbox.trigger_id()
+        return self.get_c_node().hitbox.trigger_id()
 
     @trigger_id.setter
     def trigger_id(self, CollisionTriggerId id):
-        self._get_c_node().hitbox.trigger_id(id)
+        self.get_c_node().hitbox.trigger_id(id)
 
     @property
     def sensor(self):
-        return self._get_c_node().hitbox.sensor()
+        return self.get_c_node().hitbox.sensor()
 
     @sensor.setter
     def sensor(self, bool sensor_flag):
-        self._get_c_node().hitbox.sensor(sensor_flag)
+        self.get_c_node().hitbox.sensor(sensor_flag)
 
     @property
     def elasticity(self):
-        return self._get_c_node().hitbox.elasticity()
+        return self.get_c_node().hitbox.elasticity()
 
     @elasticity.setter
     def elasticity(self, double value):
-        self._get_c_node().hitbox.elasticity(value)
+        self.get_c_node().hitbox.elasticity(value)
 
     @property
     def friction(self):
-        return self._get_c_node().hitbox.friction()
+        return self.get_c_node().hitbox.friction()
 
     @friction.setter
     def friction(self, double value):
-        self._get_c_node().hitbox.friction(value)
+        self.get_c_node().hitbox.friction(value)
 
     @property
     def surface_velocity(self):
-        return Vector.from_c_vector(self._get_c_node().hitbox.surface_velocity())
+        return Vector.from_c_vector(self.get_c_node().hitbox.surface_velocity())
 
     @surface_velocity.setter
     def surface_velocity(self, Vector vec not None):
-        self._get_c_node().hitbox.surface_velocity(vec.c_vector)
+        self.get_c_node().hitbox.surface_velocity(vec.c_vector)

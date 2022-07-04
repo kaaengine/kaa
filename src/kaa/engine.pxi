@@ -8,7 +8,8 @@ from libcpp.vector cimport vector
 from .kaacore.vectors cimport CUVec2
 from .kaacore.scenes cimport CScene
 from .kaacore.engine cimport (
-    CEngine, get_c_engine, is_c_engine_initialized, CVirtualResolutionMode
+    CEngine, get_c_engine, is_c_engine_initialized, get_c_persistent_path,
+    CVirtualResolutionMode
 )
 from .kaacore.display cimport CDisplay
 from .kaacore.log cimport c_emit_log_dynamic, CLogLevel, _log_category_wrapper
@@ -87,11 +88,11 @@ cdef class _Engine:
         return get_c_engine().get_fps()
 
     def change_scene(self, Scene scene not None):
-        get_c_engine().change_scene(scene._c_scene.get())
+        get_c_engine().change_scene(scene.c_scene.get())
 
     def run(self, Scene scene not None):
         cdef:
-            CScene* c_scene = scene._c_scene.get()
+            CScene* c_scene = scene.c_scene.get()
             CEngine* c_engine = get_c_engine()
         with nogil:
             c_engine.run(c_scene)
@@ -105,7 +106,7 @@ cdef class _Engine:
         displays_list = []
 
         for c_disp in c_displays:
-            displays_list.append(Display._wrap_c_display(c_disp))
+            displays_list.append(Display.wrap_c_display(c_disp))
         return displays_list
 
     def stop(self):
@@ -157,6 +158,33 @@ def Engine(Vector virtual_resolution, virtual_resolution_mode=None):
 def get_engine():
     if is_c_engine_initialized():
         return _engine_wrapper
+
+
+def get_persistent_path(str prefix not None, str organization = None):
+    def _get_invalid_chars(str dir_name):
+        return tuple(
+            c for c in dir_name
+            if not c.isalnum() and
+            not c.isspace() and
+            not c in ('_', '-')
+        )
+
+    organization = organization or ''
+    invalid_chars = _get_invalid_chars(prefix)
+    invalid_chars += _get_invalid_chars(organization)
+    if invalid_chars:
+        plural = len(invalid_chars) > 1
+        raise Exception(
+            '{} character{} {} not allowed.'.format(
+                ', '.join(invalid_chars),
+                's' if plural else '',
+                'are' if plural else 'is'
+            )
+        )
+
+    return get_c_persistent_path(
+        prefix.encode(), organization.encode()
+    ).c_str().decode()
 
 
 cdef void _print_hello_message():

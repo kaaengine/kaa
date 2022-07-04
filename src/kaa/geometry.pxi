@@ -9,7 +9,8 @@ from .kaacore.math cimport radians, degrees
 from .kaacore.vectors cimport CDVec2
 from .kaacore.geometry cimport (
     CPolygonType, CAlignment, CTransformation, CDecomposedTransformation,
-    CBoundingBox, c_classify_polygon
+    CBoundingBox, c_classify_polygon, CAngleSign, c_normalize_angle,
+    c_normalize_angle_degrees
 )
 from .kaacore.hashing cimport c_calculate_hash
 
@@ -36,6 +37,12 @@ class Alignment(IntEnum):
     top_right = <uint32_t>CAlignment.top_right
     bottom_right = <uint32_t>CAlignment.bottom_right
     center = <uint32_t>CAlignment.center
+
+
+class AngleSign(IntEnum):
+    mixed = <uint32_t>CAngleSign.mixed
+    negative = <uint32_t>CAngleSign.negative
+    positive = <uint32_t>CAngleSign.positive
 
 
 @cython.freelist(TRANSFORMATION_FREELIST_SIZE)
@@ -297,3 +304,11 @@ cdef class BoundingBox:
         return Vector.from_c_vector(
             self.c_bounding_box.dimensions()
         )
+
+
+def normalize_angle(double value, angle_sign=AngleSign.mixed):
+    return c_normalize_angle(value, <CAngleSign>(<uint32_t>angle_sign.value))
+
+
+def normalize_angle_degrees(double value, angle_sign=AngleSign.mixed):
+    return c_normalize_angle_degrees(value, <CAngleSign>(<uint32_t>angle_sign.value))

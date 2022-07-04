@@ -3,12 +3,11 @@ from __future__ import annotations
 from typing import Iterable, Optional, Set, TypeVar
 
 from .colors import Color
-from .engine import AnyScene
-from .fonts import TextNode
-from .geometry import AnyShape, Alignment, BoundingBox, Transformation, Vector
-from .physics import SpaceNode, BodyNode, HitboxNode
-from .transitions import AnyTransition, AnyTransitionArgument, NodeTransitionsManager
 from .sprites import Sprite
+from .engine import AnyScene
+from .materials import Material
+from .geometry import AnyShape, Alignment, BoundingBox, Transformation, Vector
+from .transitions import AnyTransition, AnyTransitionArgument, NodeTransitionsManager
 
 
 class NodeBase:
@@ -49,7 +48,11 @@ class NodeBase:
         ...
 
     @property
-    def effective_views(self) -> Set[int]:
+    def effective_viewports(self) -> Set[int]:
+        ...
+
+    @property
+    def effective_render_passes(self) -> Set[int]:
         ...
 
     @property
@@ -141,6 +144,14 @@ class NodeBase:
         ...
 
     @property
+    def material(self) -> Optional[Material]:
+        ...
+
+    @material.setter
+    def material(self, value: Optional[Material]):
+        ...
+
+    @property
     def transformation(self) -> Transformation:
         ...
 
@@ -165,11 +176,19 @@ class NodeBase:
         ...
 
     @property
-    def views(self) -> Optional[Set[int]]:
+    def viewports(self) -> Optional[Set[int]]:
         ...
 
-    @views.setter
-    def views(self, value: Optional[Set[int]]) -> None:
+    @viewports.setter
+    def viewports(self, value: Optional[Set[int]]) -> None:
+        ...
+
+    @property
+    def render_passes(self) -> Optional[Set[int]]:
+        ...
+
+    @render_passes.setter
+    def render_passes(self, value: Optional[Set[int]]) -> None:
         ...
 
     @property
@@ -211,16 +230,19 @@ class Node(NodeBase):
         z_index: Optional[int] = None,
         color: Color = Color(0, 0, 0, 0),
         sprite: Optional[Sprite] = None,
+        material: Optional[Material] = None,
         shape: Optional[AnyShape] = None,
         origin_alignment: Alignment = Alignment.center,
         lifetime: float = 0.,
         transition: AnyTransitionArgument = None,
         transformation: Transformation = Transformation(),
         visible: bool = True,
-        views: Optional[Set[int]] = None,
+        viewports: Optional[Set[int]] = None,
+        render_passes: Optional[Set[int]] = None,
         indexable: bool = True,
     ) -> None:
         ...
+
     def setup(
         self, *,
         position: Vector = ...,
@@ -230,13 +252,15 @@ class Node(NodeBase):
         z_index: Optional[int] = ...,
         color: Color = ...,
         sprite: Optional[Sprite] = ...,
+        material: Optional[Material] = ...,
         shape: Optional[AnyShape] = ...,
         origin_alignment: Alignment = ...,
         lifetime: float = ...,
         transition: AnyTransitionArgument = ...,
         transformation: Transformation = ...,
         visible: bool = ...,
-        views: Optional[Set[int]] = ...,
+        viewports: Optional[Set[int]] = ...,
+        render_passes: Optional[Set[int]] = ...,
         indexable: bool = ...,
     ) -> None:
         ...

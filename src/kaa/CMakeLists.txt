@@ -9,7 +9,7 @@ set(CYTHON_FILES
     nodes.pxi
     physics.pxi
     scenes.pxi
-    views.pxi
+    viewports.pxi
     vectors.pxi
     colors.pxi
     shapes.pxi
@@ -31,11 +31,14 @@ set(CYTHON_FILES
     shaders.pxi
     materials.pxi
     statistics.pxi
+    render_passes.pxi
+    render_targets.pxi
 
     kaacore/__init__.pxd
     kaacore/engine.pxd
     kaacore/nodes.pxd
     kaacore/scenes.pxd
+    kaacore/viewports.pxd
     kaacore/physics.pxd
     kaacore/vectors.pxd
     kaacore/math.pxd
@@ -62,6 +65,8 @@ set(CYTHON_FILES
     kaacore/resources.pxd
     kaacore/textures.pxd
     kaacore/statistics.pxd
+    kaacore/render_passes.pxd
+    kaacore/render_targets.pxd
 
     extra/include/pythonic_callback.h
     extra/include/python_exceptions_wrapper.h

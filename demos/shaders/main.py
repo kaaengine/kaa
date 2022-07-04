@@ -4,22 +4,17 @@ from kaa.nodes import Node
 from kaa.input import Keycode
 from kaa.images import Sprite
 from kaa.geometry import Vector
+from kaa.shaders import Program
 from kaa.engine import Engine, Scene
 from kaa.materials import UniformType, Uniform, Material
-from kaa.shaders import Program, Varying, VaryingType, AttributeLocation
 
 PYTHON_IMAGE_PATH = os.path.join('demos', 'assets', 'python_powered.png')
 
 
 class MainScene(Scene):
-
     def __init__(self):
-        in_out_layout = {
-            AttributeLocation.texcoord0: Varying('v_texcoord0', VaryingType.vec2)
-        }
         program = Program.from_files(
             'demos/assets/shaders/vs_default.sc', 'demos/assets/shaders/fs_default.sc',
-            in_out_layout
         )
         uniforms = {'u_blur': Uniform(UniformType.vec4)}
         self.blur_quality = 20.
@@ -29,7 +24,7 @@ class MainScene(Scene):
             Node(
                 sprite=Sprite(PYTHON_IMAGE_PATH),
                 position=Vector(400, 300),
-                scale=Vector.xy(2),
+                scale=Vector.xy(1),
                 material=self.material
             )
         )

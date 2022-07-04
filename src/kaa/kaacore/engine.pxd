@@ -19,6 +19,11 @@ cdef extern from "kaacore/engine.h" namespace "kaacore" nogil:
         aggresive_stretch "kaacore::VirtualResolutionMode::aggresive_stretch"
         no_stretch "kaacore::VirtualResolutionMode::no_stretch"
 
+    cdef string get_c_persistent_path "kaacore::get_persistent_path" (
+        const string& prefix,
+        const string& organization_prefix
+    ) except +raise_py_error
+
     cdef cppclass CEngine "kaacore::Engine":
         unique_ptr[CWindow] window
         unique_ptr[CInputManager] input_manager

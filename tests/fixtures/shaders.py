@@ -4,20 +4,22 @@ from unittest import mock
 
 import pytest
 
-from kaa._kaa import _AutoShaderCompiler
-from kaa.shaders import (
-    VertexShader, FragmentShader, AttributeLocation, Varying, VaryingType, Program
-)
+from kaa.shader_tools import ShaderCompiler, AutoShaderCompiler
+from kaa.shaders import VertexShader, FragmentShader, Program
 
 STATIC_SHADERS_DIR = Path(__file__).parent / 'static' / 'shaders'
 
 
 @pytest.fixture
-def shader_bin_directory():
+def shader_cache_directory():
     with tempfile.TemporaryDirectory() as f:
-        bin_dir = Path(f)
-        with mock.patch.object(_AutoShaderCompiler, 'BIN_DIR', bin_dir):
-            yield bin_dir
+        cache_dir = Path(f)
+        bin_dir = cache_dir / 'bin'
+        bin_dir.mkdir()
+        mocked_cache_dir = mock.patch.object(ShaderCompiler, 'CACHE_DIR', cache_dir)
+        mocked_bin_dir = mock.patch.object(AutoShaderCompiler, 'BIN_DIR', bin_dir)
+        with mocked_cache_dir, mocked_bin_dir:
+            yield cache_dir
 
 
 @pytest.fixture
@@ -31,23 +33,26 @@ def fragment_shader_path():
 
 
 @pytest.fixture
-def in_out_layout():
-    return {
-        AttributeLocation.color0: Varying('v_color0', VaryingType.vec4),
-        AttributeLocation.texcoord0: Varying('v_texcoord0', VaryingType.vec2)
-    }
+def fragment_shader_effect_path():
+    return str(STATIC_SHADERS_DIR / 'effect.sc')
 
 
 @pytest.fixture
-@pytest.mark.usefixtures('shader_bin_directory')
-def vertex_shader(vertex_shader_path: str, in_out_layout: dict):
-    return VertexShader(vertex_shader_path, in_out_layout)
+@pytest.mark.usefixtures('shader_cache_directory')
+def vertex_shader(vertex_shader_path: str):
+    return VertexShader(vertex_shader_path)
 
 
 @pytest.fixture
-@pytest.mark.usefixtures('shader_bin_directory')
-def fragment_shader(fragment_shader_path: str, in_out_layout: dict):
-    return FragmentShader(fragment_shader_path, in_out_layout)
+@pytest.mark.usefixtures('shader_cache_directory')
+def fragment_shader(fragment_shader_path: str):
+    return FragmentShader(fragment_shader_path)
+
+
+@pytest.fixture
+@pytest.mark.usefixtures('shader_cache_directory')
+def fragment_shader_effect(fragment_shader_effect_path: str):
+    return FragmentShader(fragment_shader_effect_path)
 
 
 @pytest.fixture

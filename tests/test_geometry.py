@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from kaa.geometry import Vector
+from kaa.geometry import Vector, normalize_angle, normalize_angle_degrees, AngleSign
 
 
 def test_vector():
@@ -42,3 +42,35 @@ def test_vector():
     v = Vector(10., 10.)
     assert v.normalize() == v / v.length()
     assert v.length() == math.sqrt(v.x ** 2 + v.y ** 2)
+
+
+def test_normalize_angle_mixed():
+    assert normalize_angle(math.pi) == -math.pi
+    assert normalize_angle(math.pi, AngleSign.mixed) == -math.pi
+
+    assert normalize_angle(-math.pi / 2, AngleSign.mixed) == -math.pi / 2
+    assert normalize_angle(math.pi, AngleSign.mixed) == -math.pi
+
+
+def test_normalize_angle_positive():
+    assert normalize_angle(-math.pi / 4, AngleSign.positive) == 7 * math.pi / 4
+
+
+def test_normalize_angle_negative():
+    assert normalize_angle(math.pi / 4, AngleSign.negative) == -7 * math.pi / 4
+
+
+def test_normalize_angle_degrees_mixed():
+    assert normalize_angle_degrees(180.) == -180.
+    assert normalize_angle_degrees(180., AngleSign.mixed) == -180.
+
+    assert normalize_angle_degrees(-90., AngleSign.mixed) == -90.
+    assert normalize_angle_degrees(180., AngleSign.mixed) == -180.
+
+
+def test_normalize_angle_degrees_positive():
+    assert normalize_angle_degrees(-45., AngleSign.positive) == 315.
+
+
+def test_normalize_angle_degrees_negative():
+    assert normalize_angle_degrees(45., AngleSign.negative) == -315.
