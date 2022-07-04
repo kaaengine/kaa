@@ -15,6 +15,7 @@ Kaa engine Reference
     log
     nodes
     physics
+    statistics
     sprites
     timers
     transitions
@@ -45,6 +46,8 @@ All kaa imports cheat sheet
     from kaa.physics import SpaceNode, BodyNode, HitboxNode, BodyNodeType, CollisionPhase
 
     from kaa.renderer import Renderer
+
+    from kaa.statistics import get_global_statistics_manager, StatisticsManager, StatisticAnalysis
 
     from kaa.sprites import Sprite, split_spritesheet
 

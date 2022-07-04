@@ -430,7 +430,7 @@ Next, let's add methods for shooting in the :code:`WeaponBase` class and in the 
             self.cooldown_time_remaining =  self.get_cooldown_time()
 
         def get_cooldown_time(self):
-            return 250
+            return 0.250
 
 The maths in the :code:`shoot_bullet` and :code:`get_initial_bullet_position` is fairly simple, but let's highlight
 a few things here. :code:`get_initial_bullet_position` basically returns a player's position offset by 50 pixels
@@ -532,7 +532,7 @@ First let's add the machine gun bullet object and implement shooting logic:
             self.cooldown_time_remaining =  self.get_cooldown_time()
 
         def get_cooldown_time(self):
-            return 100
+            return 0.100
 
 
 The above is very similar to the force gun. You may run the game and see how it looks. The main difference is that
@@ -912,7 +912,7 @@ machine gun logic, just using different sprite and a different hitbox shape for 
             self.cooldown_time_remaining =  self.get_cooldown_time()
 
         def get_cooldown_time(self):
-            return 1000
+            return 1.0
 
 
 Then, let's write a function that will apply explosion effects, such as dealing damage and pushing enemies back
