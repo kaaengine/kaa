@@ -2,7 +2,7 @@ import cython
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.utility cimport move as cmove
-from libc.stdint cimport int16_t, uint32_t
+from libc.stdint cimport int16_t, uint32_t, uint64_t
 from libcpp.unordered_set cimport unordered_set
 from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
@@ -96,6 +96,12 @@ cdef class NodeBase:
             'Operation on uninitialized or deleted Node.'
         return c_node
 
+    cdef uint64_t _get_internal_id(self):
+        return <uint64_t>(self.c_node_ptr.get())
+
+    def get_internal_id(self):
+        return self._get_internal_id()
+
     cdef void make_c_node(self, CNodeType type):
         self.c_node_owner_ptr = cmove(c_make_node(type))
         self.c_node_ptr = CNodePtr(self.c_node_owner_ptr.get())
@@ -117,6 +123,21 @@ cdef class NodeBase:
 
     def __bool__(self):
         return self.c_node_ptr.get() != NULL
+
+    def __repr__(self):
+        return '<{}: {:02x}>'.format(self.__class__.__name__, self.get_internal_id())
+
+    def __eq__(self, other):
+        self_id = self.get_internal_id()
+        assert self_id != 0, "Cannot compare uninitialized node (left-hand)."
+        other_id = other.get_internal_id()
+        assert other_id != 0, "Cannot compare uninitialized node (right-hand)."
+        return self_id == other_id
+
+    def __hash__(self):
+        self_id = self.get_internal_id()
+        assert self_id != 0, "Cannot hash uninitialized node."
+        return hash(self_id)
 
     def add_child(self, NodeBase node):
         assert self.c_node_ptr, "Cannot add_child to NULL node."
