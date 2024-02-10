@@ -83,7 +83,7 @@ cdef class Transformation:
     def __eq__(self, Transformation other):
         return self.c_transformation == other.c_transformation
 
-    def __or__(left, right):
+    def __ror__(self, other):
         """
         Operator for joining transformations, which in fact is
         a "reversed" matrix multiplication,
@@ -94,17 +94,10 @@ cdef class Transformation:
         Operator can also be used to transform a shape:
         `shape | tmn`, or `tmn @ shape`.
         """
+        return self._combine(other)
 
-        if not isinstance(right, Transformation):
-            return NotImplemented
-        return Transformation._combine(transformation=right,
-                                       other=left)
-
-    def __matmul__(left, right):
-        if not isinstance(left, Transformation):
-            return NotImplemented
-        return Transformation._combine(transformation=left,
-                                       other=right)
+    def __matmul__(self, other):
+        return self._combine(other)
 
     @staticmethod
     cdef Transformation create(const CTransformation& c_transformation):
@@ -134,8 +127,7 @@ cdef class Transformation:
     def decompose(self):
         return DecomposedTransformation.create(self.c_transformation.decompose())
 
-    @staticmethod
-    cdef object _combine(Transformation transformation, object other):
+    cdef object _combine(self, object other):
         """
         Combine transformation with other object (Transformation/Vector/Shape)
         in a `transformation @ other` fashion.
@@ -144,15 +136,15 @@ cdef class Transformation:
         if isinstance(other, Transformation):
             return Transformation.create(
                 (<Transformation>other).c_transformation
-                | transformation.c_transformation
+                | self.c_transformation
             )
         elif isinstance(other, Vector):
             return Vector.from_c_vector(
                 (<Vector>other).c_vector
-                | transformation.c_transformation
+                | self.c_transformation
             )
         elif isinstance(other, ShapeBase):
-            return (<ShapeBase>other).transform(transformation)
+            return (<ShapeBase>other).transform(self)
         return NotImplemented
 
 

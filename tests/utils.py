@@ -2,6 +2,8 @@ from kaa.engine import Scene
 
 
 class TestScene(Scene):
+    __test__ = False
+
     def __init__(self, update_function):
         self._frames = None
         self._test_update_function = update_function
