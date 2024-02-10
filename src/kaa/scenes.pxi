@@ -31,38 +31,36 @@ cdef cppclass CPyScene(CScene):
             raise RuntimeError('Accessing already deleted scene.')
         return py_scene
 
-    void on_attach() nogil:
-        with gil:
-            Py_INCREF(this.get_py_scene())
+    void on_attach() noexcept with gil:
+        Py_INCREF(this.get_py_scene())
 
-    void on_enter() nogil:
+    void on_enter() noexcept nogil:
         this._call_py_on_enter().unwrap_result()
 
-    void update(CDuration dt) nogil:
+    void update(CDuration dt) noexcept nogil:
         this._call_py_update(dt).unwrap_result()
 
-    void on_exit() nogil:
+    void on_exit() noexcept nogil:
         this._call_py_on_exit().unwrap_result()
 
-    void on_detach() nogil:
-        with gil:
-            Py_DECREF(this.get_py_scene())
+    void on_detach() noexcept with gil:
+        Py_DECREF(this.get_py_scene())
 
-    CPythonicCallbackResult[void] _call_py_update(CDuration dt) with gil:
+    CPythonicCallbackResult[void] _call_py_update(CDuration dt) noexcept with gil:
         try:
             this.get_py_scene().update(dt.count())
         except BaseException as exc:
             return CPythonicCallbackResult[void](<PyObject*>exc)
         return CPythonicCallbackResult[void]()
 
-    CPythonicCallbackResult[void] _call_py_on_enter() with gil:
+    CPythonicCallbackResult[void] _call_py_on_enter() noexcept with gil:
         try:
             this.get_py_scene().on_enter()
         except BaseException as exc:
             return CPythonicCallbackResult[void](<PyObject*>exc)
         return CPythonicCallbackResult[void]()
 
-    CPythonicCallbackResult[void] _call_py_on_exit() with gil:
+    CPythonicCallbackResult[void] _call_py_on_exit() noexcept with gil:
         try:
             this.get_py_scene().on_exit()
         except BaseException as exc:

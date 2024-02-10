@@ -893,7 +893,7 @@ cdef class ControllerManager(_BaseInputManager):
 cdef CPythonicCallbackResult[int32_t] cython_event_callback(
     const CPythonicCallbackWrapper& c_wrapper,
     const CEvent& c_event
-) with gil:
+) noexcept with gil:
 
     cdef:
         Event event = Event.create(c_event)

@@ -31,7 +31,7 @@ COLLISION_GROUP_NONE = collision_group_none
 cdef CPythonicCallbackResult[int] collision_handler_dispatch(
     const CPythonicCallbackWrapper& c_wrapper,
     CArbiter& c_arbiter, CCollisionPair c_pair_a, CCollisionPair c_pair_b
-) with gil:
+) noexcept with gil:
     cdef object callback
     if c_wrapper.is_weakref:
         callback = (<object>c_wrapper.py_callback)()
@@ -471,7 +471,7 @@ cdef CPythonicCallbackResult[void] cython_update_velocity_callback(
     CDVec2 c_gravity,
     double damping,
     double dt
-) with gil:
+) noexcept with gil:
 
     cdef:
         BodyNode node = get_node_wrapper(CNodePtr(c_node))
@@ -497,7 +497,7 @@ cdef CPythonicCallbackResult[void] cython_update_position_callback(
     const CPythonicCallbackWrapper& c_wrapper,
     CNode* c_node,
     double dt
-) with gil:
+) noexcept with gil:
 
     cdef:
         BodyNode node = get_node_wrapper(CNodePtr(c_node))
