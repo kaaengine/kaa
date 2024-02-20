@@ -7,7 +7,7 @@ from libcpp cimport nullptr
 from cpython.ref cimport PyObject
 from libc.stdint cimport int32_t, uint32_t
 from libcpp.vector cimport vector
-from cymove cimport cymove as cmove
+from libcpp.utility cimport move as cmove
 
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult

@@ -1,11 +1,10 @@
 import cython
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
+from libcpp.utility cimport move as cmove
 from libc.stdint cimport int16_t, uint32_t
 from libcpp.unordered_set cimport unordered_set
-
-from cymove cimport cymove as cmove
+from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from .extra.optional cimport optional, nullopt
 from .kaacore.shapes cimport CShape

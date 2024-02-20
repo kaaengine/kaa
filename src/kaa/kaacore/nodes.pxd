@@ -125,7 +125,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         const optional[vector[int16_t]] viewports() except +raise_py_error
         const vector[int16_t] effective_viewports() except +raise_py_error
 
-        void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
+        void setup_wrapper(unique_ptr[CForeignNodeWrapper] wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
 
         bool indexable() except +raise_py_error
