@@ -103,16 +103,44 @@ Instance Properties:
 
     Retruns this node's parent :class:`Node`, or None in case of the root node.
 
+.. _Node.root_distance:
+.. attribute:: Node.root_distance
+
+    Retruns this node's distance to the root node (counted as number of parents on the way to the root), or None in
+    case of the root node.
+
 .. _Node.z_index:
 .. attribute:: Node.z_index
 
     Gets or sets node z_index (integer). Nodes with higher z_index will overlap those with lower z_index when drawn
-    on the screen. Default z_index is None meaning the node will inherit z_index value from its parent. Scene's
-    root node (:attr:`engine.Scene.root`) has z_index = 0.
+    on the screen. Default z_index is None meaning the node will inherit z_index value from its parent. To find the
+    actual z_index value in this case, use :ref:`effective_z_index property <Node.effective_z_index>`.
+
+    Scene's root node (:attr:`engine.Scene.root`) has z_index = 0.
 
     .. note::
 
         If parent and child nodes have the same z_index, then the child node will be rendered on top of the parent.
+
+.. _Node.effective_z_index:
+.. attribute:: Node.effective_z_index
+
+    Gets effective z_index value of the node. Use it to find actual the actual z_index value when node inherits
+    it from its parent.
+
+    .. code-block:: python
+
+        # ... inside a Scene class...
+
+        node = Node(z_index=15)
+        child = Node()  # z_index is None
+
+        node.add_child(child)
+        self.root.add_child(node)
+
+        print(child.z_index)  # prints None
+        print(child.effective_z_index)  # prints 15
+
 
 .. _Node.rotation:
 .. attribute:: Node.rotation
@@ -387,9 +415,12 @@ Instance Properties:
 .. attribute:: Node.views
 
     Gets or sets indexes of views (as a set object) in which this node shall be rendered. Each scene can have a maximum
-    of 32 views (indexed -16 to 15). Default value is None meaning the node will inherit the view from its parent. Note that the
-    :ref:`root node of the scene <Scene.root>` has a view set to {0} (a set with just one element: zero) by default, so all
-    nodes added to root (and their children) will have a views value set to {0}. Read more about views in :class:`engine.View` reference.
+    of 32 views (indexed -16 to 15). Default value is None meaning the node will inherit the view from its parent, and
+    to find the actual :code:`views` value use :ref:`effective_views <Node.effective_views>` property.
+
+    Note that the :ref:`root node of the scene <Scene.root>` has a view set to {0} (a set with just one element: zero)
+    by default, so all nodes added to root (and their children) will have a views value set to {0}. Read more about
+    views in :class:`engine.View` reference.
 
     .. code-block:: python
 
@@ -402,6 +433,26 @@ Instance Properties:
         node = Node(views={13})  # node will be rendered in view 13
         child = Node()
         node.add_child(child)  # the child will also be rendered in view 13
+
+.. _Node.effective_views:
+.. attribute:: Node.effective_views
+
+    Gets effective views value of the node. Use it to find the actual views value when node inherits
+    it from its parent.
+
+    .. code-block:: python
+
+        # ... inside a Scene class...
+
+        node = Node(views={1, 3})
+        child = Node()  # views is None
+
+        node.add_child(child)
+        self.root.add_child(node)
+
+        print(child.views)  # prints None
+        print(child.effective_views)  # prints {1, 3}
+
 
 .. _Node.indexable:
 .. attribute:: Node.indexable

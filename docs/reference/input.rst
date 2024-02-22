@@ -14,6 +14,8 @@ Input manager object can be accessed via :ref:`Scene.input <Scene.input>` proper
 * Gives you access to a list of events which ocurred during the frame. This is achieved by calling the :meth:`InputManager.events()` method. Check out the :class:`Event` documentation for a list of all available events that kaaengine detects.
 * Allows you to subscribe to specific types of events by registering your own callback function. This is done using :meth:`InputManager.register_callback()` function.
 
+And a number of other minor features.
+
 Instance Properties:
 
 .. _InputManager.keyboard:
@@ -39,6 +41,12 @@ Instance Properties:
 
     A get accessor returning :class:`SystemManager` object which exposes methods to check for system input.
     See the :class:`SystemManager` documentation for a full list of available methods.
+
+.. _InputManager.cursor_visible:
+.. attribute:: InputManager.cursor_visible
+
+    Gets or sets the visibility of the mouse cursor as :code:`bool`.
+
 
 Instance Methods:
 
