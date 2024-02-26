@@ -4,8 +4,7 @@ set -x -e
 
 cd `dirname $0`/..
 
-PLATFORM_TAG="manylinux2014_x86_64"
-DOCKER_IMAGE="quay.io/pypa/${PLATFORM_TAG}"
+DOCKER_IMAGE="quay.io/pypa/manylinux2014_x86_64"
 
 if [ -n "$1" ]
 then
@@ -27,7 +26,6 @@ python -c 'import versioneer; versioneer.write_to_version_file("_build_version.p
 for PY_VERSION in ${TARGETS}
 do
     sudo docker run --rm -it \
-        -e PLATFORM_TAG="${PLATFORM_TAG}" \
         -v `pwd`:/host "${DOCKER_IMAGE}" \
         /bin/bash /host/scripts/docker_wheel_builder.sh ${PY_VERSION}
 done

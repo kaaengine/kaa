@@ -69,5 +69,5 @@ do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \
         --exclude libGLX.so.0 \
         --exclude libOpenGL.so.0 \
-        --plat "${PLATFORM_TAG}" "${WHEEL}"
+        --plat manylinux2014_x86_64 "${WHEEL}"
 done
