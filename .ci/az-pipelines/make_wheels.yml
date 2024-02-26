@@ -23,7 +23,7 @@ jobs:
 - job: build_linux
   displayName: "Build Linux wheel"
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   strategy:
     matrix:
       Python36:
@@ -103,7 +103,7 @@ jobs:
 - job: build_macos
   displayName: "Build macOS wheel"
   pool:
-    vmImage: 'macOS-10.15'
+    vmImage: 'macOS-11'
   strategy:
     matrix:
       Python36:
@@ -150,7 +150,7 @@ jobs:
   - build_windows
   - build_macos
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   variables:
   - group: pypi-credentials
   # selected variable group should provide: TWINE_USERNAME, TWINE_PASSWORD, TWINE_REPOSITORY_URL
