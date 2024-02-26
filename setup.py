@@ -63,5 +63,6 @@ setup(
     include_package_data=True,
     cmake_args=[
         '-DKAA_INSTALL_KAACORE:BOOL=OFF',
+        '-DOpenGL_GL_PREFERENCE=LEGACY'
     ],
 )

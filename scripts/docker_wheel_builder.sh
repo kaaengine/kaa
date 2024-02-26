@@ -67,7 +67,5 @@ LD_LIBRARY_PATH=/usr/local/lib/:$(echo /_skbuild/linux-*/cmake-build/kaacore/thi
 for WHEEL in /wheels/*.whl
 do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \
-        --exclude libGLX.so.0 \
-        --exclude libOpenGL.so.0 \
         --plat manylinux2014_x86_64 "${WHEEL}"
 done
