@@ -5,7 +5,6 @@ import platform
 import tempfile
 import subprocess
 import dataclasses
-import pkg_resources
 from pathlib import Path
 from typing import List, Tuple, Set, Dict, Union
 
@@ -14,7 +13,7 @@ import parsy
 import kaa
 
 
-SHADERC_DIR = pkg_resources.resource_filename(__name__, 'shaderc')
+SHADERC_DIR = os.path.join(os.path.dirname(__file__), 'shaderc')
 TYPES = ('float', 'vec2', 'vec3', 'vec4', 'mat2', 'mat3', 'mat4')
 SEMANTICS = (
     'POSITION', 'NORMAL', 'TANGENT', 'BITANGENT', 'COLOR0', 'COLOR1',
