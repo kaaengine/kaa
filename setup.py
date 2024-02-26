@@ -17,7 +17,7 @@ setup(
     author_email="labuzm@gmail.com, maniek2332@gmail.com",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     description="Pythonic game engine for humans.",
     long_description=readme_content,
     long_description_content_type='text/markdown',
