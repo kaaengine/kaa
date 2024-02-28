@@ -41,8 +41,14 @@ jobs:
       Python310:
         python.version: '3.10'
         python.version_tag: 'py310'
+      Python311:
+        python.version: '3.11'
+        python.version_tag: 'py311'
+      Python312:
+        python.version: '3.12'
+        python.version_tag: 'py312'
   variables:
-    docker_image: "quay.io/pypa/manylinux2010_x86_64"
+    docker_image: "quay.io/pypa/manylinux2014_x86_64"
     platform.name: 'linux'
   steps:
   - template: templates/common_checkout_repository.yml
@@ -83,6 +89,12 @@ jobs:
       Python310:
         python.version: '3.10'
         python.version_tag: 'py310'
+      Python311:
+        python.version: '3.11'
+        python.version_tag: 'py311'
+      Python312:
+        python.version: '3.12'
+        python.version_tag: 'py312'
   variables:
     platform.name: 'windows'
   steps:
@@ -115,6 +127,12 @@ jobs:
       Python310:
         python.version: '3.10'
         python.version_tag: 'py310'
+      Python311:
+        python.version: '3.11'
+        python.version_tag: 'py311'
+      Python312:
+        python.version: '3.12'
+        python.version_tag: 'py312'
   variables:
     platform.name: 'macos'
     platform.tag: 'macosx-10.14-x86_64'

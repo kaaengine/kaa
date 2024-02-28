@@ -3,7 +3,7 @@ from enum import IntEnum
 import cython
 from libc.stdint cimport int16_t
 from libcpp.vector cimport vector
-from cymove cimport cymove as cmove
+from libcpp.utility cimport move as cmove
 
 from .kaacore.vectors cimport CDVec2
 from .kaacore.sprites cimport CSprite

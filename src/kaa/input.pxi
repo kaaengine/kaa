@@ -7,7 +7,7 @@ from libcpp cimport nullptr
 from cpython.ref cimport PyObject
 from libc.stdint cimport int32_t, uint32_t
 from libcpp.vector cimport vector
-from cymove cimport cymove as cmove
+from libcpp.utility cimport move as cmove
 
 from .kaacore.engine cimport CEngine, get_c_engine
 from .kaacore.glue cimport CPythonicCallbackWrapper, CPythonicCallbackResult
@@ -893,7 +893,7 @@ cdef class ControllerManager(_BaseInputManager):
 cdef CPythonicCallbackResult[int32_t] cython_event_callback(
     const CPythonicCallbackWrapper& c_wrapper,
     const CEvent& c_event
-) with gil:
+) noexcept with gil:
 
     cdef:
         Event event = Event.create(c_event)

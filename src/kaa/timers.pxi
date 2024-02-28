@@ -40,7 +40,7 @@ cdef class TimerContext:
 
 cdef CPythonicCallbackResult[CDuration] cython_timer_callback(
     const CPythonicCallbackWrapper& c_wrapper, CTimerContext c_context
-) with gil:
+) noexcept with gil:
     cdef:
         object result
         double new_interval = 0

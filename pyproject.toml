@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=40", "wheel", "cython==0.29.21", "cmake>=3.13", "ninja", "scikit-build==0.11.1", "cymove==1.0.0"]
+requires = ["setuptools>=40", "wheel", "cython==3.0.8", "cmake>=3.13", "ninja", "scikit-build==0.16.7"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
