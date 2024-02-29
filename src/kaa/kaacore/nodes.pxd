@@ -129,7 +129,7 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
         optional[CStencilMode] stencil_mode() except +raise_py_error
         void stencil_mode(optional[CStencilMode]) except +raise_py_error
 
-        void setup_wrapper(unique_ptr[CForeignNodeWrapper]&& wrapper)
+        void setup_wrapper(unique_ptr[CForeignNodeWrapper] wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
 
         bool indexable() except +raise_py_error

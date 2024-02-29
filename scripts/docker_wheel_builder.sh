@@ -5,14 +5,6 @@ set -x -e
 if [ -n $1 ]
 then
     case $1 in
-        "py34")
-            PY_VERSION="python3.4m"
-            PY_VERSION_ABI="cp34-cp34m"
-            ;;
-        "py35")
-            PY_VERSION="python3.5m"
-            PY_VERSION_ABI="cp35-cp35m"
-            ;;
         "py36")
             PY_VERSION="python3.6m"
             PY_VERSION_ABI="cp36-cp36m"
@@ -32,6 +24,14 @@ then
         "py310")
             PY_VERSION="python3.10"
             PY_VERSION_ABI="cp310-cp310"
+            ;;
+        "py311")
+            PY_VERSION="python3.11"
+            PY_VERSION_ABI="cp311-cp311"
+            ;;
+        "py312")
+            PY_VERSION="python3.12"
+            PY_VERSION_ABI="cp312-cp312"
             ;;
         *)
             echo "ERROR: Unknown py version specified: $1"
@@ -67,5 +67,5 @@ LD_LIBRARY_PATH=/usr/local/lib/:$(echo /_skbuild/linux-*/cmake-build/kaacore/thi
 for WHEEL in /wheels/*.whl
 do
     auditwheel repair -w /host/wheelhouse/ --lib-sdir ./ \
-        --plat manylinux2010_x86_64 "${WHEEL}"
+        --plat manylinux2014_x86_64 "${WHEEL}"
 done

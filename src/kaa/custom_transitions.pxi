@@ -16,7 +16,7 @@ from .kaacore.custom_transitions cimport (
 
 cdef CPythonicCallbackResult[void] node_transition_callback_dispatch(
     const CPythonicCallbackWrapper& c_wrapper, CNodePtr c_node_ptr
-) with gil:
+) noexcept with gil:
     # TODO weak-ptr detection
     try:
         (<object>c_wrapper.py_callback)(get_node_wrapper(c_node_ptr))
@@ -60,7 +60,7 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
         this.warping = warping
         this._easing = easing
 
-    unique_ptr[CTransitionStateBase] prepare_state(CNodePtr c_node_ptr) nogil const:
+    unique_ptr[CTransitionStateBase] prepare_state(CNodePtr c_node_ptr) noexcept nogil const:
         cdef CPyNodeCustomTransitionState* state_ptr = \
                 <CPyNodeCustomTransitionState*>this._py_prepare_state(c_node_ptr).unwrap_result()
 
@@ -69,7 +69,7 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
                 state_ptr
             )
 
-    CPythonicCallbackResult[uintptr_t] _py_prepare_state(CNodePtr c_node_ptr) with gil const:
+    CPythonicCallbackResult[uintptr_t] _py_prepare_state(CNodePtr c_node_ptr) noexcept with gil const:
         cdef object state_object
         try:
             state_object = (<object>this.prepare_func.py_callback)(get_node_wrapper(c_node_ptr))
@@ -81,12 +81,12 @@ cdef cppclass CPyNodeCustomTransition(CNodeTransitionCustomizable):
                 new CPyNodeCustomTransitionState(state_object)
             )
 
-    void evaluate(CTransitionStateBase* state, CNodePtr c_node_ptr, const double t) nogil const:
+    void evaluate(CTransitionStateBase* state, CNodePtr c_node_ptr, const double t) noexcept nogil const:
         this._py_evaluate(state, c_node_ptr, t).unwrap_result()
 
     CPythonicCallbackResult[void] _py_evaluate(
         CTransitionStateBase* state, CNodePtr c_node_ptr, const double t
-    ) with gil const:
+    ) noexcept with gil const:
         cdef CPyNodeCustomTransitionState* custom_state = \
             <CPyNodeCustomTransitionState*>state
 

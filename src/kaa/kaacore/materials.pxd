@@ -28,5 +28,5 @@ cdef extern from "kaacore/materials.h" namespace "kaacore" nogil:
             except +raise_py_error
         vector[T] get_uniform_value[T](const string& name) \
             except +raise_py_error
-        void set_uniform_value[T](const string& name, CUniformValue[T]&& value) \
+        void set_uniform_value[T](const string& name, CUniformValue[T] value) \
             except +raise_py_error

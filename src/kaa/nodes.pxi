@@ -1,11 +1,10 @@
 import cython
-from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
+from libcpp.utility cimport move as cmove
 from libc.stdint cimport int16_t, uint32_t
 from libcpp.unordered_set cimport unordered_set
-
-from cymove cimport cymove as cmove
+from cpython.ref cimport PyObject, Py_XINCREF, Py_XDECREF
 
 from .extra.optional cimport optional, nullopt
 from .kaacore.shapes cimport CShape
@@ -40,11 +39,11 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
         this.on_attach_defined = on_attach_defined
         this.on_detach_defined = on_detach_defined
 
-    void on_add_to_parent() with gil:
+    void on_add_to_parent() noexcept with gil:
         Py_XINCREF(py_wrapper)
         this.added_to_parent = True
 
-    void on_attach() nogil:
+    void on_attach() noexcept nogil:
         if not this.on_attach_defined:
             return
 
@@ -54,7 +53,7 @@ cdef cppclass CPyNodeWrapper(CForeignNodeWrapper):
             except BaseException as exc:
                 CPythonicCallbackResult[void](<PyObject*>exc).unwrap_result()
 
-    void on_detach() with gil:
+    void on_detach() noexcept with gil:
         cdef:
             CPythonicCallbackResult[void] result
             NodeBase py_wrapper = <NodeBase>this.py_wrapper

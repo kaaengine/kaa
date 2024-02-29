@@ -36,9 +36,9 @@ cdef extern from "kaacore/uniforms.h" namespace "kaacore" nogil:
         CUniformValue(const T value)
         CUniformValue(const vector[T] values)
         CUniformValue(const CUniformValue& other)
-        CUniformValue(CUniformValue&& other)
+        CUniformValue(CUniformValue other)
         CUniformValue& operator=(const CUniformValue& other)
-        CUniformValue& operator=(CUniformValue&& other)
+        CUniformValue& operator=(CUniformValue other)
 
     ctypedef unordered_map[string, CUniformSpecification] CUniformSpecificationMap \
         "kaacore::UniformSpecificationMap"

@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from kaa.geometry import Vector, normalize_angle, normalize_angle_degrees, AngleSign
+from kaa.geometry import Vector, Transformation, normalize_angle, normalize_angle_degrees, AngleSign
 
 
 def test_vector():
@@ -19,7 +19,7 @@ def test_vector():
 
     assert v1 + v2 == Vector.xy(3)
     assert Vector.xy(3.) - v2 == v1
-    assert v1 * 10 == Vector.xy(10.)
+    assert v1 * 10 == 10  * v1  == Vector.xy(10.)
     assert Vector.xy(10.) / 10 == v1
     assert -v1 == Vector.xy(-1.)
 
@@ -74,3 +74,15 @@ def test_normalize_angle_degrees_positive():
 
 def test_normalize_angle_degrees_negative():
     assert normalize_angle_degrees(45., AngleSign.negative) == -315.
+
+
+def test_transformation_or():
+    v1 = Vector.xy(0)
+    v2 = Vector.xy(10)
+    assert v1 | Transformation(translate=v2) == v2
+
+
+def test_transformation_matmul():
+    v1 = Vector.xy(0)
+    v2 = Vector.xy(10)
+    assert Transformation(translate=v2) @ v1 == v2
