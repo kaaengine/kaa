@@ -33,7 +33,6 @@ class StencilMode:
         self, *, value: int = 0, mask: int = 0xFF,
         test: StencilTest = StencilTest.always,
         stencil_fail_op: StencilOp = StencilOp.keep,
-        depth_fail_op: StencilOp = StencilOp.keep,
         pass_op: StencilOp = StencilOp.keep,
     ) -> None:
         ...
@@ -68,14 +67,6 @@ class StencilMode:
 
     @stencil_fail_op.setter
     def stencil_fail_op(self, new_stencil_fail_op: StencilOp) -> None:
-        ...
-
-    @property
-    def depth_fail_op(self) -> StencilOp:
-        ...
-
-    @depth_fail_op.setter
-    def depth_fail_op(self, new_depth_fail_op: StencilOp) -> None:
         ...
 
     @property

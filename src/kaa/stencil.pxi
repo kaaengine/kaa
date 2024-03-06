@@ -31,13 +31,12 @@ cdef class StencilMode:
     def __init__(
         self, *, int value=0, int mask=0xFF, object test=StencilTest.always,
         object stencil_fail_op=StencilOp.keep,
-        object depth_fail_op=StencilOp.keep,
         object pass_op=StencilOp.keep,
     ):
         self.c_stencil_mode = CStencilMode(
             value, mask, <CStencilTest>(<uint8_t>test.value),
             <CStencilOp>(<uint8_t>stencil_fail_op.value),
-            <CStencilOp>(<uint8_t>depth_fail_op.value),
+            CStencilOp.keep,  # depth_fail_op is not publicly exposed
             <CStencilOp>(<uint8_t>pass_op.value),
         )
 
@@ -78,14 +77,6 @@ cdef class StencilMode:
     @stencil_fail_op.setter
     def stencil_fail_op(self, object new_stencil_fail_op):
         self.c_stencil_mode.stencil_fail_op(<CStencilOp>(<uint8_t>new_stencil_fail_op.value))
-
-    @property
-    def depth_fail_op(self):
-        return StencilOp(<uint8_t>self.c_stencil_mode.depth_fail_op())
-
-    @depth_fail_op.setter
-    def depth_fail_op(self, object new_depth_fail_op):
-        self.c_stencil_mode.depth_fail_op(<CStencilOp>(<uint8_t>new_depth_fail_op.value))
 
     @property
     def pass_op(self):
