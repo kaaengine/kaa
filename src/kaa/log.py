@@ -14,7 +14,7 @@ LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'python': {
+        'wrapper': {
             'format': '%(message)s [%(filename)s:%(lineno)d]'
         }
     },
@@ -26,7 +26,7 @@ LOGGING_CONFIG = {
         'tools': {
             'class': 'kaa.log.CoreHandler',
             'category': CoreLogCategory.tools,
-            'formatter': 'python',
+            'formatter': 'wrapper',
         },
     },
     'loggers': {
