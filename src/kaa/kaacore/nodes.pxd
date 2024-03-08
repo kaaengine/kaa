@@ -18,6 +18,7 @@ from .transitions cimport CNodeTransitionHandle, CNodeTransitionsManager
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
 from .materials cimport CMaterial
+from .stencil cimport CStencilMode
 
 
 cdef extern from "kaacore/node_ptr.h" namespace "kaacore" nogil:
@@ -124,6 +125,9 @@ cdef extern from "kaacore/nodes.h" namespace "kaacore" nogil:
             except +raise_py_error
         const optional[vector[int16_t]] viewports() except +raise_py_error
         const vector[int16_t] effective_viewports() except +raise_py_error
+
+        optional[CStencilMode] stencil_mode() except +raise_py_error
+        void stencil_mode(optional[CStencilMode]) except +raise_py_error
 
         void setup_wrapper(unique_ptr[CForeignNodeWrapper] wrapper)
         CForeignNodeWrapper* wrapper_ptr() except +raise_py_error
