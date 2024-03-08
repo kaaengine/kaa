@@ -4,6 +4,7 @@ from .exceptions cimport raise_py_error
 cdef extern from "kaacore/log.h" namespace "kaacore" nogil:
     size_t _log_category_app
     size_t _log_category_wrapper
+    size_t _log_category_tools
 
     cdef enum CLogLevel "spdlog::level::level_enum":
         trace "spdlog::level::level_enum::trace",
