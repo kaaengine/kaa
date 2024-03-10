@@ -8,6 +8,7 @@ from .engine import AnyScene
 from .materials import Material
 from .geometry import AnyShape, Alignment, BoundingBox, Transformation, Vector
 from .transitions import AnyTransition, AnyTransitionArgument, NodeTransitionsManager
+from .stencil import StencilMode
 
 
 class NodeBase:
@@ -200,6 +201,14 @@ class NodeBase:
         ...
 
     @property
+    def stencil_mode(self) -> Optional[StencilMode]:
+        ...
+
+    @stencil_mode.setter
+    def stencil_mode(self, value: Optional[StencilMode]) -> None:
+        ...
+
+    @property
     def z_index(self) -> Optional[int]:
         ...
 
@@ -240,6 +249,7 @@ class Node(NodeBase):
         viewports: Optional[Set[int]] = None,
         render_passes: Optional[Set[int]] = None,
         indexable: bool = True,
+        stencil_mode: Optional[StencilMode] = None,
     ) -> None:
         ...
 
@@ -262,6 +272,7 @@ class Node(NodeBase):
         viewports: Optional[Set[int]] = ...,
         render_passes: Optional[Set[int]] = ...,
         indexable: bool = ...,
+        stencil_mode: Optional[StencilMode] = ...,
     ) -> None:
         ...
 
