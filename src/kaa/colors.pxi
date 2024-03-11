@@ -1,6 +1,7 @@
 import cython
 
 from .kaacore.vectors cimport CColor
+from .kaacore.hashing cimport c_calculate_hash
 
 
 @cython.final
@@ -55,6 +56,12 @@ cdef class Color:
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, Color other not None):
+        return self.c_color == other.c_color
+
+    def __hash__(self):
+        return c_calculate_hash(self.c_color)
 
     @property
     def r(self):

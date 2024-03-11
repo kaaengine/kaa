@@ -59,6 +59,13 @@ cdef class Sprite:
     def size(self):
         return Vector.from_c_vector(self.c_sprite.get_size())
 
+    @property
+    def can_query(self):
+        return self.c_sprite.can_query()
+
+    def query_pixel(self, Vector position):
+        return Color.from_c_color(self.c_sprite.query_pixel(position.c_vector))
+
 
 def split_spritesheet(
     Sprite spritesheet, Vector frame_dimensions,

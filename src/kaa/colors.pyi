@@ -37,3 +37,9 @@ class Color:
     @property
     def a(self) -> float:
         ...
+
+    def __eq__(self, other) -> bool:
+        ...
+
+    def __hash__(self) -> int:
+        ...
