@@ -33,7 +33,7 @@ def compile_shader():
     output_dir = args.output_dir or os.path.dirname(args.source_file)
     try:
         compiler.compile_for_platform(
-            platform=args.platform, source_file=Path(args.source_file),
+            platform=set(args.platform), source_file=Path(args.source_file),
             shader_type=args.type, output_dir=Path(output_dir)
         )
     except UnsupportedPlatform as e:

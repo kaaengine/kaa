@@ -145,7 +145,7 @@ class UnsupportedPlatform(RuntimeError):
     pass
 
 
-def _parse_shader(varying_type: str, source: str) -> Tuple[List[Varying], str]:
+def parse_shader(varying_type: str, source: str) -> Tuple[List[Varying], str]:
     sentinel = parsy.string(f'@{varying_type}')
     definition = OPTIONAL_WHITESPACE >> sentinel >> OPTIONAL_WHITESPACE >> BODY
     varying_definition, source = definition.parse_partial(_strip_comments(source))
@@ -166,14 +166,14 @@ def parse_shader_source(
 ) -> Tuple[List[Varying], str]:
 
     if shader_type == 'vertex':
-        varying_definition, source = _parse_shader('output', source)
+        varying_definition, source = parse_shader('output', source)
         attributes = ', '.join(
             attribute.identifier for attribute in default_attrs
         )
         header = f'$input {attributes}\n'
         return varying_definition, header + source
     else:
-        return _parse_shader('input', source)
+        return parse_shader('input', source)
 
 
 class EnsurePathMeta(type):
@@ -191,10 +191,10 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
         Attribute('vec2', 'a_texcoord0', 'TEXCOORD0'),
         Attribute('vec2', 'a_texcoord1', 'TEXCOORD1')
     )
-    TMP_DIR: Path = Path(tempfile.gettempdir()) \
-        / f'kaa-{kaa.__version__}' / 'shaders'
     SUPPORTED_TYPES: Set[str] = {'vertex', 'fragment'}
     SUPPORTED_PLATFORMS: Set[str] = {'linux', 'osx', 'windows'}
+    TMP_DIR: Path = Path(tempfile.gettempdir()) \
+        / f'kaa-{kaa.__version__}' / 'shaders'
     OUTPUT_FILENAME_TEMPLATE = '{stem}-{model}-{checksum}.bin'
 
     def __init__(
@@ -257,15 +257,15 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
 
     def compile_for_platform(
         self,
-        platform: Union[str, Tuple[str, ...]],
+        platform: Union[str, Set[str]],
         source_file: Path,
         shader_type: str,
         output_dir: Path = None
     ) -> Dict[str, str]:
-        if isinstance(platform, str):
-            platform = (platform, )
 
-        platform = set(platform)
+        if isinstance(platform, str):
+            platform = set((platform, ))
+
         diff = platform.difference(self.SUPPORTED_PLATFORMS)
         if diff:
             raise UnsupportedPlatform(f'Unsupported platform: {diff}.')
@@ -276,7 +276,7 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
             )
 
         checksum, varyings, parsed_source = self.parse_source(shader_type, source_file)
-        # store intermediate bgfx format that going to be used with shaderc
+        # store intermediate bgfx format that is going to be used with shaderc
         parsed_source_path = self.TMP_DIR / f'{source_file.stem}-{checksum}.sc'
         parsed_source_path.write_text(parsed_source)
         varyingdef_path = self.TMP_DIR / f'varying-{checksum}.def.sc'
@@ -338,16 +338,15 @@ class AutoShaderCompiler(ShaderCompiler):
                 )
                 precompiled_models[model] = expected_path
 
-        precompiled_model_names = precompiled_models.keys()
-        if precompiled_model_names:
-            if len(precompiled_model_names) == len(required_models):
-                logger.info("Loading precompiled shade.")
+        if precompiled_models:
+            if len(precompiled_models) == len(required_models):
+                logger.info("Loading precompiled shader variants.")
                 return precompiled_models
     
-            diff = tuple(set(required_models).difference(precompiled_model_names))
+            diff = set(required_models).difference(precompiled_models.keys())
             logger.info(
                 'Not all shader variants required for %s platform are present. '
-                'Missing variants: %s.', self.current_platform, diff
+                'Missing variants: %s.', self.current_platform, ', '.join(diff)
             )
             logger.info("Falling back to on-the-fly compilation.")
 
@@ -361,7 +360,7 @@ class CliShaderCompiler(ShaderCompiler):
 
 
 def get_compilation_flags(
-    platform: List[str],
+    platform: str,
     type_: str
 ) -> Generator[Tuple[str, dict], None, None]:
     for model in _choose_models_for_platform(platform):
