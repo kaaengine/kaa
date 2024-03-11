@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from .kaacore.log cimport (
     c_emit_log_dynamic, CLogLevel, c_get_logging_level,
-    c_set_logging_level, c_initialize_logging, _log_category_app
+    c_set_logging_level, c_initialize_logging, _log_category_app, _log_category_tools
 )
 
 
@@ -32,7 +32,16 @@ cdef CLogLevel _python_to_core_level(level):
         return CLogLevel.critical
 
 
+class CoreLogCategory(IntEnum):
+    app = <uint32_t>_log_category_app
+    tools = <uint32_t>_log_category_tools
+
+
 class CoreHandler(logging.Handler):
+    def __init__(self, level=logging.NOTSET, category=CoreLogCategory.app):
+        super().__init__(level)
+        self.category = category
+
     def handle(self, record):
         # simplified handle (no I/O locks)
         cdef int rv = self.filter(record)
@@ -49,7 +58,7 @@ class CoreHandler(logging.Handler):
         else:
             c_emit_log_dynamic(
                 _python_to_core_level(record.levelno),
-                _log_category_app, msg_enc
+                self.category, msg_enc
             )
 
 
