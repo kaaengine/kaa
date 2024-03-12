@@ -333,7 +333,7 @@ class AutoShaderCompiler(ShaderCompiler):
             expected_path = source_file.parent / f'{source_file.stem}-{model}.bin'
             if expected_path.is_file():
                 logger.info(
-                    'Precompiled shader variand found in source directory: %s',
+                    'Precompiled shader variant found in source directory: %s',
                     expected_path
                 )
                 precompiled_models[model] = expected_path

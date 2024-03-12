@@ -16,7 +16,7 @@ def shaderc():
 
 def compile_shader():
     parser = argparse.ArgumentParser()
-    parser.add_argument('source_file', help='path to shader source file')
+    parser.add_argument('source_file', type=Path, help='path to shader source file')
     parser.add_argument(
         'type', choices=CliShaderCompiler.SUPPORTED_TYPES, help='shader type'
     )
@@ -25,16 +25,16 @@ def compile_shader():
         nargs='+', required=True, help='target platform'
     )
     parser.add_argument(
-        '-o', '--output_dir', default=None,
+        '-o', '--output_dir', default=None, type=Path,
         help='output directory, source file directory will be used, if not provided'
     )
     args = parser.parse_args()
+    output_dir = args.output_dir or args.source_file.parent
     compiler = CliShaderCompiler(raise_on_compilation_error=False)
-    output_dir = args.output_dir or os.path.dirname(args.source_file)
     try:
         compiler.compile_for_platform(
-            platform=set(args.platform), source_file=Path(args.source_file),
-            shader_type=args.type, output_dir=Path(output_dir)
+            platform=set(args.platform), source_file=args.source_file,
+            shader_type=args.type, output_dir=output_dir
         )
     except UnsupportedPlatform as e:
         logger.error(str(e))
