@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from .geometry import Vector
+from .colors import Color
 
 
 @final
@@ -23,6 +24,13 @@ class Sprite:
         ...
 
     def crop(self, origin: Vector, dimensions: Vector) -> Sprite:
+        ...
+
+    @property
+    def can_query(self) -> bool:
+        ...
+
+    def query_pixel(self, position: Vector) -> Color:
         ...
 
     def __eq__(self, other) -> bool:

@@ -2,7 +2,7 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 
-from .vectors cimport CDVec2
+from .vectors cimport CDVec2, CColor
 from .textures cimport CTexture
 from .exceptions cimport raise_py_error
 from .resources cimport CResourceReference
@@ -27,6 +27,8 @@ cdef extern from "kaacore/sprites.h" namespace "kaacore" nogil:
             except +raise_py_error
         CDVec2 get_size() \
             except +raise_py_error
+        bool can_query() except +raise_py_error
+        CColor query_pixel(CDVec2 position) except +raise_py_error
 
     vector[CSprite] c_split_spritesheet "kaacore::split_spritesheet"(
         const CSprite& spritesheet, const CDVec2 frame_dimensions,
