@@ -1,17 +1,20 @@
 import os
 import re
 import zlib
+import logging
 import platform
 import tempfile
 import subprocess
 import dataclasses
 from pathlib import Path
-from typing import List, Tuple, Set, Dict, Union
+from typing import List, Tuple, Set, Dict, Union, Generator
 
 import parsy
 
 import kaa
 
+
+logger = logging.getLogger(__name__)
 
 SHADERC_DIR = os.path.join(os.path.dirname(__file__), 'shaderc')
 TYPES = ('float', 'vec2', 'vec3', 'vec4', 'mat2', 'mat3', 'mat4')
@@ -138,6 +141,10 @@ class ShaderCompilationError(Exception):
     pass
 
 
+class UnsupportedPlatform(RuntimeError):
+    pass
+
+
 def parse_shader(varying_type: str, source: str) -> Tuple[List[Varying], str]:
     sentinel = parsy.string(f'@{varying_type}')
     definition = OPTIONAL_WHITESPACE >> sentinel >> OPTIONAL_WHITESPACE >> BODY
@@ -152,6 +159,23 @@ def _strip_comments(source: str) -> str:
     return re.sub(C_COMMENT_PATTERN, '', source)
 
 
+def parse_shader_source(
+    shader_type: str,
+    source: str,
+    default_attrs: Tuple[Attribute, ...]
+) -> Tuple[List[Varying], str]:
+
+    if shader_type == 'vertex':
+        varying_definition, source = parse_shader('output', source)
+        attributes = ', '.join(
+            attribute.identifier for attribute in default_attrs
+        )
+        header = f'$input {attributes}\n'
+        return varying_definition, header + source
+    else:
+        return parse_shader('input', source)
+
+
 class EnsurePathMeta(type):
     def __new__(mcls, name, bases, attrs):
         for name, value in attrs.items():
@@ -161,7 +185,7 @@ class EnsurePathMeta(type):
 
 
 class ShaderCompiler(metaclass=EnsurePathMeta):
-    ATTRIBUTES = (
+    DEFAULT_ATTRIBUTES = (
         Attribute('vec3', 'a_position', 'POSITION'),
         Attribute('vec4', 'a_color0', 'COLOR0'),
         Attribute('vec2', 'a_texcoord0', 'TEXCOORD0'),
@@ -169,13 +193,18 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
     )
     SUPPORTED_TYPES: Set[str] = {'vertex', 'fragment'}
     SUPPORTED_PLATFORMS: Set[str] = {'linux', 'osx', 'windows'}
-    CACHE_DIR: Path = Path(tempfile.gettempdir()) / f'kaa-{kaa.__version__}' \
-        / 'cache' / 'shaders'
+    TMP_DIR: Path = Path(tempfile.gettempdir()) \
+        / f'kaa-{kaa.__version__}' / 'shaders'
+    OUTPUT_FILENAME_TEMPLATE = '{stem}-{model}-{checksum}.bin'
 
-    def __init__(self, raise_on_compilation_error=True):
+    def __init__(
+            self,
+            raise_on_compilation_error: bool = True,
+            shaderc_dir: str = SHADERC_DIR
+        ) -> None:
         self.raise_on_error = raise_on_compilation_error
-        self.shaderc = os.path.join(SHADERC_DIR, 'shaderc')
-        self.includes = [os.path.join(SHADERC_DIR, 'include')]
+        self.shaderc = os.path.join(shaderc_dir, 'shaderc')
+        self.includes = [os.path.join(shaderc_dir, 'include')]
 
     @property
     def current_platform(self):
@@ -197,127 +226,146 @@ class ShaderCompiler(metaclass=EnsurePathMeta):
 
         return subprocess.run(cmd, **kwargs).returncode
 
-    def compile_for_platforms(
-        self,
-        platforms: List[str],
-        source_path: Path,
-        type_: str,
-        output_dir: Path = None
-    ) -> Tuple[List[Varying], Dict[str, str]]:
-
-        diff = set(platforms).difference(self.SUPPORTED_PLATFORMS)
-        if diff:
-            raise RuntimeError(f'Unsupported platforms: {diff}.')
-
-        if 'windows' in platforms and self.current_platform != 'windows':
-            raise RuntimeError(
-                'DirectX shaders can be only compiled on Windows.'
-            )
-
-        source_bytes = source_path.read_bytes()
-        crc32 = zlib.crc32(source_bytes)
-        try:
-            varying_definition, parsed_source = self._parse_shader_source(
-                type_, source_bytes.decode()
-            )
-        except parsy.ParseError as e:
-            error_message = f'Encountered error while parsing {source_path} file.'
-            raise ShaderCompilationError(error_message) from e
-
-        varying_path = self.CACHE_DIR / f'varying-{crc32}.def.sc'
-        if not varying_path.is_file():
-            varying_path.write_text(self._render_varyingdef(varying_definition))
-
-        parsed_source_path = self.CACHE_DIR / f'{source_path.stem}-{crc32}.sc'
-        if not parsed_source_path.is_file():
-            parsed_source_path.write_text(parsed_source)
-
-        result = {}
-        output_dir = output_dir or source_path.parent
-        compilation_config = get_compilation_flags(platforms, type_)
-        for platform_name, model, flags in compilation_config:
-            output_path = output_dir / f'{source_path.stem}-{model}-{crc32}.bin'
-            try:
-                self.compile_model(
-                    type_, model, flags['profile'], flags['target_platform'],
-                    parsed_source_path, output_path, varying_path
-                )
-            except subprocess.CalledProcessError as e:
-                error_message = (
-                    '\nVarying.def.sc:\n'
-                    '---\n'
-                    f'{varying_path.read_text()}\n\n'
-                    '\nParsed source:\n'
-                    '---\n'
-                    f'{parsed_source}\n\n'
-                    f'{e.stdout.decode()}\n'
-                    '---\n'
-                )
-                raise ShaderCompilationError(error_message) from e
-
-            result[model] = output_path
-        return result
-
     def compile_model(
         self,
-        type_: str,
-        model: str,
+        shader_type: str,
         profile: str,
         target_platform: str,
         source_path: Path,
         output_path: Path,
         varyingdef_path: Path
     ) -> None:
-        self.compile(
-            '-f', str(source_path), '-o', str(output_path),
-            '--type', type_, '--varyingdef', str(varyingdef_path),
-            '--platform', target_platform, '--profile', profile,
-        )
-
-    def _parse_shader_source(self, type_: str, source: str) -> Tuple[List[Varying], str]:
-        if type_ == 'vertex':
-            varying_definition, source = parse_shader('output', source)
-            attributes = ', '.join(
-                attribute.identifier for attribute in self.ATTRIBUTES
+        logger.info(f'Compiling %s', output_path)
+        try:
+            self.compile(
+                '-f', str(source_path), '-o', str(output_path),
+                '--type', shader_type, '--varyingdef', str(varyingdef_path),
+                '--platform', target_platform, '--profile', profile,
             )
-            header = f'$input {attributes}\n'
-            return varying_definition, header + source
-        else:
-            return parse_shader('input', source)
+        except subprocess.CalledProcessError as e:
+            error_message = (
+                '\nVarying.def.sc:\n'
+                '---\n'
+                f'{varyingdef_path.read_text()}\n\n'
+                '\nParsed source:\n'
+                '---\n'
+                f'{source_path.read_text()}\n\n'
+                f'{e.stdout.decode()}\n'
+                '---\n'
+            )
+            raise ShaderCompilationError(error_message) from e
 
-    def _render_varyingdef(self, varyings: List[Varying]) -> str:
+    def compile_for_platform(
+        self,
+        platform: Union[str, Set[str]],
+        source_file: Path,
+        shader_type: str,
+        output_dir: Path = None
+    ) -> Dict[str, str]:
+
+        if isinstance(platform, str):
+            platform = set((platform, ))
+
+        diff = platform.difference(self.SUPPORTED_PLATFORMS)
+        if diff:
+            raise UnsupportedPlatform(f'Unsupported platform: {diff}.')
+
+        if 'windows' in platform and self.current_platform != 'windows':
+            raise UnsupportedPlatform(
+                'DirectX shaders can be only compiled on Windows.'
+            )
+
+        checksum, varyings, parsed_source = self.parse_source(shader_type, source_file)
+        # store intermediate bgfx format that is going to be used with shaderc
+        parsed_source_path = self.TMP_DIR / f'{source_file.stem}-{checksum}.sc'
+        parsed_source_path.write_text(parsed_source)
+        varyingdef_path = self.TMP_DIR / f'varying-{checksum}.def.sc'
+        varyingdef_path.write_text(self.render_varyingdef(varyings))
+
+        result = {}
+        config = {
+            model: flags
+            for p in platform
+            for model, flags in get_compilation_flags(p, shader_type)
+        }
+        for model, flags in config.items():
+            output_filename = self.OUTPUT_FILENAME_TEMPLATE.format(
+                stem=source_file.stem, model=model, checksum=checksum
+            )
+            output_path = output_dir / output_filename
+            self.compile_model(
+                shader_type, flags['profile'], flags['target_platform'],
+                parsed_source_path, output_path, varyingdef_path
+            )
+            result[model] = output_path
+        return result
+
+    def parse_source(
+        self,
+        shader_type: str,
+        source_file: Path
+    ) -> Tuple[int, List[Varying], str]:
+        source_bytes = source_file.read_bytes()
+        try:
+            varyings, parsed_source = parse_shader_source(
+                shader_type, source_bytes.decode(), self.DEFAULT_ATTRIBUTES
+            )
+        except parsy.ParseError as e:
+            error_message = f'Encountered error while parsing {source_file} file.'
+            raise ShaderCompilationError(error_message) from e
+
+        return zlib.crc32(source_bytes), varyings, parsed_source
+
+    def render_varyingdef(self,varyings: List[Varying]) -> str:
         lines = [f'{varying};' for varying in varyings]
         lines.append('')
-        lines.extend(f'{attribute};' for attribute in self.ATTRIBUTES)
+        lines.extend(f'{attribute};' for attribute in self.DEFAULT_ATTRIBUTES)
         return '\n'.join(lines)
 
 
 class AutoShaderCompiler(ShaderCompiler):
-    BIN_DIR = ShaderCompiler.CACHE_DIR / 'bin'
+    BIN_DIR = ShaderCompiler.TMP_DIR / 'bin'
 
-    def auto_compile(
-        self,
-        source_path: Path,
-        type_: str
-    ) -> Tuple[List[Varying], Dict[str, str]]:
-        return self.compile_for_platforms(
-            [self.current_platform], source_path, type_, self.BIN_DIR
+    def auto_compile(self, source_file: Path, shader_type: str) -> Dict[str, str]:
+        precompiled_models = {}
+        required_models = _choose_models_for_platform(self.current_platform)
+        for model in required_models:
+            expected_path = source_file.parent / f'{source_file.stem}-{model}.bin'
+            if expected_path.is_file():
+                logger.info(
+                    'Precompiled shader variant found in source directory: %s',
+                    expected_path
+                )
+                precompiled_models[model] = expected_path
+
+        if precompiled_models:
+            if len(precompiled_models) == len(required_models):
+                logger.info("Loading precompiled shader variants.")
+                return precompiled_models
+    
+            diff = set(required_models).difference(precompiled_models.keys())
+            logger.info(
+                'Not all shader variants required for %s platform are present. '
+                'Missing variants: %s.', self.current_platform, ', '.join(diff)
+            )
+            logger.info("Falling back to on-the-fly compilation.")
+
+        return self.compile_for_platform(
+            self.current_platform, source_file, shader_type, self.BIN_DIR
         )
 
 
-def get_compilation_flags(
-    platform_names: List[str],
-    type_: str
-) -> Tuple[str, str, dict]:
-    seen_models = set()
-    for platform_name in platform_names:
-        for model in _choose_models_for_platform(platform_name):
-            if model in seen_models:
-                continue
+class CliShaderCompiler(ShaderCompiler):
+    OUTPUT_FILENAME_TEMPLATE = '{stem}-{model}.bin'
 
-            flags = COMPILATION_FLAGS[model, type_]
-            yield platform_name, model, flags
-            seen_models.add(model)
+
+def get_compilation_flags(
+    platform: str,
+    type_: str
+) -> Generator[Tuple[str, dict], None, None]:
+    for model in _choose_models_for_platform(platform):
+        flags = COMPILATION_FLAGS[model, type_]
+        yield model, flags
 
 
 def _choose_models_for_platform(platform_name):

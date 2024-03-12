@@ -44,7 +44,9 @@ class CoreHandler(logging.Handler):
 
     def handle(self, record):
         # simplified handle (no I/O locks)
-        cdef int rv = self.filter(record)
+        rv = self.filter(record)
+        if isinstance(rv, logging.LogRecord):
+            record = rv
         if rv:
             self.emit(record)
         return rv

@@ -7,7 +7,7 @@ from kaa.shaders import ShaderType, VertexShader, FragmentShader, Program
 from kaa.shader_tools import parse_shader, Varying, TypeConstructor, Float
 
 
-@pytest.mark.usefixtures('test_engine', 'shader_cache_directory')
+@pytest.mark.usefixtures('test_engine', 'shader_tmp_directory')
 def test_shader_resources(vertex_shader_path: str, fragment_shader_path: str):
     vs = VertexShader(vertex_shader_path)
     fs = FragmentShader(fragment_shader_path)
@@ -20,14 +20,14 @@ def test_shader_resources(vertex_shader_path: str, fragment_shader_path: str):
 
 
 def test_auto_compilation(
-    shader_cache_directory: Path,
+    shader_tmp_directory: Path,
     vertex_shader_path: str,
     fragment_shader_path: str
 ):
     VertexShader(vertex_shader_path)
     FragmentShader(fragment_shader_path)
 
-    shader_bin_directory = shader_cache_directory / 'bin'
+    shader_bin_directory = shader_tmp_directory / 'bin'
     compiled_shaders_num = len(list(shader_bin_directory.iterdir()))
 
     system = platform.system()
@@ -53,7 +53,7 @@ def test_auto_compilation(
         assert len(list(shader_bin_directory.glob('fs-glsl-*.bin'))) == 1
         assert len(list(shader_bin_directory.glob('fs-spirv-*.bin'))) == 1
 
-    assert len(list(shader_cache_directory.glob('varying-*.def.sc'))) == 2
+    assert len(list(shader_tmp_directory.glob('varying-*.def.sc'))) == 2
 
     VertexShader(vertex_shader_path)
     FragmentShader(fragment_shader_path)
