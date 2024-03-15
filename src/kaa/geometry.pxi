@@ -266,11 +266,20 @@ cdef class BoundingBox:
             self.c_bounding_box.merge(bounding_box.c_bounding_box)
         )
 
-    def contains(self, Vector point not None):
+    cdef bint _contains_vector(self, Vector point):
         return self.c_bounding_box.contains(point.c_vector)
 
-    def contains(self, BoundingBox bounding_box not None):
+    cdef bint _contains_bbox(self, BoundingBox bounding_box):
         return self.c_bounding_box.contains(bounding_box.c_bounding_box)
+
+    def contains(self, object vector_or_bbox):
+        if isinstance(vector_or_bbox, Vector):
+            return self._contains_vector(vector_or_bbox)
+        elif isinstance(vector_or_bbox, BoundingBox):
+            return self._contains_bbox(vector_or_bbox)
+        raise TypeError(
+            "Expected Vector or BoundingBox, got {!r}".format(vector_or_bbox)
+        )
 
     def intersects(self, BoundingBox bounding_box not None):
         return self.c_bounding_box.intersects(bounding_box.c_bounding_box)
