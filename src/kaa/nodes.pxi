@@ -99,9 +99,6 @@ cdef class NodeBase:
     cdef uint64_t _get_internal_id(self):
         return <uint64_t>(self.c_node_ptr.get())
 
-    def get_internal_id(self):
-        return self._get_internal_id()
-
     cdef void make_c_node(self, CNodeType type):
         self.c_node_owner_ptr = cmove(c_make_node(type))
         self.c_node_ptr = CNodePtr(self.c_node_owner_ptr.get())
@@ -125,17 +122,17 @@ cdef class NodeBase:
         return self.c_node_ptr.get() != NULL
 
     def __repr__(self):
-        return '<{}: {:02x}>'.format(self.__class__.__name__, self.get_internal_id())
+        return '<{}: {:02x}>'.format(self.__class__.__name__, self._get_internal_id())
 
     def __eq__(self, other):
-        self_id = self.get_internal_id()
+        self_id = self._get_internal_id()
         assert self_id != 0, "Cannot compare uninitialized node (left-hand)."
-        other_id = other.get_internal_id()
+        other_id = other._get_internal_id()
         assert other_id != 0, "Cannot compare uninitialized node (right-hand)."
         return self_id == other_id
 
     def __hash__(self):
-        self_id = self.get_internal_id()
+        self_id = self._get_internal_id()
         assert self_id != 0, "Cannot hash uninitialized node."
         return hash(self_id)
 
