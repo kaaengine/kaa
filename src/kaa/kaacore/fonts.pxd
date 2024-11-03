@@ -2,6 +2,7 @@ from libcpp.string cimport string
 from libcpp cimport bool
 
 from .exceptions cimport raise_py_error
+from .unicode_buffer cimport CUnicodeView
 
 
 cdef extern from "kaacore/fonts.h" namespace "kaacore" nogil:
@@ -9,13 +10,16 @@ cdef extern from "kaacore/fonts.h" namespace "kaacore" nogil:
         @staticmethod
         CFont load(const string& font_filepath) \
             except +raise_py_error
+        @staticmethod
+        CFont load(const string& font_filepath, const CUnicodeView additional_codepoints) \
+            except +raise_py_error
 
         bool operator==(const CFont&)
 
     cdef cppclass CTextNode "kaacore::TextNode":
-        string content() \
+        CUnicodeView content() \
             except +raise_py_error
-        void content(const string& content) \
+        void content(const CUnicodeView content) \
             except +raise_py_error
 
         double font_size() \

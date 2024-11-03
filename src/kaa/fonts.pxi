@@ -1,6 +1,28 @@
+from cpython.unicode cimport (
+    PyUnicode_FromKindAndData, PyUnicode_KIND, PyUnicode_DATA,
+    PyUnicode_GET_LENGTH,
+)
+
 from .kaacore.nodes cimport CNodeType
 from .kaacore.fonts cimport CFont, CTextNode
 from .kaacore.hashing cimport c_calculate_hash
+from .kaacore.unicode_buffer cimport CUnicodeRepresentationSize, CUnicodeView
+
+
+cdef object unicode_view_to_str(CUnicodeView view):
+    return PyUnicode_FromKindAndData(
+        <uint8_t>view.representation_size(),
+        view.data(),
+        view.length(),
+    )
+
+
+cdef CUnicodeView str_to_unicode_view(str text):
+    return CUnicodeView(
+        <uint8_t*>PyUnicode_DATA(text),
+        PyUnicode_GET_LENGTH(text),
+        <CUnicodeRepresentationSize>(<uint8_t>PyUnicode_KIND(text)),
+    )
 
 
 cdef class Font:
@@ -9,8 +31,11 @@ cdef class Font:
     cdef void attach_c_font(self, const CFont& c_font):
         self.c_font = c_font
 
-    def __init__(self, str font_filepath):
-        self.attach_c_font(CFont.load(font_filepath.encode()))
+    def __init__(self, str font_filepath, str additional_codepoints=None):
+        if additional_codepoints is None:
+            self.attach_c_font(CFont.load(font_filepath.encode()))
+        else:
+            self.attach_c_font(CFont.load(font_filepath.encode(), str_to_unicode_view(additional_codepoints)))
 
     def __eq__(self, Font other):
         return self.c_font == other.c_font
@@ -50,19 +75,19 @@ cdef class TextNode(NodeBase):
 
     @property
     def content(self):
-        return (<bytes>self.get_c_node().text.content()).decode()
+        return unicode_view_to_str(self.get_c_node().text.content())
 
     @content.setter
     def content(self, str content_text):
-        self.get_c_node().text.content(<string>content_text.encode())
+        self.get_c_node().text.content(str_to_unicode_view(content_text))
 
     @property
     def text(self):
-        return (<bytes>self.get_c_node().text.content()).decode()
+        return unicode_view_to_str(self.get_c_node().text.content())
 
     @text.setter
-    def text(self, str text):
-        self.get_c_node().text.content(<string>text.encode())
+    def text(self, str content_text):
+        self.get_c_node().text.content(str_to_unicode_view(content_text))
 
     @property
     def font_size(self):
